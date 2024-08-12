@@ -1,6 +1,7 @@
 import {Source, SourceController, SourceControllerResponse} from "../interfaces/source-controller.interface";
 import {
     CreateFlowCommand,
+    DeleteFlowCommand,
     ListFlowsCommand,
     MediaConnectClient, StartFlowCommand, StopFlowCommand
 } from "@aws-sdk/client-mediaconnect";
@@ -47,7 +48,7 @@ export class MediaConnect implements SourceController<SetSourceRequest> {
     async list(): Promise<Source[]> {
         const command = new ListFlowsCommand();
         const response = await this.client.send(command);
-        console.log(response)
+
         return response.Flows.map((source) => ({
             id: source.FlowArn,
             name: source.Name,
@@ -55,7 +56,11 @@ export class MediaConnect implements SourceController<SetSourceRequest> {
         }))
     }
 
-    async delete(): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async delete(id: string): Promise<boolean> {
+        const command = new DeleteFlowCommand({FlowArn: id});
+
+        const response = await this.client.send(command);
+
+        return !!response.FlowArn
     }
 }

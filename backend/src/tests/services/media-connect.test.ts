@@ -50,4 +50,12 @@ describe('MediaConnect Service', () => {
         expect(response).toBeTruthy();
         expect(flows[0].status).toEqual('STOPPING')
     })
+
+    it('should delete a flow', async () => {
+        const response = await mediaConnect.delete(flowArn);
+        const flows = await mediaConnect.list();
+
+        expect(response).toBeTruthy();
+        expect(flows[0]).toBe(undefined);
+    })
 })
