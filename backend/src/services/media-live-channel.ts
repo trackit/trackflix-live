@@ -1,5 +1,5 @@
 import { ChannelState, CreateChannelCommand, CreateChannelRequest, DeleteChannelCommand, ListChannelsCommand, MediaLiveClient, StartChannelCommand, StopChannelCommand } from "@aws-sdk/client-medialive";
-import { Channel, ChannelController, ChannelControllerResponse } from "../interfaces/channel-controller.interface";
+import { Channel, ChannelController } from "../interfaces/channel-controller.interface";
 
 export class MediaLiveChannel implements ChannelController<CreateChannelRequest> {
     private readonly client: MediaLiveClient;
@@ -8,7 +8,7 @@ export class MediaLiveChannel implements ChannelController<CreateChannelRequest>
         this.client = client
     }
 
-    async create(config: CreateChannelRequest): Promise<ChannelControllerResponse> {
+    async create(config: CreateChannelRequest): Promise<Channel> {
         const command = new CreateChannelCommand(config);
 
         const response = await this.client.send(command);
@@ -16,6 +16,7 @@ export class MediaLiveChannel implements ChannelController<CreateChannelRequest>
         return {
             id: response.Channel?.Id!,
             name: response.Channel?.Name!,
+            state: response.Channel?.State!,
         }
     }
 

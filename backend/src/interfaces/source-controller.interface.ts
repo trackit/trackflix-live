@@ -1,16 +1,11 @@
-export interface SourceControllerResponse {
-    name: string;
-    id: string;
-}
+import { BaseModel } from "@shared/base.interface";
 
-export interface Source {
-    id: string;
-    name: string;
+export interface Source extends BaseModel {
     status: string;
 }
 
 export interface SourceController<T> {
-    create(name: string, config: T): Promise<SourceControllerResponse>;
+    create(name: string, config: T): Promise<Source>;
     list(): Promise<Source[]>
     start(name: string): Promise<boolean>;
     stop(name: string): Promise<boolean>;

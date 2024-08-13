@@ -1,16 +1,11 @@
-export interface ChannelControllerResponse {
-  id: string;
-  name: string;
-}
+import { BaseModel } from '@shared/base.interface';
 
-export interface Channel {
-  id: string;
-  name: string;
+export interface Channel extends BaseModel {
   state: string;
 }
 
 export interface ChannelController<T> {
-  create(config: T): Promise<ChannelControllerResponse>;
+  create(config: T): Promise<Channel>;
   list(): Promise<Channel[]>
   start(id: string): Promise<boolean>;
   stop(id: string): Promise<boolean>;

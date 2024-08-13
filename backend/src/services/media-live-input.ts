@@ -1,5 +1,5 @@
 import { MediaLiveClient, CreateInputCommand, CreateInputRequest, ListInputsCommand, DeleteInputCommand } from "@aws-sdk/client-medialive";
-import { InputControllerResponse, InputController, Input } from "../interfaces/input-controller.interface";
+import { InputController, Input } from "../interfaces/input-controller.interface";
 
 export class MediaLiveInput implements InputController<CreateInputRequest> {
     private readonly client: MediaLiveClient;
@@ -8,7 +8,7 @@ export class MediaLiveInput implements InputController<CreateInputRequest> {
         this.client = client;
     }
 
-    async create(config: CreateInputRequest): Promise<InputControllerResponse> {
+    async create(config: CreateInputRequest): Promise<Input> {
         const command = new CreateInputCommand(config);
 
         const response = await this.client.send(command);
@@ -16,6 +16,8 @@ export class MediaLiveInput implements InputController<CreateInputRequest> {
         return {
             id: response.Input?.Id!,
             name: response.Input?.Name!,
+            type: response.Input?.Type!,
+            state: response.Input?.State!,
         }
     }
 

@@ -1,17 +1,12 @@
-export interface InputControllerResponse {
-    id: string;
-    name: string;
-}
+import { BaseModel } from '@shared/base.interface';
 
-export interface Input {
-    id: string;
-    name: string;
+export interface Input extends BaseModel {
     type: string;
     state: string;
 }
 
 export interface InputController<T> {
-    create(config: T): Promise<InputControllerResponse>;
+    create(config: T): Promise<Input>;
     list(): Promise<Input[]>
     delete(id: string): Promise<boolean>;
 }

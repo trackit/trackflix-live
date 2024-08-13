@@ -1,4 +1,4 @@
-import {Source, SourceController, SourceControllerResponse} from "../interfaces/source-controller.interface";
+import {Source, SourceController} from "../interfaces/source-controller.interface";
 import {
     CreateFlowCommand,
     DeleteFlowCommand,
@@ -15,7 +15,7 @@ export class MediaConnect implements SourceController<SetSourceRequest> {
         this.client = client
     }
 
-    async create(name: string, config: SetSourceRequest): Promise<SourceControllerResponse> {
+    async create(name: string, config: SetSourceRequest): Promise<Source> {
         const command = new CreateFlowCommand({
             Name: name,
             Source: {
@@ -26,6 +26,7 @@ export class MediaConnect implements SourceController<SetSourceRequest> {
         return {
             name: response.Flow.Name,
             id: response.Flow.FlowArn,
+            status: response.Flow.Status
         }
     }
 
