@@ -1,6 +1,6 @@
 import {InputState, InputType, MediaLiveClient} from "@aws-sdk/client-medialive";
 import {MediaLiveInput} from "../../services/media-live-input";
-import { Input } from "../../interfaces/input-controller.interface";
+import { Input } from "../../interfaces/input.interface";
 
 const client = new MediaLiveClient({
     endpoint: 'http://localhost:5500', credentials: {

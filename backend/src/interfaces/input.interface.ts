@@ -5,7 +5,7 @@ export interface Input extends BaseModel {
     state: string;
 }
 
-export interface InputController<T> {
+export interface InputInterface<T> {
     create(config: T): Promise<Input>;
     list(): Promise<Input[]>
     delete(id: string): Promise<boolean>;

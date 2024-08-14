@@ -4,7 +4,7 @@ export interface Channel extends BaseModel {
   state: string;
 }
 
-export interface ChannelController<T> {
+export interface ChannelInterface<T> {
   create(config: T): Promise<Channel>;
   list(): Promise<Channel[]>
   start(id: string): Promise<boolean>;

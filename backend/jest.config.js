@@ -4,4 +4,7 @@ module.exports = {
   transform: {
     "^.+.ts?$": ["ts-jest",{}],
   },
+  moduleNameMapper: {
+    '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+  }
 };
