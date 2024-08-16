@@ -1,43 +1,39 @@
-import { CreateChannelCommand, DeleteChannelCommand, ListChannelsCommand, MediaPackageV2Client } from "@aws-sdk/client-mediapackagev2";
-import { PackagingChannelController, PackagingChannel } from "../interfaces/packaging-channel-controller.interface";
+import { CreateChannelCommand, DeleteChannelCommand, ListChannelsCommand, MediaPackageClient } from "@aws-sdk/client-mediapackage";
+import { PackagingChannelInterface, PackagingChannel } from "../interfaces/packaging-channel.interface";
 
-export class MediaPackageV2ChannelController implements PackagingChannelController {
-    private readonly client: MediaPackageV2Client;
+export class MediaPackageChannel implements PackagingChannelInterface {
+    private readonly client: MediaPackageClient;
 
-    constructor(client: MediaPackageV2Client) {
+    constructor(client: MediaPackageClient) {
         this.client = client
     }
 
-    async create(name: string, groupName: string | undefined): Promise<PackagingChannel> {
+    // TODO: think about either adding a name as args or keeping id as name
+    async create(id: string): Promise<PackagingChannel> {
         const command = new CreateChannelCommand({
-            ChannelName: name,
-            ChannelGroupName: groupName,
+            Id: id
         })
         const response = await this.client.send(command);
         return {
-            name: response.ChannelName!,
-            groupName: response.ChannelGroupName
+            id: response.Id!,
+            name: response.Id!
         }
     }
 
-    async list(groupName: string | undefined): Promise<PackagingChannel[]> {
-        const command = new ListChannelsCommand({
-            ChannelGroupName: groupName
-        });
+    async list(): Promise<PackagingChannel[]> {
+        const command = new ListChannelsCommand();
 
         const response = await this.client.send(command);
 
-        return response.Items!.map((item) => ({
-            name: item.ChannelName!,
-            groupName: item.ChannelGroupName
+        return response.Channels!.map((item) => ({
+            id: item.Id!,
+            name: item.Id!
         }));
-
     }
 
-    async delete(name: string, groupName: string | undefined) {
+    async delete(id: string) {
         const command = new DeleteChannelCommand({
-            ChannelName: name,
-            ChannelGroupName: groupName,
+            Id: id
         });
         await this.client.send(command);
     }
