@@ -2,16 +2,18 @@ import { LuChevronFirst, LuChevronLast, LuMoreVertical } from "react-icons/lu";
 import { useContext, createContext, useState } from "react";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { useSidebar } from "./SidebarContext";
+import Link from "next/link";
 
 const SidebarContext = createContext({ expanded: false });
 
 export default function Sidebar({ children }: any) {
-  const [expanded, setExpanded] = useState(true);
+  const { expanded, toggleSidebar } = useSidebar();
 
   return (
     <aside
-      className={`h-screen fixed top-0 left-0 transition-all ${
-        expanded ? "w-64" : "w-16"
+      className={`h-screen top-0 left-0 transition-all flex flex-col ${
+        expanded ? "w-2/12" : "w-auto"
       }`}
     >
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
@@ -28,17 +30,15 @@ export default function Sidebar({ children }: any) {
             priority
           />
           <button
-            onClick={() => setExpanded((curr) => !curr)}
+            onClick={toggleSidebar}
             className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
           >
             {expanded ? <LuChevronFirst /> : <LuChevronLast />}
           </button>
         </div>
-
         <SidebarContext.Provider value={{ expanded }}>
           <ul className="flex-1 px-3">{children}</ul>
         </SidebarContext.Provider>
-
         <UserProfile expanded={expanded} />
       </nav>
     </aside>
@@ -86,50 +86,41 @@ function UserProfile({ expanded }: { expanded: boolean }) {
   );
 }
 
-export function SidebarItem({ icon, text, active, alert }: any) {
+export function SidebarItem({ icon, text, dest }: any) {
   const { expanded } = useContext(SidebarContext);
 
   return (
-    <li
-      className={`
-        relative flex items-center py-2 px-3 my-1
-        font-medium rounded-md cursor-pointer
-        transition-colors group
-        ${
-          active
-            ? "bg-gradient-to-tr from-red-200 to-red-100 text-red-800"
-            : "hover:bg-indigo-50 text-gray-600"
-        }
-    `}
-    >
-      {icon}
-      <span
-        className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3" : "w-0"
-        }`}
+    <Link href={dest}>
+      <li
+        className={`
+          relative flex items-center py-2 px-3 my-1
+          font-medium rounded-md cursor-pointer
+          transition-colors group
+          bg-gradient-to-tr from-red-200 to-red-100 text-red-800
+          hover:bg-gradient-to-tr hover:from-red-300 hover:to-red-200
+        `}
       >
-        {text}
-      </span>
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-red-400 ${
-            expanded ? "" : "top-2"
+        {icon}
+        <span
+          className={`overflow-hidden transition-all ${
+            expanded ? "w-52 ml-3" : "w-0"
           }`}
-        />
-      )}
-
-      {!expanded && (
-        <div
-          className={`
-          absolute left-full rounded-md px-2 py-1 ml-6
-          bg-red-100 text-red-800 text-sm
-          invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-      `}
         >
           {text}
-        </div>
-      )}
-    </li>
+        </span>
+        {!expanded && (
+          <div
+            className={`
+              absolute left-full rounded-md px-2 py-1 ml-6
+              bg-red-100 text-red-800 text-sm
+              invisible opacity-20 -translate-x-3 transition-all
+              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+            `}
+          >
+            {text}
+          </div>
+        )}
+      </li>
+    </Link>
   );
 }

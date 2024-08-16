@@ -19,7 +19,7 @@ const Provider = ({ provider }: { provider: string }) => {
 
 export default function Login() {
   return (
-    <div className="flex items-center justify-center pt-5 flex-col">
+    <div className="flex items-center justify-center pt-5 flex-col w-screen">
       <img src="/trackit-logo.png" alt="Trackit logo" className="h-12 w-auto flex-center" />
       <span className="pb-5">
         <h1 className="text-2xl font-bold text-center pt-5">Sign in to Trackflix Live</h1>
