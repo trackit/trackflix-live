@@ -4,7 +4,7 @@ export interface Source extends BaseModel {
     status: string;
 }
 
-export interface SourceInterface<T> {
+export interface SourceController<T> {
     create(name: string, config: T): Promise<Source>;
     list(): Promise<Source[]>
     start(name: string): Promise<boolean>;

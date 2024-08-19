@@ -1,7 +1,7 @@
 import { ChannelState, CreateChannelCommand, CreateChannelRequest, DeleteChannelCommand, ListChannelsCommand, MediaLiveClient, StartChannelCommand, StopChannelCommand } from "@aws-sdk/client-medialive";
-import { Channel, ChannelInterface } from "../interfaces/channel.interface";
+import { Channel, ChannelController } from "../interfaces/channel.interface";
 
-export class MediaLiveChannel implements ChannelInterface<CreateChannelRequest> {
+export class MediaLiveChannel implements ChannelController<CreateChannelRequest> {
     private readonly client: MediaLiveClient;
 
     constructor(client: MediaLiveClient) {

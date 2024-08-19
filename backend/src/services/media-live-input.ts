@@ -1,7 +1,7 @@
 import { MediaLiveClient, CreateInputCommand, CreateInputRequest, ListInputsCommand, DeleteInputCommand } from "@aws-sdk/client-medialive";
-import { InputInterface, Input } from "../interfaces/input.interface";
+import { InputController, Input } from "../interfaces/input.interface";
 
-export class MediaLiveInput implements InputInterface<CreateInputRequest> {
+export class MediaLiveInput implements InputController<CreateInputRequest> {
     private readonly client: MediaLiveClient;
 
     constructor(client: MediaLiveClient) {

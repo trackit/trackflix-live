@@ -1,4 +1,4 @@
-import {Source, SourceInterface} from "../interfaces/source.interface";
+import {Source, SourceController} from "../interfaces/source.interface";
 import {
     CreateFlowCommand,
     DeleteFlowCommand,
@@ -8,7 +8,7 @@ import {
 import {SetSourceRequest} from "@aws-sdk/client-mediaconnect/dist-types/models/models_0";
 
 
-export class MediaConnect implements SourceInterface<SetSourceRequest> {
+export class MediaConnect implements SourceController<SetSourceRequest> {
     private readonly client: MediaConnectClient;
 
     constructor(client: MediaConnectClient) {
