@@ -1,8 +1,8 @@
 import { CreatePackagingConfigurationCommand, CreatePackagingConfigurationRequest, DeletePackagingConfigurationCommand, ListPackagingConfigurationsCommand, MediaPackageVodClient } from "@aws-sdk/client-mediapackage-vod";
-import { PackagingConfiguration, PackagingConfigurationInterface } from "../interfaces/packaging-configuration.interface";
+import { PackagingConfiguration, PackagingConfigurationController } from "../interfaces/packaging-configuration.interface";
 
 
-export class MediaPackageVodPackagingConfiguration implements PackagingConfigurationInterface<CreatePackagingConfigurationRequest> {
+export class MediaPackageVodPackagingConfiguration implements PackagingConfigurationController<CreatePackagingConfigurationRequest> {
     private readonly client: MediaPackageVodClient;
 
     constructor(client: MediaPackageVodClient) {

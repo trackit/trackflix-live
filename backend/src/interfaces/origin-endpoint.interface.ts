@@ -4,7 +4,7 @@ export interface OriginEndpoint extends BaseModel {
     channelId: string
 }
 
-export interface OriginEndpointInterface<T> {
+export interface OriginEndpointController<T> {
     create(config: T): Promise<OriginEndpoint>,
     list(): Promise<OriginEndpoint[]>,
     delete(id: string): void,

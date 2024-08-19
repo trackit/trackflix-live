@@ -1,7 +1,7 @@
 import { CreateChannelCommand, DeleteChannelCommand, ListChannelsCommand, MediaPackageClient } from "@aws-sdk/client-mediapackage";
-import { PackagingChannelInterface, PackagingChannel } from "../interfaces/packaging-channel.interface";
+import { PackagingChannelController, PackagingChannel } from "../interfaces/packaging-channel.interface";
 
-export class MediaPackageChannel implements PackagingChannelInterface {
+export class MediaPackageChannel implements PackagingChannelController {
     private readonly client: MediaPackageClient;
 
     constructor(client: MediaPackageClient) {

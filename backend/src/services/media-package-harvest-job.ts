@@ -1,7 +1,7 @@
 import { CreateHarvestJobCommand, CreateHarvestJobRequest, ListHarvestJobsCommand, MediaPackageClient } from "@aws-sdk/client-mediapackage";
-import { HarvestJob, HarvestJobInterface } from "../interfaces/harvest-job.interface";
+import { HarvestJob, HarvestJobController } from "../interfaces/harvest-job.interface";
 
-export class MediaPackageHarvestJob implements HarvestJobInterface<CreateHarvestJobRequest> {
+export class MediaPackageHarvestJob implements HarvestJobController<CreateHarvestJobRequest> {
     private readonly client: MediaPackageClient;
 
     constructor(client: MediaPackageClient) {

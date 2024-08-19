@@ -1,8 +1,8 @@
 import { CreatePackagingGroupCommand, CreatePackagingGroupRequest, DeletePackagingGroupCommand, ListPackagingGroupsCommand, MediaPackageVodClient } from "@aws-sdk/client-mediapackage-vod";
-import { PackagingGroup, PackagingGroupInterface } from "../interfaces/packaging-group.interface";
+import { PackagingGroup, PackagingGroupController } from "../interfaces/packaging-group.interface";
 
 
-export class MediaPackageVodPackagingGroup implements PackagingGroupInterface<CreatePackagingGroupRequest> {
+export class MediaPackageVodPackagingGroup implements PackagingGroupController<CreatePackagingGroupRequest> {
     private readonly client: MediaPackageVodClient;
 
     constructor(client: MediaPackageVodClient) {

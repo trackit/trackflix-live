@@ -1,7 +1,7 @@
 import { CreateOriginEndpointCommand, CreateOriginEndpointRequest, DeleteOriginEndpointCommand, ListOriginEndpointsCommand, MediaPackageClient } from "@aws-sdk/client-mediapackage";
-import { OriginEndpoint, OriginEndpointInterface } from "../interfaces/origin-endpoint.interface";
+import { OriginEndpoint, OriginEndpointController } from "../interfaces/origin-endpoint.interface";
 
-export class MediaPackageEndpoint implements OriginEndpointInterface<CreateOriginEndpointRequest> {
+export class MediaPackageEndpoint implements OriginEndpointController<CreateOriginEndpointRequest> {
     private readonly client: MediaPackageClient;
 
     constructor(client: MediaPackageClient) {
