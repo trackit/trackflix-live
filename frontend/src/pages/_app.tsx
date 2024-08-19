@@ -3,7 +3,8 @@ import { useSession, SessionProvider } from 'next-auth/react';
 import '@/styles/globals.css';
 import Sidebar, { SidebarItem } from "@/components/Sidebar";
 import { FaBell, FaHome, FaVideo } from "react-icons/fa";
-import { SidebarProvider, useSidebar } from "@/components/Sidebar/SidebarContext";
+import { SidebarProvider } from "@/components/Sidebar/SidebarContext";
+import DefaultBackground from "@/components/DefaultBackground";
 
 const AppBar = () => {
   const { data: session } = useSession();
@@ -19,13 +20,16 @@ const AppBar = () => {
   );
 }
 
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider session={pageProps.session}>
       <SidebarProvider>
         <div className="flex">
           <AppBar />
-          <Component {...pageProps} />
+          <DefaultBackground>
+            <Component {...pageProps} />
+          </DefaultBackground>
         </div>
       </SidebarProvider>
     </SessionProvider>
