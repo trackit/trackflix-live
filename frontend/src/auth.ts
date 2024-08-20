@@ -2,6 +2,7 @@
 import NextAuth from 'next-auth';
 import type { Provider } from "next-auth/providers"
 import Cognito from "@auth/core/providers/cognito";
+import { NextResponse } from 'next/server';
 
 const providers: Provider[] = [
   Cognito({
@@ -18,16 +19,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     authorized({auth, request}) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = request.nextUrl.pathname.startsWith('/dashboard');
+      const isOnLogin = request.nextUrl.pathname === '/login';
 
-      if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false;
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/dashboard', request.nextUrl));
+      if (isLoggedIn) {
+        if (isOnLogin) return NextResponse.redirect(new URL('/dashboard', request.nextUrl));
+        return NextResponse.next();
       }
-      return true;
-    },
+
+      return false;
+    }
   },
     providers: providers
 });
