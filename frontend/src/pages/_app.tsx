@@ -5,6 +5,9 @@ import Sidebar, { SidebarItem } from "@/components/Sidebar";
 import { FaBell, FaHome, FaVideo } from "react-icons/fa";
 import { SidebarProvider } from "@/components/Sidebar/SidebarContext";
 import DefaultBackground from "@/components/DefaultBackground";
+import { Settings } from 'luxon';
+
+Settings.defaultZone = 'utc';
 
 const AppBar = () => {
   const { data: session } = useSession();
@@ -13,7 +16,7 @@ const AppBar = () => {
     session ? (
       <Sidebar>
         <SidebarItem icon={<FaHome />} text="Dashboard" dest="/dashboard" />
-        <SidebarItem icon={<FaBell />} text="Events" dest="/events" />
+        <SidebarItem icon={<FaBell />} text="Events" dest="/dashboard/events" />
         <SidebarItem icon={<FaVideo />} text="Sources" dest="/sources" />
       </Sidebar>
     ) : null
