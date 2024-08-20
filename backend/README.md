@@ -1,3 +1,11 @@
+### Deploy the stack
+
+```
+sam deploy --stack-name="trackflix-live-USERNAME" --parameter-overrides DomainName=http://localhost:3000
+```
+
+***Note**: Replace DomainName by the URL of the frontend*
+
 ### Test
 First, start docker
 ```
