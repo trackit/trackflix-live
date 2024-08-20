@@ -5,6 +5,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-mediaconnect": "^3.624.0",
+    "@aws-sdk/client-mediapackage": "^3.632.0",
+    "@aws-sdk/client-mediapackage-vod": "^3.631.0",
     "@aws-sdk/client-medialive": "^3.624.0"
   },
   "devDependencies": {
