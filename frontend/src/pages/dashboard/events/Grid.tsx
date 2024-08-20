@@ -18,7 +18,7 @@ const data = [
     name: 'Race a car',
     description: 'Race car event 1',
     startTime: '2024-08-20T12:45:00+0000',
-    endTime: '2024-08-20T15:19:00+0000',
+    endTime: '2024-08-20T15:57:00+0000',
   },
   {
     name: 'Race a car',
@@ -45,6 +45,13 @@ export const calculatePercentage = (dateTime: string): number => {
   return parseFloat(percentage.toFixed(2));
 }
 
+const calculateDuration = (startTime: string, endTime: string): string => {
+  const start = DateTime.fromISO(startTime);
+  const end = DateTime.fromISO(endTime);
+
+  return end.diff(start).toFormat('hh:mm:ss');
+}
+
 const GridElement = ({ name, description, startTime, endTime }: GridElementProps) => {
   return (
     <div className="z-20 py-2">
@@ -55,21 +62,25 @@ const GridElement = ({ name, description, startTime, endTime }: GridElementProps
       >
         {name}
       </button>
-      <span
+      <div
         className={`absolute bg-gray-300 rounded shadow-md text-center text-sm
-          hover:bg-gray-400`
+          hover:bg-gray-400 inline-flex p-3`
         }
         style={{
           left: `${calculatePercentage(startTime)}%`,
           width: `${calculatePercentage(endTime) - calculatePercentage(startTime)}%`,
         }}
       >
-        {description}
-      </span>
+        <span>
+          {description}
+        </span>
+        <span className="ml-auto mt-auto">
+          {calculateDuration(startTime, endTime)}
+        </span>
+      </div>
     </div>
   );
 }
-
 
 const Grid = () => {
   return (
