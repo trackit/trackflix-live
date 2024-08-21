@@ -1,5 +1,5 @@
-import live_event from './live_event.json'
-import live_action from './live_action.json'
-import http_streaming from './http_live_streaming.json'
+import LIVE_EVENT from './live_event.json'
+import LIVE_ACTION from './live_action.json'
+import HTTP_LIVE_STREAMING from './http_live_streaming.json'
 
-export { live_event, live_action, http_streaming }
+export { LIVE_EVENT, LIVE_ACTION, HTTP_LIVE_STREAMING }
