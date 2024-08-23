@@ -1,4 +1,4 @@
-export interface Session {
+export interface Event {
   id: string;
   content: string;
   title: string;
