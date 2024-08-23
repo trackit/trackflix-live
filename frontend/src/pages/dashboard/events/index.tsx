@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import Timeline from "./Timeline";
+import Timeline from "@/components/Timeline";
 
 export default function Events() {
   const items = [
