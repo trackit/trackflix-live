@@ -1,17 +1,11 @@
+import { Event } from '@/shared/interface/event.interface';
 import { DateTime } from 'luxon';
 import { useEffect, useRef, useMemo } from 'react';
 import { DataSet } from 'vis-data';
 import { Timeline as TimelineType, TimelineOptions as VisTimelineOptions } from 'vis-timeline';
 
-interface TimelineItems {
-  id: number;
-  content: string;
-  start: Date;
-  end: Date;
-}
-
 interface TimelineProps {
-  items: TimelineItems[];
+  items: Event[];
   width?: string;
   height?: string;
 }

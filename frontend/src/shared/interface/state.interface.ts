@@ -3,5 +3,5 @@ export interface AsyncState<T> extends State<T> {
 }
 
 export interface State<T> {
-  data: T | null;
+  data: T;
 }
