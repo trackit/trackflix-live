@@ -26,12 +26,14 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider session={pageProps.session}>
       <SidebarProvider>
+      <SourcesProvider>
         <div className="flex">
           <AppBar />
           <DefaultBackground>
             <Component {...pageProps} />
           </DefaultBackground>
         </div>
+      </SourcesProvider>
       </SidebarProvider>
     </SessionProvider>
   );
