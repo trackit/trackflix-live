@@ -1,11 +1,13 @@
-import {Entity} from "@shared/Entity";
-import {UniqueEntityID} from "@shared/UniqueEntityID";
-import {DomainEvent} from "@shared/DomainEvent";
+
+import { Entity } from "./Entity";
+import { DomainEvent } from "./DomainEvent";
+import { DomainEvents } from "./DomainEvents";
+import { UniqueEntityID } from "./UniqueEntityID";
 
 export abstract class AggregateRoot<T> extends Entity<T> {
     private _domainEvents: DomainEvent[] = [];
 
-    get id(): UniqueEntityID {
+    get id (): UniqueEntityID {
         return this._id;
     }
 
@@ -13,12 +15,14 @@ export abstract class AggregateRoot<T> extends Entity<T> {
         return this._domainEvents;
     }
 
+
+
     protected addDomainEvent (domainEvent: DomainEvent): void {
         // Add the domain event to this aggregate's list of domain events
         this._domainEvents.push(domainEvent);
         // Add this aggregate instance to the domain event's list of aggregates who's
         // events it eventually needs to dispatch.
-        // TODO: implement this DomainEvents.markAggregateForDispatch(this);
+        DomainEvents.markAggregateForDispatch(this);
         // Log the domain event
         this.logDomainEventAdded(domainEvent);
     }

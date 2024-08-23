@@ -8,6 +8,7 @@
     "@aws-sdk/client-medialive": "^3.624.0",
     "@aws-sdk/client-mediapackage": "^3.632.0",
     "@aws-sdk/client-mediapackage-vod": "^3.631.0",
+    "shallow-equal-object": "^1.1.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { shallowEqual } from "shallow-equal-object";
 
 interface ValueObjectProps {
     [index: string]: any;
@@ -7,16 +8,11 @@ interface ValueObjectProps {
  * @desc ValueObjects are objects that we determine their
  * equality through their structrual property.
  */
-
 export abstract class ValueObject<T extends ValueObjectProps> {
-    public props: T;
+    public readonly props: T;
 
     constructor (props: T) {
-        let baseProps: any = {
-            ...props,
-        }
-
-        this.props = baseProps;
+        this.props = Object.freeze(props);
     }
 
     public equals (vo?: ValueObject<T>) : boolean {
@@ -26,6 +22,6 @@ export abstract class ValueObject<T extends ValueObjectProps> {
         if (vo.props === undefined) {
             return false;
         }
-        return JSON.stringify(this.props) === JSON.stringify(vo.props);
+        return shallowEqual(this.props, vo.props)
     }
 }
