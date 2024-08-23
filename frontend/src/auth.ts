@@ -3,7 +3,7 @@ import NextAuth from 'next-auth';
 import type { Provider } from "next-auth/providers"
 import Cognito from "@auth/core/providers/cognito";
 import { NextResponse } from 'next/server';
-import config from '@/utils/config';
+import config from '@/shared/utils/config';
 
 const providers: Provider[] = [
   Cognito({
