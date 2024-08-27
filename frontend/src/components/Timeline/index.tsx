@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { useEffect, useRef, useMemo } from 'react';
 import { DataSet } from 'vis-data';
 import { Timeline as TimelineType, TimelineOptions as VisTimelineOptions } from 'vis-timeline';
+import colors from '@/styles/colors';
 
 interface TimelineProps {
   items: Event[];
@@ -10,11 +11,16 @@ interface TimelineProps {
   height?: string;
 }
 
+const assignItemColor = (items: Event[]) => items.map((item) => ({
+  ...item,
+  style: `background-color: ${colors.red.light}; color: #000000; border-color: #f87171;`,
+}));
+
 const Timeline = ({ items, width = '100%', height = '600px' }: TimelineProps) => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineInstanceRef = useRef<TimelineType | null>(null);
 
-  const memoizedItems = useMemo(() => new DataSet(items), [items]);
+  const memoizedItems = useMemo(() => new DataSet(assignItemColor(items)), [items]);
 
   const timelineOptions: VisTimelineOptions = {
     showCurrentTime: true,
@@ -36,6 +42,7 @@ const Timeline = ({ items, width = '100%', height = '600px' }: TimelineProps) =>
       }
     },
     orientation: 'top',
+    selectable: false,
   };
 
   useEffect(() => {
