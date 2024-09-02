@@ -1,5 +1,5 @@
 import React from "react";
-import { useSources } from "../SourcesContexts";
+import { useSources } from "./SourcesContexts";
 
 export default function SourceDetails() {
   const { sourceData, changeSourceData } = useSources();

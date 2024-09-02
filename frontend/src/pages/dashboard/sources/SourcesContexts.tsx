@@ -18,7 +18,7 @@ export const useSources = (): SourcesContextType => {
 };
 
 export const SourcesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [sourceData, setSourceData] = useState({ name: "", description: "", ingestRegion: "", status: "" });
+  const [sourceData, setSourceData] = useState({ id: 0, name: "", description: "", ingestRegion: "", status: "" });
   const changeSourceData = (sourceData: SourceData) => setSourceData(sourceData);
 
   return (
