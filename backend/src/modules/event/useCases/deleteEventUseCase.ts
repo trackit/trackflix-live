@@ -9,7 +9,7 @@ interface SourceRequestDto {
     protocol: string;
 }
 
-interface CreateEventUseCaseRequestDto {
+interface DeleteEventUseCaseRequestDto {
     name: string;
     description: string;
     onAirStartTime: Date;
@@ -18,17 +18,17 @@ interface CreateEventUseCaseRequestDto {
     source: SourceRequestDto;
 }
 
-export class CreateEventUseCase implements UseCase<CreateEventUseCaseRequestDto, Event> {
+export class DeleteEventUseCase implements UseCase<DeleteEventUseCaseRequestDto, Event> {
     private eventRepository: IEventRepository;
 
     constructor(eventRepository: IEventRepository) {
         this.eventRepository = eventRepository;
     }
 
-    execute(request?: CreateEventUseCaseRequestDto): Event | Promise<Event> {
+    execute(request?: DeleteEventUseCaseRequestDto): Event | Promise<Event> {
         const event = EventMap.toDomain(request);
 
-        this.eventRepository.save(event);
+        this.eventRepository.deleteEventById(event.id);
 
         DomainEvents.dispatchEventsForAggregate(event.id)
 

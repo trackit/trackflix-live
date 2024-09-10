@@ -1,14 +1,16 @@
 import {Entity} from "@shared/Entity";
 import {UniqueEntityID} from "@shared/UniqueEntityID";
 import {SourceProtocol} from "../enums/SourceProtocol";
+import { SourceName } from "./SourceName";
 
 interface SourceProps {
-    name: string;
+    name: SourceName;
     protocol: SourceProtocol;
 }
 
 export class Source extends Entity<SourceProps> {
     get name() {
+        this.props.name.name;
         return this.props.name;
     }
 

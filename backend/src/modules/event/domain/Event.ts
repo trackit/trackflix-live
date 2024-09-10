@@ -1,16 +1,19 @@
-import {Entity} from "@shared/Entity";
 import {EventStatus} from "../enums/EventStatus";
 import {UniqueEntityID} from "@shared/UniqueEntityID";
 import {Source} from "./Source";
 import {AggregateRoot} from "@shared/AggregateRoot";
 import {EventCreatedEvent} from "./events/eventCreatedEvent";
+import { EventName } from "./EventName";
+import { EventDescription } from "./EventDescription";
+import { EventDate } from "./EventDate";
+import { Errors } from "../enums/Errors";
 
 interface EventProps {
-    name: string;
-    description: string;
-    onAirStartTime: Date; // TODO: Should convert to a value object
-    onAirEndTime: Date; // TODO: Should convert to a value object
-    status: EventStatus
+    name: EventName;
+    description: EventDescription;
+    onAirStartTime: EventDate;
+    onAirEndTime: EventDate;
+    status: EventStatus;
     source: Source;
 }
 
@@ -44,6 +47,9 @@ export class Event extends AggregateRoot<EventProps> {
     }
 
     static create(props: EventProps, id?: UniqueEntityID) {
+        if (props === undefined || !props.source) {
+            throw new Error(Errors.EVENT_MUST_HAVE_A_SOURCE);
+        }
         const event = new Event(props, id);
         const isNewlyCreated = !!id === false;
 
