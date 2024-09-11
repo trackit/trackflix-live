@@ -1,22 +1,9 @@
-import {UseCase} from "@shared/UseCase";
-import {Event} from "../domain/Event";
-import {DomainEvents} from "@shared/DomainEvents";
-import { EventMap } from "../mappers/EventMap";
-import { IEventRepository } from "../repositories/eventRepository";
-
-interface SourceRequestDto {
-    name: string;
-    protocol: string;
-}
-
-interface DeleteEventUseCaseRequestDto {
-    name: string;
-    description: string;
-    onAirStartTime: Date;
-    onAirEndTime: Date;
-    status: string;
-    source: SourceRequestDto;
-}
+import { UseCase } from "@shared/UseCase";
+import { Event } from "../../domain/Event";
+import { DomainEvents } from "@shared/DomainEvents";
+import { EventMap } from "../../mappers/EventMap";
+import { IEventRepository } from "../../repositories/eventRepository";
+import { DeleteEventUseCaseRequestDto } from "./deleteEventDTO";
 
 export class DeleteEventUseCase implements UseCase<DeleteEventUseCaseRequestDto, Event> {
     private eventRepository: IEventRepository;
@@ -34,5 +21,4 @@ export class DeleteEventUseCase implements UseCase<DeleteEventUseCaseRequestDto,
 
         return event;
     }
-
 }
