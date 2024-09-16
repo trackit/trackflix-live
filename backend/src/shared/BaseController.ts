@@ -35,10 +35,6 @@ export abstract class BaseController {
     return BaseController.jsonResponse(this.res, 401, message ? message : 'Unauthorized');
   }
 
-  public paymentRequired (message?: string) {
-    return BaseController.jsonResponse(this.res, 402, message ? message : 'Payment required');
-  }
-
   public forbidden (message?: string) {
     return BaseController.jsonResponse(this.res, 403, message ? message : 'Forbidden');
   }

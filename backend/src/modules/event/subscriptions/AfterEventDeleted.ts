@@ -1,9 +1,9 @@
 import {Handle} from "@shared/Handle";
-import {EventCreatedEvent} from "../domain/events/eventCreatedEvent";
 import {DomainEvents} from "@shared/DomainEvents";
 import { IEventRepository } from "../repositories/eventRepository";
+import { EventDeletedEvent } from "../domain/events/eventDeletedEvent";
 
-export class AfterEventCreated implements Handle<EventCreatedEvent> {
+export class AfterEventDeleted implements Handle<EventDeletedEvent> {
     private eventRepository: IEventRepository
 
     constructor() {
@@ -11,14 +11,14 @@ export class AfterEventCreated implements Handle<EventCreatedEvent> {
     }
 
     setupSubscriptions(): void {
-        DomainEvents.register(this.onEventCreatedEvent.bind(this), EventCreatedEvent.name)
+        DomainEvents.register(this.onEventDeletedEvent.bind(this), EventDeletedEvent.name)
     }
 
-    private onEventCreatedEvent(event: EventCreatedEvent): void {
+    private onEventDeletedEvent(event: EventDeletedEvent): void {
         // Get event from repository
         const eventFromRepository = this.eventRepository.getEventById(event.eventId);
 
-        // Create resources on MediaLive
+        // Delete resources on MediaLive
 
     }
 }
