@@ -23,10 +23,10 @@ export class MockEventSubsciption implements Handle<MockJobCreatedEvent>, Handle
    */
 
   handleJobCreatedEvent (event: MockJobCreatedEvent): void {
-    console.log('A job was created!!!')
+    // console.log('A job was created!!!')
   }
 
   handleDeletedEvent (event: MockJobDeletedEvent): void {
-    console.log('A job was deleted!!!')
+    // console.log('A job was deleted!!!')
   }
 }

@@ -102,7 +102,6 @@ describe('Domain Events', () => {
       expect(DomainEvents['markedAggregates'][0].domainEvents.length).toBe(1);
 
       // Dispatch the event for the first job
-      console.log('Dispatching events for aggregate 99');
       DomainEvents.dispatchEventsForAggregate(new UniqueEntityID('99'));
       expect(DomainEvents['markedAggregates']['length']).toBe(1);
       
