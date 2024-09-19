@@ -4,7 +4,7 @@ import { DomainEvents } from "@shared/DomainEvents";
 import { MockJobCreatedEvent } from "../events/mockJobCreatedEvent";
 import { MockJobDeletedEvent } from "../events/mockJobDeletedEvent";
 
-export class MockEventSubsciption implements Handle<MockJobCreatedEvent>, Handle<MockJobDeletedEvent> {
+export class MockEventSubscription implements Handle<MockJobCreatedEvent>, Handle<MockJobDeletedEvent> {
   constructor () {
 
   }

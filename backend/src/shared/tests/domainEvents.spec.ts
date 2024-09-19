@@ -5,10 +5,10 @@ import { MockJobAggregateRoot } from './mocks/domain/mockJobAggregateRoot'
 import { MockJobAggregateRootId } from './mocks/domain/mockJobAggregateRootId';
 
 import { DomainEvents } from '@shared/DomainEvents'
-import { MockEventSubsciption } from './mocks/sevices/mockEventSubsciption';
+import { MockEventSubscription } from './mocks/services/mockEventSubscription';
 import { UniqueEntityID } from '@shared/UniqueEntityID';
 
-let eventSubscription: MockEventSubsciption;
+let eventSubscription: MockEventSubscription;
 let job: MockJobAggregateRoot;
 let spy;
 
@@ -24,7 +24,7 @@ describe('Domain Events', () => {
 
   describe('Given a JobCreatedEvent, JobDeletedEvent and a PostToEventSubscription handler class', () => {
     it('Should be able to setup event subscriptions', () => {
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       eventSubscription.setupSubscriptions();
 
       expect(Object.keys(DomainEvents['handlersMap']).length).toBe(2);
@@ -34,14 +34,14 @@ describe('Domain Events', () => {
     })
 
     it('There should be exactly one handler subscribed to the JobCreatedEvent', () => {
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       eventSubscription.setupSubscriptions();
 
       expect(DomainEvents['handlersMap'][MockJobCreatedEvent.name].length).toBe(1);
     })
 
     it('There should be exactly one handler subscribed to the JobDeletedEvent', () => {
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       eventSubscription.setupSubscriptions();
 
       expect(DomainEvents['handlersMap'][MockJobDeletedEvent.name].length).toBe(1);
@@ -49,7 +49,7 @@ describe('Domain Events', () => {
 
     it('Should add the event to the DomainEvents list when the event is created', async () => {
       MockJobAggregateRoot.createJob({}, MockJobAggregateRootId);
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       eventSubscription.setupSubscriptions();
 
       expect(DomainEvents['markedAggregates']['length']).toBe(1);
@@ -57,7 +57,7 @@ describe('Domain Events', () => {
     });
 
     it('Should remove the marked aggregate from the marked aggregates list after it gets dispatched', () => {
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       eventSubscription.setupSubscriptions();
 
       // Create the event, mark the aggregate
@@ -72,7 +72,7 @@ describe('Domain Events', () => {
     });
 
     it('Should only add the domain event to the ', () => {
-      eventSubscription = new MockEventSubsciption();
+      eventSubscription = new MockEventSubscription();
       // Create listeners
       eventSubscription.setupSubscriptions();
 
