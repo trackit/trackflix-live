@@ -4,21 +4,27 @@ import { DomainEvents } from "@shared/DomainEvents";
 import { EventMap } from "../../mappers/EventMap";
 import { IEventRepository } from "../../repositories/eventRepository";
 import { CreateEventUseCaseRequestDto } from "./createEventDTO";
+import { Result } from "@shared/Response";
 
-export class CreateEventUseCase implements UseCase<CreateEventUseCaseRequestDto, Event> {
+export class CreateEventUseCase implements UseCase<CreateEventUseCaseRequestDto, Result<Event>> {
     private eventRepository: IEventRepository;
 
     constructor(eventRepository: IEventRepository) {
         this.eventRepository = eventRepository;
     }
 
-    execute(request?: CreateEventUseCaseRequestDto): Event | Promise<Event> {
-        const event = EventMap.toDomain(request);
+    async execute(request?: CreateEventUseCaseRequestDto): Promise<Result<Event>> {
+        const eventRequest = EventMap.toDomain(request);
+        try {
+            const event = Event.create(eventRequest);
 
-        this.eventRepository.save(event);
+            await this.eventRepository.save(event);
 
-        DomainEvents.dispatchEventsForAggregate(event.id)
+            DomainEvents.dispatchEventsForAggregate(event.id);
 
-        return event;
+            return Result.ok<Event>(event);
+        } catch (e) {
+            return Result.fail<Event>(e.message);
+        }
     }
 }
