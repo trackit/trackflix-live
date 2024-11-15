@@ -9,16 +9,14 @@ import { EventDate } from "../domain/EventDate";
 
 export class EventMap extends Mapper<Event> {
   public static toDomain (raw: any): Event {
-    const event = Event.create({
-      name: SourceName.create({ name: raw.name }),
-      description: EventDescription.create({ description: raw.description }),
-      onAirStartTime: EventDate.create({ date: raw.onAirStartTime }),
-      onAirEndTime: EventDate.create({ date: raw.onAirEndTime }),
+    return Event.create({
+      name: SourceName.create({ name: raw.name }).getValue(),
+      description: EventDescription.create({ description: raw.description }).getValue(),
+      onAirStartTime: EventDate.create({ date: raw.onAirStartTime }).getValue(),
+      onAirEndTime: EventDate.create({ date: raw.onAirEndTime }).getValue(),
       status: EventStatus[raw.status],
       source: SourceMap.toDomain(raw.source)
-    }, new UniqueEntityID(raw.vinyl_id));
-
-    return event;
+    }, new UniqueEntityID(raw.vinyl_id)).getValue();
   }
 
   public static toPersistence (event: Event): any {

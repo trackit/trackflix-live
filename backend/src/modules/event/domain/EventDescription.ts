@@ -1,5 +1,6 @@
 import { ValueObject } from "@shared/ValueObject";
 import { Errors } from "../enums/Errors";
+import {Result} from "@shared/Response";
 
 interface EventDescriptionProps {
     description: string;
@@ -14,10 +15,11 @@ export class EventDescription extends ValueObject<EventDescriptionProps> {
         super(props);
     }
 
-    public static create(props: EventDescriptionProps) {
+    public static create(props: EventDescriptionProps): Result<EventDescription> {
         if (props === undefined || !props.description) {
-            throw new Error(Errors.EVENT_DESCRIPTION_MUST_BE_PROVIDED);
+            return Result.fail<EventDescription>(Errors.EVENT_DESCRIPTION_MUST_BE_PROVIDED);
         }
-        return new EventDescription(props);
+
+        return Result.ok<EventDescription>(new EventDescription(props));
     }
 }

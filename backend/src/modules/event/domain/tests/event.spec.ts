@@ -9,10 +9,10 @@ import { Source } from "../Source";
 import { SourceName } from "../SourceName";
 
 /* Initialize event attributes */
-const eventName = EventName.create({ name: 'event' });
-const eventDescription = EventDescription.create({ description: 'description' });
-const eventOnAirStartTime = EventDate.create({ date: new Date(2000) });
-const eventOnAirEndTime = EventDate.create({ date: new Date(2000) });
+const eventName = EventName.create({ name: 'event' }).getValue();
+const eventDescription = EventDescription.create({ description: 'description' }).getValue();
+const eventOnAirStartTime = EventDate.create({ date: new Date(2000) }).getValue();
+const eventOnAirEndTime = EventDate.create({ date: new Date(2000) }).getValue();
 const eventStatus = EventStatus["TX"];
 const eventSource = Source.create({
   name: SourceName.create({ name: 'source' }).getValue(),
@@ -49,12 +49,12 @@ describe('Event', () => {
 
   it('Should have a defined source', () => {
     const event = Event.create({
-      name: EventName.create({ name: 'event' }),
-      description: EventDescription.create({ description: 'description' }),
-      onAirStartTime: EventDate.create({ date: new Date(2000) }),
-      onAirEndTime: EventDate.create({ date: new Date(2000) }),
-      status: EventStatus["TX"],
-      source: undefined
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: eventStatus,
+      source: undefined,
     });
 
     expect(event.isSuccess).toBe(false);

@@ -1,5 +1,6 @@
 import { ValueObject } from "@shared/ValueObject";
 import { Errors } from "../enums/Errors";
+import {Result} from "@shared/Response";
 
 interface EventNameProps {
     name: string;
@@ -14,12 +15,12 @@ export class EventName extends ValueObject<EventNameProps> {
         super(props);
     }
 
-    public static create(props: EventNameProps) {
+    public static create(props: EventNameProps): Result<EventName> {
         if (props === undefined || !props.name) {
-            throw new Error(Errors.EVENT_NAME_MUST_BE_PROVIDED);
+            return Result.fail<EventName>(Errors.EVENT_NAME_MUST_BE_PROVIDED);
         } else if (props.name.length < 2) {
-            throw new Error(Errors.EVENT_NAME_MUST_BE_AT_LEAST_2_CHARACTERS_LONG);
+            return Result.fail<EventName>(Errors.EVENT_NAME_MUST_BE_AT_LEAST_2_CHARACTERS_LONG);
         }
-        return new EventName(props);
+        return Result.ok<EventName>(new EventName(props));
     }
 }
