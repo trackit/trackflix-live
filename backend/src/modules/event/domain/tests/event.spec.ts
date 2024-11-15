@@ -8,63 +8,140 @@ import { EventName } from "../EventName";
 import { Source } from "../Source";
 import { SourceName } from "../SourceName";
 
-let event: Event;
+/* Initialize event attributes */
+const eventName = EventName.create({ name: 'event' });
+const eventDescription = EventDescription.create({ description: 'description' });
+const eventOnAirStartTime = EventDate.create({ date: new Date(2000) });
+const eventOnAirEndTime = EventDate.create({ date: new Date(2000) });
+const eventStatus = EventStatus["TX"];
+const eventSource = Source.create({
+  name: SourceName.create({ name: 'source' }).getValue(),
+  protocol: SourceProtocol["SRT_CALLER"],
+}).getValue();
 
 describe('Event', () => {
-  beforeEach (() => {
-    event = null;
+  it ('Should be able to be created', () => {
+    const event = Event.create({
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: eventStatus,
+      source: eventSource,
+    });
+    const {
+      name,
+      description,
+      onAirStartTime,
+      onAirEndTime,
+      status,
+      source,
+    } = event.getValue();
+
+    expect(name.name).toEqual('event');
+    expect(description.description).toEqual('description');
+    expect(onAirStartTime.date).toEqual(new Date(2000));
+    expect(onAirEndTime.date).toEqual(new Date(2000));
+    expect(status).toEqual(EventStatus["TX"]);
+    expect(source.name.name).toEqual('source');
+    expect(source.protocol).toEqual(SourceProtocol["SRT_CALLER"]);
   })
 
-  it ('Should be able to be created', () => {
-    event = Event.create({
+  it('Should have a defined source', () => {
+    const event = Event.create({
       name: EventName.create({ name: 'event' }),
       description: EventDescription.create({ description: 'description' }),
       onAirStartTime: EventDate.create({ date: new Date(2000) }),
       onAirEndTime: EventDate.create({ date: new Date(2000) }),
       status: EventStatus["TX"],
-      source: Source.create({
-        name: SourceName.create({ name: 'source' }),
-        protocol: SourceProtocol["SRT_CALLER"]
-      })
+      source: undefined
     });
 
-    expect(event.name.name).toEqual('event');
-    expect(event.description.description).toEqual('description');
-    expect(event.onAirStartTime.date).toEqual(new Date(2000));
-    expect(event.onAirEndTime.date).toEqual(new Date(2000));
-    expect(event.status).toEqual(EventStatus["TX"]);
-    expect(event.source.name.name).toEqual('source');
-    expect(event.source.protocol).toEqual(SourceProtocol["SRT_CALLER"]);
-  })
-
-  it("Event must throw if source don't exists", () => {
-    const t = () => {
-      event = Event.create({
-        name: EventName.create({ name: 'event' }),
-        description: EventDescription.create({ description: 'description' }),
-        onAirStartTime: EventDate.create({ date: new Date(2000) }),
-        onAirEndTime: EventDate.create({ date: new Date(2000) }),
-        status: EventStatus["TX"],
-        source: undefined
-      });
-    };
-    expect(t).toThrow(Errors.EVENT_MUST_HAVE_A_SOURCE);
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
   });
 
-  it("Event must throw if onAirStartTime is not provided", () => {
-    const t = () => {
-      event = Event.create({
-        name: EventName.create({ name: 'event' }),
-        description: EventDescription.create({ description: 'description' }),
-        onAirStartTime: EventDate.create(undefined),
-        onAirEndTime: EventDate.create({ date: new Date(2000) }),
-        status: EventStatus["TX"],
-        source: Source.create({
-          name: SourceName.create({ name: 'source' }),
-          protocol: SourceProtocol["SRT_CALLER"]
-        })
-      });
-    };
-    expect(t).toThrow(Errors.EVENT_MUST_HAVE_A_ONAIRSTARTTIME);
+  it("Should have a defined status", () => {
+    const event = Event.create({
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: undefined,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
+  });
+
+  it("Should have a defined onAirEndTime", () => {
+    const event = Event.create({
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: undefined,
+      status: eventStatus,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
+  });
+
+  it("Should have a defined onAirStartTime", () => {
+    const event = Event.create({
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: undefined,
+      onAirEndTime: eventOnAirEndTime,
+      status: eventStatus,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
+  });
+
+  it("Should have a defined description", () => {
+    const event = Event.create({
+      name: eventName,
+      description: undefined,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: eventStatus,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
+  });
+
+  it("Should have a defined name", () => {
+    const event = Event.create({
+      name: undefined,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: eventStatus,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_VALUES_MUST_BE_DEFINED);
+  });
+
+  it("Should have a valid eventStatus", () => {
+    const event = Event.create({
+      name: eventName,
+      description: eventDescription,
+      onAirStartTime: eventOnAirStartTime,
+      onAirEndTime: eventOnAirEndTime,
+      status: "InvalidEventStatus" as EventStatus,
+      source: eventSource,
+    });
+
+    expect(event.isSuccess).toBe(false);
+    expect(event.errorValue()).toBe(Errors.EVENT_STATUS_MUST_BE_VALID);
   });
 })

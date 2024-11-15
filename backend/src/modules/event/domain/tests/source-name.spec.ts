@@ -15,4 +15,12 @@ describe('SourceName', () => {
         expect(sourceName.isSuccess).toBe(false);
         expect(sourceName.errorValue()).toBe(Errors.SOURCE_NAME_MUST_BE_AT_LEAST_2_CHARACTERS_LONG);
     });
+
+    it('Should be created successfully', () => {
+        const sourceName = SourceName.create({ name: 'source-name' });
+        const { name } = sourceName.getValue();
+
+        expect(sourceName.isSuccess).toBe(true);
+        expect(name).toBe('source-name');
+    });
 })

@@ -8,4 +8,7 @@ export enum Errors {
   EVENT_DESCRIPTION_MUST_BE_PROVIDED = "Event description must be provided",
   EVENT_MUST_HAVE_A_SOURCE = "Event must have a source",
   EVENT_MUST_HAVE_A_ONAIRSTARTTIME = "Event must have a onAirStartTime",
+  EVENT_VALUES_MUST_BE_DEFINED = "Event values must be defined",
+  EVENT_ADD_DOMAIN_EVENT_ERROR = "Could not add domain event",
+  EVENT_STATUS_MUST_BE_VALID = "Event status must be valid",
 }
