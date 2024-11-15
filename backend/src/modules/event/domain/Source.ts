@@ -32,7 +32,7 @@ export class Source extends Entity<SourceProps> {
 
     public static create(props: SourceProps, id?: UniqueEntityID): Result<Source> {
         const guardProps = [
-            { name: 'name', value: props.name},
+            { name: 'name', value: props.name },
             { name: 'protocol', value: props.protocol },
         ];
 

@@ -13,16 +13,22 @@ describe('CreateEventUseCase', () => {
   })
 
   it('should create an event', async () => {
+    const startTime = new Date(Date.now());
+    startTime.setDate(startTime.getDate() + 1);
+
+    const endTime = new Date(Date.now());
+    endTime.setDate(endTime.getDate() + 2);
+
     const event = await useCase.execute({
       name: 'Event',
       description: 'Description',
-      onAirStartTime: new Date(),
-      onAirEndTime: new Date(),
-      status: 'status',
+      onAirStartTime: startTime,
+      onAirEndTime: endTime,
+      status: 'TX',
       source: {
         name: 'name',
-        protocol: 'protocol',
-      }
+        protocol: 'HLS',
+      },
     });
 
     expect(event.isSuccess).toBe(true);

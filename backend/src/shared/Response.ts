@@ -22,6 +22,7 @@ export class Result<T> {
 
     public getValue(): T {
         if (!this.isSuccess) {
+            console.error(this.errorValue());
             throw new Error("Cannot retrieve value from a failed result. Use errorValue() instead.");
         }
         return this._value;

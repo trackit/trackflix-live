@@ -1,5 +1,5 @@
 import { Event } from "src/modules/event/domain/Event";
-import { Mapper } from "../../../shared/Mapper";
+import { Mapper } from "@shared/Mapper";
 import { UniqueEntityID } from "@shared/UniqueEntityID";
 import { SourceName } from "../domain/SourceName";
 import { EventStatus } from "../enums/EventStatus";

@@ -14,15 +14,19 @@ export class CreateEventUseCase implements UseCase<CreateEventUseCaseRequestDto,
     }
 
     async execute(request?: CreateEventUseCaseRequestDto): Promise<Result<Event>> {
-        const eventRequest = EventMap.toDomain(request);
         try {
-            const event = Event.create(eventRequest);
+            const eventDomain = EventMap.toDomain(request);
+            const event = Event.create(eventDomain);
+            if (!event.isSuccess)
+                return Result.fail<Event>(event.errorValue());
 
-            await this.eventRepository.save(event);
+            const eventValue = event.getValue();
 
-            DomainEvents.dispatchEventsForAggregate(event.id);
+            await this.eventRepository.save(eventValue)
 
-            return Result.ok<Event>(event);
+            DomainEvents.dispatchEventsForAggregate(eventValue.id);
+
+            return Result.ok<Event>(eventValue);
         } catch (e) {
             return Result.fail<Event>(e.message);
         }
