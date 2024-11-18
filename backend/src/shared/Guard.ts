@@ -29,7 +29,7 @@ export class Guard {
 
     public static againstNullOrUndefined(arg: IGuardArgument): IGuardResult
     {
-        if (arg.value == undefined || arg.value == null) {
+        if (arg.value === undefined || arg.value === null) {
             return {
                 isSuccess: false,
                 message: `Argument ${arg.name} is null/undefined.`,
