@@ -14,11 +14,9 @@ export class AfterEventCreated implements Handle<EventCreatedEvent> {
         DomainEvents.register(this.onEventCreatedEvent.bind(this), EventCreatedEvent.name)
     }
 
+    // TODO -> Get event from repository and push event
     private onEventCreatedEvent(event: EventCreatedEvent): void {
-        // Get event from repository
-        const eventFromRepository = this.eventRepository.getEventById(event.eventId);
-
-        // Create resources on MediaLive
-
+        // console.log('after event created');
+        // const eventFromRepository = this.eventRepository.getEventById(event.eventId);
     }
 }

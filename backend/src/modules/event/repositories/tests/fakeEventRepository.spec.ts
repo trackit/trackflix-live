@@ -7,6 +7,28 @@ import { EventName } from "../../domain/EventName";
 
 let repo: FakeEventRepository;
 let event: Event;
+let eventAttributes1 = {
+    name: undefined,
+    description: undefined,
+    onAirStartTime: undefined,
+    onAirEndTime: undefined,
+    status: undefined,
+    source: Source.create({
+        name: SourceName.create({ name: "source-1" }).getValue(),
+        protocol: undefined
+    }).getValue()
+}
+let eventAttributes2 = {
+    name: undefined,
+    description: undefined,
+    onAirStartTime: undefined,
+    onAirEndTime: undefined,
+    status: undefined,
+    source: Source.create({
+        name: SourceName.create({ name: "source-2" }).getValue(),
+        protocol: undefined,
+    }).getValue()
+}
 
 describe('FakeEventRepository', () => {
   beforeEach(() => {
@@ -17,14 +39,7 @@ describe('FakeEventRepository', () => {
     repo = new FakeEventRepository();
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source"}) , protocol: undefined })
-      })
+      Event.create(eventAttributes1).getValue(),
     );
 
     expect(repo['_items'].length).toBe(1);
@@ -34,25 +49,11 @@ describe('FakeEventRepository', () => {
     repo = new FakeEventRepository();
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source"}) , protocol: undefined })
-      }, new UniqueEntityID('fake-uuid'))
+      Event.create(eventAttributes1, new UniqueEntityID('fake-uuid')).getValue(),
     );
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source2"}) , protocol: undefined })
-      })
+      Event.create(eventAttributes2).getValue()
     );
 
     event = await repo.findById(new UniqueEntityID('fake-uuid'));
@@ -65,25 +66,11 @@ describe('FakeEventRepository', () => {
     repo = new FakeEventRepository();
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source"}) , protocol: undefined })
-      }, new UniqueEntityID('fake-uuid'))
+      Event.create(eventAttributes1, new UniqueEntityID('fake-uuid')).getValue(),
     );
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source2"}) , protocol: undefined })
-      })
+      Event.create(eventAttributes2).getValue(),
     );
 
     event = await repo.findById(new UniqueEntityID('fake-uuid'));
@@ -103,27 +90,13 @@ describe('FakeEventRepository', () => {
     repo = new FakeEventRepository();
 
     repo.addFakeItem(
-      Event.create({
-        name: undefined,
-        description: undefined,
-        onAirStartTime: undefined,
-        onAirEndTime: undefined,
-        status: undefined,
-        source: Source.create({ name: SourceName.create({name: "source"}) , protocol: undefined })
-      }, new UniqueEntityID('fake-uuid'))
+      Event.create(eventAttributes1, new UniqueEntityID('fake-uuid')).getValue(),
     );
 
     event = await repo.findById(new UniqueEntityID('fake-uuid'));
     expect(event).toBeTruthy();
 
-    event = Event.create({
-      name: undefined,
-      description: undefined,
-      onAirStartTime: undefined,
-      onAirEndTime: undefined,
-      status: undefined,
-      source: Source.create({ name: SourceName.create({name: "source2"}) , protocol: undefined })
-    }, new UniqueEntityID('fake-uuid'));
+    event = Event.create(eventAttributes2, new UniqueEntityID('fake-uuid')).getValue();
 
     await repo.updateEventById(event);
 

@@ -1,9 +1,17 @@
 export enum Errors {
   SOURCE_NAME_MUST_BE_PROVIDED = "Source name must be provided",
   SOURCE_NAME_MUST_BE_AT_LEAST_2_CHARACTERS_LONG = "Source name must be at least 2 characters long",
+  SOURCE_INVALID_PROTOCOL = "Invalid protocol specified",
+  SOURCE_VALUES_MUST_BE_DEFINED = "The attributes name and protocol must be defined.",
   EVENT_NAME_MUST_BE_PROVIDED = "Event name must be provided",
   EVENT_NAME_MUST_BE_AT_LEAST_2_CHARACTERS_LONG = "Event name must be at least 2 characters long",
   EVENT_DESCRIPTION_MUST_BE_PROVIDED = "Event description must be provided",
   EVENT_MUST_HAVE_A_SOURCE = "Event must have a source",
-  EVENT_MUST_HAVE_A_ONAIRSTARTTIME = "Event must have a onAirStartTime",
+  EVENT_MUST_HAVE_A_ON_AIR_START_TIME = "Event must have a onAirStartTime",
+  EVENT_DATE_SHOULD_BE_DEFINED = "Event date should be defined",
+  EVENT_DATE_MUST_BE_ISO_FORMATTED = "Event date must be ISO-8601 formatted",
+  EVENT_DATE_MUST_NOT_BE_IN_THE_PAST = "Event date must not be in the past",
+  EVENT_VALUES_MUST_BE_DEFINED = "Event values must be defined",
+  EVENT_ADD_DOMAIN_EVENT_ERROR = "Could not add domain event",
+  EVENT_STATUS_MUST_BE_VALID = "Event status must be valid",
 }
