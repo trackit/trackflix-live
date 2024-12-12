@@ -1,22 +1,34 @@
 import {Handle} from "@shared/Handle";
 import {EventCreatedEvent} from "../domain/events/eventCreatedEvent";
 import {DomainEvents} from "@shared/DomainEvents";
+import { PublishEventUseCase } from "../useCases/publishEvent/publishEventUseCase";
 import { IEventRepository } from "../repositories/eventRepository";
 
 export class AfterEventCreated implements Handle<EventCreatedEvent> {
-    private eventRepository: IEventRepository
+    private _publishEventUseCase: PublishEventUseCase;
 
-    constructor() {
+    private _eventRepository: IEventRepository;
+
+    constructor(publishEventUseCase: PublishEventUseCase, eventRepository: IEventRepository) {
         this.setupSubscriptions();
+
+        this._publishEventUseCase = publishEventUseCase;
+        this._eventRepository = eventRepository;
     }
 
     setupSubscriptions(): void {
         DomainEvents.register(this.onEventCreatedEvent.bind(this), EventCreatedEvent.name)
     }
 
-    // TODO -> Get event from repository and push event
-    private onEventCreatedEvent(event: EventCreatedEvent): void {
-        // console.log('after event created');
-        // const eventFromRepository = this.eventRepository.getEventById(event.eventId);
+    private async onEventCreatedEvent(event: EventCreatedEvent): Promise<void> {
+        try {
+            const { eventId } = event;
+
+            const eventFromRepo = await this._eventRepository.getEventById(eventId);
+
+            await this._publishEventUseCase.execute(eventFromRepo);
+        } catch (error) {
+            console.error(`[ERROR/onEventCreatedEvent]: ${error}`)
+        }
     }
 }

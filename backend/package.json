@@ -4,6 +4,7 @@
     "test-watch": "jest --watch"
   },
   "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.709.0",
     "@aws-sdk/client-mediaconnect": "^3.624.0",
     "@aws-sdk/client-medialive": "^3.624.0",
     "@aws-sdk/client-mediapackage": "^3.632.0",
