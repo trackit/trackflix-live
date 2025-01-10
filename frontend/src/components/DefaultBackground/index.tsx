@@ -2,7 +2,7 @@ import React from "react";
 
 export default function DefaultBackground({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-gray-100 w-screen mx-3 mt-3 rounded-md">
+    <div className="w-screen mx-3 mt-3 rounded-md">
       {children}
     </div>
   );
