@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-table": "^8.20.6",
     "luxon": "^3.5.0",
     "next": "14.2.5",
     "next-auth": "^5.0.0-beta.20",

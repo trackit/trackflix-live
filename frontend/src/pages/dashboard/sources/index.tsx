@@ -1,6 +1,10 @@
 import Link from "next/link";
-import { createContext } from "react";
+import { createContext, useMemo } from "react";
 import { useSources } from "./SourcesContexts";
+import { Table } from "@/components/Table";
+import { Source } from "postcss";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 export type SourceData = {
   id: number;
@@ -18,10 +22,7 @@ export default function Sources({ children }: any) {
   return (
     <SourcesContext.Provider value={{ sourceData }}>
       <div>
-        <div className="mx-16 mt-8">
-          <ItemValues sourceData={{id: 1, name:"Name", description:"Description", ingestRegion:"Ingest region", status:"Status"}} clickable={false}></ItemValues>
-        </div>
-        <div className="mx-11 mt-8">
+        <div>
           <ItemValuesList sourceDatas={templateSources}></ItemValuesList>
         </div>
       </div>
@@ -36,46 +37,36 @@ const templateSources = [
   { id: 4, name: "Source 4", description: "Description 4", ingestRegion: "Region 4", status: "Status 4" },
 ];
 
-export const ItemValue: React.FC<{ value: string }> = ({ value }) => {
-  return <span className="w-full text-center">{value}</span>;
-}
-
-export const ItemValues: React.FC<{ sourceData: SourceData, clickable: Boolean }> = ({ sourceData, clickable }) => {
+export const ItemValuesList: React.FC<{ sourceDatas: SourceData[] }> = ({ sourceDatas }) => {
   const { changeSourceData } = useSources();
+
+  const columns: ColumnDef<Source>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+      },
+      {
+        accessorKey: 'description',
+        header: 'Description',
+      },
+      {
+        accessorKey: 'ingestRegion',
+        header: 'Ingest region',
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+      },
+    ],
+    [],
+  );
+
+  const router = useRouter()
 
   return (
     <div>
-      {(clickable) && (
-        <div className="flex border border-gray-300 rounded-xl p-2 px-5 hover:bg-gray-200 hover:shadow-sm">
-          <input type="checkbox" className="mr-5" />
-          <Link href={`/dashboard/sources/${sourceData.id}`} onClick={() => changeSourceData(sourceData)} className="grow">
-            <div className="flex justify-between">
-              <ItemValue value={sourceData.name}></ItemValue>
-              <ItemValue value={sourceData.description}></ItemValue>
-              <ItemValue value={sourceData.ingestRegion}></ItemValue>
-              <ItemValue value={sourceData.status}></ItemValue>
-            </div>
-          </Link>
-        </div>
-      ) || (
-        <div className="flex justify-between">
-          <div className="mr-8" />
-          <ItemValue value={sourceData.name}></ItemValue>
-          <ItemValue value={sourceData.description}></ItemValue>
-          <ItemValue value={sourceData.ingestRegion}></ItemValue>
-          <ItemValue value={sourceData.status}></ItemValue>
-        </div>
-      )}
-     </div>
-  );
-};
-
-export const ItemValuesList: React.FC<{ sourceDatas: SourceData[] }> = ({ sourceDatas }) => {
-  return (
-    <div className="space-y-4">
-      {sourceDatas.map((sourceData) => (
-        <ItemValues key={sourceData.name} sourceData={sourceData} clickable={true}></ItemValues>
-      ))}
+      <Table data={templateSources} columns={columns} onRowClick={(id: string)=> router.push(`/dashboard/sources/${id}`)}></Table>
     </div>
   );
 };
