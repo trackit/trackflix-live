@@ -3,12 +3,13 @@ import NextAuth from 'next-auth';
 import type { Provider } from "next-auth/providers"
 import Cognito from "@auth/core/providers/cognito";
 import { NextResponse } from 'next/server';
+import config from '@/shared/utils/config';
 
 const providers: Provider[] = [
   Cognito({
-    clientId: process.env.NEXT_PUBLIC_USER_POOL_APP_ID!,
-    clientSecret: process.env.NEXT_PUBLIC_COGNITO_SECRET!,
-    issuer: `https://cognito-idp.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${process.env.NEXT_PUBLIC_USER_POOL_ID}`,
+    clientId: config.Providers.Cognito.UserPool.AppClient.Id,
+    clientSecret: config.Providers.Cognito.UserPool.AppClient.Secret,
+    issuer: config.Providers.Cognito.Issuer,
   }),
 ]
 
