@@ -1,12 +1,14 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import React from 'react';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Trackflix live",
-  description: "Trackflix Live streamlines live streaming event management with AWS MediaLive, driving efficiency, cost savings, and scalable broadcasting solutions.",
+  title: 'Trackflix live',
+  description:
+    'Trackflix Live streamlines live streaming event management with AWS MediaLive, driving efficiency, cost savings, and scalable broadcasting solutions.',
 };
 
 export default function RootLayout({

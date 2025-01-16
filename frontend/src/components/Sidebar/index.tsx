@@ -1,9 +1,9 @@
-import { LuChevronFirst, LuChevronLast, LuMoreVertical } from "react-icons/lu";
-import { useContext, createContext, useState } from "react";
-import Image from "next/image";
-import { useSession, signOut } from "next-auth/react";
-import { useSidebar } from "./SidebarContext";
-import Link from "next/link";
+import { LuChevronFirst, LuChevronLast, LuMoreVertical } from 'react-icons/lu';
+import React, { useContext, createContext, useState } from 'react';
+import Image from 'next/image';
+import { useSession, signOut } from 'next-auth/react';
+import { useSidebar } from './SidebarContext';
+import Link from 'next/link';
 
 const SidebarContext = createContext({ expanded: false });
 
@@ -13,7 +13,7 @@ export default function Sidebar({ children }: any) {
   return (
     <aside
       className={`h-screen top-0 left-0 transition-all flex flex-col ${
-        expanded ? "w-2/12" : "w-auto"
+        expanded ? 'w-2/12' : 'w-auto'
       }`}
     >
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
@@ -21,7 +21,7 @@ export default function Sidebar({ children }: any) {
           <Image
             src="/trackit-logo.png"
             className={`overflow-hidden transition-all ${
-              expanded ? "w-32 h-8" : "w-0 h-0"
+              expanded ? 'w-32 h-8' : 'w-0 h-0'
             }`}
             width={0}
             height={0}
@@ -47,7 +47,7 @@ export default function Sidebar({ children }: any) {
 
 function UserProfile({ expanded }: { expanded: boolean }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const email = session?.user?.email;
 
   return (
@@ -60,14 +60,18 @@ function UserProfile({ expanded }: { expanded: boolean }) {
       <div
         className={`
           flex justify-between items-center
-          overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}
+          overflow-hidden transition-all ${expanded ? 'w-52 ml-3' : 'w-0'}
       `}
       >
         <div className="leading-4">
           <h4 className="font-semibold">{email?.split('@')[0]}</h4>
           <span className="text-xs text-gray-600">{email}</span>
         </div>
-        <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+        <button
+          onClick={() => {
+            setIsDropdownOpen(!isDropdownOpen);
+          }}
+        >
           <LuMoreVertical size={20} />
         </button>
       </div>
@@ -76,7 +80,9 @@ function UserProfile({ expanded }: { expanded: boolean }) {
         <div className="absolute bottom-14 right-0 w-48 bg-white shadow-lg rounded-lg border p-2">
           <button
             className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-            onClick={() => signOut()}
+            onClick={async () => {
+              await signOut();
+            }}
           >
             Disconnect
           </button>
@@ -103,7 +109,7 @@ export function SidebarItem({ icon, text, dest }: any) {
         {icon}
         <span
           className={`overflow-hidden transition-all ${
-            expanded ? "w-52 ml-3" : "w-0"
+            expanded ? 'w-52 ml-3' : 'w-0'
           }`}
         >
           {text}

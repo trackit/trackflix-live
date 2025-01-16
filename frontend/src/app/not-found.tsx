@@ -1,5 +1,4 @@
-
-"use client";
+'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -13,7 +12,9 @@ const Custom404 = () => {
       router.replace(to);
     }, delay);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [router]);
 
   return null;
