@@ -1,9 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 
-type SidebarContextType = {
+interface SidebarContextType {
   expanded: boolean;
   toggleSidebar: () => void;
-};
+}
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
@@ -16,9 +21,13 @@ export const useSidebar = (): SidebarContextType => {
   return context;
 };
 
-export const SidebarProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SidebarProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const toggleSidebar = () => setExpanded(!expanded);
+  const toggleSidebar = () => {
+    setExpanded(!expanded);
+  };
 
   return (
     <SidebarContext.Provider value={{ expanded, toggleSidebar }}>
