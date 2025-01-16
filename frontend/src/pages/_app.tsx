@@ -18,7 +18,11 @@ const AppBar = () => {
     <Sidebar>
       <SidebarItem icon={<FaHome />} text="Dashboard" dest="/dashboard" />
       <SidebarItem icon={<FaBell />} text="Events" dest="/dashboard/events" />
-      <SidebarItem icon={<FaVideo />} text="Sources" dest="/sources" />
+      <SidebarItem
+        icon={<FaVideo />}
+        text="Sources"
+        dest="/dashboard/sources"
+      />
     </Sidebar>
   ) : null;
 };
