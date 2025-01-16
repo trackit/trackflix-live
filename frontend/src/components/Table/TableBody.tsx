@@ -1,7 +1,8 @@
-import { flexRender, Row, Table } from '@tanstack/react-table';
+import { flexRender, type Table } from '@tanstack/react-table';
 import React from 'react';
 import { BiLoader } from 'react-icons/bi';
 import { useSources } from '@/pages/dashboard/sources/SourcesContexts';
+import { type SourceData } from '@/pages/dashboard/sources';
 
 interface TableBodyProps {
   table: Table<any>;
@@ -23,8 +24,8 @@ export function TableBody({ table, onRowClick, data }: TableBodyProps) {
             key={row.id}
             className="bg-white border-b hover:bg-gray-100 cursor-pointer"
             onClick={() => {
-              changeSourceData(row.original);
-              onRowClick(row.original.id);
+              changeSourceData(row.original as SourceData);
+              onRowClick(row.original.id as string);
             }}
           >
             {row.getVisibleCells().map((cell) => (

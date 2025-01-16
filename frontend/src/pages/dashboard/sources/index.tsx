@@ -1,18 +1,17 @@
-import Link from 'next/link';
-import { createContext, useMemo } from 'react';
+import React, { createContext, useMemo } from 'react';
 import { useSources } from './SourcesContexts';
 import { Table } from '@/components/Table';
-import { Source } from 'postcss';
-import { ColumnDef, Row } from '@tanstack/react-table';
+import { type Source } from 'postcss';
+import { type ColumnDef } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 
-export type SourceData = {
+export interface SourceData {
   id: number;
   name: string;
   description: string;
   ingestRegion: string;
   status: string;
-};
+}
 
 const SourcesContext = createContext({
   sourceData: { name: '', description: '', ingestRegion: '', status: '' },
@@ -66,9 +65,7 @@ const templateSources = [
 export const ItemValuesList: React.FC<{ sourceDatas: SourceData[] }> = ({
   sourceDatas,
 }) => {
-  const { changeSourceData } = useSources();
-
-  const columns: ColumnDef<Source>[] = useMemo(
+  const columns: Array<ColumnDef<Source>> = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -97,7 +94,9 @@ export const ItemValuesList: React.FC<{ sourceDatas: SourceData[] }> = ({
       <Table
         data={templateSources}
         columns={columns}
-        onRowClick={(id: string) => router.push(`/dashboard/sources/${id}`)}
+        onRowClick={(id: string) => {
+          router.push(`/dashboard/sources/${id}`);
+        }}
       ></Table>
     </div>
   );

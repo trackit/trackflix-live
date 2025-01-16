@@ -1,4 +1,4 @@
-import { flexRender, Table } from '@tanstack/react-table';
+import { flexRender, type Table } from '@tanstack/react-table';
 import React from 'react';
 
 interface TableHeaderProps<T> {

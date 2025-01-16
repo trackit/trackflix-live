@@ -2,7 +2,7 @@ import React from 'react';
 import { useSources } from './SourcesContexts';
 
 export default function SourceDetails() {
-  const { sourceData, changeSourceData } = useSources();
+  const { sourceData } = useSources();
 
   console.log('sourceData', sourceData);
 

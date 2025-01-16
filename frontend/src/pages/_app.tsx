@@ -7,6 +7,7 @@ import { FaBell, FaHome, FaVideo } from 'react-icons/fa';
 import { SidebarProvider } from '@/components/Sidebar/SidebarContext';
 import DefaultBackground from '@/components/DefaultBackground';
 import { Settings } from 'luxon';
+import { SourcesProvider } from '@/pages/dashboard/sources/SourcesContexts';
 
 Settings.defaultZone = 'utc';
 

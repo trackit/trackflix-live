@@ -1,18 +1,15 @@
 import React from 'react';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
-  getPaginationRowModel,
-  Row,
   useReactTable,
 } from '@tanstack/react-table';
 import { TableHeader } from './TableHeader';
 import { TableBody } from './TableBody';
-import { TableFooter } from './TableFooter';
 
 interface TableProps {
   data: unknown[];
-  columns: ColumnDef<any>[];
+  columns: Array<ColumnDef<any>>;
   onRowClick: (id: string) => void;
 }
 
