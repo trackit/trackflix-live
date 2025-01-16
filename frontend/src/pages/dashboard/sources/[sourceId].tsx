@@ -4,8 +4,6 @@ import { useSources } from './SourcesContexts';
 export default function SourceDetails() {
   const { sourceData } = useSources();
 
-  console.log('sourceData', sourceData);
-
   return (
     <div className="pt-10 mx-11 h-screen">
       <SourceName value={sourceData.name}></SourceName>
