@@ -26,7 +26,7 @@ export function TableFooter<T>({ table }: TableFooterProps<T>) {
           'disabled:bg-gray-50',
           'disabled:cursor-not-allowed',
           'border-gray-300',
-          'bg-white',
+          'bg-white'
         )}
         onClick={() => {
           setPageNumber(0);
@@ -50,7 +50,7 @@ export function TableFooter<T>({ table }: TableFooterProps<T>) {
           'disabled:bg-gray-50',
           'disabled:cursor-not-allowed',
           'border-gray-300',
-          'bg-white',
+          'bg-white'
         )}
         onClick={() => {
           setPageNumber(table.getState().pagination.pageIndex - 1);
@@ -75,14 +75,17 @@ export function TableFooter<T>({ table }: TableFooterProps<T>) {
           'disabled:bg-gray-50',
           'disabled:cursor-not-allowed',
           'border-gray-300',
-          'bg-white',
+          'bg-white'
         )}
         onClick={() => {
           const nextPage = table.getState().pagination.pageIndex + 1;
           setPageNumber(nextPage);
           table.nextPage();
         }}
-        disabled={!table.getCanNextPage() && table.getState().pagination.pageIndex < Math.ceil(total / perPage)}
+        disabled={
+          !table.getCanNextPage() &&
+          table.getState().pagination.pageIndex < Math.ceil(total / perPage)
+        }
         type="button"
       >
         {'>'}
@@ -101,7 +104,7 @@ export function TableFooter<T>({ table }: TableFooterProps<T>) {
           'disabled:bg-gray-50',
           'disabled:cursor-not-allowed',
           'border-gray-300',
-          'bg-white',
+          'bg-white'
         )}
         onClick={() => {
           setPageNumber(Math.ceil(total / perPage - 1));
@@ -115,11 +118,11 @@ export function TableFooter<T>({ table }: TableFooterProps<T>) {
 
       {/* Page Indicator */}
       <span className="flex items-center gap-2 text-sm text-gray-600">
-				<div>Page</div>
-				<strong className="text-gray-900">
-					{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-				</strong>
-			</span>
+        <div>Page</div>
+        <strong className="text-gray-900">
+          {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+        </strong>
+      </span>
 
       {/* Page Size Selector */}
       <select

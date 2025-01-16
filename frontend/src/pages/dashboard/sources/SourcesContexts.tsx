@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useContext, useState } from "react";
-import { SourceData } from ".";
+import { createContext, ReactNode, useContext, useState } from 'react';
+import { SourceData } from '.';
 
 type SourcesContextType = {
   sourceData: SourceData;
@@ -17,9 +17,18 @@ export const useSources = (): SourcesContextType => {
   return context;
 };
 
-export const SourcesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [sourceData, setSourceData] = useState({ id: 0, name: "", description: "", ingestRegion: "", status: "" });
-  const changeSourceData = (sourceData: SourceData) => setSourceData(sourceData);
+export const SourcesProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [sourceData, setSourceData] = useState({
+    id: 0,
+    name: '',
+    description: '',
+    ingestRegion: '',
+    status: '',
+  });
+  const changeSourceData = (sourceData: SourceData) =>
+    setSourceData(sourceData);
 
   return (
     <SourcesContext.Provider value={{ sourceData, changeSourceData }}>

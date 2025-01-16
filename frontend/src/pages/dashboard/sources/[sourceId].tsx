@@ -1,10 +1,10 @@
-import React from "react";
-import { useSources } from "./SourcesContexts";
+import React from 'react';
+import { useSources } from './SourcesContexts';
 
 export default function SourceDetails() {
   const { sourceData, changeSourceData } = useSources();
 
-  console.log("sourceData", sourceData);
+  console.log('sourceData', sourceData);
 
   return (
     <div className="pt-10 mx-11 h-screen">
@@ -26,35 +26,48 @@ export default function SourceDetails() {
 }
 
 export const SourceName: React.FC<{ value: string }> = ({ value }) => {
-  return <div className="w-full border border-gray-300 rounded-xl p-2 px-5">
+  return (
+    <div className="w-full border border-gray-300 rounded-xl p-2 px-5">
       <span>{value}</span>
     </div>
-}
+  );
+};
 
 export const VideoPlayer: React.FC<{ value: string }> = ({ value }) => {
-  return <div className="w-full h-full border border-gray-300 rounded-xl p-2 px-5">
+  return (
+    <div className="w-full h-full border border-gray-300 rounded-xl p-2 px-5">
       <video className="w-full h-full" controls>
         {/* Template video url */}
-        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" type="video/mp4" />
+        <source
+          src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+          type="video/mp4"
+        />
         Your browser does not support the video tag.
       </video>
     </div>
-}
+  );
+};
 
 export const Controls: React.FC<{ value: string }> = ({ value }) => {
-  return <div className="w-full h-full border border-gray-300 rounded-xl p-2 px-5">
+  return (
+    <div className="w-full h-full border border-gray-300 rounded-xl p-2 px-5">
       <span>{value}</span>
     </div>
-}
+  );
+};
 
 export const SourceInformation: React.FC<{ value: string }> = ({ value }) => {
-  return <div className="w-4/12 border border-gray-300 rounded-xl p-2 px-5">
+  return (
+    <div className="w-4/12 border border-gray-300 rounded-xl p-2 px-5">
       <span>{value}</span>
     </div>
-}
+  );
+};
 
 export const SourceEvents: React.FC<{ value: string }> = ({ value }) => {
-  return <div className="w-full h-1/4 border border-gray-300 rounded-xl p-2 px-5">
+  return (
+    <div className="w-full h-1/4 border border-gray-300 rounded-xl p-2 px-5">
       <span>{value}</span>
     </div>
-}
+  );
+};
