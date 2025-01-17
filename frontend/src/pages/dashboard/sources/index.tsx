@@ -68,6 +68,23 @@ export const ItemValuesList: React.FC<{ sourceDatas: SourceData[] }> = ({
   const columns: Array<ColumnDef<Source>> = useMemo(
     () => [
       {
+        id: 'select',
+        size: 5,
+        header: ({ table }) => (
+          <input
+            type="checkbox"
+            onChange={table.getToggleAllRowsSelectedHandler()}
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+          />
+        ),
+      },
+      {
         accessorKey: 'name',
         header: 'Name',
       },

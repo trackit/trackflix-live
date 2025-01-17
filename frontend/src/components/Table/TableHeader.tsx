@@ -11,7 +11,13 @@ export function TableHeader<T>({ table }: TableHeaderProps<T>) {
       {table.getHeaderGroups().map((headerGroup) => (
         <tr key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
-            <th key={header.id} className="px-6 py-3 w-1/4">
+            <th
+              key={header.id}
+              className="px-3 py-3"
+              style={{
+                width: header.column.getSize(),
+              }}
+            >
               {header.isPlaceholder
                 ? null
                 : flexRender(

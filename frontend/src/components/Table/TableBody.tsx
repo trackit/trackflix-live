@@ -29,7 +29,13 @@ export function TableBody({ table, onRowClick, data }: TableBodyProps) {
             }}
           >
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className="px-6 py-4 w-1/4">
+              <td
+                key={cell.id}
+                className="px-3 py-3"
+                style={{
+                  width: cell.column.getSize(),
+                }}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}
