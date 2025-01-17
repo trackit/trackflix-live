@@ -28,12 +28,17 @@ export function TableBody({ table, onRowClick, data }: TableBodyProps) {
               onRowClick(row.original.id as string);
             }}
           >
-            {row.getVisibleCells().map((cell) => (
+            {row.getVisibleCells().map((cell, cellIndex) => (
               <td
                 key={cell.id}
                 className="px-3 py-3"
                 style={{
                   width: cell.column.getSize(),
+                }}
+                onClick={(e) => {
+                  if (cellIndex === 0) {
+                    e.stopPropagation();
+                  }
                 }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
