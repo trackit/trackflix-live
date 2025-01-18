@@ -7,7 +7,43 @@ Parameters:
     Type: String
     Description: The domain name for the application
 
+Globals:
+  Function:
+    Timeout: 60
+    Architectures:
+      - x86_64
+    Runtime: nodejs20.x
+    LoggingConfig:
+      LogFormat: JSON
+    #Tags:
+    #  Owner: !Ref Owner
+    #  Project: !Ref Project
+
 Resources:
+  #############
+  # IAM ROLES #
+  #############
+  ProjectLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      # keeping permission lax for experimentation. Should tighten permissions once solidified.
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+        - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
+
+  ###########
+  # COGNITO #
+  ###########
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -70,3 +106,19 @@ Resources:
             Fn::GetAtt:
               - UserPool
               - ProviderName
+
+  ####################
+  # LAMBDA FUNCTIONS #
+  ####################
+  CreateEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/modules/event/infra/adapters/
+      Handler: CreateEvent.handler
+      Role: !GetAtt ProjectLambdaRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true

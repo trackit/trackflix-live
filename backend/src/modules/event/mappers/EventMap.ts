@@ -1,6 +1,5 @@
 import { Event } from "src/modules/event/domain/Event";
 import { Mapper } from "@shared/Mapper";
-import { UniqueEntityID } from "@shared/UniqueEntityID";
 import { SourceName } from "../domain/SourceName";
 import { EventStatus } from "../enums/EventStatus";
 import { SourceMap } from "./SourceMap";
@@ -16,7 +15,7 @@ export class EventMap extends Mapper<Event> {
       onAirEndTime: EventDate.create({ date: raw.onAirEndTime }).getValue(),
       status: EventStatus[raw.status],
       source: SourceMap.toDomain(raw.source)
-    }, new UniqueEntityID(raw.vinyl_id)).getValue();
+    }).getValue();
   }
 
   public static toPersistence (event: Event): any {

@@ -1,5 +1,8 @@
 import { AfterEventCreated } from "./AfterEventCreated";
 import { AfterEventDeleted } from "./AfterEventDeleted";
+import { publishEventUseCase } from "../useCases/publishEvent";
 
-new AfterEventCreated();
+import { eventRepository } from "../repositories";
+
+new AfterEventCreated(publishEventUseCase, eventRepository);
 new AfterEventDeleted();

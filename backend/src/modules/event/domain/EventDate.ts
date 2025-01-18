@@ -21,7 +21,7 @@ export class EventDate extends ValueObject<EventDateProps> {
         }
 
         try {
-            if (props.date.toISOString() < new Date(Date.now()).toISOString()) {
+            if (new Date(props.date).toISOString() < new Date(Date.now()).toISOString()) {
                 return Result.fail<EventDate>(Errors.EVENT_DATE_MUST_NOT_BE_IN_THE_PAST);
             }
         } catch (e: any) {
