@@ -21,21 +21,18 @@ export class AfterEventCreated implements Handle<EventCreatedEvent> {
     }
 
     private async onEventCreatedEvent(event: EventCreatedEvent): Promise<void> {
-        try {
-            const { eventId } = event;
+        const { eventId } = event;
 
 
-            const eventFromRepo = await this._eventRepository.getEventById(eventId);
+        const eventFromRepo = await this._eventRepository.getEventById(eventId);
 
-            if (eventFromRepo == null)
-                console.error('[ERROR/onEventCreatedEvent]: Event not found');
+        if (eventFromRepo === null) {
+            throw new Error('Event not found');
+        }
 
-            const publishEventResponse = await this._publishEventUseCase.execute(eventFromRepo);
-            if (publishEventResponse.isFailure)
-                console.error(`[ERROR/onEventCreatedEvent] ${publishEventResponse.errorValue() as string}`);
-
-        } catch (error) {
-            console.error(`[ERROR/onEventCreatedEvent]: ${error}`)
+        const publishEventResponse = await this._publishEventUseCase.execute(eventFromRepo);
+        if (publishEventResponse.isFailure) {
+            throw new Error(publishEventResponse.errorValue());
         }
     }
 }

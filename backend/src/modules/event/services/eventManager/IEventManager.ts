@@ -3,5 +3,5 @@ import { Event } from "../../domain/Event";
 
 export interface IEventManager
 {
-    putEvent(event: Event) : Promise<Result<void>>;
+    putEvent(event: Event) : Promise<Result<void|string>>;
 }

@@ -1,10 +1,12 @@
 import { CreateEventUseCase } from "./createEventUseCase";
 import { FakeEventRepository } from "../../repositories/tests/fakeEventRepository";
 import { eventRepository } from "../../repositories";
-import '../../index';
 import { createEventUseCase } from "./index";
+import { mockClient } from "aws-sdk-client-mock";
+import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
+import '../../index';
 
-let useCase: CreateEventUseCase;
+let useCase: CreateEventUseCase = createEventUseCase;
 let fakeEventRepo: FakeEventRepository = eventRepository;
 
 const startTime = new Date(Date.now());
@@ -13,13 +15,15 @@ startTime.setDate(startTime.getDate() + 1);
 const endTime = new Date(Date.now());
 endTime.setDate(endTime.getDate() + 2);
 
+const eventBridgeMock = mockClient(EventBridgeClient);
+
 describe('CreateEventUseCase', () => {
-  beforeEach(() => {
-    useCase = createEventUseCase;
-    // useCase = new CreateEventUseCase(
-    //  fakeEventRepo,
-    // );
-  })
+
+  eventBridgeMock.on(PutEventsCommand).resolves({});
+
+  beforeEach(() =>  {
+    eventBridgeMock.reset();
+  });
 
   it('Should create an event', async () => {
     const event = await useCase.execute({
@@ -38,7 +42,6 @@ describe('CreateEventUseCase', () => {
     expect(event.getValue()).not.toBeNull();
   });
 
-  /*
   it('Should return a failed result if an error is thrown', async () => {
     jest
       .spyOn(fakeEventRepo, 'save')
@@ -62,5 +65,4 @@ describe('CreateEventUseCase', () => {
     expect(event.isSuccess).toBe(false);
     expect(event.errorValue()).toBe("An error occurred.");
   });
-  */
 })

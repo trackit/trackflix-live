@@ -23,14 +23,10 @@ export class EventBridgeService implements IEventManager
             }))
         };
 
-        console.log(events);
-
         const command = new PutEventsCommand(parameters);
 
         try {
-            console.log('Before PutEvents');
-            await this._client.send(command);
-            console.log('After PutEvents');
+             await this._client.send(command);
 
             return right(Result.ok<string>("OK"));
         } catch (error) {
@@ -43,7 +39,7 @@ export class EventBridgeService implements IEventManager
         const request = await this.putEvents([event]);
 
         if (request.isLeft()) {
-            return Result.fail<void>(request.value as string);
+            return Result.fail<string>(request.value as string);
         }
 
         return Result.ok<void>();

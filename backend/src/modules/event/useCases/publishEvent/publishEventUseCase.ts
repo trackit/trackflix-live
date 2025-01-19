@@ -11,13 +11,11 @@ export class PublishEventUseCase implements UseCase<Event, Promise<Result<string
     }
 
     async execute(event: Event): Promise<Result<string>> {
-        try {
-            await this._eventManager.putEvent(event);
+        const res = await this._eventManager.putEvent(event);
 
-            return Result.ok<string>();
-        } catch (error) {
-            console.error('error occured ', error);
-            return Result.fail<string>(error);
-        }
+        if (res.isFailure)
+            return Result.fail<string>(res.errorValue() as string);
+
+        return Result.ok<string>();
     }
 }
