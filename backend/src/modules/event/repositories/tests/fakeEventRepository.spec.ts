@@ -1,4 +1,5 @@
-import { FakeEventRepository } from "./fakeEventRepository";
+import {
+    FakeEventRepository } from "./fakeEventRepository";
 import { Event } from "../../domain/Event";
 import { Source } from "../../domain/Source";
 import { SourceName } from "../../domain/SourceName";

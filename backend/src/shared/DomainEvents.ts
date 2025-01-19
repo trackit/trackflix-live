@@ -23,11 +23,13 @@ export class DomainEvents {
         }
     }
 
-    private static dispatchAggregateEvents (aggregate: AggregateRoot<any>): void {
-        aggregate.domainEvents.forEach((event: DomainEvent) => this.dispatch(event));
+    private static async dispatchAggregateEvents (aggregate: AggregateRoot<any>) {
+        await Promise.all(
+            aggregate.domainEvents.map(async (event: DomainEvent) => await this.dispatch(event))
+        );
     }
 
-    private static removeAggregateFromMarkedDispatchList (aggregate: AggregateRoot<any>): void {
+    private static removeAggregateFromMarkedDispatchList (aggregate: AggregateRoot<any>) {
         const index = this.markedAggregates.findIndex((a) => a.equals(aggregate));
         this.markedAggregates.splice(index, 1);
     }
@@ -43,13 +45,13 @@ export class DomainEvents {
         return found;
     }
 
-    public static dispatchEventsForAggregate (id: UniqueEntityID): void {
+    public static async dispatchEventsForAggregate (id: UniqueEntityID) {
         const aggregate = this.findMarkedAggregateByID(id);
 
         if (aggregate) {
-            this.dispatchAggregateEvents(aggregate);
+            await this.dispatchAggregateEvents(aggregate);
             aggregate.clearEvents();
-            this.removeAggregateFromMarkedDispatchList(aggregate);
+            await this.removeAggregateFromMarkedDispatchList(aggregate);
         }
     }
 
@@ -68,13 +70,13 @@ export class DomainEvents {
         this.markedAggregates = [];
     }
 
-    private static dispatch (event: DomainEvent): void {
+    private static async dispatch (event: DomainEvent) {
         const eventClassName: string = event.constructor.name;
 
         if (this.handlersMap.hasOwnProperty(eventClassName)) {
             const handlers: any[] = this.handlersMap[eventClassName];
             for (let handler of handlers) {
-                handler(event);
+                await handler(event);
             }
         }
     }

@@ -15,20 +15,26 @@ export class EventBridgeService implements IEventManager
     {
         const parameters: PutEventsRequest = {
             Entries: events.map((event) => ({
-                Source: "source",
-                DetailType: "detail-type",
+                // TODO: Set source and detail-type based on the event sent
+                Source: "trackflix-live.backend",
+                DetailType: "event",
+                //
                 Detail: JSON.stringify(event),
             }))
         };
 
+        console.log(events);
+
         const command = new PutEventsCommand(parameters);
 
         try {
+            console.log('Before PutEvents');
             await this._client.send(command);
+            console.log('After PutEvents');
 
-            return right(Result.ok<void>());
+            return right(Result.ok<string>("OK"));
         } catch (error) {
-            return left(Result.fail<void>(error));
+            return left(Result.fail<string>(error));
         }
     }
 

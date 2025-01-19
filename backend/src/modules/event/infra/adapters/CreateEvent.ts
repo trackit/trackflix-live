@@ -1,5 +1,11 @@
 import { createEventUseCase } from "../../useCases/createEvent";
 
+import { CreateEventUseCase } from "../../useCases/createEvent/createEventUseCase";
+import { FakeEventRepository } from "../../repositories/tests/fakeEventRepository";
+import { eventRepository } from "../../repositories";
+
+import '../../index';
+
 export const handler = async (event: any, context: any) => {
     console.log('Incoming event:', JSON.stringify(event));
 

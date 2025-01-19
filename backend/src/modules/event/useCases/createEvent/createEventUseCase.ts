@@ -19,7 +19,7 @@ export class CreateEventUseCase implements UseCase<CreateEventUseCaseRequestDto,
 
             await this.eventRepository.save(event)
 
-            DomainEvents.dispatchEventsForAggregate(event.id);
+            await DomainEvents.dispatchEventsForAggregate(event.id);
 
             return Result.ok<Event>(event);
         } catch (e) {

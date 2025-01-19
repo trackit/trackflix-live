@@ -4,7 +4,7 @@ import { IEventRepository } from "../eventRepository";
 import { UniqueEntityID } from "@shared/UniqueEntityID";
 
 export class FakeEventRepository extends BaseFakeRepo<Event> implements IEventRepository {
-  
+
   constructor () {
     super();
   }

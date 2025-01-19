@@ -9,7 +9,6 @@ import { EventDate } from "./EventDate";
 import { Errors } from "../enums/Errors";
 import {Result} from "@shared/Response";
 import {Guard} from "@shared/Guard";
-import {SourceProtocol} from "../enums/SourceProtocol";
 
 interface EventProps {
     name: EventName;
@@ -72,7 +71,7 @@ export class Event extends AggregateRoot<EventProps> {
             if (isNewlyCreated) {
                 event.addDomainEvent(new EventCreatedEvent(event.id))
             }
-        } catch (e: any) {
+        } catch (e) {
             return Result.fail<Event>(Errors.EVENT_ADD_DOMAIN_EVENT_ERROR);
         }
 
