@@ -15,9 +15,6 @@ Globals:
     Runtime: nodejs20.x
     LoggingConfig:
       LogFormat: JSON
-    #Tags:
-    #  Owner: !Ref Owner
-    #  Project: !Ref Project
 
 Resources:
   #############
