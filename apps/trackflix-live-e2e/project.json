@@ -1,0 +1,9 @@
+{
+  "name": "trackflix-live-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/trackflix-live-e2e/src",
+  "implicitDependencies": ["trackflix-live"],
+  "// targets": "to see all targets run: nx show project trackflix-live-e2e --web",
+  "targets": {}
+}
