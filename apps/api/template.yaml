@@ -25,13 +25,18 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: "sts:AssumeRole"
-      # keeping permission lax for experimentation. Should tighten permissions once solidified.
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
-        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
-        - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                Resource:
+                  - !GetAtt EventsTable.Arn
 
   ###########
   # COGNITO #
@@ -91,6 +96,25 @@ Resources:
             Fn::GetAtt:
               - UserPool
               - ProviderName
+
+  ###################
+  # DYNAMODB TABLES #
+  ###################
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "events-${AWS::StackName}"
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: "S"
+        - AttributeName: Name
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+        - AttributeName: Name
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
 
   ####################
   # LAMBDA FUNCTIONS #
