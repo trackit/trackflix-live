@@ -1,0 +1,9 @@
+{
+  "name": "webui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/webui/src",
+  "projectType": "application",
+  "tags": ["scope:webui", "type:app"],
+  "// targets": "to see all targets run: nx show project webui --web",
+  "targets": {}
+}

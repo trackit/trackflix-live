@@ -1,0 +1,9 @@
+{
+  "name": "form",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/forms/src",
+  "projectType": "library",
+  "tags": ["type:ui", "scope:webui"],
+  "// targets": "to see all targets run: nx show project form --web",
+  "targets": {}
+}
