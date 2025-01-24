@@ -8,7 +8,7 @@ describe('CreateEvent use case', () => {
     const { eventsRepository, useCase } = setup();
 
     await useCase.createEvent(
-      CreateEventMother.basic().withName('Test event').build(),
+      CreateEventMother.basic().withName('Test event').build()
     );
 
     expect(eventsRepository.events).toMatchObject([
@@ -24,7 +24,7 @@ describe('CreateEvent use case', () => {
     await useCase.createEvent(
       CreateEventMother.basic()
         .withOnAirStartTime(new Date('2025-01-22T09:47:07.202Z'))
-        .build(),
+        .build()
     );
 
     expect(eventScheduler.scheduledEvents).toMatchObject([

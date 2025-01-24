@@ -1,4 +1,4 @@
-import { EventsRepository } from '../ports/EventsRepository';
+import { EventsRepository } from '../ports';
 import { Event } from '@trackflix-live/types';
 
 export class EventsRepositoryInMemory implements EventsRepository {

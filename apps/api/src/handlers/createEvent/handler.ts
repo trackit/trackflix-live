@@ -1,6 +1,10 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { CreateEventAdapter } from './createEvent.adapter';
-import { CreateEventUseCaseImpl, EventSchedulerFake, EventsRepositoryInMemory } from '@trackflix-live/api-events';
+import {
+  CreateEventUseCaseImpl,
+  EventSchedulerFake,
+  EventsRepositoryInMemory,
+} from '@trackflix-live/api-events';
 
 const eventScheduler = new EventSchedulerFake();
 const eventsRepository = new EventsRepositoryInMemory();
@@ -15,5 +19,5 @@ const adapter = new CreateEventAdapter({
 });
 
 export const main = (
-  event: APIGatewayProxyEventV2,
+  event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> => adapter.handle(event);

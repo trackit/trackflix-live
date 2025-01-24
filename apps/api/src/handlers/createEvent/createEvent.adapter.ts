@@ -10,7 +10,7 @@ export class CreateEventAdapter {
   }
 
   public async handle(
-    event: APIGatewayProxyEventV2,
+    event: APIGatewayProxyEventV2
   ): Promise<APIGatewayProxyResultV2> {
     return handleHttpRequest({
       event,

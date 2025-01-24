@@ -106,10 +106,8 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Format: esm
-        Minify: false
-        OutExtension:
-          - .js=.mjs
+        Minify: true
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - ./src/handlers/createEvent/handler.ts
+          - handler.ts

@@ -1,5 +1,5 @@
 {
-  "name": "@trackflix-live/source",
+  "name": "trackflix-live",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -43,6 +43,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "15.0.6",
     "@testing-library/user-event": "^14.6.1",
+    "@types/aws-lambda": "^8.10.147",
     "@types/jest": "^29.5.12",
     "@types/node": "18.16.9",
     "@types/react": "18.3.1",

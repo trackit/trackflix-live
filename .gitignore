@@ -46,3 +46,6 @@ vitest.config.*.timestamp*
 
 # Env files
 .env*
+
+# AWS SAM files
+.aws-sam

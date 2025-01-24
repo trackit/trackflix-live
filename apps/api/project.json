@@ -5,11 +5,24 @@
   "projectType": "application",
   "tags": ["scope:api", "type:app"],
   "targets": {
+    "prettier": {
+      "command": "prettier src --check",
+      "options": {
+        "cwd": "apps/api"
+      }
+    },
+    "build": {
+      "command": "sam build --cached",
+      "options": {
+        "cwd": "apps/api"
+      }
+    },
     "deploy": {
       "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\"",
       "options": {
         "cwd": "apps/api"
-      }
+      },
+      "dependsOn": ["build"]
     },
     "test": {
       "options": {
