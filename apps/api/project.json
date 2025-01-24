@@ -5,6 +5,12 @@
   "projectType": "application",
   "tags": ["scope:api", "type:app"],
   "targets": {
+    "deploy": {
+      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\"",
+      "options": {
+        "cwd": "apps/api"
+      }
+    },
     "test": {
       "options": {
         "passWithNoTests": true

@@ -1,1 +1,3 @@
-console.log('Hello World');
+export const main = async () => {
+  console.log('Hello, world!');
+}
