@@ -22,6 +22,7 @@
       ],
       "@trackflix-live/types": ["libs/shared/types/src/index.ts"],
       "@trackflix-live/ui": ["libs/webui/ui/src/index.ts"]
+      "@trackflix-live/shared": ["libs/shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
