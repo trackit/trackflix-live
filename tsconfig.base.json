@@ -15,9 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@trackflix-live/types": ["libs/types/src/index.ts"],
+      "@trackflix-live/api-events": ["libs/api-events/src/index.ts"],
       "@trackflix-live/forms": ["libs/forms/src/index.ts"],
-      "@trackflix-live/single-asset-flow": ["libs/single-asset-flow/src/index.ts"],
+      "@trackflix-live/single-asset-flow": [
+        "libs/single-asset-flow/src/index.ts"
+      ],
+      "@trackflix-live/types": ["libs/types/src/index.ts"],
       "@trackflix-live/ui": ["libs/ui/src/index.ts"]
     }
   },

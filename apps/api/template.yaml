@@ -99,12 +99,17 @@ Resources:
   CreateEvent:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/
-      Handler: main.main
+      CodeUri: ./src/handlers/createEvent/
+      Handler: handler.main
       Role: !GetAtt ProjectLambdaRole.Arn
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
-        Minify: true
-        Target: es2020
-        Bundle: true
+        Format: esm
+        Minify: false
+        OutExtension:
+          - .js=.mjs
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - ./src/handlers/createEvent/handler.ts

@@ -10,6 +10,7 @@
   "private": true,
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "aws-lambda": "^1.0.7",
     "axios": "^1.6.0",
     "lucide-react": "^0.473.0",
     "react": "18.3.1",
