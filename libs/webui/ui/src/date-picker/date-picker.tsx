@@ -10,8 +10,8 @@ interface DatePickerProps {
 
 export function DatePicker({ selected, setSelected }: DatePickerProps) {
   const [showPicker, setShowPicker] = useState(false);
-  const datePickerRef = useRef(null);
-  const inputRef = useRef(null);
+  const datePickerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleDateSelect = (date: Date) => {
     setSelected(date);
@@ -26,7 +26,9 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
       if (
         datePickerRef.current &&
         event.target instanceof Node &&
+        datePickerRef.current &&
         !datePickerRef.current.contains(event.target) &&
+        inputRef.current &&
         !inputRef.current.contains(event.target)
       ) {
         closePicker();
