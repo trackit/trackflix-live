@@ -18,7 +18,7 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
   };
 
   const closePicker = useCallback(() => {
-    setTimeout(() => setShowPicker(false), 200);
+    setShowPicker(false);
   }, [setShowPicker]);
 
   useEffect(() => {
@@ -67,7 +67,6 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
           selected={selected}
           onSelect={handleDateSelect}
           captionLayout={'dropdown'}
-          onDayClick={() => closePicker()}
         />
       </div>
     </div>
