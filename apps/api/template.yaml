@@ -62,7 +62,6 @@ Resources:
     Properties:
       ClientName: !Sub "${AWS::StackName}"
       UserPoolId: !Ref UserPool
-      GenerateSecret: true
       ExplicitAuthFlows:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_USER_PASSWORD_AUTH
