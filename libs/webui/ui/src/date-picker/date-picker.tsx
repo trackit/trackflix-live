@@ -24,7 +24,6 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        datePickerRef.current &&
         event.target instanceof Node &&
         datePickerRef.current &&
         !datePickerRef.current.contains(event.target) &&
