@@ -45,7 +45,7 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
       <input
         type="text"
         ref={inputRef}
-        className="input input-bordered w-full bg-base-100 text-base-content" // daisyUI classes for theming
+        className="input input-bordered w-full bg-base-100 text-base-content"
         placeholder="Select a date"
         value={
           selected ? DateTime.fromJSDate(selected).toFormat('yyyy-MM-dd') : ''
@@ -69,7 +69,6 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
           onSelect={handleDateSelect}
           captionLayout="dropdown"
           styles={{
-            caption: { color: 'inherit' },
             day: { color: 'inherit' },
             nav: { color: 'inherit' },
           }}
