@@ -41,11 +41,11 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
   }, [closePicker, showPicker]);
 
   return (
-    <div>
+    <div className="relative">
       <input
         type="text"
         ref={inputRef}
-        className={'input input-bordered'}
+        className="input input-bordered w-full bg-base-100 text-base-content" // daisyUI classes for theming
         placeholder="Select a date"
         value={
           selected ? DateTime.fromJSDate(selected).toFormat('yyyy-MM-dd') : ''
@@ -55,7 +55,8 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
       />
       <div
         ref={datePickerRef}
-        className={`absolute z-10 bg-white border rounded shadow mt-2 transition-all duration-200 ease-in-out ${
+        aria-label="Date picker"
+        className={`absolute z-10 bg-base-100 text-base-content border border-base-300 rounded shadow-lg mt-2 transition-all duration-200 ease-in-out ${
           showPicker
             ? 'opacity-100 scale-100 visible'
             : 'opacity-0 scale-95 invisible'
@@ -66,7 +67,12 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
           mode="single"
           selected={selected}
           onSelect={handleDateSelect}
-          captionLayout={'dropdown'}
+          captionLayout="dropdown"
+          styles={{
+            caption: { color: 'inherit' },
+            day: { color: 'inherit' },
+            nav: { color: 'inherit' },
+          }}
         />
       </div>
     </div>
