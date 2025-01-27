@@ -1,0 +1,15 @@
+{
+  "name": "api-events",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/api-events/src",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:api"],
+  "targets": {
+    "prettier": {
+      "command": "prettier src --check",
+      "options": {
+        "cwd": "apps/api"
+      }
+    }
+  }
+}
