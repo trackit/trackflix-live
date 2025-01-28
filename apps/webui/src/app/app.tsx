@@ -1,5 +1,5 @@
 import {SingleAssetFlow} from "@trackflix-live/single-asset-flow";
-import { Panel, ThemeSwitcher, TxTimeline } from '@trackflix-live/ui';
+import { Panel, ThemeSwitcher, TxTimeline, Clock } from '@trackflix-live/ui';
 import { DateTime } from 'luxon';
 
 export function App() {
@@ -24,9 +24,16 @@ export function App() {
         }
       >
         <Panel>
+          <div className={'relative'}>
           <h1>Trackflix Live</h1>
+
+            <div className={'absolute right-0 top-0'}>
+
+            <Clock />
+            </div>
+          </div>
           <hr/>
-          <div className="px-10 py-4">  
+          <div className="px-10 py-4">
             <TxTimeline steps={devSteps} />
           </div>
             <hr/>
