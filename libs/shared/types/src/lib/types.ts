@@ -17,8 +17,8 @@ export interface Event {
   id: string;
   name: string;
   description: string;
-  onAirStartTime: string;
-  onAirEndTime: string;
+  onAirStartTime: Date;
+  onAirEndTime: Date;
   source: Source;
   status: EventStatus;
 }
