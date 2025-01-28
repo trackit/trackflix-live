@@ -1,2 +1,3 @@
+export * from './tx-timeline/tx-timeline';
 export * from './panel/panel';
 export * from './theme-switcher/theme-switcher';

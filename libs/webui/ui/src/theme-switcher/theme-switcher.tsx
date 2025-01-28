@@ -36,7 +36,7 @@ export function ThemeSwitcher() {
       </svg>
       <input
         type="checkbox"
-        value="night"
+        value={THEME_KEYS.DARK}
         className="toggle"
         checked={isDarkMode}
         onChange={handleToggle}
