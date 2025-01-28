@@ -21,8 +21,8 @@
         "libs/webui/single-asset-flow/src/index.ts"
       ],
       "@trackflix-live/types": ["libs/shared/types/src/index.ts"],
-      "@trackflix-live/ui": ["libs/webui/ui/src/index.ts"]
-      "@trackflix-live/shared": ["libs/shared/src/index.ts"]
+      "@trackflix-live/ui": ["libs/webui/ui/src/index.ts"],
+      "@trackflix-live/formatting": ["libs/shared/formatting/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,7 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { CreateEventUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
-import { Event } from '@trackflix-live/types';
 import Ajv, { JSONSchemaType } from "ajv"
 import { CreateEventArgs } from "@trackflix-live/api-events";
 import addFormats from "ajv-formats"

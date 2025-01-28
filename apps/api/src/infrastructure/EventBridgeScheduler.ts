@@ -1,6 +1,6 @@
 import { EventScheduler, ScheduledEvent } from "@trackflix-live/api-events";
 import { EventBridgeClient, PutRuleCommand, PutRuleRequest, RuleState } from "@aws-sdk/client-eventbridge";
-import { CronConversion } from "@trackflix-live/shared";
+import { CronConversion } from "@trackflix-live/formatting";
 
 export class EventBridgeScheduler implements EventScheduler {
 
