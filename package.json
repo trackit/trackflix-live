@@ -10,10 +10,11 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.734.0",
-    "@aws-sdk/lib-dynamodb": "^3.734.0",
     "@aws-sdk/client-eventbridge": "^3.734.0",
+    "@aws-sdk/lib-dynamodb": "^3.734.0",
     "@hookform/resolvers": "^3.10.0",
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "aws-lambda": "^1.0.7",
     "axios": "^1.6.0",
     "lucide-react": "^0.473.0",

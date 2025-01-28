@@ -4,9 +4,11 @@ import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import { Event } from '@trackflix-live/types';
 import Ajv, { JSONSchemaType } from "ajv"
 import { CreateEventArgs } from "@trackflix-live/api-events";
+import addFormats from "ajv-formats"
 
 
 const ajv = new Ajv();
+addFormats(ajv)
 
 const schema: JSONSchemaType<CreateEventArgs> = {
   type: 'object',

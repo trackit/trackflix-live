@@ -18,7 +18,7 @@ export class EventBridgeScheduler implements EventScheduler {
 
       const input: PutRuleRequest = {
         Name: id,
-        ScheduleExpression: `cron(${cronExpFromDate})`,
+        ScheduleExpression: cronExpFromDate,
         State: RuleState.ENABLED,
       };
 
