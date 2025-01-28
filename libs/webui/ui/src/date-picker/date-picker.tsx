@@ -6,9 +6,10 @@ import 'react-day-picker/dist/style.css';
 interface DatePickerProps {
   selected: Date | undefined;
   setSelected: (selected: Date | undefined) => void;
+  color?: string;
 }
 
-export function DatePicker({ selected, setSelected }: DatePickerProps) {
+export function DatePicker({ selected, setSelected, color }: DatePickerProps) {
   const [showPicker, setShowPicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -45,7 +46,7 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
       <input
         type="text"
         ref={inputRef}
-        className="input input-bordered w-full bg-base-100 text-base-content"
+        className={`input input-bordered w-full ${color} text-base-content`}
         placeholder="Select a date"
         value={
           selected ? DateTime.fromJSDate(selected).toFormat('yyyy-MM-dd') : ''
@@ -56,7 +57,7 @@ export function DatePicker({ selected, setSelected }: DatePickerProps) {
       <div
         ref={datePickerRef}
         aria-label="Date picker"
-        className={`absolute z-10 bg-base-100 text-base-content border border-base-300 rounded shadow-lg mt-2 transition-all duration-200 ease-in-out ${
+        className={`absolute z-10 ${color} text-base-content border border-base-300 rounded shadow-lg mt-2 transition-all duration-200 ease-in-out ${
           showPicker
             ? 'opacity-100 scale-100 visible'
             : 'opacity-0 scale-95 invisible'

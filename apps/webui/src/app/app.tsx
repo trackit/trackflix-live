@@ -1,10 +1,7 @@
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
 import { Panel, ThemeSwitcher, TimeDatePicker } from '@trackflix-live/ui';
-import { useState } from 'react';
 
 export function App() {
-  const [selected, setSelected] = useState<Date | undefined>();
-
   return (
     <div className={'prose   '}>
       <div className={'absolute top-2 right-2'}>
@@ -19,7 +16,7 @@ export function App() {
         <Panel>
           <h1>Trackflix Live</h1>
           <SingleAssetFlow />
-          <TimeDatePicker selected={selected} setSelected={setSelected} />
+          <TimeDatePicker color={'bg-base-100'} />
         </Panel>
       </div>
     </div>
