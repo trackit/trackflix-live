@@ -1,55 +1,57 @@
 import { useState } from 'react';
+import { DateTime } from 'luxon';
 
 interface TimePickerProps {
+  value: Date;
+  setValue: (value: Date) => void;
   color?: string;
 }
 
-export function TimePicker({ color }: TimePickerProps) {
-  const [hour, setHour] = useState('12');
-  const [minute, setMinute] = useState('00');
-  const [period, setPeriod] = useState('AM'); // Optional for 12-hour format
-
-  const hours = Array.from({ length: 12 }, (_, i) =>
-    (i + 1).toString().padStart(2, '0')
-  );
-  const minutes = Array.from({ length: 60 }, (_, i) =>
-    i.toString().padStart(2, '0')
-  );
+export function TimePicker({ color, setValue, value }: TimePickerProps) {
+  const [period, setPeriod] = useState('AM');
 
   return (
     <div className="flex items-center space-x-2">
-      <div className="form-control">
-        <select
-          value={hour}
-          onChange={(e) => setHour(e.target.value)}
-          className={`select select-bordered w-20 ${color}`}
-        >
-          {hours.map((h) => (
-            <option key={h} value={h}>
-              {h}
-            </option>
-          ))}
-        </select>
-      </div>
+      <input
+        type="number"
+        value={DateTime.fromJSDate(value).get('hour')}
+        min={0}
+        max={12}
+        onChange={(e) => {
+          const newDate = DateTime.fromJSDate(value || new Date()).set({
+            hour: +e.target.value,
+          });
+          setValue(newDate.toJSDate());
+        }}
+        className={`input input-bordered w-14 ${color}`}
+      ></input>
 
-      <div className="form-control">
-        <select
-          value={minute}
-          onChange={(e) => setMinute(e.target.value)}
-          className={`select select-bordered w-20 ${color}`}
-        >
-          {minutes.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-      </div>
+      <input
+        type="number"
+        value={DateTime.fromJSDate(value).get('minute')}
+        onChange={(e) => {
+          const newDate = DateTime.fromJSDate(value || new Date()).set({
+            minute: +e.target.value,
+          });
+          setValue(newDate.toJSDate());
+        }}
+        className={`input input-bordered w-14 ${color}`}
+        min={0}
+        max={60}
+      ></input>
 
       <div className="form-control">
         <select
           value={period}
-          onChange={(e) => setPeriod(e.target.value)}
+          onChange={(e) => {
+            setPeriod(e.target.value);
+            setValue(
+              updateHourWithAmPm(
+                DateTime.fromJSDate(value || new Date()),
+                e.target.value
+              ).toJSDate()
+            );
+          }}
           className={`select select-bordered w-20 ${color}`}
         >
           <option value="AM">AM</option>
@@ -58,4 +60,14 @@ export function TimePicker({ color }: TimePickerProps) {
       </div>
     </div>
   );
+}
+
+function updateHourWithAmPm(dateTime: DateTime, period: string) {
+  let adjustedHour = dateTime.get('hour') % 12;
+  if (period === 'PM') {
+    console.log('here');
+    adjustedHour += 12;
+  }
+
+  return dateTime.set({ hour: adjustedHour });
 }

@@ -1,22 +1,21 @@
 import { DatePicker } from '../date-picker/date-picker';
-import { useState } from 'react';
 import { TimePicker } from '../time-picker/time-picker';
 
 interface TimePickerProps {
+  value: Date;
+  setValue: (value: Date | undefined) => void;
   color?: string;
 }
 
-export function TimeDatePicker({ color }: TimePickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
+export function TimeDatePicker({ color, value, setValue }: TimePickerProps) {
   return (
     <div className="flex items-center space-x-4">
-      <DatePicker
-        selected={selectedDate}
-        setSelected={setSelectedDate}
+      <DatePicker value={value} setValue={setValue} color={color} />
+      <TimePicker
         color={color}
+        value={value || new Date()}
+        setValue={setValue}
       />
-      <TimePicker color={color} />
     </div>
   );
 }

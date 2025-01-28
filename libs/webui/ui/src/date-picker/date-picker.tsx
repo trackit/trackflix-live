@@ -4,18 +4,18 @@ import { DateTime } from 'luxon';
 import 'react-day-picker/dist/style.css';
 
 interface DatePickerProps {
-  selected: Date | undefined;
-  setSelected: (selected: Date | undefined) => void;
+  value: Date | undefined;
+  setValue: (selected: Date | undefined) => void;
   color?: string;
 }
 
-export function DatePicker({ selected, setSelected, color }: DatePickerProps) {
+export function DatePicker({ value, setValue, color }: DatePickerProps) {
   const [showPicker, setShowPicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleDateSelect = (date: Date) => {
-    setSelected(date);
+    setValue(date);
   };
 
   const closePicker = useCallback(() => {
@@ -48,16 +48,14 @@ export function DatePicker({ selected, setSelected, color }: DatePickerProps) {
         ref={inputRef}
         className={`input input-bordered w-full ${color} text-base-content`}
         placeholder="Select a date"
-        value={
-          selected ? DateTime.fromJSDate(selected).toFormat('yyyy-MM-dd') : ''
-        }
+        value={value ? DateTime.fromJSDate(value).toFormat('yyyy-MM-dd') : ''}
         onFocus={() => setShowPicker(true)}
         readOnly
       />
       <div
         ref={datePickerRef}
         aria-label="Date picker"
-        className={`absolute z-10 ${color} text-base-content border border-base-300 rounded shadow-lg mt-2 transition-all duration-200 ease-in-out ${
+        className={`absolute z-10 p-4 ${color} text-base-content border border-base-300 rounded shadow-lg mt-2 transition-all duration-200 ease-in-out ${
           showPicker
             ? 'opacity-100 scale-100 visible'
             : 'opacity-0 scale-95 invisible'
@@ -66,7 +64,7 @@ export function DatePicker({ selected, setSelected, color }: DatePickerProps) {
         <DayPicker
           required
           mode="single"
-          selected={selected}
+          selected={value}
           onSelect={handleDateSelect}
           captionLayout="dropdown"
           styles={{
