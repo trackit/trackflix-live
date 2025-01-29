@@ -21,8 +21,8 @@ export class DynamoDBRepository implements EventsRepository {
         id: event.id,
         name: event.name,
         description: event.description,
-        onAirStartTime: event.onAirStartTime,
-        onAirEndTime: event.onAirEndTime,
+        onAirStartTime: event.onAirStartTime.toISOString(),
+        onAirEndTime: event.onAirEndTime.toISOString(),
         source: {
           bucket: event.source.bucket,
           key: event.source.key,
