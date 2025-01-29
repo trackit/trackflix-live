@@ -142,6 +142,13 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref EventsTable
+      Events:
+        CreateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event
+            Method: post
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -151,3 +158,39 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+
+  ####################
+  #    API GATEWAY   #
+  ####################
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      StageName: Prod
+      # TODO: use Cognito
+      Auth:
+        ApiKeyRequired: true
+
+  ApiGatewayUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: !Sub "${AWS::StackName}"
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: Prod
+
+  ApiGatewayKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      Name: !Sub "${AWS::StackName}"
+      StageKeys:
+        - RestApiId: !Ref ApiGateway
+          StageName: Prod
+
+  MyUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+        KeyId: !Ref ApiGatewayKey
+        KeyType: API_KEY
+        UsagePlanId: !Ref ApiGatewayUsagePlan
