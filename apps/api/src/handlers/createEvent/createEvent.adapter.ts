@@ -9,7 +9,12 @@ import addFormats from "ajv-formats"
 const ajv = new Ajv();
 addFormats(ajv)
 
-const schema: JSONSchemaType<CreateEventArgs> = {
+export type CreateEventSchema = Omit<CreateEventArgs, 'onAirStartTime' | 'onAirEndTime'> & {
+  onAirStartTime: string;
+  onAirEndTime: string;
+};
+
+const schema: JSONSchemaType<CreateEventSchema> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -59,7 +64,11 @@ export class CreateEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.createEvent(body);
+    const result = await this.useCase.createEvent({
+      ...body,
+      onAirStartTime: new Date(body.onAirStartTime),
+      onAirEndTime: new Date(body.onAirEndTime),
+    });
 
     return {
       event: result,
