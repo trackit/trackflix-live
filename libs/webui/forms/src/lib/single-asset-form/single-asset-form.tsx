@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Videotape } from 'lucide-react';
 import { DateTime } from 'luxon';
-import { TimeDatePicker } from '@trackflix-live/ui';
 
 export interface SingleAssetFormProps {
   onSubmit: (data: {
@@ -35,7 +34,9 @@ export function SingleAssetForm({ onSubmit }: SingleAssetFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       assetUrl: '',
-      startDate: new Date(),
+      startDate: DateTime.now()
+        .set({ hour: DateTime.now().minute + 30 })
+        .toJSDate(),
       endDate: DateTime.now()
         .set({ hour: DateTime.now().hour + 2 })
         .toJSDate(),
@@ -44,18 +45,24 @@ export function SingleAssetForm({ onSubmit }: SingleAssetFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className={'flex items-center justify-between'}>
+      <div className={'flex items-center'}>
         <label className={'align-middle mr-2'}>From</label>
-        <TimeDatePicker
-          value={watch('startDate')}
-          setValue={(date) => setValue('startDate', date)}
-          color={'bg-base-100'}
+        <input
+          className={'input input-bordered'}
+          type={'datetime-local'}
+          {...register('startDate')}
+          min={DateTime.now()
+            .set({ minute: DateTime.now().minute + 30 })
+            .toFormat("yyyy-MM-dd'T'HH:mm")}
         />
         <label className={'align-middle mr-2 ml-2'}>To</label>
-        <TimeDatePicker
-          value={watch('endDate')}
-          setValue={(date) => setValue('endDate', date)}
-          color={'bg-base-100'}
+        <input
+          className={'input input-bordered'}
+          type={'datetime-local'}
+          min={DateTime.now()
+            .set({ minute: DateTime.now().minute + 30 })
+            .toFormat("yyyy-MM-dd'T'HH:mm")}
+          {...register('endDate')}
         />
       </div>
       <div className="label">
