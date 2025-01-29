@@ -3,7 +3,7 @@ import { TimePicker } from '../time-picker/time-picker';
 
 interface TimePickerProps {
   value: Date;
-  setValue: (value: Date | undefined) => void;
+  setValue: (value: Date) => void;
   color?: string;
 }
 

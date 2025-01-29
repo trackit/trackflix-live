@@ -65,7 +65,6 @@ export function TimePicker({ color, setValue, value }: TimePickerProps) {
 function updateHourWithAmPm(dateTime: DateTime, period: string) {
   let adjustedHour = dateTime.get('hour') % 12;
   if (period === 'PM') {
-    console.log('here');
     adjustedHour += 12;
   }
 

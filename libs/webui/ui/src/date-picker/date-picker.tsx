@@ -4,8 +4,8 @@ import { DateTime } from 'luxon';
 import 'react-day-picker/dist/style.css';
 
 interface DatePickerProps {
-  value: Date | undefined;
-  setValue: (selected: Date | undefined) => void;
+  value: Date;
+  setValue: (selected: Date) => void;
   color?: string;
 }
 
@@ -48,7 +48,7 @@ export function DatePicker({ value, setValue, color }: DatePickerProps) {
         ref={inputRef}
         className={`input input-bordered w-full ${color} text-base-content`}
         placeholder="Select a date"
-        value={value ? DateTime.fromJSDate(value).toFormat('yyyy-MM-dd') : ''}
+        value={DateTime.fromJSDate(value).toFormat('yyyy-MM-dd')}
         onFocus={() => setShowPicker(true)}
         readOnly
       />
