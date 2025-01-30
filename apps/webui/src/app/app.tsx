@@ -1,5 +1,5 @@
 import {SingleAssetFlow} from "@trackflix-live/single-asset-flow";
-import { Panel, ThemeSwitcher, TxTimeline, Clock } from '@trackflix-live/ui';
+import { Panel, ThemeSwitcher, TxTimeline, Clock, Timeline } from '@trackflix-live/ui';
 import { DateTime } from 'luxon';
 
 export function App() {
@@ -9,7 +9,14 @@ export function App() {
     { title: 'TX', datetime:  DateTime.now().plus({ seconds: 10 }).toISO()},
     { title: 'Post-TX', datetime:  DateTime.now().plus({ seconds: 10}).plus({ minutes: 1 }).toISO()},
     { title: 'End'},
+  ];
 
+  const devTimelineSteps = [
+    { text: 'Creating entity 1', completed: true },
+    { text: 'Creating entity 2', completed: true },
+    { text: 'Creating entity 3', completed: true },
+    { text: 'Creating entity 4', loading: true },
+    { text: 'Creating entity 5' },
   ];
 
   return (
@@ -25,19 +32,29 @@ export function App() {
       >
         <Panel>
           <div className={'relative'}>
-          <h1>Trackflix Live</h1>
+            <h1>Trackflix Live</h1>
 
             <div className={'absolute right-0 top-0'}>
 
-            <Clock />
+              <Clock />
             </div>
           </div>
-          <hr/>
+          <hr />
           <div className="px-10 py-4">
             <TxTimeline steps={devSteps} />
           </div>
-            <hr/>
-            <SingleAssetFlow />
+          <hr />
+          <div className={'flex'}>
+            <div className={'px-4'}>
+            <Timeline steps={devTimelineSteps} />
+            </div>
+            <div className={'flex-grow'}>
+
+          <SingleAssetFlow />
+            </div>
+
+
+          </div>
         </Panel>
       </div>
     </div>
