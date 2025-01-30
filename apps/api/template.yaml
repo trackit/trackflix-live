@@ -188,7 +188,7 @@ Resources:
         - RestApiId: !Ref ApiGateway
           StageName: Prod
 
-  MyUsagePlanKey:
+  UsagePlanKey:
     Type: AWS::ApiGateway::UsagePlanKey
     Properties:
         KeyId: !Ref ApiGatewayKey
