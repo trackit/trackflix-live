@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import SingleAssetForm from './single-asset-form';
@@ -30,10 +30,8 @@ describe('SingleAssetForm', () => {
     const input = screen.getByPlaceholderText('https://foo.bar');
     const submitButton = screen.getByRole('button', { name: /submit/i });
 
-    await act(async () => {
-      await user.type(input, 'https://example.com/video.mp4');
-      await user.click(submitButton);
-    });
+    await user.type(input, 'https://example.com/video.mp4');
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockOnSubmit.mock.lastCall[0]).toEqual({
@@ -49,10 +47,8 @@ describe('SingleAssetForm', () => {
     const input = screen.getByPlaceholderText('https://foo.bar');
     const submitButton = screen.getByRole('button', { name: /submit/i });
 
-    await act(async () => {
-      await user.type(input, 'not-a-url');
-      await user.click(submitButton);
-    });
+    await user.type(input, 'not-a-url');
+    await user.click(submitButton);
 
     await screen.findByText(/Invalid url/i);
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -65,10 +61,8 @@ describe('SingleAssetForm', () => {
     const input = screen.getByPlaceholderText('https://foo.bar');
     const submitButton = screen.getByRole('button', { name: /submit/i });
 
-    await act(async () => {
-      await user.type(input, 'not-a-url');
-      await user.click(submitButton);
-    });
+    await user.type(input, 'not-a-url');
+    await user.click(submitButton);
 
     const inputContainer = input.closest('.input');
     await waitFor(() => {
