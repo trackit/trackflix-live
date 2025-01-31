@@ -4,10 +4,10 @@ import { CronConversion } from "@trackflix-live/formatting";
 
 export class EventBridgeScheduler implements EventScheduler {
 
-  private readonly client: EventBridgeClient;
+  private readonly _client: EventBridgeClient;
 
   constructor(client: EventBridgeClient) {
-    this.client = client;
+    this._client = client;
   }
 
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
@@ -22,7 +22,7 @@ export class EventBridgeScheduler implements EventScheduler {
         State: RuleState.ENABLED,
       };
 
-      await this.client.send(new PutRuleCommand(input));
+      await this._client.send(new PutRuleCommand(input));
     } catch (error) {
       throw new Error(`Failed to schedule event ${id}: ${error}`);
     }
