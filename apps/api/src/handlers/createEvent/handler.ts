@@ -5,11 +5,11 @@ import {
 } from '@trackflix-live/api-events';
 import { EventBridgeScheduler } from "../../infrastructure/EventBridgeScheduler";
 import { EventBridgeClient } from "@aws-sdk/client-eventbridge";
-import { DynamoDBRepository } from "../../infrastructure/DynamoDBRepository";
+import { EventsDynamoDBRepository } from "../../infrastructure/EventsDynamoDBRepository";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const eventScheduler = new EventBridgeScheduler(new EventBridgeClient({}));
-const eventsRepository = new DynamoDBRepository(new DynamoDBClient(({})), process.env.TABLE_NAME || '');
+const eventsRepository = new EventsDynamoDBRepository(new DynamoDBClient(({})), process.env.TABLE_NAME || '');
 
 const useCase = new CreateEventUseCaseImpl({
   eventScheduler,

@@ -1,9 +1,9 @@
 import { EventsRepository } from "@trackflix-live/api-events";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, PutCommandInput } from "@aws-sdk/lib-dynamodb";
-import { Event, EventStatus, Source } from "@trackflix-live/types";
+import { Event } from "@trackflix-live/types";
 
-export class DynamoDBRepository implements EventsRepository {
+export class EventsDynamoDBRepository implements EventsRepository {
 
   private readonly _client: DynamoDBDocumentClient;
 
