@@ -1,5 +1,7 @@
+import { Route, Routes } from 'react-router';
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
-import { Panel, ThemeSwitcher } from '@trackflix-live/ui';
+import { ThemeSwitcher } from '@trackflix-live/ui';
+import { StatusView } from '@trackflix-live/status-view';
 
 export function App() {
   return (
@@ -13,10 +15,10 @@ export function App() {
           'flex justify-center items-center w-screen h-screen bg-base-200'
         }
       >
-        <Panel>
-          <h1>Trackflix Live</h1>
-          <SingleAssetFlow />
-        </Panel>
+        <Routes>
+          <Route index element={<SingleAssetFlow />} />
+          <Route path={'/status/:id'} element={<StatusView />} />
+        </Routes>
       </div>
     </div>
   );

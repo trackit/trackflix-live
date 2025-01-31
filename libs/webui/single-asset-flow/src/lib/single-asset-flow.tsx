@@ -1,4 +1,5 @@
 import { SingleAssetForm } from '@trackflix-live/forms';
+import { Panel } from '@trackflix-live/ui';
 
 export function SingleAssetFlow() {
   const onSubmit = (data: { assetUrl: string }) => {
@@ -6,9 +7,9 @@ export function SingleAssetFlow() {
   };
 
   return (
-    <div>
+    <Panel>
       <SingleAssetForm onSubmit={onSubmit} />
-    </div>
+    </Panel>
   );
 }
 
