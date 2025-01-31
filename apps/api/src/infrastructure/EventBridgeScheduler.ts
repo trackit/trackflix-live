@@ -24,7 +24,8 @@ export class EventBridgeScheduler implements EventScheduler {
 
       await this._client.send(new PutRuleCommand(input));
     } catch (error) {
-      throw new Error(`Failed to schedule event ${id}: ${error}`);
+      console.error(`Failed to schedule event with id: ${id} and time: ${time}`);
+      throw error;
     }
   }
 }
