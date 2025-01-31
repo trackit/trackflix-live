@@ -13,10 +13,4 @@ export class CronConversion {
 
     return `cron(${minutes} ${hours} ${days} ${months} ${dayOfWeek} ${year})`;
   }
-
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public static fromCronExpression(cronExpression: string): Date {
-    throw new Error('Not implemented');
-  }
 }
