@@ -31,7 +31,6 @@ describe('EventsDynamoDBRepository', () => {
       TableName: 'EventsTable',
       Key: {
         id: { S: sampleEvent.id },
-        name: { S: sampleEvent.name },
       },
     };
     const responseFromDB = await dynamoDBClient.send(
@@ -63,6 +62,7 @@ const setup = () => {
       accessKeyId: 'fakeAccessKeyId',
       secretAccessKey: 'fakeSecretAccessKey',
     },
+    region: 'us-west-2',
   });
 
   const sampleEvent: Event = {
@@ -82,14 +82,8 @@ const setup = () => {
     await dynamoDBClient.send(
       new CreateTableCommand({
         TableName: 'EventsTable',
-        AttributeDefinitions: [
-          { AttributeName: 'id', AttributeType: 'S' },
-          { AttributeName: 'name', AttributeType: 'S' },
-        ],
-        KeySchema: [
-          { AttributeName: 'id', KeyType: 'HASH' },
-          { AttributeName: 'name', KeyType: 'RANGE' },
-        ],
+        AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+        KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
         ProvisionedThroughput: {
           ReadCapacityUnits: 1,
           WriteCapacityUnits: 1,

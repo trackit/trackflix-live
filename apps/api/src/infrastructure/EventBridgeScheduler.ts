@@ -16,22 +16,16 @@ export class EventBridgeScheduler implements EventScheduler {
 
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
     const { id, time } = scheduledEvent;
+    console.log(`Scheduling event with id: ${id} and time: ${time}`);
 
-    try {
-      const cronExpFromDate = CronConversion.toCronExpression(time);
+    const cronExpFromDate = CronConversion.toCronExpression(time);
 
-      const input: PutRuleRequest = {
-        Name: id,
-        ScheduleExpression: cronExpFromDate,
-        State: RuleState.ENABLED,
-      };
+    const input: PutRuleRequest = {
+      Name: id,
+      ScheduleExpression: cronExpFromDate,
+      State: RuleState.ENABLED,
+    };
 
-      await this.client.send(new PutRuleCommand(input));
-    } catch (error) {
-      console.error(
-        `Failed to schedule event with id: ${id} and time: ${time}`
-      );
-      throw error;
-    }
+    await this.client.send(new PutRuleCommand(input));
   }
 }
