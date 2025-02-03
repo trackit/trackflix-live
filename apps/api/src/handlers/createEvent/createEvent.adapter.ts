@@ -1,15 +1,17 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { CreateEventUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
-import Ajv, { JSONSchemaType } from "ajv"
-import { CreateEventArgs } from "@trackflix-live/api-events";
-import addFormats from "ajv-formats"
-
+import Ajv, { JSONSchemaType } from 'ajv';
+import { CreateEventArgs } from '@trackflix-live/api-events';
+import addFormats from 'ajv-formats';
 
 const ajv = new Ajv();
-addFormats(ajv)
+addFormats(ajv);
 
-export type CreateEventSchema = Omit<CreateEventArgs, 'onAirStartTime' | 'onAirEndTime'> & {
+export type CreateEventSchema = Omit<
+  CreateEventArgs,
+  'onAirStartTime' | 'onAirEndTime'
+> & {
   onAirStartTime: string;
   onAirEndTime: string;
 };
@@ -35,8 +37,7 @@ const schema: JSONSchemaType<CreateEventSchema> = {
   additionalProperties: false,
 };
 
-const validate = ajv.compile(schema)
-
+const validate = ajv.compile(schema);
 
 export class CreateEventAdapter {
   private readonly useCase: CreateEventUseCase;

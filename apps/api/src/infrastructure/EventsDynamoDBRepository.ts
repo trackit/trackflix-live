@@ -1,22 +1,25 @@
-import { EventsRepository } from "@trackflix-live/api-events";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, PutCommandInput } from "@aws-sdk/lib-dynamodb";
-import { Event } from "@trackflix-live/types";
+import { EventsRepository } from '@trackflix-live/api-events';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  PutCommandInput,
+} from '@aws-sdk/lib-dynamodb';
+import { Event } from '@trackflix-live/types';
 
 export class EventsDynamoDBRepository implements EventsRepository {
+  private readonly client: DynamoDBDocumentClient;
 
-  private readonly _client: DynamoDBDocumentClient;
-
-  private readonly _tableName: string;
+  private readonly tableName: string;
 
   constructor(client: DynamoDBClient, tableName: string) {
-    this._client = DynamoDBDocumentClient.from(client);
-    this._tableName = tableName;
+    this.client = DynamoDBDocumentClient.from(client);
+    this.tableName = tableName;
   }
 
   async createEvent(event: Event): Promise<void> {
     const params: PutCommandInput = {
-      TableName: this._tableName,
+      TableName: this.tableName,
       Item: {
         id: event.id,
         name: event.name,
@@ -31,6 +34,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
     };
 
-    await this._client.send(new PutCommand(params));
+    await this.client.send(new PutCommand(params));
   }
 }

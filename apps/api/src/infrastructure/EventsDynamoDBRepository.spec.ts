@@ -1,6 +1,11 @@
 import { EventsDynamoDBRepository } from './EventsDynamoDBRepository';
 import { Event, EventStatus } from '@trackflix-live/types';
-import { CreateTableCommand, DeleteTableCommand, DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  CreateTableCommand,
+  DeleteTableCommand,
+  DynamoDBClient,
+  GetItemCommand,
+} from '@aws-sdk/client-dynamodb';
 
 beforeAll(async () => {
   const { createTable } = setup();
@@ -15,18 +20,23 @@ afterAll(async () => {
 describe('EventsDynamoDBRepository', () => {
   it('should create an event in DynamoDB', async () => {
     const { dynamoDBClient, sampleEvent } = setup();
-    const repository = new EventsDynamoDBRepository(dynamoDBClient, 'EventsTable');
+    const repository = new EventsDynamoDBRepository(
+      dynamoDBClient,
+      'EventsTable'
+    );
 
     const response = await repository.createEvent(sampleEvent);
 
     const fromDBParams = {
-        TableName: 'EventsTable',
-        Key: {
-            id: { S: sampleEvent.id },
-            name: { S: sampleEvent.name },
-        },
+      TableName: 'EventsTable',
+      Key: {
+        id: { S: sampleEvent.id },
+        name: { S: sampleEvent.name },
+      },
     };
-    const responseFromDB = await dynamoDBClient.send(new GetItemCommand(fromDBParams));
+    const responseFromDB = await dynamoDBClient.send(
+      new GetItemCommand(fromDBParams)
+    );
 
     expect(response).toBeUndefined();
     expect(responseFromDB.Item).toEqual({
@@ -35,7 +45,12 @@ describe('EventsDynamoDBRepository', () => {
       description: { S: sampleEvent.description },
       onAirStartTime: { S: sampleEvent.onAirStartTime.toISOString() },
       onAirEndTime: { S: sampleEvent.onAirEndTime.toISOString() },
-      source: { M: { bucket: { S: sampleEvent.source.bucket }, key: { S: sampleEvent.source.key }}},
+      source: {
+        M: {
+          bucket: { S: sampleEvent.source.bucket },
+          key: { S: sampleEvent.source.key },
+        },
+      },
       status: { S: sampleEvent.status },
     });
   });
@@ -64,33 +79,37 @@ const setup = () => {
   };
 
   const createTable = async () => {
-    await dynamoDBClient.send(new CreateTableCommand({
-      TableName: 'EventsTable',
-      AttributeDefinitions: [
-        { AttributeName: 'id', AttributeType: 'S' },
-        { AttributeName: 'name', AttributeType: 'S' },
-      ],
-      KeySchema: [
-        { AttributeName: 'id', KeyType: 'HASH' },
-        { AttributeName: 'name', KeyType: 'RANGE' },
-      ],
-      ProvisionedThroughput: {
-        ReadCapacityUnits: 1,
-        WriteCapacityUnits: 1,
-      },
-    }));
-  }
+    await dynamoDBClient.send(
+      new CreateTableCommand({
+        TableName: 'EventsTable',
+        AttributeDefinitions: [
+          { AttributeName: 'id', AttributeType: 'S' },
+          { AttributeName: 'name', AttributeType: 'S' },
+        ],
+        KeySchema: [
+          { AttributeName: 'id', KeyType: 'HASH' },
+          { AttributeName: 'name', KeyType: 'RANGE' },
+        ],
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 1,
+          WriteCapacityUnits: 1,
+        },
+      })
+    );
+  };
 
   const deleteTable = async () => {
-    await dynamoDBClient.send(new DeleteTableCommand({
-      TableName: 'EventsTable',
-    }));
-  }
+    await dynamoDBClient.send(
+      new DeleteTableCommand({
+        TableName: 'EventsTable',
+      })
+    );
+  };
 
   return {
     dynamoDBClient,
     sampleEvent,
     createTable,
     deleteTable,
-  }
-}
+  };
+};

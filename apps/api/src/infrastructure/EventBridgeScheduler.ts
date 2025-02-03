@@ -1,13 +1,17 @@
-import { EventScheduler, ScheduledEvent } from "@trackflix-live/api-events";
-import { EventBridgeClient, PutRuleCommand, PutRuleRequest, RuleState } from "@aws-sdk/client-eventbridge";
-import { CronConversion } from "@trackflix-live/formatting";
+import { EventScheduler, ScheduledEvent } from '@trackflix-live/api-events';
+import {
+  EventBridgeClient,
+  PutRuleCommand,
+  PutRuleRequest,
+  RuleState,
+} from '@aws-sdk/client-eventbridge';
+import { CronConversion } from '@trackflix-live/formatting';
 
 export class EventBridgeScheduler implements EventScheduler {
-
-  private readonly _client: EventBridgeClient;
+  private readonly client: EventBridgeClient;
 
   constructor(client: EventBridgeClient) {
-    this._client = client;
+    this.client = client;
   }
 
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
@@ -22,9 +26,11 @@ export class EventBridgeScheduler implements EventScheduler {
         State: RuleState.ENABLED,
       };
 
-      await this._client.send(new PutRuleCommand(input));
+      await this.client.send(new PutRuleCommand(input));
     } catch (error) {
-      console.error(`Failed to schedule event with id: ${id} and time: ${time}`);
+      console.error(
+        `Failed to schedule event with id: ${id} and time: ${time}`
+      );
       throw error;
     }
   }
