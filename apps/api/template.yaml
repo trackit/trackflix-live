@@ -162,30 +162,32 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub "${AWS::StackName}"
-      StageName: Prod
+      StageName: prod
       # TODO: use Cognito
       Auth:
         ApiKeyRequired: true
 
   ApiGatewayUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
+    # https://github.com/aws/serverless-application-model/issues/1560
+    DependsOn:
+      - ApiGatewayprodStage
     Properties:
       UsagePlanName: !Sub "${AWS::StackName}"
       ApiStages:
         - ApiId: !Ref ApiGateway
-          Stage: Prod
+          Stage: prod
 
   ApiGatewayKey:
     Type: AWS::ApiGateway::ApiKey
     Properties:
       Enabled: true
       Name: !Sub "${AWS::StackName}"
-      StageKeys:
-        - RestApiId: !Ref ApiGateway
-          StageName: Prod
 
   UsagePlanKey:
     Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+      - ApiGatewayUsagePlan
     Properties:
         KeyId: !Ref ApiGatewayKey
         KeyType: API_KEY
