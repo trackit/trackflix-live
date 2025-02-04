@@ -1,6 +1,9 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { EventBridgeScheduler } from './EventBridgeScheduler';
-import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
+import {
+  EventBridgeClient,
+  PutTargetsCommand,
+} from '@aws-sdk/client-eventbridge';
 import { PutRuleCommand } from '@aws-sdk/client-eventbridge';
 
 describe('EventBridgeScheduler', () => {
@@ -12,19 +15,38 @@ describe('EventBridgeScheduler', () => {
 
   it('should schedule an event', async () => {
     const { scheduler } = setup();
-    mock.on(PutRuleCommand).resolves({});
+    const eventId = '005fc3b5-623c-41f6-8885-22dc72f30676';
 
     await scheduler.scheduleEvent({
-      id: 'my-scheduled-event',
+      id: eventId,
       time: new Date('2022-01-01T00:00:00Z'),
     });
 
-    const putCommandCalls = mock.commandCalls(PutRuleCommand);
-    expect(putCommandCalls).toHaveLength(1);
-    expect(putCommandCalls[0].args[0].input).toEqual({
-      Name: 'my-scheduled-event',
+    const putRuleCommandCalls = mock.commandCalls(PutRuleCommand);
+    expect(putRuleCommandCalls).toHaveLength(1);
+    expect(putRuleCommandCalls[0].args[0].input).toEqual({
+      Name: `TrackflixLiveTx-${eventId}`,
       ScheduleExpression: 'cron(0 0 1 1 ? 2022)',
       State: 'ENABLED',
+    });
+
+    const putTargetsCommandCalls = mock.commandCalls(PutTargetsCommand);
+    expect(putTargetsCommandCalls).toHaveLength(1);
+    expect(putTargetsCommandCalls[0].args[0].input).toEqual({
+      Rule: 'TrackflixLiveTx-005fc3b5-623c-41f6-8885-22dc72f30676',
+      Targets: [
+        {
+          Id: 'TrackflixLiveTx-005fc3b5-623c-41f6-8885-22dc72f30676-Target',
+          Input: expect.any(String),
+        },
+      ],
+    });
+    expect(
+      JSON.parse(
+        putTargetsCommandCalls[0].args[0].input.Targets?.[0].Input || '{}'
+      )
+    ).toEqual({
+      eventId,
     });
   });
 
