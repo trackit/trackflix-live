@@ -19,7 +19,13 @@ describe('EventBridgeScheduler', () => {
       time: new Date('2022-01-01T00:00:00Z'),
     });
 
-    expect(mock.commandCalls(PutRuleCommand)).toHaveLength(1);
+    const putCommandCalls = mock.commandCalls(PutRuleCommand);
+    expect(putCommandCalls).toHaveLength(1);
+    expect(putCommandCalls[0].args[0].input).toEqual({
+      Name: 'my-scheduled-event',
+      ScheduleExpression: 'cron(0 0 1 1 ? 2022)',
+      State: 'ENABLED',
+    });
   });
 
   it('should throw an error when scheduling an event fails', async () => {
