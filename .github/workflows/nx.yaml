@@ -31,5 +31,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+      - name: Start docker compose
+        run: |
+          docker compose up -d
+          sleep 10
       - run: npm ci
       - run: npx nx run-many -t test
