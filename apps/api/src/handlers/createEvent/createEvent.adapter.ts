@@ -1,14 +1,15 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { CreateEventUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import { CreateEventArgs } from '@trackflix-live/api-events';
 import addFormats from 'ajv-formats';
+import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 
 const ajv = new Ajv();
 addFormats(ajv);
 
-export type CreateEventSchema = Omit<
+export type CreateEventBody = Omit<
   CreateEventArgs,
   'onAirStartTime' | 'onAirEndTime'
 > & {
@@ -16,7 +17,7 @@ export type CreateEventSchema = Omit<
   onAirEndTime: string;
 };
 
-const schema: JSONSchemaType<CreateEventSchema> = {
+const schema: JSONSchemaType<CreateEventBody> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -48,7 +49,7 @@ export class CreateEventAdapter {
 
   public async handle(
     event: APIGatewayProxyEventV2
-  ): Promise<APIGatewayProxyResultV2> {
+  ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
       func: this.processRequest.bind(this),
@@ -60,7 +61,12 @@ export class CreateEventAdapter {
       throw new BadRequestError();
     }
 
-    const body = JSON.parse(event.body);
+    let body: undefined | CreateEventBody = undefined;
+    try {
+      body = JSON.parse(event.body);
+    } catch (err) {
+      throw new BadRequestError();
+    }
     if (!validate(body)) {
       throw new BadRequestError();
     }

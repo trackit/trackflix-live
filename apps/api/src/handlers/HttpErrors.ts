@@ -1,4 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 
 export class HttpError extends Error {
   public readonly code: number;
@@ -28,7 +29,7 @@ export const handleHttpRequest = async ({
 }: {
   event: APIGatewayProxyEventV2;
   func: (event: APIGatewayProxyEventV2) => Promise<unknown>;
-}): Promise<APIGatewayProxyResultV2> => {
+}): Promise<APIGatewayProxyStructuredResultV2> => {
   try {
     return {
       statusCode: 200,
