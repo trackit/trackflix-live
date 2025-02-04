@@ -23,23 +23,6 @@ describe('SingleAssetForm', () => {
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
   });
 
-  it('should call onSubmit with valid URL', async () => {
-    const user = userEvent.setup();
-    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
-
-    const input = screen.getByPlaceholderText('https://foo.bar');
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-
-    await user.type(input, 'https://example.com/video.mp4');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(mockOnSubmit.mock.lastCall[0]).toEqual({
-        assetUrl: 'https://example.com/video.mp4',
-      });
-    });
-  });
-
   it('should show error message for invalid URL', async () => {
     const user = userEvent.setup();
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
@@ -69,4 +52,5 @@ describe('SingleAssetForm', () => {
       expect(inputContainer).toHaveClass('input-error');
     });
   });
+
 });

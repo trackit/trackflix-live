@@ -28,8 +28,6 @@ export function SingleAssetForm({ onSubmit }: SingleAssetFormProps) {
     register,
     formState: { errors },
     handleSubmit,
-    watch,
-    setValue,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,24 +44,28 @@ export function SingleAssetForm({ onSubmit }: SingleAssetFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className={'flex items-center'}>
-        <label className={'align-middle mr-2'}>From</label>
-        <input
-          className={'input input-bordered'}
-          type={'datetime-local'}
-          {...register('startDate')}
-          min={DateTime.now()
-            .set({ minute: DateTime.now().minute + 30 })
-            .toFormat("yyyy-MM-dd'T'HH:mm")}
-        />
-        <label className={'align-middle mr-2 ml-2'}>To</label>
-        <input
-          className={'input input-bordered'}
-          type={'datetime-local'}
-          min={DateTime.now()
-            .set({ minute: DateTime.now().minute + 30 })
-            .toFormat("yyyy-MM-dd'T'HH:mm")}
-          {...register('endDate')}
-        />
+        <label className={'align-middle mr-2'}>
+          From
+          <input
+            className={'input input-bordered'}
+            type={'datetime-local'}
+            {...register('startDate')}
+            min={DateTime.now()
+              .set({ minute: DateTime.now().minute + 30 })
+              .toFormat("yyyy-MM-dd'T'HH:mm")}
+          />
+        </label>
+        <label className={'align-middle mr-2 ml-2'}>
+          To
+          <input
+            className={'input input-bordered'}
+            type={'datetime-local'}
+            min={DateTime.now()
+              .set({ minute: DateTime.now().minute + 30 })
+              .toFormat("yyyy-MM-dd'T'HH:mm")}
+            {...register('endDate')}
+          />
+        </label>
       </div>
       <div className="label">
         <span className="label-text-alt text-error">
