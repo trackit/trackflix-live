@@ -25,13 +25,32 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: "sts:AssumeRole"
-      # keeping permission lax for experimentation. Should tighten permissions once solidified.
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
-        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
-        - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                Resource:
+                  - !GetAtt EventsTable.Arn
+        - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "events:PutRule"
+                Resource:
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*"
+              - Effect: Allow
+                Action:
+                  - "events:PutTargets"
+                Resource:
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*"
 
   ###########
   # COGNITO #
@@ -92,6 +111,21 @@ Resources:
               - UserPool
               - ProviderName
 
+  ###################
+  # DYNAMODB TABLES #
+  ###################
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "events-${AWS::StackName}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
   ####################
   # LAMBDA FUNCTIONS #
   ####################
@@ -101,12 +135,60 @@ Resources:
       CodeUri: ./src/handlers/createEvent/
       Handler: handler.main
       Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventsTable
+      Events:
+        CreateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event
+            Method: post
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
-        Format: esm
+        Format: cjs
         Minify: true
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
           - handler.ts
+
+  ####################
+  #    API GATEWAY   #
+  ####################
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      StageName: prod
+      # TODO: use Cognito
+      Auth:
+        ApiKeyRequired: true
+
+  ApiGatewayUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    # https://github.com/aws/serverless-application-model/issues/1560
+    DependsOn:
+      - ApiGatewayprodStage
+    Properties:
+      UsagePlanName: !Sub "${AWS::StackName}"
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: prod
+
+  ApiGatewayKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      Name: !Sub "${AWS::StackName}"
+
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+      - ApiGatewayUsagePlan
+    Properties:
+        KeyId: !Ref ApiGatewayKey
+        KeyType: API_KEY
+        UsagePlanId: !Ref ApiGatewayUsagePlan
