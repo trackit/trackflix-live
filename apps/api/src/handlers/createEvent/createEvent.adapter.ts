@@ -75,7 +75,7 @@ export class CreateEventAdapter {
       ...body,
       onAirStartTime: new Date(body.onAirStartTime),
       onAirEndTime: new Date(body.onAirEndTime),
-    } satisfies CreateEventArgs);
+    });
 
     return {
       event: result,
