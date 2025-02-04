@@ -5,7 +5,7 @@ import {
   DeleteTableCommand,
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
 beforeAll(async () => {
   const { createTable } = setup();
@@ -20,10 +20,7 @@ afterAll(async () => {
 describe('EventsDynamoDBRepository', () => {
   it('should create an event in DynamoDB', async () => {
     const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(
-      ddbClient,
-      'EventsTable'
-    );
+    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
 
     const response = await repository.createEvent(sampleEvent);
 
