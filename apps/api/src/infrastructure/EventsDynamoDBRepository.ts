@@ -1,5 +1,4 @@
 import { EventsRepository } from '@trackflix-live/api-events';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -12,8 +11,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
   private readonly tableName: string;
 
-  constructor(client: DynamoDBClient, tableName: string) {
-    this.client = DynamoDBDocumentClient.from(client);
+  constructor(client: DynamoDBDocumentClient, tableName: string) {
+    this.client = client;
     this.tableName = tableName;
   }
 

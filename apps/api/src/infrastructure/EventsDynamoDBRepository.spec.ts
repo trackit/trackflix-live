@@ -4,8 +4,8 @@ import {
   CreateTableCommand,
   DeleteTableCommand,
   DynamoDBClient,
-  GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 beforeAll(async () => {
   const { createTable } = setup();
@@ -19,38 +19,27 @@ afterAll(async () => {
 
 describe('EventsDynamoDBRepository', () => {
   it('should create an event in DynamoDB', async () => {
-    const { dynamoDBClient, sampleEvent } = setup();
+    const { sampleEvent, ddbClient } = setup();
     const repository = new EventsDynamoDBRepository(
-      dynamoDBClient,
+      ddbClient,
       'EventsTable'
     );
 
     const response = await repository.createEvent(sampleEvent);
 
-    const fromDBParams = {
+    const command = new GetCommand({
       TableName: 'EventsTable',
       Key: {
-        id: { S: sampleEvent.id },
+        id: sampleEvent.id,
       },
-    };
-    const responseFromDB = await dynamoDBClient.send(
-      new GetItemCommand(fromDBParams)
-    );
+    });
+    const responseFromDB = await ddbClient.send(command);
 
     expect(response).toBeUndefined();
     expect(responseFromDB.Item).toEqual({
-      id: { S: sampleEvent.id },
-      name: { S: sampleEvent.name },
-      description: { S: sampleEvent.description },
-      onAirStartTime: { S: sampleEvent.onAirStartTime.toISOString() },
-      onAirEndTime: { S: sampleEvent.onAirEndTime.toISOString() },
-      source: {
-        M: {
-          bucket: { S: sampleEvent.source.bucket },
-          key: { S: sampleEvent.source.key },
-        },
-      },
-      status: { S: sampleEvent.status },
+      ...sampleEvent,
+      onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
+      onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
     });
   });
 });
@@ -64,6 +53,8 @@ const setup = () => {
     },
     region: 'us-west-2',
   });
+
+  const ddbClient = DynamoDBDocumentClient.from(dynamoDBClient);
 
   const sampleEvent: Event = {
     id: '988de49c-14c8-4926-a40a-2f70c6aebc8f',
@@ -101,7 +92,7 @@ const setup = () => {
   };
 
   return {
-    dynamoDBClient,
+    ddbClient,
     sampleEvent,
     createTable,
     deleteTable,
