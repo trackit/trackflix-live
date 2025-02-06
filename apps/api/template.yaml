@@ -47,6 +47,15 @@ Resources:
                   - "events:PutTargets"
                 Resource:
                   - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+        - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - !Ref StartTransmissionStateMachine
   PermissionForEventBridgeToInvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
@@ -54,6 +63,26 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+  StepFunctionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: "states.amazonaws.com"
+            Effect: "Allow"
+      Policies:
+        - PolicyName: StepFunctionsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt SayHi.Arn
+                Effect: "Allow"
 
   ###########
   # COGNITO #
@@ -166,7 +195,21 @@ Resources:
       Role: !GetAtt ProjectLambdaRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventsTable
+          START_TX_STATE_MACHINE: !Ref StartTransmissionStateMachine
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  SayHi:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/sayHi/
+      Handler: handler.main
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -195,3 +238,26 @@ Resources:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt UserPool.Arn
+
+  ####################
+  #  STATE MACHINES  #
+  ####################
+  StartTransmissionStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-StartTransmission"
+      DefinitionString: |
+        {
+          "Comment": "A simple AWS Step Functions state machine",
+          "StartAt": "FirstTask",
+          "States": {
+            "FirstTask": {
+              "Type": "Task",
+              "Resource": "${SayHi}",
+              "End": true
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        SayHi: !GetAtt SayHi.Arn
+      RoleArn: !GetAtt StepFunctionsRole.Arn
