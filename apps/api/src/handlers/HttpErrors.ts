@@ -1,5 +1,6 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import { CORS_HEADERS } from './constants';
 
 export class HttpError extends Error {
   public readonly code: number;
@@ -33,18 +34,21 @@ export const handleHttpRequest = async ({
   try {
     return {
       statusCode: 200,
+      headers: CORS_HEADERS,
       body: JSON.stringify(await func(event)),
     };
   } catch (e: unknown) {
     if (e instanceof HttpError) {
       return {
         statusCode: e.code,
+        headers: CORS_HEADERS,
         body: JSON.stringify({ message: e.message }),
       };
     }
     console.error(e);
     return {
       statusCode: 500,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Internal Server Error.' }),
     };
   }

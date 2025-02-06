@@ -185,32 +185,13 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}"
       StageName: prod
-      # TODO: use Cognito
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
       Auth:
-        ApiKeyRequired: true
-
-  ApiGatewayUsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    # https://github.com/aws/serverless-application-model/issues/1560
-    DependsOn:
-      - ApiGatewayprodStage
-    Properties:
-      UsagePlanName: !Sub "${AWS::StackName}"
-      ApiStages:
-        - ApiId: !Ref ApiGateway
-          Stage: prod
-
-  ApiGatewayKey:
-    Type: AWS::ApiGateway::ApiKey
-    Properties:
-      Enabled: true
-      Name: !Sub "${AWS::StackName}"
-
-  UsagePlanKey:
-    Type: AWS::ApiGateway::UsagePlanKey
-    DependsOn:
-      - ApiGatewayUsagePlan
-    Properties:
-        KeyId: !Ref ApiGatewayKey
-        KeyType: API_KEY
-        UsagePlanId: !Ref ApiGatewayUsagePlan
+        DefaultAuthorizer: CognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: False
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
