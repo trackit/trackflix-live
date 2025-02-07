@@ -3,6 +3,8 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   PutCommandInput,
+  ScanCommand,
+  ScanCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { Event } from '@trackflix-live/types';
 
@@ -34,5 +36,15 @@ export class EventsDynamoDBRepository implements EventsRepository {
     };
 
     await this.client.send(new PutCommand(params));
+  }
+
+  async listEvents(): Promise<Event[]> {
+    const params: ScanCommandInput = {
+      TableName: this.tableName,
+    };
+
+    const { Items } = await this.client.send(new ScanCommand(params));
+
+    return Items as Event[];
   }
 }
