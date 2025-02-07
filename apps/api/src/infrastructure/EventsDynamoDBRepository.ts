@@ -4,6 +4,8 @@ import {
 } from '@trackflix-live/api-events';
 import {
   DynamoDBDocumentClient,
+  GetCommand,
+  GetCommandInput,
   PutCommand,
   PutCommandInput,
   ScanCommand,
@@ -62,6 +64,41 @@ export class EventsDynamoDBRepository implements EventsRepository {
       nextToken: LastEvaluatedKey
         ? Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64')
         : null,
+    };
+  }
+
+  async getEvent(eventId: string): Promise<Event | undefined> {
+    const params: GetCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+    };
+
+    const response = await this.client.send(new GetCommand(params));
+
+    if (!response.Item) {
+      return undefined;
+    }
+
+    const {
+      id,
+      name,
+      description,
+      onAirStartTime,
+      onAirEndTime,
+      source,
+      status,
+    } = response.Item;
+
+    return {
+      id,
+      name,
+      description,
+      onAirStartTime: new Date(onAirStartTime),
+      onAirEndTime: new Date(onAirEndTime),
+      source,
+      status,
     };
   }
 }

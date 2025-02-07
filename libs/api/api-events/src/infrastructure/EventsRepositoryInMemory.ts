@@ -31,4 +31,8 @@ export class EventsRepositoryInMemory implements EventsRepository {
       nextToken: lastEvaluatedKey,
     };
   }
+
+  async getEvent(eventId: string): Promise<Event | undefined> {
+    return this.events.find((event) => event.id === eventId);
+  }
 }

@@ -6,6 +6,7 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { EventMother } from '@trackflix-live/types';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -84,6 +85,23 @@ describe('EventsDynamoDBRepository', () => {
 
     expect(response2.events.length).toBe(2);
     expect(response2.nextToken).toBeNull();
+  });
+
+  it('should get an event from DynamoDB', async () => {
+    const { sampleEvent, ddbClient } = setup();
+    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    await ddbClient.send(command);
+
+    const response = await repository.getEvent(sampleEvent.id);
+
+    expect(response).toEqual(sampleEvent);
   });
 });
 
