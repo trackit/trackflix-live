@@ -91,7 +91,8 @@ Resources:
               - Action:
                   - "lambda:InvokeFunction"
                 Resource:
-                  - !GetAtt SayHi.Arn
+                  - !GetAtt CreateMediaPackageChannel.Arn
+                  - !GetAtt CreateMediaLiveChannel.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -120,6 +121,56 @@ Resources:
                   - "iot:Subscribe"
                   - "iot:Receive"
                 Resource: "*"
+  StateMachineLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-MediaPackage-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "mediapackage:CreateChannel"
+                Resource:
+                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*"
+              - Effect: Allow
+                Action:
+                  - "mediapackage:CreateOriginEndpoint"
+                Resource:
+                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*"
+        - PolicyName: !Sub "${AWS::StackName}-MediaLive-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "medialive:CreateInput"
+                Resource:
+                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*"
+              - Effect: Allow
+                Action:
+                  - "medialive:CreateChannel"
+                Resource:
+                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
+        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - "arn:aws:iam::576872909007:role/MediaLiveAccessRole" # TODO: Deploy
 
   ###########
   # COGNITO #
@@ -300,11 +351,27 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
-  SayHi:
+  CreateMediaPackageChannel:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/stateMachines/sayHi/
+      CodeUri: ./src/stateMachines/createMediaPackageChannel/
       Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  CreateMediaLiveChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/createMediaLiveChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -343,16 +410,22 @@ Resources:
       StateMachineName: !Sub "${AWS::StackName}-StartTransmission"
       DefinitionString: |
         {
-          "Comment": "A simple AWS Step Functions state machine",
-          "StartAt": "FirstTask",
+          "Comment": "State machine to start a Trackflix Live transmission",
+          "StartAt": "Create MediaPackage channel",
           "States": {
-            "FirstTask": {
+            "Create MediaPackage channel": {
               "Type": "Task",
-              "Resource": "${SayHi}",
+              "Resource": "${CreateMediaPackageChannel}",
+              "Next": "Create MediaLive channel"
+            },
+            "Create MediaLive channel": {
+              "Type": "Task",
+              "Resource": "${CreateMediaLiveChannel}",
               "End": true
             }
           }
         }
       DefinitionSubstitutions:
-        SayHi: !GetAtt SayHi.Arn
+        CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
+        CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
