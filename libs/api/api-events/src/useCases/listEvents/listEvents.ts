@@ -1,8 +1,7 @@
-import { EventsRepository } from '../../ports';
-import { Event } from '@trackflix-live/types';
+import { EventsRepository, ListEventsResponse } from '../../ports';
 
 export interface ListEventsUseCase {
-  listEvents(): Promise<Event[]>;
+  listEvents(limit: number, nextToken: string): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
@@ -16,7 +15,10 @@ export class ListEventsUseCaseImpl implements ListEventsUseCase {
     this.eventsRepository = eventsRepository;
   }
 
-  public async listEvents(): Promise<Event[]> {
-    return await this.eventsRepository.listEvents();
+  public async listEvents(
+    limit: number,
+    nextToken?: string
+  ): Promise<ListEventsResponse> {
+    return await this.eventsRepository.listEvents(limit, nextToken);
   }
 }

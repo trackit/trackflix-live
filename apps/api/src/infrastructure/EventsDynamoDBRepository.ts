@@ -1,4 +1,7 @@
-import { EventsRepository } from '@trackflix-live/api-events';
+import {
+  EventsRepository,
+  ListEventsResponse,
+} from '@trackflix-live/api-events';
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -38,13 +41,27 @@ export class EventsDynamoDBRepository implements EventsRepository {
     await this.client.send(new PutCommand(params));
   }
 
-  async listEvents(): Promise<Event[]> {
+  async listEvents(
+    limit: number,
+    nextToken?: string
+  ): Promise<ListEventsResponse> {
     const params: ScanCommandInput = {
       TableName: this.tableName,
+      Limit: limit,
+      ExclusiveStartKey: nextToken
+        ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
+        : undefined,
     };
 
-    const { Items } = await this.client.send(new ScanCommand(params));
+    const { Items, LastEvaluatedKey } = await this.client.send(
+      new ScanCommand(params)
+    );
 
-    return Items as Event[];
+    return {
+      events: Items as Event[],
+      nextToken:
+        Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64') ||
+        null,
+    };
   }
 }

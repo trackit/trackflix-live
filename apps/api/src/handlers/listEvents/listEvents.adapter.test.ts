@@ -24,25 +24,33 @@ describe('List events adapter', () => {
       id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
       status: 'PRE-TX',
     };
-    useCase.listEvents.mockImplementationOnce(() => [event]);
+    useCase.listEvents.mockImplementationOnce(() => ({
+      events: [event],
+      nextToken: null,
+    }));
 
     const response = await adapter.handle({} as APIGatewayProxyEventV2);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({
       events: [event],
+      nextToken: null,
     });
   });
 
   it('should return a successful response if there are no events', async () => {
     const { adapter, useCase } = setup();
-    useCase.listEvents.mockImplementationOnce(() => []);
+    useCase.listEvents.mockImplementationOnce(() => ({
+      events: [],
+      nextToken: null,
+    }));
 
     const response = await adapter.handle({} as APIGatewayProxyEventV2);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({
       events: [],
+      nextToken: null,
     });
   });
 });

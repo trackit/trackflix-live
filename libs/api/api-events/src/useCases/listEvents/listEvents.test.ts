@@ -8,17 +8,17 @@ describe('ListEvents use case', () => {
 
     await eventsRepository.createEvent(sampleEvent);
 
-    const events = await useCase.listEvents();
+    const events = await useCase.listEvents(10);
 
-    expect(events).toEqual([sampleEvent]);
+    expect(events.events).toEqual([sampleEvent]);
   });
 
   it('should return an empty list if there are no events', async () => {
     const { useCase } = setup();
 
-    const events = await useCase.listEvents();
+    const events = await useCase.listEvents(10);
 
-    expect(events).toEqual([]);
+    expect(events.events).toEqual([]);
   });
 });
 

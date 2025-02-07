@@ -20,10 +20,11 @@ export class ListEventsAdapter {
   }
 
   public async processRequest(event: APIGatewayProxyEventV2) {
-    const result = await this.useCase.listEvents();
+    const queryParams = event.queryStringParameters || {};
 
-    return {
-      events: result,
-    };
+    const limit = Number(queryParams.limit) || 10;
+    const nextToken = queryParams.nextToken || '';
+
+    return await this.useCase.listEvents(limit, nextToken);
   }
 }
