@@ -59,9 +59,9 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return {
       events: Items as Event[],
-      nextToken:
-        Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64') ||
-        null,
+      nextToken: LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64')
+        : null,
     };
   }
 }

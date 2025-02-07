@@ -39,6 +39,24 @@ describe('EventsDynamoDBRepository', () => {
       onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
     });
   });
+
+  it('should list events from DynamoDB', async () => {
+    const { sampleEvent, ddbClient } = setup();
+    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
+    await repository.createEvent(sampleEvent);
+
+    const response = await repository.listEvents(10);
+
+    expect(response.events).toEqual([
+      {
+        ...sampleEvent,
+        onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
+        onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
+      },
+    ]);
+    expect(response.nextToken).toBeNull();
+  });
 });
 
 const setup = () => {
