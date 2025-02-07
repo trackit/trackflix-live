@@ -23,7 +23,7 @@ export class ListEventsAdapter {
     const queryParams = event.queryStringParameters || {};
 
     const limit = Number(queryParams.limit) || 10;
-    const nextToken = queryParams.nextToken || '';
+    const nextToken = queryParams.nextToken;
 
     return await this.useCase.listEvents(limit, nextToken);
   }

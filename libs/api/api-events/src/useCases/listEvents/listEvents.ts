@@ -1,7 +1,7 @@
 import { EventsRepository, ListEventsResponse } from '../../ports';
 
 export interface ListEventsUseCase {
-  listEvents(limit: number, nextToken: string): Promise<ListEventsResponse>;
+  listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
