@@ -8,19 +8,19 @@ export const main = async ({
   eventId,
 }: {
   eventId: string;
-}): Promise<{ eventId: string; channelId: string }> => {
+}): Promise<{ eventId: string; mediaPackageChannelId: string }> => {
   const mediaPackageClient = new MediaPackageClient();
 
-  const channelId = `TrackflixLiveMPC-${eventId}`;
+  const mediaPackageChannelId = `TrackflixLiveMPC-${eventId}`;
   await mediaPackageClient.send(
     new CreateChannelCommand({
-      Id: channelId,
+      Id: mediaPackageChannelId,
     })
   );
 
   await mediaPackageClient.send(
     new CreateOriginEndpointCommand({
-      ChannelId: channelId,
+      ChannelId: mediaPackageChannelId,
       Id: `TrackflixLiveMPOE-HLS-${eventId}`,
       HlsPackage: {
         PlaylistType: 'EVENT',
@@ -29,7 +29,7 @@ export const main = async ({
   );
   await mediaPackageClient.send(
     new CreateOriginEndpointCommand({
-      ChannelId: channelId,
+      ChannelId: mediaPackageChannelId,
       Id: `TrackflixLiveMPOE-DASH-${eventId}`,
       DashPackage: {},
     })
@@ -37,6 +37,6 @@ export const main = async ({
 
   return {
     eventId,
-    channelId,
+    mediaPackageChannelId,
   };
 };

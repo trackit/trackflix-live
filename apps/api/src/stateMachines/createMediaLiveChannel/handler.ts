@@ -8,14 +8,24 @@ import {
   AudioDescriptionLanguageCodeControl,
   TimecodeConfigSource,
 } from '@aws-sdk/client-medialive';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 
 export const main = async ({
-  eventId,
-  channelId,
+  input: { eventId, mediaPackageChannelId },
+  taskToken,
 }: {
+  input: {
+    eventId: string;
+    mediaPackageChannelId: string;
+  };
+  taskToken: string;
+}): Promise<{
   eventId: string;
-  channelId: string;
-}): Promise<void> => {
+  mediaPackageChannelId: string;
+  mediaLiveChannelId: string;
+  mediaLiveChannelArn: string;
+}> => {
   const mediaLiveClient = new MediaLiveClient();
 
   const inputName = `TrackflixLiveMLI-${eventId}`;
@@ -31,7 +41,7 @@ export const main = async ({
     })
   );
 
-  await mediaLiveClient.send(
+  const mediaLiveChannel = await mediaLiveClient.send(
     new CreateChannelCommand({
       Name: `TrackflixLiveMLC-${eventId}`,
       InputSpecification: {
@@ -636,7 +646,7 @@ export const main = async ({
           Id: 'MainDestination',
           MediaPackageSettings: [
             {
-              ChannelId: channelId,
+              ChannelId: mediaPackageChannelId,
             },
           ],
         },
@@ -649,4 +659,30 @@ export const main = async ({
       ],
     })
   );
+
+  const dynamoClient = new DynamoDBClient();
+  const documentClient = DynamoDBDocumentClient.from(dynamoClient);
+
+  await documentClient.send(
+    new PutCommand({
+      TableName: process.env.TASK_TOKENS_TABLE,
+      Item: {
+        key: `${mediaLiveChannel.Channel!.Arn!}#CREATED`,
+        taskToken: taskToken,
+        output: {
+          eventId,
+          mediaPackageChannelId,
+          mediaLiveChannelId: mediaLiveChannel.Channel!.Id!,
+          mediaLiveChannelArn: mediaLiveChannel.Channel!.Arn!,
+        },
+      },
+    })
+  );
+
+  return {
+    eventId,
+    mediaPackageChannelId,
+    mediaLiveChannelId: mediaLiveChannel.Channel!.Id!,
+    mediaLiveChannelArn: mediaLiveChannel.Channel!.Arn!,
+  };
 };
