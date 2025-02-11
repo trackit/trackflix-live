@@ -25,13 +25,64 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: "sts:AssumeRole"
-      # keeping permission lax for experimentation. Should tighten permissions once solidified.
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
-        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
-        - arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                Resource:
+                  - !GetAtt EventsTable.Arn
+        - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "events:PutRule"
+                  - "events:PutTargets"
+                Resource:
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+        - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "states:StartExecution"
+                Resource:
+                  - !Ref StartTransmissionStateMachine
+  PermissionForEventBridgeToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StartTransmission
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+  StepFunctionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: "states.amazonaws.com"
+            Effect: "Allow"
+      Policies:
+        - PolicyName: StepFunctionsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt SayHi.Arn
+                Effect: "Allow"
 
   ###########
   # COGNITO #
@@ -92,6 +143,21 @@ Resources:
               - UserPool
               - ProviderName
 
+  ###################
+  # DYNAMODB TABLES #
+  ###################
+  EventsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "events-${AWS::StackName}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
   ####################
   # LAMBDA FUNCTIONS #
   ####################
@@ -101,12 +167,97 @@ Resources:
       CodeUri: ./src/handlers/createEvent/
       Handler: handler.main
       Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventsTable
+          START_TX_LAMBDA: !GetAtt StartTransmission.Arn
+      Events:
+        CreateEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event
+            Method: post
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
-        Format: esm
+        Format: cjs
         Minify: true
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  StartTransmission:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/startTransmission/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          START_TX_STATE_MACHINE: !Ref StartTransmissionStateMachine
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  SayHi:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/sayHi/
+      Handler: handler.main
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+
+  ####################
+  #    API GATEWAY   #
+  ####################
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      StageName: prod
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: False
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+
+  ####################
+  #  STATE MACHINES  #
+  ####################
+  StartTransmissionStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-StartTransmission"
+      DefinitionString: |
+        {
+          "Comment": "A simple AWS Step Functions state machine",
+          "StartAt": "FirstTask",
+          "States": {
+            "FirstTask": {
+              "Type": "Task",
+              "Resource": "${SayHi}",
+              "End": true
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        SayHi: !GetAtt SayHi.Arn
+      RoleArn: !GetAtt StepFunctionsRole.Arn

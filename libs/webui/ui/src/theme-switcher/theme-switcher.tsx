@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDarkMode } from 'usehooks-ts';
 
 export const THEME_KEYS = {
-  DARK: 'night',
+  DARK: 'dark',
   LIGHT: 'winter',
 };
 
@@ -36,7 +36,7 @@ export function ThemeSwitcher() {
       </svg>
       <input
         type="checkbox"
-        value="night"
+        value={THEME_KEYS.DARK}
         className="toggle"
         checked={isDarkMode}
         onChange={handleToggle}

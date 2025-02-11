@@ -4,7 +4,7 @@ const nx = require('@nx/eslint-plugin');
 module.exports = [
   ...baseConfig,
   {
-    ignores: ['**/dist'],
+    ignores: ['**/dist', '**/.aws-sam'],
   },
   {
     files: [
@@ -25,7 +25,12 @@ module.exports = [
           depConstraints: [
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:ui', 'type:types'],
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:ui',
+                'type:types',
+                'type:utils',
+              ],
             },
             {
               sourceTag: 'type:feature',
@@ -38,6 +43,10 @@ module.exports = [
             {
               sourceTag: 'type:ui',
               onlyDependOnLibsWithTags: ['type:ui'],
+            },
+            {
+              sourceTag: 'type:utils',
+              onlyDependOnLibsWithTags: ['type:utils'],
             },
             {
               sourceTag: 'scope:webui',
