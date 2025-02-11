@@ -46,6 +46,20 @@ describe('Get event adapter', () => {
 
     expect(response.statusCode).toEqual(400);
   });
+
+  it('should return 404 response if event is not found', async () => {
+    const { adapter, useCase } = setup();
+
+    useCase.getEvent.mockImplementationOnce(() => undefined);
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'invalid-id',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(404);
+  });
 });
 
 const setup = () => {

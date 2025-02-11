@@ -1,6 +1,10 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { GetEventUseCase } from '@trackflix-live/api-events';
-import { BadRequestError, handleHttpRequest } from '../HttpErrors';
+import {
+  BadRequestError,
+  handleHttpRequest,
+  NotFoundError,
+} from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 
 export class GetEventAdapter {
@@ -26,6 +30,10 @@ export class GetEventAdapter {
     }
 
     const result = await this.useCase.getEvent(eventId);
+
+    if (!result) {
+      throw new NotFoundError();
+    }
 
     return { event: result };
   }
