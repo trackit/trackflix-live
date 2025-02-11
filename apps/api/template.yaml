@@ -268,7 +268,11 @@ Resources:
                   - "dynamodb:PutItem"
                 Resource:
                   - !GetAtt TaskTokensTable.Arn
-
+              - Effect: Allow
+                Action:
+                  - "dynamodb:GetItem"
+                Resource:
+                  - !GetAtt EventsTable.Arn
   ###########
   # COGNITO #
   ###########
@@ -509,6 +513,7 @@ Resources:
       Role: !GetAtt StateMachineLambdaRole.Arn
       Environment:
         Variables:
+          EVENTS_TABLE: !Ref EventsTable
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
     Metadata:

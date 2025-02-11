@@ -6,32 +6,27 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 
 export const main = async ({
-  input: {
-    eventId,
-    mediaPackageChannelId,
-    mediaLiveChannelId,
-    mediaLiveChannelArn,
-  },
+  input: { eventId, packageChannelId, liveChannelId, liveChannelArn },
   taskToken,
 }: {
   input: {
     eventId: string;
-    mediaPackageChannelId: string;
-    mediaLiveChannelId: string;
-    mediaLiveChannelArn: string;
+    packageChannelId: string;
+    liveChannelId: string;
+    liveChannelArn: string;
   };
   taskToken: string;
 }): Promise<{
   eventId: string;
-  mediaPackageChannelId: string;
-  mediaLiveChannelId: string;
-  mediaLiveChannelArn: string;
+  packageChannelId: string;
+  liveChannelId: string;
+  liveChannelArn: string;
 }> => {
   const mediaLiveClient = new MediaLiveClient();
 
   await mediaLiveClient.send(
     new StartChannelCommand({
-      ChannelId: mediaLiveChannelId,
+      ChannelId: liveChannelId,
     })
   );
 
@@ -42,12 +37,13 @@ export const main = async ({
     new PutCommand({
       TableName: process.env.TASK_TOKENS_TABLE,
       Item: {
-        key: `${mediaLiveChannelArn}#RUNNING`,
+        key: `${liveChannelArn}#RUNNING`,
         taskToken: taskToken,
         output: {
           eventId,
-          mediaPackageChannelId,
-          mediaLiveChannelArn,
+          packageChannelId,
+          liveChannelId,
+          liveChannelArn,
         },
       },
     })
@@ -55,8 +51,8 @@ export const main = async ({
 
   return {
     eventId,
-    mediaPackageChannelId,
-    mediaLiveChannelId,
-    mediaLiveChannelArn,
+    packageChannelId,
+    liveChannelId,
+    liveChannelArn,
   };
 };
