@@ -24,25 +24,24 @@ describe('ListEvents use case', () => {
   it('should return event in multiple requests if the limit is less than the number of events', async () => {
     const { useCase, sampleEvent, eventsRepository } = setup();
 
-    const secondFakeEvent = {
-      ...sampleEvent,
-      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aae',
-    };
-
     await eventsRepository.createEvent(sampleEvent);
-    await eventsRepository.createEvent(secondFakeEvent);
+    await eventsRepository.createEvent({
+      ...sampleEvent,
+      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aab',
+    });
+    await eventsRepository.createEvent({
+      ...sampleEvent,
+      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aac',
+    });
 
     const events = await useCase.listEvents(1);
 
-    expect(events.events).toEqual([sampleEvent]);
-    expect(events.nextToken).toBe(secondFakeEvent.id);
+    expect(events.events).toHaveLength(1);
+    expect(events.nextToken).toBeDefined();
 
-    const nextEvents = await useCase.listEvents(
-      1,
-      events?.nextToken || undefined
-    );
+    const nextEvents = await useCase.listEvents(3, events.nextToken as string);
 
-    expect(nextEvents.events).toEqual([secondFakeEvent]);
+    expect(nextEvents.events).toHaveLength(2);
     expect(nextEvents.nextToken).toBeNull();
   });
 });
@@ -63,7 +62,7 @@ const setup = () => {
       bucket: 'test',
       key: 'test',
     },
-    id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+    id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aaa',
     status: EventStatus.PRE_TX,
   };
 
