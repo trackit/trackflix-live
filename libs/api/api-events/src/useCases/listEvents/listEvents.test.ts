@@ -1,11 +1,12 @@
 import { ListEventsUseCaseImpl } from './listEvents';
 import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
-import { Event, EventStatus } from '@trackflix-live/types';
+import { Event, EventMother, EventStatus } from '@trackflix-live/types';
 
 describe('ListEvents use case', () => {
   it('should return a list of events', async () => {
-    const { useCase, sampleEvent, eventsRepository } = setup();
+    const { useCase, eventsRepository } = setup();
 
+    const sampleEvent = EventMother.basic().build();
     await eventsRepository.createEvent(sampleEvent);
 
     const events = await useCase.listEvents(10);
@@ -22,17 +23,17 @@ describe('ListEvents use case', () => {
   });
 
   it('should return event in multiple requests if the limit is less than the number of events', async () => {
-    const { useCase, sampleEvent, eventsRepository } = setup();
+    const { useCase, eventsRepository } = setup();
 
-    await eventsRepository.createEvent(sampleEvent);
-    await eventsRepository.createEvent({
-      ...sampleEvent,
-      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aab',
-    });
-    await eventsRepository.createEvent({
-      ...sampleEvent,
-      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aac',
-    });
+    await eventsRepository.createEvent(
+      EventMother.basic().withId('e180523f-0d99-4e02-9471-f58aec1c38cf').build()
+    );
+    await eventsRepository.createEvent(
+      EventMother.basic().withId('f2efc047-89b8-4628-8d78-7669f5b63342').build()
+    );
+    await eventsRepository.createEvent(
+      EventMother.basic().withId('6f255021-f742-4526-80ce-5128f993c6d6').build()
+    );
 
     const events = await useCase.listEvents(1);
 
@@ -53,22 +54,8 @@ const setup = () => {
     eventsRepository,
   });
 
-  const sampleEvent: Event = {
-    name: 'My first event',
-    description: 'This is a sample testing event',
-    onAirStartTime: new Date('2025-02-04T15:15:31.606Z'),
-    onAirEndTime: new Date('2025-02-04T16:21:50.292Z'),
-    source: {
-      bucket: 'test',
-      key: 'test',
-    },
-    id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aaa',
-    status: EventStatus.PRE_TX,
-  };
-
   return {
     eventsRepository,
     useCase,
-    sampleEvent,
   };
 };
