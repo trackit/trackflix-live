@@ -19,8 +19,7 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should create an event in DynamoDB', async () => {
-    const { ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { ddbClient, repository } = setup();
 
     const sampleEvent = EventMother.basic().build();
     const response = await repository.createEvent(sampleEvent);
@@ -42,9 +41,9 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should list events from DynamoDB', async () => {
-    const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { repository } = setup();
 
+    const sampleEvent = EventMother.basic().build();
     await repository.createEvent(sampleEvent);
 
     const response = await repository.listEvents(10);
@@ -60,18 +59,17 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should return events in multiple requests if limit is less than the number of events', async () => {
-    const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { repository } = setup();
 
-    await repository.createEvent(sampleEvent);
-    await repository.createEvent({
-      ...sampleEvent,
-      id: '988de49c-14c8-4926-a40a-2f70c6aebc8b',
-    });
-    await repository.createEvent({
-      ...sampleEvent,
-      id: '988de49c-14c8-4926-a40a-2f70c6aebc8c',
-    });
+    await repository.createEvent(
+      EventMother.basic().withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f').build()
+    );
+    await repository.createEvent(
+      EventMother.basic().withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e').build()
+    );
+    await repository.createEvent(
+      EventMother.basic().withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70').build()
+    );
 
     const response = await repository.listEvents(1);
 
@@ -88,19 +86,10 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should get an event from DynamoDB', async () => {
-    const { ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { repository } = setup();
 
     const sampleEvent = EventMother.basic().build();
     await repository.createEvent(sampleEvent);
-
-    const command = new GetCommand({
-      TableName: 'EventsTable',
-      Key: {
-        id: sampleEvent.id,
-      },
-    });
-    await ddbClient.send(command);
 
     const response = await repository.getEvent(sampleEvent.id);
 
@@ -141,8 +130,11 @@ const setup = () => {
     );
   };
 
+  const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
   return {
     ddbClient,
+    repository,
     createTable,
     deleteTable,
   };

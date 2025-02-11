@@ -7,6 +7,11 @@ export class EventMother {
     this.data = data;
   }
 
+  public withId(id: string): EventMother {
+    this.data.id = id;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
