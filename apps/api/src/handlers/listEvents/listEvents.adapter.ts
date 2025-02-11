@@ -11,11 +11,26 @@ interface ListEventsRequest {
   nextToken?: string;
 }
 
+const isValidBase64Json = (value: string) => {
+  try {
+    return Buffer.from(value, 'base64').toString('base64') === value;
+  } catch {
+    return false;
+  }
+};
+
+ajv.addKeyword({
+  keyword: 'isValidBase64Json',
+  type: 'string',
+  validate: isValidBase64Json,
+  errors: false,
+});
+
 const schema: JSONSchemaType<ListEventsRequest> = {
   type: 'object',
   properties: {
     limit: { type: 'number', nullable: true, minimum: 1, maximum: 250 },
-    nextToken: { type: 'string', nullable: true },
+    nextToken: { type: 'string', nullable: true, isValidBase64Json: true },
   },
 };
 

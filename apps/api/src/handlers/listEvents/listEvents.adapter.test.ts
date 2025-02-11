@@ -55,15 +55,23 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the limit is invalid', async () => {
-    const { adapter, useCase } = setup();
-    useCase.listEvents.mockImplementationOnce(() => ({
-      events: [],
-      nextToken: null,
-    }));
+    const { adapter } = setup();
 
     const response = await adapter.handle({
       queryStringParameters: {
         limit: -1,
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+  });
+
+  it('should return a response with status code 400 if the nextToken is malformed', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        nextToken: 'invalid',
       } as unknown,
     } as APIGatewayProxyEventV2);
 
