@@ -129,6 +129,85 @@ Resources:
                   - "iot:Subscribe"
                   - "iot:Receive"
                 Resource: "*"
+  MediaLiveRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: "medialive.amazonaws.com"
+            Effect: "Allow"
+      Policies:
+        - PolicyName: MediaLiveCustomPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ssm:Describe*
+                  - ssm:Get*
+                  - ssm:List*
+                Resource: "*"
+                Effect: Allow
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediastore:ListContainers
+                  - mediastore:PutObject
+                  - mediastore:GetObject
+                  - mediastore:DeleteObject
+                  - mediastore:DescribeObject
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroups
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - mediaconnect:ManagedDescribeFlow
+                  - mediaconnect:ManagedAddOutput
+                  - mediaconnect:ManagedRemoveOutput
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ec2:describeSubnets
+                  - ec2:describeNetworkInterfaces
+                  - ec2:createNetworkInterface
+                  - ec2:createNetworkInterfacePermission
+                  - ec2:deleteNetworkInterface
+                  - ec2:deleteNetworkInterfacePermission
+                  - ec2:describeSecurityGroups
+                  - ec2:describeAddresses
+                  - ec2:associateAddress
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediapackage:DescribeChannel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediapackagev2:PutObject
+                  - mediapackagev2:GetChannel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - kms:GenerateDataKey
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
   StateMachineLambdaRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -179,7 +258,7 @@ Resources:
                 Action:
                   - "iam:PassRole"
                 Resource:
-                  - "arn:aws:iam::576872909007:role/MediaLiveAccessRole" # TODO: Deploy
+                  - !GetAtt MediaLiveRole.Arn
         - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -431,6 +510,7 @@ Resources:
       Environment:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
+          MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

@@ -49,7 +49,7 @@ export const main = async ({
         MaximumBitrate: 'MAX_10_MBPS',
         Resolution: 'HD',
       },
-      RoleArn: 'arn:aws:iam::576872909007:role/MediaLiveAccessRole', // TODO: Create role in template
+      RoleArn: process.env.MEDIA_LIVE_ROLE!,
       ChannelClass: 'SINGLE_PIPELINE',
       EncoderSettings: {
         AudioDescriptions: [
