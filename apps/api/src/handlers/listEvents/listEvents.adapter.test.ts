@@ -36,7 +36,7 @@ describe('List events adapter', () => {
 
     const response = await adapter.handle({
       queryStringParameters: {
-        limit: 2,
+        limit: '2',
         nextToken: Buffer.from(JSON.stringify({ id: sampleEvent.id })).toString(
           'base64'
         ),
@@ -70,7 +70,7 @@ describe('List events adapter', () => {
 
     const response = await adapter.handle({
       queryStringParameters: {
-        limit: -1,
+        limit: '-1,',
       } as unknown,
     } as APIGatewayProxyEventV2);
 

@@ -7,7 +7,7 @@ import Ajv, { JSONSchemaType } from 'ajv';
 const ajv = new Ajv();
 
 interface ListEventsRequest {
-  limit?: number;
+  limit?: string;
   nextToken?: string;
 }
 
@@ -22,6 +22,14 @@ const isValidBase64Json = (schemaValue: boolean, value: string) => {
   }
 };
 
+const isValidLimit = (schemaValue: boolean, value: string) => {
+  if (!schemaValue) return true;
+
+  const limit = Number(value);
+
+  return !isNaN(limit) && limit > 0 && limit <= 250;
+};
+
 ajv.addKeyword({
   keyword: 'isValidBase64Json',
   type: 'string',
@@ -29,10 +37,17 @@ ajv.addKeyword({
   errors: false,
 });
 
+ajv.addKeyword({
+  keyword: 'isValidLimit',
+  type: 'string',
+  validate: isValidLimit,
+  errors: false,
+});
+
 const schema: JSONSchemaType<ListEventsRequest> = {
   type: 'object',
   properties: {
-    limit: { type: 'number', nullable: true, minimum: 1, maximum: 250 },
+    limit: { type: 'string', nullable: true, isValidLimit: true },
     nextToken: { type: 'string', nullable: true, isValidBase64Json: true },
   },
 };
