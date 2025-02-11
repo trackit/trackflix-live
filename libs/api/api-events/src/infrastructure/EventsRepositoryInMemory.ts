@@ -13,11 +13,24 @@ export class EventsRepositoryInMemory implements EventsRepository {
     limit: number,
     nextToken?: string
   ): Promise<ListEventsResponse> {
-    const token = this.events.length > limit ? randomUUID() : null;
+    if (nextToken) {
+      const index = this.events.findIndex((event) => event.id === nextToken);
+      if (index === -1) {
+        throw new Error('Invalid token');
+      }
+
+      return {
+        events: this.events.slice(index, index + limit),
+        nextToken:
+          this.events.length > index + limit
+            ? this.events[index + limit].id
+            : null,
+      };
+    }
 
     return {
       events: this.events.slice(0, limit),
-      nextToken: token,
+      nextToken: this.events.length > limit ? this.events[limit].id : null,
     };
   }
 }

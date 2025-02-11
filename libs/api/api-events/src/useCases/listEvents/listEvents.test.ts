@@ -20,6 +20,29 @@ describe('ListEvents use case', () => {
 
     expect(events.events).toEqual([]);
   });
+
+  it('should return event in multiple requests if the limit is less than the number of events', async () => {
+    const { useCase, sampleEvent, eventsRepository } = setup();
+
+    const secondFakeEvent = {
+      ...sampleEvent,
+      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aae',
+    };
+
+    await eventsRepository.createEvent(sampleEvent);
+    await eventsRepository.createEvent(secondFakeEvent);
+
+    const events = await useCase.listEvents(1);
+
+    expect(events.events).toEqual([sampleEvent]);
+
+    const nextEvents = await useCase.listEvents(
+      1,
+      events?.nextToken || undefined
+    );
+
+    expect(nextEvents.events).toEqual([secondFakeEvent]);
+  });
 });
 
 const setup = () => {
