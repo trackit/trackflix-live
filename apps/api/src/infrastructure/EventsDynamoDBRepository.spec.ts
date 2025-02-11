@@ -7,17 +7,17 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
-beforeAll(async () => {
-  const { createTable } = setup();
-  await createTable();
-});
-
-afterAll(async () => {
-  const { deleteTable } = setup();
-  await deleteTable();
-});
-
 describe('EventsDynamoDBRepository', () => {
+  beforeEach(async () => {
+    const { createTable } = setup();
+    await createTable();
+  });
+
+  afterEach(async () => {
+    const { deleteTable } = setup();
+    await deleteTable();
+  });
+
   it('should create an event in DynamoDB', async () => {
     const { sampleEvent, ddbClient } = setup();
     const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
@@ -39,6 +39,52 @@ describe('EventsDynamoDBRepository', () => {
       onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
     });
   });
+
+  it('should list events from DynamoDB', async () => {
+    const { sampleEvent, ddbClient } = setup();
+    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
+    await repository.createEvent(sampleEvent);
+
+    const response = await repository.listEvents(10);
+
+    expect(response.events).toEqual([
+      {
+        ...sampleEvent,
+        onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
+        onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
+      },
+    ]);
+    expect(response.nextToken).toBeNull();
+  });
+
+  it('should return events in multiple requests if limit is less than the number of events', async () => {
+    const { sampleEvent, ddbClient } = setup();
+    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
+    await repository.createEvent(sampleEvent);
+    await repository.createEvent({
+      ...sampleEvent,
+      id: '988de49c-14c8-4926-a40a-2f70c6aebc8b',
+    });
+    await repository.createEvent({
+      ...sampleEvent,
+      id: '988de49c-14c8-4926-a40a-2f70c6aebc8c',
+    });
+
+    const response = await repository.listEvents(1);
+
+    expect(response.events.length).toBe(1);
+    expect(response.nextToken).toBeDefined();
+
+    const response2 = await repository.listEvents(
+      3,
+      response.nextToken as string
+    );
+
+    expect(response2.events.length).toBe(2);
+    expect(response2.nextToken).toBeNull();
+  });
 });
 
 const setup = () => {
@@ -54,7 +100,7 @@ const setup = () => {
   const ddbClient = DynamoDBDocumentClient.from(dynamoDBClient);
 
   const sampleEvent: Event = {
-    id: '988de49c-14c8-4926-a40a-2f70c6aebc8f',
+    id: '988de49c-14c8-4926-a40a-2f70c6aebc8a',
     name: 'Race car',
     description: 'A race car event.',
     onAirStartTime: new Date('2025-01-31T19:15:00+0000'),
