@@ -11,10 +11,11 @@ interface ListEventsRequest {
   nextToken?: string;
 }
 
-const isValidBase64Json = (value: string) => {
+const isValidBase64Json = (schemaValue: boolean, value: string) => {
+  if (!schemaValue) return true;
+
   try {
-    const decoded = Buffer.from(value, 'base64').toString('utf-8');
-    JSON.parse(decoded);
+    JSON.parse(Buffer.from(value, 'base64').toString());
     return true;
   } catch {
     return false;

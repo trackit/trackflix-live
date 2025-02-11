@@ -31,19 +31,22 @@ describe('List events adapter', () => {
 
     useCase.listEvents.mockImplementationOnce(() => ({
       events: [sampleEvent],
-      nextToken: Buffer.from(JSON.stringify(sampleEvent.id)).toString('base64'),
+      nextToken: null,
     }));
 
     const response = await adapter.handle({
       queryStringParameters: {
         limit: 2,
+        nextToken: Buffer.from(JSON.stringify({ id: sampleEvent.id })).toString(
+          'base64'
+        ),
       } as unknown,
     } as APIGatewayProxyEventV2);
     const body = JSON.parse(response.body || '');
 
     expect(response.statusCode).toEqual(200);
     expect(body.events).toHaveLength(1);
-    expect(body.nextToken).not.toBeNull();
+    expect(body.nextToken).toBeNull();
   });
 
   it('should return a successful response if there are no events', async () => {
