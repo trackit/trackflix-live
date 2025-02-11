@@ -81,24 +81,10 @@ export class EventsDynamoDBRepository implements EventsRepository {
       return undefined;
     }
 
-    const {
-      id,
-      name,
-      description,
-      onAirStartTime,
-      onAirEndTime,
-      source,
-      status,
-    } = response.Item;
-
     return {
-      id,
-      name,
-      description,
-      onAirStartTime: new Date(onAirStartTime),
-      onAirEndTime: new Date(onAirEndTime),
-      source,
-      status,
-    };
+      ...response.Item,
+      onAirStartTime: new Date(response?.Item?.onAirStartTime),
+      onAirEndTime: new Date(response?.Item?.onAirEndTime),
+    } as Event;
   }
 }
