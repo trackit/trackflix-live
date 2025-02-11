@@ -13,7 +13,9 @@ interface ListEventsRequest {
 
 const isValidBase64Json = (value: string) => {
   try {
-    return Buffer.from(value, 'base64').toString('base64') === value;
+    const decoded = Buffer.from(value, 'base64').toString('utf-8');
+    JSON.parse(decoded);
+    return true;
   } catch {
     return false;
   }
