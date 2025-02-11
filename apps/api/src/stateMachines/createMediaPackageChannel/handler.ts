@@ -1,42 +1,23 @@
-import {
-  CreateChannelCommand,
-  CreateOriginEndpointCommand,
-  MediaPackageClient,
-} from '@aws-sdk/client-mediapackage';
+import { MediaPackageClient } from '@aws-sdk/client-mediapackage';
+import { MediaPackageChannelsManager } from '../../infrastructure/MediaPackageChannelsManager';
+import { CreatePackageChannelUseCaseImpl } from '@trackflix-live/api-events';
+import { CreateMediaPackageChannelAdapter } from './createMediaPackageChannel.adapter';
 
-export const main = async ({
-  eventId,
-}: {
+const mediaPackageClient = new MediaPackageClient();
+
+const packageChannelsManager = new MediaPackageChannelsManager({
+  client: mediaPackageClient,
+});
+
+const useCase = new CreatePackageChannelUseCaseImpl({
+  packageChannelsManager,
+});
+
+const adapter = new CreateMediaPackageChannelAdapter({
+  useCase,
+});
+
+export const main = async (event: {
   eventId: string;
-}): Promise<{ eventId: string; mediaPackageChannelId: string }> => {
-  const mediaPackageClient = new MediaPackageClient();
-
-  const mediaPackageChannelId = `TrackflixLiveMPC-${eventId}`;
-  await mediaPackageClient.send(
-    new CreateChannelCommand({
-      Id: mediaPackageChannelId,
-    })
-  );
-
-  await mediaPackageClient.send(
-    new CreateOriginEndpointCommand({
-      ChannelId: mediaPackageChannelId,
-      Id: `TrackflixLiveMPOE-HLS-${eventId}`,
-      HlsPackage: {
-        PlaylistType: 'EVENT',
-      },
-    })
-  );
-  await mediaPackageClient.send(
-    new CreateOriginEndpointCommand({
-      ChannelId: mediaPackageChannelId,
-      Id: `TrackflixLiveMPOE-DASH-${eventId}`,
-      DashPackage: {},
-    })
-  );
-
-  return {
-    eventId,
-    mediaPackageChannelId,
-  };
-};
+}): Promise<{ eventId: string; mediaPackageChannelId: string }> =>
+  adapter.handle(event);
