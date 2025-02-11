@@ -17,7 +17,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
     if (nextToken) {
       startIndex = this.events.findIndex((event) => event.id === nextToken) + 1;
-      if (startIndex === 0) {
+      if (startIndex <= 0) {
         throw new Error('Invalid token');
       }
     }
