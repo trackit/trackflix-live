@@ -1,7 +1,23 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { handleHttpRequest } from '../HttpErrors';
+import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { ListEventsUseCase } from '@trackflix-live/api-events';
+import Ajv, { JSONSchemaType } from 'ajv';
+
+const ajv = new Ajv();
+
+interface ListEventsRequest {
+  limit?: number;
+  nextToken?: string;
+}
+
+const schema: JSONSchemaType<ListEventsRequest> = {
+  type: 'object',
+  properties: {
+    limit: { type: 'number', nullable: true, minimum: 1, maximum: 250 },
+    nextToken: { type: 'string', nullable: true },
+  },
+};
 
 export class ListEventsAdapter {
   private readonly useCase: ListEventsUseCase;
@@ -21,6 +37,10 @@ export class ListEventsAdapter {
 
   public async processRequest(event: APIGatewayProxyEventV2) {
     const queryParams = event.queryStringParameters || {};
+
+    if (!ajv.validate(schema, queryParams)) {
+      throw new BadRequestError();
+    }
 
     const limit = Number(queryParams.limit) || 10;
     const nextToken = queryParams.nextToken;
