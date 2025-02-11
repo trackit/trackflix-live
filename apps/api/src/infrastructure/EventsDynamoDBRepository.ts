@@ -27,16 +27,9 @@ export class EventsDynamoDBRepository implements EventsRepository {
     const params: PutCommandInput = {
       TableName: this.tableName,
       Item: {
-        id: event.id,
-        name: event.name,
-        description: event.description,
+        ...event,
         onAirStartTime: event.onAirStartTime.toISOString(),
         onAirEndTime: event.onAirEndTime.toISOString(),
-        source: {
-          bucket: event.source.bucket,
-          key: event.source.key,
-        },
-        status: event.status,
       },
     };
 
