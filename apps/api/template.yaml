@@ -36,6 +36,7 @@ Resources:
                 Action:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
+                  - "dynamodb:GetItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
         - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
@@ -179,6 +180,22 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /event
             Method: post
+  GetEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/getEvent/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventsTable
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event/{eventId}
+            Method: get
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

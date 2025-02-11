@@ -1,11 +1,11 @@
 import { EventsDynamoDBRepository } from './EventsDynamoDBRepository';
-import { Event, EventStatus } from '@trackflix-live/types';
 import {
   CreateTableCommand,
   DeleteTableCommand,
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { EventMother } from '@trackflix-live/types';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -19,9 +19,9 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should create an event in DynamoDB', async () => {
-    const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { ddbClient, repository } = setup();
 
+    const sampleEvent = EventMother.basic().build();
     const response = await repository.createEvent(sampleEvent);
 
     const command = new GetCommand({
@@ -41,9 +41,9 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should list events from DynamoDB', async () => {
-    const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { repository } = setup();
 
+    const sampleEvent = EventMother.basic().build();
     await repository.createEvent(sampleEvent);
 
     const response = await repository.listEvents(10);
@@ -59,18 +59,17 @@ describe('EventsDynamoDBRepository', () => {
   });
 
   it('should return events in multiple requests if limit is less than the number of events', async () => {
-    const { sampleEvent, ddbClient } = setup();
-    const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+    const { repository } = setup();
 
-    await repository.createEvent(sampleEvent);
-    await repository.createEvent({
-      ...sampleEvent,
-      id: '988de49c-14c8-4926-a40a-2f70c6aebc8b',
-    });
-    await repository.createEvent({
-      ...sampleEvent,
-      id: '988de49c-14c8-4926-a40a-2f70c6aebc8c',
-    });
+    await repository.createEvent(
+      EventMother.basic().withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f').build()
+    );
+    await repository.createEvent(
+      EventMother.basic().withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e').build()
+    );
+    await repository.createEvent(
+      EventMother.basic().withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70').build()
+    );
 
     const response = await repository.listEvents(1);
 
@@ -85,6 +84,17 @@ describe('EventsDynamoDBRepository', () => {
     expect(response2.events.length).toBe(2);
     expect(response2.nextToken).toBeNull();
   });
+
+  it('should get an event from DynamoDB', async () => {
+    const { repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    await repository.createEvent(sampleEvent);
+
+    const response = await repository.getEvent(sampleEvent.id);
+
+    expect(response).toEqual(sampleEvent);
+  });
 });
 
 const setup = () => {
@@ -98,20 +108,6 @@ const setup = () => {
   });
 
   const ddbClient = DynamoDBDocumentClient.from(dynamoDBClient);
-
-  const sampleEvent: Event = {
-    id: '988de49c-14c8-4926-a40a-2f70c6aebc8a',
-    name: 'Race car',
-    description: 'A race car event.',
-    onAirStartTime: new Date('2025-01-31T19:15:00+0000'),
-    onAirEndTime: new Date('2025-01-31T20:00:00+0000'),
-    source: {
-      bucket: 'sample-bucket',
-      key: 'sample-key',
-    },
-    status: EventStatus.CONFIRMED,
-  };
-
   const createTable = async () => {
     await dynamoDBClient.send(
       new CreateTableCommand({
@@ -134,9 +130,11 @@ const setup = () => {
     );
   };
 
+  const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
+
   return {
     ddbClient,
-    sampleEvent,
+    repository,
     createTable,
     deleteTable,
   };

@@ -24,6 +24,15 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class NotFoundError extends HttpError {
+  public constructor() {
+    super({
+      code: 404,
+      message: 'Not Found',
+    });
+  }
+}
+
 export const handleHttpRequest = async ({
   event,
   func,
