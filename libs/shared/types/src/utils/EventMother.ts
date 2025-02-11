@@ -3,7 +3,7 @@ import { Event, EventStatus } from '../lib/types';
 export class EventMother {
   private readonly data: Event;
 
-  constructor(data: Event) {
+  private constructor(data: Event) {
     this.data = data;
   }
 
