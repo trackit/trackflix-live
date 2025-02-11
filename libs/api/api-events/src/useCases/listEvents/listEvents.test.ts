@@ -35,6 +35,7 @@ describe('ListEvents use case', () => {
     const events = await useCase.listEvents(1);
 
     expect(events.events).toEqual([sampleEvent]);
+    expect(events.nextToken).toBe(secondFakeEvent.id);
 
     const nextEvents = await useCase.listEvents(
       1,
@@ -42,6 +43,7 @@ describe('ListEvents use case', () => {
     );
 
     expect(nextEvents.events).toEqual([secondFakeEvent]);
+    expect(nextEvents.nextToken).toBeNull();
   });
 });
 
