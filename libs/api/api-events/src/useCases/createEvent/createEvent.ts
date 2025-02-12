@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { EventScheduler, EventsRepository } from '../../ports';
-import { Event, EventStatus } from '@trackflix-live/types';
+import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
+import { EventUpdateSender } from '../../ports/EventUpdateSender';
 
 export type CreateEventArgs = Omit<Event, 'id' | 'status'>;
 
@@ -13,15 +14,20 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
 
   private readonly eventsRepository: EventsRepository;
 
+  private readonly eventUpdateSender: EventUpdateSender;
+
   public constructor({
     eventScheduler,
     eventsRepository,
+    eventUpdateSender,
   }: {
     eventScheduler: EventScheduler;
     eventsRepository: EventsRepository;
+    eventUpdateSender: EventUpdateSender;
   }) {
     this.eventScheduler = eventScheduler;
     this.eventsRepository = eventsRepository;
+    this.eventUpdateSender = eventUpdateSender;
   }
 
   public async createEvent(args: CreateEventArgs): Promise<Event> {
@@ -42,6 +48,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       id,
       time: preTxTime,
     });
+
+    await this.eventUpdateSender.send(EventUpdateAction.NEW_EVENT, { id });
 
     return event;
   }

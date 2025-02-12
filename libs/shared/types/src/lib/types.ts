@@ -22,3 +22,7 @@ export interface Event {
   source: Source;
   status: EventStatus;
 }
+
+export enum EventUpdateAction {
+  NEW_EVENT = 'new-event',
+}
