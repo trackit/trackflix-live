@@ -10,21 +10,18 @@ Amplify.configure(amplifyConfig);
 export function App() {
   return (
     <Authenticator hideSignUp>
-      <div className={'prose   '}>
-        <div className={'absolute top-2 right-2'}>
-          <ThemeSwitcher />
-        </div>
+      <div className={'absolute top-2 right-2'}>
+        <ThemeSwitcher />
+      </div>
 
-        <div
-          className={
-            'flex justify-center items-center w-screen h-screen bg-base-200'
-          }
-        >
-          <Panel>
-            <h1>Trackflix Live</h1>
-            <SingleAssetFlow />
-          </Panel>
-        </div>
+      <div
+        className={
+          'flex justify-center items-center w-screen h-screen bg-base-200'
+        }
+      >
+        <Panel>
+          <SingleAssetFlow />
+        </Panel>
       </div>
     </Authenticator>
   );

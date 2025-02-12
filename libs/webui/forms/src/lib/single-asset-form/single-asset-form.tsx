@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Videotape, CaseSensitive, PencilLine, Clock, KeyRound } from 'lucide-react';
+import {
+  Videotape,
+  CaseSensitive,
+  PencilLine,
+  Clock,
+  KeyRound,
+} from 'lucide-react';
 import { DateTime } from 'luxon';
 
 export interface SingleAssetFormProps {
@@ -140,11 +146,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         >
           <Videotape />
           S3 Bucket
-          <input
-            type="text"
-            className="grow"
-            {...register('s3Bucket')}
-          />
+          <input type="text" className="grow" {...register('s3Bucket')} />
         </label>
         <div className="label">
           <span className="label-text-alt text-error">
@@ -160,17 +162,13 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         >
           <KeyRound />
           S3 Key
-          <input
-            type="text"
-            className="grow"
-            {...register('s3Key')}
-          />
+          <input type="text" className="grow" {...register('s3Key')} />
         </label>
         <div className="label">
           <span className="label-text-alt text-error">
             {errors.s3Key?.message}
           </span>
-        </div>  
+        </div>
       </label>
 
       <button type="submit" className="btn btn-primary" disabled={disabled}>

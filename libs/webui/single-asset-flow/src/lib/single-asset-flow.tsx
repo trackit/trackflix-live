@@ -25,6 +25,10 @@ export function SingleAssetFlow() {
 
   return (
     <div>
+      <div className="prose ">
+        <h1>Create a new event</h1>
+      </div>
+      <hr className={'my-6'} />
       <SingleAssetForm onSubmit={onSubmit} disabled={isSubmitting} />
     </div>
   );
