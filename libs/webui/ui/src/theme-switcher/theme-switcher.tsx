@@ -22,8 +22,8 @@ export function ThemeSwitcher() {
     <label className="flex cursor-pointer gap-2">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
+        width="15"
+        height="15"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -37,14 +37,14 @@ export function ThemeSwitcher() {
       <input
         type="checkbox"
         value={THEME_KEYS.DARK}
-        className="toggle"
+        className="toggle toggle-xs"
         checked={isDarkMode}
         onChange={handleToggle}
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
+        width="15"
+        height="15"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
