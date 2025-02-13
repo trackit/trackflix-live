@@ -13,4 +13,5 @@ export interface LiveChannelsManager {
   createChannel(
     parameters: CreateChannelParameters
   ): Promise<CreateChannelResponse>;
+  startChannel(channelId: string): Promise<void>;
 }

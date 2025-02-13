@@ -12,6 +12,7 @@ import {
   AacSpec,
   AudioDescriptionLanguageCodeControl,
   TimecodeConfigSource,
+  StartChannelCommand,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -683,5 +684,13 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       channelArn: mediaLiveChannel.Channel.Arn,
       channelId: mediaLiveChannel.Channel.Id,
     };
+  }
+
+  public async startChannel(channelId: string): Promise<void> {
+    await this.client.send(
+      new StartChannelCommand({
+        ChannelId: channelId,
+      })
+    );
   }
 }
