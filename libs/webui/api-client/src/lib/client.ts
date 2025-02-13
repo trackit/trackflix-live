@@ -80,7 +80,6 @@ export class ApiClient {
   }
 }
 
-// Update to use VITE environment variable
 export const apiClient = new ApiClient({
   baseURL: import.meta.env.VITE_API_URL || '',
   headers: {
