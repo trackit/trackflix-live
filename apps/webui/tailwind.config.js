@@ -4,7 +4,7 @@ const { join } = require('path');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   daisyui: {
-    themes: ['winter', 'dark'],
+    themes: ['light', 'night'],
     darkTheme: 'night',
   },
   darkMode: ['selector', '[data-theme="night"]'],
