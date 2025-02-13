@@ -1,5 +1,12 @@
-import { TransmissionsManager } from '@trackflix-live/api-events';
-import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import {
+  ResumeStartTransmissionParameters,
+  TransmissionsManager,
+} from '@trackflix-live/api-events';
+import {
+  SendTaskSuccessCommand,
+  SFNClient,
+  StartExecutionCommand,
+} from '@aws-sdk/client-sfn';
 
 export class TransmissionsManagerSfn implements TransmissionsManager {
   private readonly client: SFNClient;
@@ -31,5 +38,16 @@ export class TransmissionsManagerSfn implements TransmissionsManager {
     );
 
     console.log(`State machine started. Execution ARN: ${res.executionArn}`);
+  }
+
+  public async resumeStartTransmission(
+    parameters: ResumeStartTransmissionParameters
+  ): Promise<void> {
+    await this.client.send(
+      new SendTaskSuccessCommand({
+        taskToken: parameters.taskToken,
+        output: JSON.stringify(parameters.output),
+      })
+    );
   }
 }

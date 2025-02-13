@@ -1,8 +1,15 @@
 import {
+  ConsumeTaskTokenParameters,
+  ConsumeTaskTokenResponse,
   CreateTaskTokenParameters,
   TaskTokensRepository,
 } from '@trackflix-live/api-events';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DeleteCommand,
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+} from '@aws-sdk/lib-dynamodb';
 
 export class TaskTokensDynamoDBRepository implements TaskTokensRepository {
   private readonly client: DynamoDBDocumentClient;
@@ -36,5 +43,39 @@ export class TaskTokensDynamoDBRepository implements TaskTokensRepository {
         },
       })
     );
+  }
+
+  public async consumeTaskToken({
+    channelArn,
+    expectedStatus,
+  }: ConsumeTaskTokenParameters): Promise<
+    ConsumeTaskTokenResponse | undefined
+  > {
+    const key = `${channelArn}#${expectedStatus}`;
+    const item = await this.client.send(
+      new GetCommand({
+        TableName: this.tableName,
+        Key: {
+          key,
+        },
+      })
+    );
+    if (item.Item === undefined) {
+      return;
+    }
+
+    await this.client.send(
+      new DeleteCommand({
+        TableName: this.tableName,
+        Key: {
+          key,
+        },
+      })
+    );
+
+    return {
+      taskToken: item.Item.taskToken,
+      output: item.Item.output,
+    };
   }
 }
