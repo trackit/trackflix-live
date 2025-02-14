@@ -23,8 +23,12 @@ export interface Event {
   status: EventStatus;
 }
 
+export enum EventUpdateAction {
+  EVENT_UPDATE_CREATE = 'EVENT_UPDATE_CREATE',
+}
+
 export interface EventUpdateCreate {
-  action: 'EVENT_UPDATE_CREATE';
+  action: EventUpdateAction.EVENT_UPDATE_CREATE;
   value: Event;
 }
 
