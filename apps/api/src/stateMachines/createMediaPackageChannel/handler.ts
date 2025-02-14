@@ -19,5 +19,5 @@ const adapter = new CreateMediaPackageChannelAdapter({
 
 export const main = async (event: {
   eventId: string;
-}): Promise<{ eventId: string; mediaPackageChannelId: string }> =>
+}): Promise<{ eventId: string; packageChannelId: string }> =>
   adapter.handle(event);

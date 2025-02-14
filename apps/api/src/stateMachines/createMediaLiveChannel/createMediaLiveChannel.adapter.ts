@@ -10,26 +10,26 @@ export class CreateMediaLiveChannelAdapter {
   public async handle(params: {
     input: {
       eventId: string;
-      mediaPackageChannelId: string;
+      packageChannelId: string;
     };
     taskToken: string;
   }): Promise<{
     eventId: string;
-    mediaPackageChannelId: string;
-    mediaLiveChannelId: string;
-    mediaLiveChannelArn: string;
+    packageChannelId: string;
+    liveChannelId: string;
+    liveChannelArn: string;
   }> {
     const liveChannel = await this.useCase.createLiveChannel({
       eventId: params.input.eventId,
-      packageChannelId: params.input.mediaPackageChannelId,
+      packageChannelId: params.input.packageChannelId,
       taskToken: params.taskToken,
     });
 
     return {
       eventId: params.input.eventId,
-      mediaPackageChannelId: params.input.mediaPackageChannelId,
-      mediaLiveChannelArn: liveChannel.channelArn,
-      mediaLiveChannelId: liveChannel.channelId,
+      packageChannelId: params.input.packageChannelId,
+      liveChannelArn: liveChannel.channelArn,
+      liveChannelId: liveChannel.channelId,
     };
   }
 }

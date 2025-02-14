@@ -11,14 +11,12 @@ export class CreateMediaPackageChannelAdapter {
     eventId,
   }: {
     eventId: string;
-  }): Promise<{ eventId: string; mediaPackageChannelId: string }> {
-    const mediaPackageChannelId = await this.useCase.createPackageChannel(
-      eventId
-    );
+  }): Promise<{ eventId: string; packageChannelId: string }> {
+    const packageChannelId = await this.useCase.createPackageChannel(eventId);
 
     return {
       eventId,
-      mediaPackageChannelId,
+      packageChannelId,
     };
   }
 }

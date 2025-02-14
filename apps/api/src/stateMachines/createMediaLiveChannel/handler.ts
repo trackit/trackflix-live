@@ -39,12 +39,12 @@ const adapter = new CreateMediaLiveChannelAdapter({
 export const main = async (params: {
   input: {
     eventId: string;
-    mediaPackageChannelId: string;
+    packageChannelId: string;
   };
   taskToken: string;
 }): Promise<{
   eventId: string;
-  mediaPackageChannelId: string;
-  mediaLiveChannelId: string;
-  mediaLiveChannelArn: string;
+  packageChannelId: string;
+  liveChannelId: string;
+  liveChannelArn: string;
 }> => adapter.handle(params);
