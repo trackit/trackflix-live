@@ -1,18 +1,27 @@
 import { Event } from './types';
 
-export type CreateEventRequest = Omit<Event, 'id' | 'status'>;
-export type CreateEventResponse = Event;
+export type CreateEventRequest = { body: Omit<Event, 'id' | 'status'> };
+export type CreateEventResponse = { body: Event };
 
 export type ListEventsRequest = {
-  limit?: number;
-  nextToken?: number;
+  queryStringParameters: {
+    limit?: number;
+    nextToken?: string;
+  };
 };
 export type ListEventsResponse = {
-  events: Event[];
-  nextToken?: string;
+  body: {
+    events: Event[];
+    nextToken: string | null;
+  };
 };
 
 export type GetEventRequest = {
-  id: string;
+  pathParameters: { eventId: string };
 };
-export type GetEventResponse = Event;
+export type GetEventResponse = { event: Event };
+
+export type DeleteEventRequest = {
+  pathParameters: { eventId: string };
+};
+export type DeleteEventResponse = undefined;
