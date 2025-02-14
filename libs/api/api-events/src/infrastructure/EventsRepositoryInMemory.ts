@@ -1,6 +1,5 @@
 import { EventsRepository, ListEventsResponse } from '../ports';
 import { Event } from '@trackflix-live/types';
-import { randomUUID } from 'node:crypto';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];

@@ -12,6 +12,11 @@ export class EventMother {
     return this;
   }
 
+  public withSource(source: string): EventMother {
+    this.data.source = source;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
