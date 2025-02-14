@@ -96,7 +96,12 @@ const setup = () => {
     listEvents: jest.fn(),
   };
 
-  const sampleEvent = EventMother.basic().build();
+  const event = EventMother.basic().build();
+  const sampleEvent = {
+    ...event,
+    onAirStartTime: event.onAirStartTime.toISOString(),
+    onAirEndTime: event.onAirEndTime.toISOString(),
+  };
 
   return {
     adapter: new ListEventsAdapter({
