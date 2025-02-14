@@ -42,6 +42,7 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
                   - "dynamodb:Query"
+                  - "dynamodb:DeleteItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
                   - !Sub "${EventsTable.Arn}/index/*"
@@ -609,6 +610,31 @@ Resources:
                 - aws.medialive
               detail-type:
                 - MediaLive Channel State Change
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/deleteEvent/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventsTable
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event/{eventId}
+            Method: delete
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
