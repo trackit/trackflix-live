@@ -28,9 +28,4 @@ export interface EventUpdateCreate {
   value: Event;
 }
 
-export interface EventUpdateDelete {
-  action: 'EVENT_UPDATE_DELETE';
-  value: Event;
-}
-
-export type EventUpdate = EventUpdateCreate | EventUpdateDelete;
+export type EventUpdate = EventUpdateCreate;
