@@ -1,5 +1,6 @@
 import { ListEventsAdapter } from './listEvents.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { EventMother } from '@trackflix-live/types';
 
 describe('List events adapter', () => {
   it('should call use case', async () => {
@@ -95,18 +96,7 @@ const setup = () => {
     listEvents: jest.fn(),
   };
 
-  const sampleEvent = {
-    name: 'First event',
-    description: 'This is my first event.',
-    onAirStartTime: '2025-02-04T15:15:31.606Z',
-    onAirEndTime: '2025-02-04T16:21:50.292Z',
-    source: {
-      bucket: 'test',
-      key: 'test',
-    },
-    id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
-    status: 'PRE-TX',
-  };
+  const sampleEvent = EventMother.basic().build();
 
   return {
     adapter: new ListEventsAdapter({
