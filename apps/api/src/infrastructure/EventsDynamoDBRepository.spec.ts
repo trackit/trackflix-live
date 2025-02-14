@@ -95,6 +95,25 @@ describe('EventsDynamoDBRepository', () => {
 
     expect(response).toEqual(sampleEvent);
   });
+
+  it('should delete an event from DynamoDB', async () => {
+    const { repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    await repository.createEvent(sampleEvent);
+
+    const response = await repository.deleteEvent(sampleEvent.id);
+    await expect(repository.getEvent(sampleEvent.id)).resolves.toBeUndefined();
+    expect(response).toBeUndefined();
+  });
+
+  it('should throw a NotFoundError when deleting an item that does not exist', async () => {
+    const { repository } = setup();
+
+    await expect(repository.deleteEvent('non-existing-id')).rejects.toThrow(
+      'Not Found'
+    );
+  });
 });
 
 const setup = () => {

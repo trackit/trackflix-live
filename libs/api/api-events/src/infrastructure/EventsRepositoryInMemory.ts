@@ -35,4 +35,13 @@ export class EventsRepositoryInMemory implements EventsRepository {
   async getEvent(eventId: string): Promise<Event | undefined> {
     return this.events.find((event) => event.id === eventId);
   }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    const eventIndex = this.events.findIndex((event) => event.id === eventId);
+    if (eventIndex === -1) {
+      throw new Error('Event not found');
+    }
+
+    this.events.splice(eventIndex, 1);
+  }
 }

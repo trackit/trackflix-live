@@ -37,6 +37,7 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
+                  - "dynamodb:DeleteItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
         - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
@@ -230,6 +231,31 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /events
             Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/deleteEvent/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventsTable
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event/{eventId}
+            Method: delete
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

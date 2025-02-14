@@ -3,6 +3,8 @@ import {
   ListEventsResponse,
 } from '@trackflix-live/api-events';
 import {
+  DeleteCommand,
+  DeleteCommandInput,
   DynamoDBDocumentClient,
   GetCommand,
   GetCommandInput,
@@ -12,6 +14,7 @@ import {
   ScanCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { Event } from '@trackflix-live/types';
+import { NotFoundError } from '../handlers/HttpErrors';
 
 export class EventsDynamoDBRepository implements EventsRepository {
   private readonly client: DynamoDBDocumentClient;
@@ -86,5 +89,25 @@ export class EventsDynamoDBRepository implements EventsRepository {
       onAirStartTime: new Date(response?.Item?.onAirStartTime),
       onAirEndTime: new Date(response?.Item?.onAirEndTime),
     } as Event;
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    const params: DeleteCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      ConditionExpression: 'attribute_exists(id)',
+    };
+
+    try {
+      await this.client.send(new DeleteCommand(params));
+    } catch (error) {
+      if (error.name === 'ConditionalCheckFailedException') {
+        throw new NotFoundError();
+      }
+
+      throw error;
+    }
   }
 }
