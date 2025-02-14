@@ -1,7 +1,5 @@
-import { EventUpdateAction } from '@trackflix-live/types';
-
-export type EventUpdateValue = Record<string, unknown>;
+import { EventUpdate } from '@trackflix-live/types';
 
 export interface EventUpdateSender {
-  send(action: EventUpdateAction, value: EventUpdateValue): Promise<void>;
+  send(eventUpdate: EventUpdate): Promise<void>;
 }

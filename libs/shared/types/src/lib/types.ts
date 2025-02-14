@@ -23,6 +23,14 @@ export interface Event {
   status: EventStatus;
 }
 
-export enum EventUpdateAction {
-  NEW_EVENT = 'new-event',
+export interface EventUpdateCreate {
+  action: 'EVENT_UPDATE_CREATE';
+  value: Event;
 }
+
+export interface EventUpdateDelete {
+  action: 'EVENT_UPDATE_DELETE';
+  value: Event;
+}
+
+export type EventUpdate = EventUpdateCreate | EventUpdateDelete;

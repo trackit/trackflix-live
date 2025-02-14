@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { EventScheduler, EventsRepository } from '../../ports';
-import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
+import { Event, EventStatus, EventUpdate } from '@trackflix-live/types';
 import { EventUpdateSender } from '../../ports/EventUpdateSender';
 
 export type CreateEventArgs = Omit<Event, 'id' | 'status'>;
@@ -49,7 +49,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       time: preTxTime,
     });
 
-    await this.eventUpdateSender.send(EventUpdateAction.NEW_EVENT, { id });
+    await this.eventUpdateSender.send({
+      action: 'EVENT_UPDATE_CREATE',
+      value: event,
+    });
 
     return event;
   }

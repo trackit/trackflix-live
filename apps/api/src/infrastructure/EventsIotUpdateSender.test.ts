@@ -4,7 +4,7 @@ import {
   IoTDataPlaneClient,
   PublishCommand,
 } from '@aws-sdk/client-iot-data-plane';
-import { EventUpdateAction } from '@trackflix-live/types';
+import { EventMother } from '@trackflix-live/types';
 
 describe('Events Iot Update Sender', () => {
   const mock = mockClient(IoTDataPlaneClient);
@@ -15,9 +15,12 @@ describe('Events Iot Update Sender', () => {
 
   it('should send event update', async () => {
     const { eventsIotUpdateSender } = setup();
-    const value = { id: '49688a8e-2ab8-45f8-97fe-f0b649442bf4' };
+    const event = EventMother.basic().build();
 
-    await eventsIotUpdateSender.send(EventUpdateAction.NEW_EVENT, value);
+    await eventsIotUpdateSender.send({
+      action: 'EVENT_UPDATE_CREATE',
+      value: event,
+    });
 
     mock.on(PublishCommand).resolves({});
 
@@ -27,8 +30,8 @@ describe('Events Iot Update Sender', () => {
       topic: 'fakeIotTopic',
       payload: new TextEncoder().encode(
         JSON.stringify({
-          action: EventUpdateAction.NEW_EVENT,
-          ...value,
+          action: 'EVENT_UPDATE_CREATE',
+          value: event,
         })
       ),
     });

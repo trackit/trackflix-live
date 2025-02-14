@@ -1,19 +1,10 @@
-import {
-  EventUpdateSender,
-  EventUpdateValue,
-} from '../ports/EventUpdateSender';
-import { EventUpdateAction } from '@trackflix-live/types';
+import { EventUpdateSender } from '../ports/EventUpdateSender';
+import { EventUpdate } from '@trackflix-live/types';
 
 export class EventUpdateSenderFake implements EventUpdateSender {
-  public readonly eventUpdates = new Array<{
-    action: EventUpdateAction;
-    value: EventUpdateValue;
-  }>();
+  public readonly eventUpdates: EventUpdate[] = [];
 
-  public async send(
-    action: EventUpdateAction,
-    value: EventUpdateValue
-  ): Promise<void> {
-    this.eventUpdates.push({ action, value });
+  public async send(eventUpdate: EventUpdate): Promise<void> {
+    this.eventUpdates.push(eventUpdate);
   }
 }

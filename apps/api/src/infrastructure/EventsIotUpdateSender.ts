@@ -2,11 +2,8 @@ import {
   IoTDataPlaneClient,
   PublishCommand,
 } from '@aws-sdk/client-iot-data-plane';
-import {
-  EventUpdateSender,
-  EventUpdateValue,
-} from '@trackflix-live/api-events';
-import { EventUpdateAction } from '@trackflix-live/types';
+import { EventUpdateSender } from '@trackflix-live/api-events';
+import { EventUpdate } from '@trackflix-live/types';
 
 export class EventsIotUpdateSender implements EventUpdateSender {
   private readonly client: IoTDataPlaneClient;
@@ -18,16 +15,11 @@ export class EventsIotUpdateSender implements EventUpdateSender {
     this.iotTopicName = iotTopicName;
   }
 
-  public async send(action: EventUpdateAction, value: EventUpdateValue) {
+  public async send(eventUpdate: EventUpdate) {
     await this.client.send(
       new PublishCommand({
         topic: this.iotTopicName,
-        payload: new TextEncoder().encode(
-          JSON.stringify({
-            action,
-            ...value,
-          })
-        ),
+        payload: new TextEncoder().encode(JSON.stringify(eventUpdate)),
       })
     );
   }
