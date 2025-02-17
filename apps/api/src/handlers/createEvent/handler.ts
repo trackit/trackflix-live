@@ -8,7 +8,16 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
 
-const eventScheduler = new EventBridgeScheduler(new EventBridgeClient({}));
+const eventBridgeClient = new EventBridgeClient({});
+const eventSchedulerStart = new EventBridgeScheduler({
+  client: eventBridgeClient,
+  target: process.env.START_TX_LAMBDA || '',
+});
+const eventSchedulerStop = new EventBridgeScheduler({
+  client: eventBridgeClient,
+  target: process.env.STOP_TX_LAMBDA || '',
+});
+
 const eventsRepository = new EventsDynamoDBRepository(
   new DynamoDBClient({}),
   process.env.EVENTS_TABLE || ''
@@ -19,7 +28,8 @@ const eventUpdateSender = new EventsIotUpdateSender(
 );
 
 const useCase = new CreateEventUseCaseImpl({
-  eventScheduler,
+  eventSchedulerStart,
+  eventSchedulerStop,
   eventsRepository,
   eventUpdateSender,
 });

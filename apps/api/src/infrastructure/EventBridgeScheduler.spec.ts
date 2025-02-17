@@ -14,10 +14,11 @@ describe('EventBridgeScheduler', () => {
   });
 
   it('should schedule an event', async () => {
-    const { scheduler } = setup();
+    const { scheduler, target } = setup();
     const eventId = '005fc3b5-623c-41f6-8885-22dc72f30676';
 
     await scheduler.scheduleEvent({
+      name: 'TrackflixLiveTx',
       id: eventId,
       time: new Date('2022-01-01T00:00:00Z'),
     });
@@ -38,6 +39,7 @@ describe('EventBridgeScheduler', () => {
         {
           Id: 'TrackflixLiveTx-005fc3b5-623c-41f6-8885-22dc72f30676-Target',
           Input: expect.any(String),
+          Arn: target,
         },
       ],
     });
@@ -56,6 +58,7 @@ describe('EventBridgeScheduler', () => {
 
     await expect(
       scheduler.scheduleEvent({
+        name: 'test-event',
         id: 'my-scheduled-event',
         time: new Date('2022-01-01T00:00:00Z'),
       })
@@ -67,6 +70,7 @@ describe('EventBridgeScheduler', () => {
 
     await expect(
       scheduler.scheduleEvent({
+        name: 'test-event',
         id: 'my-scheduled-event',
         time: new Date('Invalid date'),
       })
@@ -81,7 +85,8 @@ const setup = () => {
       secretAccessKey: 'fakeSecretAccessKey',
     },
   });
-  const scheduler = new EventBridgeScheduler(client);
+  const target = 'fake_target';
+  const scheduler = new EventBridgeScheduler({ client, target });
 
-  return { client, scheduler };
+  return { client, scheduler, target };
 };

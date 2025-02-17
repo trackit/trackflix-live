@@ -13,22 +13,27 @@ export interface CreateEventUseCase {
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
-  private readonly eventScheduler: EventScheduler;
+  private readonly eventSchedulerStart: EventScheduler;
+
+  private readonly eventSchedulerStop: EventScheduler;
 
   private readonly eventsRepository: EventsRepository;
 
   private readonly eventUpdateSender: EventUpdateSender;
 
   public constructor({
-    eventScheduler,
+    eventSchedulerStart,
+    eventSchedulerStop,
     eventsRepository,
     eventUpdateSender,
   }: {
-    eventScheduler: EventScheduler;
+    eventSchedulerStart: EventScheduler;
+    eventSchedulerStop: EventScheduler;
     eventsRepository: EventsRepository;
     eventUpdateSender: EventUpdateSender;
   }) {
-    this.eventScheduler = eventScheduler;
+    this.eventSchedulerStart = eventSchedulerStart;
+    this.eventSchedulerStop = eventSchedulerStop;
     this.eventsRepository = eventsRepository;
     this.eventUpdateSender = eventUpdateSender;
   }
@@ -50,9 +55,16 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const preTxTime = new Date(event.onAirStartTime);
     preTxTime.setMinutes(preTxTime.getMinutes() - 15);
 
-    await this.eventScheduler.scheduleEvent({
+    await this.eventSchedulerStart.scheduleEvent({
       id,
       time: preTxTime,
+      name: 'TrackflixLiveStartTx',
+    });
+
+    await this.eventSchedulerStop.scheduleEvent({
+      id,
+      time: event.onAirEndTime,
+      name: 'TrackflixLiveStopTx',
     });
 
     await this.eventUpdateSender.send({

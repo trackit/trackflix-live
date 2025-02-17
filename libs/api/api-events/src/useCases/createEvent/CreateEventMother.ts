@@ -27,6 +27,11 @@ export class CreateEventMother {
     return this;
   }
 
+  public withOnAirEndTime(onAirEndTime: Date) {
+    this.data.onAirEndTime = onAirEndTime;
+    return this;
+  }
+
   public build() {
     return this.data;
   }

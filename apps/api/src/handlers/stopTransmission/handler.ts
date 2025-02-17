@@ -1,5 +1,5 @@
-import { StartTransmissionUseCaseImpl } from '@trackflix-live/api-events';
-import { StartTransmissionAdapter } from './startTransmission.adapter';
+import { StopTransmissionUseCaseImpl } from '@trackflix-live/api-events';
+import { StopTransmissionAdapter } from './stopTransmission.adapter';
 import { TransmissionsManagerSfn } from '../../infrastructure/TransmissionsManagerSfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
 
@@ -8,10 +8,10 @@ const transmissionsManager = new TransmissionsManagerSfn({
   startTransmissionStateMachineArn: process.env['START_TX_STATE_MACHINE']!,
   stopTransmissionStateMachineArn: process.env['STOP_TX_STATE_MACHINE']!,
 });
-const useCase = new StartTransmissionUseCaseImpl({
+const useCase = new StopTransmissionUseCaseImpl({
   transmissionsManager,
 });
-const adapter = new StartTransmissionAdapter({
+const adapter = new StopTransmissionAdapter({
   useCase,
 });
 

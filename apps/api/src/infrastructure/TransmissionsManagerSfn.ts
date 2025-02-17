@@ -11,25 +11,30 @@ import {
 export class TransmissionsManagerSfn implements TransmissionsManager {
   private readonly client: SFNClient;
 
-  private readonly stateMachineArn: string;
+  private readonly startTransmissionStateMachineArn: string;
+
+  private readonly stopTransmissionStateMachineArn: string;
 
   public constructor({
     client,
-    stateMachineArn,
+    startTransmissionStateMachineArn,
+    stopTransmissionStateMachineArn,
   }: {
     client: SFNClient;
-    stateMachineArn: string;
+    startTransmissionStateMachineArn: string;
+    stopTransmissionStateMachineArn: string;
   }) {
     this.client = client;
-    this.stateMachineArn = stateMachineArn;
+    this.startTransmissionStateMachineArn = startTransmissionStateMachineArn;
+    this.stopTransmissionStateMachineArn = stopTransmissionStateMachineArn;
   }
 
   public async startTransmission(eventId: string): Promise<void> {
-    const name = `TrackflixStartTx-${eventId}`;
+    const name = `TrackflixLiveStartTx-${eventId}`;
 
     const res = await this.client.send(
       new StartExecutionCommand({
-        stateMachineArn: this.stateMachineArn,
+        stateMachineArn: this.startTransmissionStateMachineArn,
         name,
         input: JSON.stringify({
           eventId,
@@ -37,7 +42,9 @@ export class TransmissionsManagerSfn implements TransmissionsManager {
       })
     );
 
-    console.log(`State machine started. Execution ARN: ${res.executionArn}`);
+    console.log(
+      `Start state machine started. Execution ARN: ${res.executionArn}`
+    );
   }
 
   public async resumeStartTransmission(
@@ -48,6 +55,24 @@ export class TransmissionsManagerSfn implements TransmissionsManager {
         taskToken: parameters.taskToken,
         output: JSON.stringify(parameters.output),
       })
+    );
+  }
+
+  public async stopTransmission(eventId: string): Promise<void> {
+    const name = `TrackflixLiveStopTx-${eventId}`;
+
+    const res = await this.client.send(
+      new StartExecutionCommand({
+        stateMachineArn: this.stopTransmissionStateMachineArn,
+        name,
+        input: JSON.stringify({
+          eventId,
+        }),
+      })
+    );
+
+    console.log(
+      `Stop state machine started. Execution ARN: ${res.executionArn}`
     );
   }
 }

@@ -54,7 +54,8 @@ Resources:
                   - "events:PutRule"
                   - "events:PutTargets"
                 Resource:
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
         - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -65,6 +66,7 @@ Resources:
                   - "states:SendTaskSuccess"
                 Resource:
                   - !Ref StartTransmissionStateMachine
+                  - !Ref StopTransmissionStateMachine
         - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -73,13 +75,20 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
-  PermissionForEventBridgeToInvokeLambda:
+  PermissionForEventBridgeToInvokeStartLambda:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref StartTransmission
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
+  PermissionForEventBridgeToInvokeStopLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StopTransmission
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -388,6 +397,7 @@ Resources:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
+          STOP_TX_LAMBDA: !GetAtt StopTransmission.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
         CreateEvent:
@@ -491,6 +501,24 @@ Resources:
       Environment:
         Variables:
           START_TX_STATE_MACHINE: !Ref StartTransmissionStateMachine
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  StopTransmission:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/stopTransmission/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          STOP_TX_STATE_MACHINE: !Ref StopTransmissionStateMachine
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -652,4 +680,23 @@ Resources:
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
+      RoleArn: !GetAtt StepFunctionsRole.Arn
+  StopTransmissionStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-StopTransmission"
+      DefinitionString: |
+        {
+          "Comment": "State machine to stop a Trackflix Live transmission",
+          "StartAt": "Todo",
+          "States": {
+            "Todo": {
+              "Type": "Succeed"
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
+        CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
