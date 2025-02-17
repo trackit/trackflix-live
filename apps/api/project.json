@@ -18,7 +18,7 @@
       }
     },
     "deploy": {
-      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\"",
+      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\"",
       "options": {
         "cwd": "apps/api"
       },
