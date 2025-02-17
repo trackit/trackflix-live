@@ -1,27 +1,29 @@
-import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
-import { Panel, ThemeSwitcher } from '@trackflix-live/ui';
-import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
-import { amplifyConfig } from '../amplify.config';
 import '@aws-amplify/ui-react/styles.css';
+
+import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
+import { Panel } from '@trackflix-live/ui';
+import { Authenticator } from '@aws-amplify/ui-react';
+import Topbar from './topbar';
+
+import { amplifyConfig } from '../amplify.config';
 
 Amplify.configure(amplifyConfig);
 
 export function App() {
   return (
     <Authenticator hideSignUp>
-      <div className={'absolute top-2 right-2'}>
-        <ThemeSwitcher />
-      </div>
-
-      <div
-        className={
-          'flex justify-center items-center w-screen h-screen bg-base-200'
-        }
-      >
-        <Panel>
-          <SingleAssetFlow />
-        </Panel>
+      <div className="flex flex-col h-screen">
+        <Topbar />
+        <div
+          className={
+            'flex justify-center items-center w-screen h-full bg-base-200 relative'
+          }
+        >
+          <Panel>
+            <SingleAssetFlow />
+          </Panel>
+        </div>
       </div>
     </Authenticator>
   );
