@@ -33,7 +33,7 @@ export function StatusView() {
         <div className={'p-8'}>
           <TxTimeline steps={devSteps} />
         </div>
-        <hr className={'mb-6'} />
+        <hr className={'m-6'} />
         <div className={'flex'}>
           <div className={'w-1/3'}>
             <Timeline steps={devTimelineSteps} />
