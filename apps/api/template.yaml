@@ -113,6 +113,7 @@ Resources:
                   - !GetAtt SaveResults.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
+                  - !GetAtt DeleteMediaLiveInput.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -254,6 +255,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "medialive:CreateInput"
+                  - "medialive:DeleteInput"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*"
               - Effect: Allow
@@ -649,6 +651,24 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  DeleteMediaLiveInput:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteMediaLiveInput/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
 
   ####################
   #    API GATEWAY   #
@@ -754,6 +774,11 @@ Resources:
                   "taskToken.$": "$$.Task.Token"
                 }
               },
+              "Next": "Delete MediaLive input"
+            },
+            "Delete MediaLive input": {
+              "Type": "Task",
+              "Resource": "${DeleteMediaLiveInput}",
               "End": true
             }
           }
@@ -764,4 +789,5 @@ Resources:
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
+        DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

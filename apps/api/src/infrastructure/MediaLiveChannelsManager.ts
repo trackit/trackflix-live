@@ -712,4 +712,12 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       })
     );
   }
+
+  public async deleteInput(inputId: string): Promise<void> {
+    await this.client.send(
+      new DeleteInputCommand({
+        InputId: inputId,
+      })
+    );
+  }
 }

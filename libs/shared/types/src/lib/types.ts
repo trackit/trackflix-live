@@ -50,6 +50,7 @@ export interface Event {
 
   liveChannelId?: string;
   liveChannelArn?: string;
+  liveInputId?: string;
 }
 
 export enum EventUpdateAction {

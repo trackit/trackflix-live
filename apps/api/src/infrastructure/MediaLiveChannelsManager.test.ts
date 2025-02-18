@@ -3,6 +3,7 @@ import {
   CreateChannelCommand,
   CreateInputCommand,
   DeleteChannelCommand,
+  DeleteInputCommand,
   MediaLiveClient,
   StartChannelCommand,
   StopChannelCommand,
@@ -133,6 +134,21 @@ describe('MediaLive channels manager', () => {
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('deleteInput', () => {
+    it('should delete input', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const inputId = '812345';
+
+      await mediaLiveChannelsManager.deleteInput(inputId);
+
+      const commandCalls = mock.commandCalls(DeleteInputCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        InputId: inputId,
       });
     });
   });
