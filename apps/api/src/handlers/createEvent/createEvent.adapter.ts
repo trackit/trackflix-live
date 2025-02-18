@@ -4,7 +4,7 @@ import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { CreateEventRequest } from '@trackflix-live/types';
+import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -79,6 +79,6 @@ export class CreateEventAdapter {
 
     return {
       event: result,
-    };
+    } satisfies CreateEventResponse['body'];
   }
 }

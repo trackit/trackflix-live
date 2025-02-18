@@ -3,7 +3,7 @@ import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { ListEventsUseCase } from '@trackflix-live/api-events';
 import Ajv, { JSONSchemaType } from 'ajv';
-import { ListEventsRequest } from '@trackflix-live/types';
+import { ListEventsRequest, ListEventsResponse } from '@trackflix-live/types';
 
 const ajv = new Ajv();
 
@@ -75,6 +75,9 @@ export class ListEventsAdapter {
 
     const parsedLimit = Number(limit) || 10;
 
-    return await this.useCase.listEvents(parsedLimit, nextToken);
+    return (await this.useCase.listEvents(
+      parsedLimit,
+      nextToken
+    )) satisfies ListEventsResponse['body'];
   }
 }

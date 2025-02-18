@@ -3,7 +3,7 @@ import { Event } from './types';
 export type CreateEventRequest = {
   body: Omit<Event, 'id' | 'status'>;
 };
-export type CreateEventResponse = { body: Event };
+export type CreateEventResponse = { body: { event: Event } };
 
 export type ListEventsRequest = {
   queryStringParameters: {
@@ -21,7 +21,7 @@ export type ListEventsResponse = {
 export type GetEventRequest = {
   pathParameters: { eventId: string };
 };
-export type GetEventResponse = { event: Event };
+export type GetEventResponse = { body: { event: Event } };
 
 export type DeleteEventRequest = {
   pathParameters: { eventId: string };

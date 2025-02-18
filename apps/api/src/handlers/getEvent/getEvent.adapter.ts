@@ -6,7 +6,7 @@ import {
   NotFoundError,
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { GetEventRequest } from '@trackflix-live/types';
+import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
 
 export class GetEventAdapter {
   private readonly useCase: GetEventUseCase;
@@ -37,6 +37,6 @@ export class GetEventAdapter {
       throw new NotFoundError();
     }
 
-    return { event: result };
+    return { event: result } satisfies GetEventResponse['body'];
   }
 }
