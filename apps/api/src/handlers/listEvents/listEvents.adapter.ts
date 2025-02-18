@@ -3,13 +3,9 @@ import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { ListEventsUseCase } from '@trackflix-live/api-events';
 import Ajv, { JSONSchemaType } from 'ajv';
+import { ListEventsRequest } from '@trackflix-live/types';
 
 const ajv = new Ajv();
-
-interface ListEventsRequest {
-  limit?: string;
-  nextToken?: string;
-}
 
 const isValidBase64Json = (schemaValue: boolean, value: string) => {
   if (!schemaValue) return true;
@@ -44,7 +40,7 @@ ajv.addKeyword({
   errors: false,
 });
 
-const schema: JSONSchemaType<ListEventsRequest> = {
+const schema: JSONSchemaType<ListEventsRequest['queryStringParameters']> = {
   type: 'object',
   properties: {
     limit: { type: 'string', nullable: true, isValidLimit: true },
@@ -70,14 +66,15 @@ export class ListEventsAdapter {
 
   public async processRequest(event: APIGatewayProxyEventV2) {
     const queryParams = event.queryStringParameters || {};
+    const { limit, nextToken } =
+      queryParams as ListEventsRequest['queryStringParameters'];
 
     if (!ajv.validate(schema, queryParams)) {
       throw new BadRequestError();
     }
 
-    const limit = Number(queryParams.limit) || 10;
-    const nextToken = queryParams.nextToken;
+    const parsedLimit = Number(limit) || 10;
 
-    return await this.useCase.listEvents(limit, nextToken);
+    return await this.useCase.listEvents(parsedLimit, nextToken);
   }
 }

@@ -1,11 +1,13 @@
 import { Event } from './types';
 
-export type CreateEventRequest = { body: Omit<Event, 'id' | 'status'> };
+export type CreateEventRequest = {
+  body: Omit<Event, 'id' | 'status'>;
+};
 export type CreateEventResponse = { body: Event };
 
 export type ListEventsRequest = {
   queryStringParameters: {
-    limit?: number;
+    limit?: string;
     nextToken?: string;
   };
 };
