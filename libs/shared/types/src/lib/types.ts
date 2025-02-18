@@ -22,3 +22,14 @@ export interface Event {
   source: Source;
   status: EventStatus;
 }
+
+export enum EventUpdateAction {
+  EVENT_UPDATE_CREATE = 'EVENT_UPDATE_CREATE',
+}
+
+export interface EventUpdateCreate {
+  action: EventUpdateAction.EVENT_UPDATE_CREATE;
+  value: Event;
+}
+
+export type EventUpdate = EventUpdateCreate;
