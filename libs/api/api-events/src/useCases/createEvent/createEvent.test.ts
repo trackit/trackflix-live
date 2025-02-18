@@ -3,11 +3,25 @@ import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryI
 import { EventSchedulerFake } from '../../infrastructure/EventSchedulerFake';
 import { CreateEventMother } from './CreateEventMother';
 import { EventUpdateSenderFake } from '../../infrastructure/EventUpdateSenderFake';
-import { EventMother } from '@trackflix-live/types';
+import { EventUpdateAction } from '@trackflix-live/types';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
-    const { eventsRepository, useCase, eventUpdateSender } = setup();
+    const { eventsRepository, useCase } = setup();
+
+    await useCase.createEvent(
+      CreateEventMother.basic().withName('Test event').build()
+    );
+
+    expect(eventsRepository.events).toMatchObject([
+      {
+        name: 'Test event',
+      },
+    ]);
+  });
+
+  it('should send a live update', async () => {
+    const { useCase, eventUpdateSender } = setup();
 
     const event = await useCase.createEvent(
       CreateEventMother.basic().withName('Test event').build()
@@ -15,14 +29,9 @@ describe('CreateEvent use case', () => {
 
     expect(eventUpdateSender.eventUpdates).toHaveLength(1);
     expect(eventUpdateSender.eventUpdates[0]).toEqual({
-      action: 'EVENT_UPDATE_CREATE',
+      action: EventUpdateAction.EVENT_UPDATE_CREATE,
       value: event,
     });
-    expect(eventsRepository.events).toMatchObject([
-      {
-        name: 'Test event',
-      },
-    ]);
   });
 
   it('should schedule the creation of resources one hour before air', async () => {

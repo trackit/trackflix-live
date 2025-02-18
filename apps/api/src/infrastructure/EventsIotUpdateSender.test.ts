@@ -30,7 +30,7 @@ describe('Events Iot Update Sender', () => {
       topic: 'fakeIotTopic',
       payload: new TextEncoder().encode(
         JSON.stringify({
-          action: 'EVENT_UPDATE_CREATE',
+          action: EventUpdateAction.EVENT_UPDATE_CREATE,
           value: event,
         })
       ),
