@@ -4,6 +4,7 @@ import {
   CreateInputCommand,
   MediaLiveClient,
   StartChannelCommand,
+  StopChannelCommand,
 } from '@aws-sdk/client-medialive';
 import { MediaLiveChannelsManager } from './MediaLiveChannelsManager';
 
@@ -98,6 +99,21 @@ describe('MediaLive channels manager', () => {
       await mediaLiveChannelsManager.startChannel(channelId);
 
       const commandCalls = mock.commandCalls(StartChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('stopChannel', () => {
+    it('should stop channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const channelId = '812345';
+
+      await mediaLiveChannelsManager.stopChannel(channelId);
+
+      const commandCalls = mock.commandCalls(StopChannelCommand);
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: channelId,
