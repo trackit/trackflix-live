@@ -1,5 +1,6 @@
 import { SingleAssetForm } from '@trackflix-live/forms';
 import { postEvent } from '@trackflix-live/api-client';
+import { Panel } from '@trackflix-live/ui';
 import { useState } from 'react';
 
 export function SingleAssetFlow() {
@@ -24,13 +25,13 @@ export function SingleAssetFlow() {
   };
 
   return (
-    <div>
+    <Panel>
       <div className="prose ">
         <h1>Create a new event</h1>
       </div>
       <hr className={'my-6'} />
       <SingleAssetForm onSubmit={onSubmit} disabled={isSubmitting} />
-    </div>
+    </Panel>
   );
 }
 

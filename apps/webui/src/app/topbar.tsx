@@ -9,7 +9,6 @@ const Topbar = () => {
   useEffect(() => {
     getCurrentUser()
       .then((user) => {
-        console.log(user);
         setUsername(user.signInDetails?.loginId || '');
       })
       .catch(console.error);

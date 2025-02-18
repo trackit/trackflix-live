@@ -1,10 +1,12 @@
 import { Amplify } from 'aws-amplify';
+import { Route, Routes } from 'react-router';
+import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
-import { Panel } from '@trackflix-live/ui';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { StatusView } from '@trackflix-live/status-view';
 import Topbar from './topbar';
+
 
 import { amplifyConfig } from '../amplify.config';
 
@@ -20,9 +22,10 @@ export function App() {
             'flex justify-center items-center w-screen h-full bg-base-200 relative'
           }
         >
-          <Panel>
-            <SingleAssetFlow />
-          </Panel>
+          <Routes>
+            <Route index element={<SingleAssetFlow />} />
+            <Route path={'/status/:id'} element={<StatusView />} />
+          </Routes>
         </div>
       </div>
     </Authenticator>

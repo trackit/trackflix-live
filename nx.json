@@ -70,7 +70,7 @@
       "library": {
         "style": "tailwind",
         "linter": "eslint",
-        "unitTestRunner": "none"
+        "unitTestRunner": "vitest"
       }
     }
   }
