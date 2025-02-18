@@ -14,6 +14,8 @@ import {
   TimecodeConfigSource,
   StartChannelCommand,
   StopChannelCommand,
+  DeleteChannelCommand,
+  DeleteInputCommand,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -698,6 +700,14 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   public async stopChannel(channelId: string): Promise<void> {
     await this.client.send(
       new StopChannelCommand({
+        ChannelId: channelId,
+      })
+    );
+  }
+
+  public async deleteChannel(channelId: string): Promise<void> {
+    await this.client.send(
+      new DeleteChannelCommand({
         ChannelId: channelId,
       })
     );

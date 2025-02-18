@@ -2,6 +2,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import {
   CreateChannelCommand,
   CreateInputCommand,
+  DeleteChannelCommand,
   MediaLiveClient,
   StartChannelCommand,
   StopChannelCommand,
@@ -114,6 +115,21 @@ describe('MediaLive channels manager', () => {
       await mediaLiveChannelsManager.stopChannel(channelId);
 
       const commandCalls = mock.commandCalls(StopChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('deleteChannel', () => {
+    it('should delete channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const channelId = '812345';
+
+      await mediaLiveChannelsManager.deleteChannel(channelId);
+
+      const commandCalls = mock.commandCalls(DeleteChannelCommand);
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: channelId,

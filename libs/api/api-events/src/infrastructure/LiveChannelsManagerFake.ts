@@ -16,6 +16,8 @@ export class LiveChannelsManagerFake implements LiveChannelsManager {
 
   public readonly stoppedChannels: string[] = [];
 
+  public readonly deletedChannels: string[] = [];
+
   public async createChannel(
     parameters: CreateChannelParameters
   ): Promise<CreateChannelResponse> {
@@ -35,5 +37,9 @@ export class LiveChannelsManagerFake implements LiveChannelsManager {
 
   public async stopChannel(channelId: string): Promise<void> {
     this.stoppedChannels.push(channelId);
+  }
+
+  public async deleteChannel(channelId: string): Promise<void> {
+    this.deletedChannels.push(channelId);
   }
 }

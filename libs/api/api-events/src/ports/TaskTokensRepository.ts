@@ -1,13 +1,13 @@
 export interface CreateTaskTokenParameters {
   channelArn: string;
-  expectedStatus: 'CREATED' | 'RUNNING' | 'STOPPING' | 'STOPPED';
+  expectedStatus: 'CREATED' | 'RUNNING' | 'STOPPING' | 'STOPPED' | 'DELETED';
   taskToken: string;
   output: unknown;
 }
 
 export interface ConsumeTaskTokenParameters {
   channelArn: string;
-  expectedStatus: 'CREATED' | 'RUNNING' | 'STOPPING' | 'STOPPED';
+  expectedStatus: 'CREATED' | 'RUNNING' | 'STOPPING' | 'STOPPED' | 'DELETED';
 }
 
 export interface ConsumeTaskTokenResponse {

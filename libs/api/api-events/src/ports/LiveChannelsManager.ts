@@ -15,4 +15,5 @@ export interface LiveChannelsManager {
   ): Promise<CreateChannelResponse>;
   startChannel(channelId: string): Promise<void>;
   stopChannel(channelId: string): Promise<void>;
+  deleteChannel(channelId: string): Promise<void>;
 }

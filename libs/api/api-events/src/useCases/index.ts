@@ -9,3 +9,4 @@ export * from './handleLiveChannelStateChange';
 export * from './saveResults';
 export * from './stopTransmission';
 export * from './stopLiveChannel';
+export * from './deleteLiveChannel';
