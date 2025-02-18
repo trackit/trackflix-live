@@ -38,7 +38,7 @@ export class EventBridgeScheduler implements EventScheduler {
       new PutRuleCommand({
         Name: finalName,
         ScheduleExpression: cronExpFromDate,
-        State: RuleState.DISABLED, // TODO: Enable once resources destruction is working
+        State: RuleState.ENABLED,
       })
     );
 
