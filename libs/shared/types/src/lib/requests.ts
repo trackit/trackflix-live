@@ -22,8 +22,3 @@ export type GetEventRequest = {
   pathParameters: { eventId: string };
 };
 export type GetEventResponse = { body: { event: Event } };
-
-export type DeleteEventRequest = {
-  pathParameters: { eventId: string };
-};
-export type DeleteEventResponse = undefined;
