@@ -1,5 +1,5 @@
 import { EventsRepository, ListEventsResponse } from '../ports';
-import { Event } from '@trackflix-live/types';
+import { Event, EventLog } from '@trackflix-live/types';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -33,5 +33,16 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
   async getEvent(eventId: string): Promise<Event | undefined> {
     return this.events.find((event) => event.id === eventId);
+  }
+
+  async appendLogToEvent(eventId: string, log: EventLog): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.logs.push(log);
+
+    return event;
   }
 }

@@ -1,4 +1,4 @@
-import { Event, EventStatus } from '../lib/types';
+import { EndpointType, Event, EventStatus } from '../lib/types';
 
 export class EventMother {
   private readonly data: Event;
@@ -25,8 +25,17 @@ export class EventMother {
         'Live broadcast of the Formula 1 Monaco Grand Prix, featuring the top drivers battling on the iconic street circuit.',
       onAirStartTime: '2025-01-22T10:00:00.000Z',
       onAirEndTime: '2025-01-22T20:00:00.000Z',
+      createdTime: '2025-01-20T09:00:00.000Z',
+      destroyedTime: undefined,
       source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
       status: EventStatus.PRE_TX,
+      endpoints: [
+        {
+          url: 'https://formula-1.com/live/monaco-gp-2025',
+          type: EndpointType.HLS,
+        },
+      ],
+      logs: [],
     });
   }
 
