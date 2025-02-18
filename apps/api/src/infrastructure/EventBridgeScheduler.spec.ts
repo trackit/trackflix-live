@@ -27,7 +27,7 @@ describe('EventBridgeScheduler', () => {
     expect(putRuleCommandCalls[0].args[0].input).toEqual({
       Name: `TrackflixLiveTx-${eventId}`,
       ScheduleExpression: 'cron(0 0 1 1 ? 2022)',
-      State: 'ENABLED',
+      State: 'DISABLED', // TODO: Enable once resources destruction is working 'ENABLED',
     });
 
     const putTargetsCommandCalls = mock.commandCalls(PutTargetsCommand);
