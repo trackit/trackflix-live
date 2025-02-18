@@ -39,6 +39,12 @@ Resources:
                   - "dynamodb:GetItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
+              - Effect: Allow
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:DeleteItem"
+                Resource:
+                  - !GetAtt TaskTokensTable.Arn
         - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -56,6 +62,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "states:StartExecution"
+                  - "states:SendTaskSuccess"
                 Resource:
                   - !Ref StartTransmissionStateMachine
         - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
@@ -91,7 +98,9 @@ Resources:
               - Action:
                   - "lambda:InvokeFunction"
                 Resource:
-                  - !GetAtt SayHi.Arn
+                  - !GetAtt CreateMediaPackageChannel.Arn
+                  - !GetAtt CreateMediaLiveChannel.Arn
+                  - !GetAtt StartMediaLiveChannel.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -120,7 +129,150 @@ Resources:
                   - "iot:Subscribe"
                   - "iot:Receive"
                 Resource: "*"
-
+  MediaLiveRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Principal:
+              Service: "medialive.amazonaws.com"
+            Effect: "Allow"
+      Policies:
+        - PolicyName: MediaLiveCustomPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ssm:Describe*
+                  - ssm:Get*
+                  - ssm:List*
+                Resource: "*"
+                Effect: Allow
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediastore:ListContainers
+                  - mediastore:PutObject
+                  - mediastore:GetObject
+                  - mediastore:DeleteObject
+                  - mediastore:DescribeObject
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroups
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - mediaconnect:ManagedDescribeFlow
+                  - mediaconnect:ManagedAddOutput
+                  - mediaconnect:ManagedRemoveOutput
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ec2:describeSubnets
+                  - ec2:describeNetworkInterfaces
+                  - ec2:createNetworkInterface
+                  - ec2:createNetworkInterfacePermission
+                  - ec2:deleteNetworkInterface
+                  - ec2:deleteNetworkInterfacePermission
+                  - ec2:describeSecurityGroups
+                  - ec2:describeAddresses
+                  - ec2:associateAddress
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediapackage:DescribeChannel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - mediapackagev2:PutObject
+                  - mediapackagev2:GetChannel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - kms:GenerateDataKey
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+  StateMachineLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-MediaPackage-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "mediapackage:CreateChannel"
+                Resource:
+                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*"
+              - Effect: Allow
+                Action:
+                  - "mediapackage:CreateOriginEndpoint"
+                Resource:
+                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*"
+        - PolicyName: !Sub "${AWS::StackName}-MediaLive-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "medialive:CreateInput"
+                Resource:
+                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*"
+              - Effect: Allow
+                Action:
+                  - "medialive:CreateChannel"
+                  - "medialive:StartChannel"
+                Resource:
+                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
+        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !GetAtt MediaLiveRole.Arn
+        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                Resource:
+                  - !GetAtt TaskTokensTable.Arn
+              - Effect: Allow
+                Action:
+                  - "dynamodb:GetItem"
+                Resource:
+                  - !GetAtt EventsTable.Arn
   ###########
   # COGNITO #
   ###########
@@ -199,6 +351,17 @@ Resources:
           AttributeType: "S"
       KeySchema:
         - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  TaskTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "taskTokens-${AWS::StackName}"
+      AttributeDefinitions:
+        - AttributeName: key
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: key
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
@@ -282,6 +445,33 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  HandleMediaLiveChannelStateChange:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/handleMediaLiveChannelStateChange/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          TASK_TOKENS_TABLE: !Ref TaskTokensTable
+      Events:
+        HandleMediaLiveChannelStateChange:
+          Type: CloudWatchEvent
+          Properties:
+            Pattern:
+              source:
+                - aws.medialive
+              detail-type:
+                - MediaLive Channel State Change
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   StartTransmission:
     Type: AWS::Serverless::Function
     Properties:
@@ -300,11 +490,50 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
-  SayHi:
+  CreateMediaPackageChannel:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/stateMachines/sayHi/
+      CodeUri: ./src/stateMachines/createMediaPackageChannel/
       Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  CreateMediaLiveChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/createMediaLiveChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          TASK_TOKENS_TABLE: !Ref TaskTokensTable
+          MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  StartMediaLiveChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/startMediaLiveChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          TASK_TOKENS_TABLE: !Ref TaskTokensTable
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -343,16 +572,42 @@ Resources:
       StateMachineName: !Sub "${AWS::StackName}-StartTransmission"
       DefinitionString: |
         {
-          "Comment": "A simple AWS Step Functions state machine",
-          "StartAt": "FirstTask",
+          "Comment": "State machine to start a Trackflix Live transmission",
+          "StartAt": "Create MediaPackage channel",
           "States": {
-            "FirstTask": {
+            "Create MediaPackage channel": {
               "Type": "Task",
-              "Resource": "${SayHi}",
+              "Resource": "${CreateMediaPackageChannel}",
+              "Next": "Create MediaLive channel"
+            },
+            "Create MediaLive channel": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Parameters": {
+                "FunctionName": "${CreateMediaLiveChannel}",
+                "Payload": {
+                  "input.$": "$",
+                  "taskToken.$": "$$.Task.Token"
+                }
+              },
+              "Next": "Start MediaLive channel"
+            },
+            "Start MediaLive channel": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Parameters": {
+                "FunctionName": "${StartMediaLiveChannel}",
+                "Payload": {
+                  "input.$": "$",
+                  "taskToken.$": "$$.Task.Token"
+                }
+              },
               "End": true
             }
           }
         }
       DefinitionSubstitutions:
-        SayHi: !GetAtt SayHi.Arn
+        CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
+        CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

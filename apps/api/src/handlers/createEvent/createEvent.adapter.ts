@@ -24,15 +24,7 @@ const schema: JSONSchemaType<CreateEventSchema> = {
     description: { type: 'string' },
     onAirStartTime: { type: 'string', format: 'date-time' },
     onAirEndTime: { type: 'string', format: 'date-time' },
-    source: {
-      type: 'object',
-      properties: {
-        bucket: { type: 'string' },
-        key: { type: 'string' },
-      },
-      required: ['bucket', 'key'],
-      additionalProperties: false,
-    },
+    source: { type: 'string', format: 'uri' },
   },
   required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
   additionalProperties: false,

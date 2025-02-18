@@ -6,10 +6,7 @@ export enum EventStatus {
   ENDED = 'ENDED',
 }
 
-export interface S3Source {
-  bucket: string;
-  key: string;
-}
+export type S3Source = string;
 
 export type Source = S3Source;
 

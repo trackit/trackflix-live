@@ -13,6 +13,8 @@
     "@aws-sdk/client-dynamodb": "^3.734.0",
     "@aws-sdk/client-eventbridge": "^3.734.0",
     "@aws-sdk/client-iot-data-plane": "^3.744.0",
+    "@aws-sdk/client-medialive": "^3.734.0",
+    "@aws-sdk/client-mediapackage": "^3.734.0",
     "@aws-sdk/client-sfn": "^3.734.0",
     "@aws-sdk/lib-dynamodb": "^3.734.0",
     "@hookform/resolvers": "^3.10.0",

@@ -34,18 +34,18 @@ describe('CreateEvent use case', () => {
     });
   });
 
-  it('should schedule the creation of resources one hour before air', async () => {
+  it('should schedule the creation of resources 15 minutes before air', async () => {
     const { eventScheduler, useCase } = setup();
 
     await useCase.createEvent(
       CreateEventMother.basic()
-        .withOnAirStartTime(new Date('2025-01-22T09:47:07.202Z'))
+        .withOnAirStartTime(new Date('2025-01-22T09:45:07.202Z'))
         .build()
     );
 
     expect(eventScheduler.scheduledEvents).toMatchObject([
       {
-        time: new Date('2025-01-22T08:47:07.202Z'),
+        time: new Date('2025-01-22T09:30:07.202Z'),
       },
     ]);
   });
