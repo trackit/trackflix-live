@@ -58,6 +58,14 @@ Resources:
                   - "states:StartExecution"
                 Resource:
                   - !Ref StartTransmissionStateMachine
+        - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iot:Publish"
+                Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
   PermissionForEventBridgeToInvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
@@ -85,6 +93,33 @@ Resources:
                 Resource:
                   - !GetAtt SayHi.Arn
                 Effect: "Allow"
+  IoTCoreAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref IdentityPool
+              "ForAnyValue:StringLike":
+                cognito-identity.amazonaws.com:amr: authenticated
+      Policies:
+        - PolicyName: IoTCoreAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iot:Connect"
+                  - "iot:Publish"
+                  - "iot:Subscribe"
+                  - "iot:Receive"
+                Resource: "*"
 
   ###########
   # COGNITO #
@@ -145,6 +180,13 @@ Resources:
               - UserPool
               - ProviderName
 
+  IdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        authenticated: !GetAtt IoTCoreAccessRole.Arn
+
   ###################
   # DYNAMODB TABLES #
   ###################
@@ -173,6 +215,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
+          IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
         CreateEvent:
           Type: Api

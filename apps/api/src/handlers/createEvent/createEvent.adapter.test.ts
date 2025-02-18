@@ -1,67 +1,40 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { EventMother } from '@trackflix-live/types';
 
 describe('Create event adapter', () => {
   it('should call use case', async () => {
-    const { adapter, useCase } = setup();
+    const { adapter, useCase, createEventReq } = setup();
+
+    const event = EventMother.basic().build();
 
     await adapter.handle({
-      body: JSON.stringify({
-        name: 'First event',
-        description: 'This is my first event.',
-        onAirStartTime: '2025-02-04T15:15:31.606Z',
-        onAirEndTime: '2025-02-04T16:21:50.292Z',
-        source: {
-          bucket: 'test',
-          key: 'test',
-        },
-      }),
+      body: JSON.stringify(createEventReq),
     } as APIGatewayProxyEventV2);
 
     expect(useCase.createEvent).toHaveBeenCalledWith({
-      name: 'First event',
-      description: 'This is my first event.',
-      onAirStartTime: new Date('2025-02-04T15:15:31.606Z'),
-      onAirEndTime: new Date('2025-02-04T16:21:50.292Z'),
-      source: {
-        bucket: 'test',
-        key: 'test',
-      },
+      ...event,
+      id: undefined,
+      status: undefined,
     });
   });
 
   it('should return successful response', async () => {
-    const { adapter, useCase } = setup();
-    const event = {
-      name: 'First event',
-      description: 'This is my first event.',
-      onAirStartTime: '2025-02-04T15:15:31.606Z',
-      onAirEndTime: '2025-02-04T16:21:50.292Z',
-      source: {
-        bucket: 'test',
-        key: 'test',
-      },
-      id: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
-      status: 'PRE-TX',
-    };
+    const { adapter, useCase, createEventReq } = setup();
+    const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
 
     const response = await adapter.handle({
-      body: JSON.stringify({
-        name: 'First event',
-        description: 'This is my first event.',
-        onAirStartTime: '2025-02-04T15:15:31.606Z',
-        onAirEndTime: '2025-02-04T16:21:50.292Z',
-        source: {
-          bucket: 'test',
-          key: 'test',
-        },
-      }),
+      body: JSON.stringify(createEventReq),
     } as APIGatewayProxyEventV2);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({
-      event,
+      event: {
+        ...event,
+        onAirStartTime: event.onAirStartTime.toISOString(),
+        onAirEndTime: event.onAirEndTime.toISOString(),
+      },
     });
   });
 
@@ -108,10 +81,21 @@ const setup = () => {
   const useCase = {
     createEvent: jest.fn(),
   };
+
+  const event = EventMother.basic().build();
+  const createEventReq = {
+    ...event,
+    onAirStartTime: event.onAirStartTime.toISOString(),
+    onAirEndTime: event.onAirEndTime.toISOString(),
+    status: undefined,
+    id: undefined,
+  };
+
   return {
     adapter: new CreateEventAdapter({
       useCase,
     }),
     useCase,
+    createEventReq,
   };
 };
