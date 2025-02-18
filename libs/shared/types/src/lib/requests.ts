@@ -1,7 +1,10 @@
 import { Event } from './types';
 
 export type CreateEventRequest = {
-  body: Omit<Event, 'id' | 'status'>;
+  body: Omit<
+    Event,
+    'id' | 'status' | 'createdTime' | 'logs' | 'destroyedTime' | 'endpoints'
+  >;
 };
 export type CreateEventResponse = { body: { event: Event } };
 

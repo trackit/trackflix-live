@@ -16,6 +16,9 @@ describe('Create event adapter', () => {
       ...event,
       id: undefined,
       status: undefined,
+      createdTime: undefined,
+      endpoints: undefined,
+      logs: undefined,
     });
   });
 
@@ -79,8 +82,11 @@ const setup = () => {
   const event = EventMother.basic().build();
   const createEventReq = {
     ...event,
+    createdTime: undefined,
+    endpoints: undefined,
     status: undefined,
     id: undefined,
+    logs: undefined,
   };
 
   return {

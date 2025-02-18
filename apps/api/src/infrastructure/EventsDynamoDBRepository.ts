@@ -97,6 +97,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
       ...response.Attributes,
       onAirStartTime: new Date(response?.Attributes?.onAirStartTime),
       onAirEndTime: new Date(response?.Attributes?.onAirEndTime),
+      createdTime: new Date(response?.Attributes?.createdTime),
     } as Event;
   }
 }

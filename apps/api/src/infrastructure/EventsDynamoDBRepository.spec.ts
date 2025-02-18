@@ -5,7 +5,7 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
-import { EventMother } from '@trackflix-live/types';
+import { EventMother, LogType } from '@trackflix-live/types';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -84,6 +84,36 @@ describe('EventsDynamoDBRepository', () => {
     const response = await repository.getEvent(sampleEvent.id);
 
     expect(response).toEqual(sampleEvent);
+  });
+
+  it('should append log to event', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    await repository.createEvent(sampleEvent);
+
+    const log = {
+      timestamp: Date.now(),
+      type: LogType.PACKAGE_CHANNEL_CREATED,
+    };
+
+    await repository.appendLogToEvent(sampleEvent.id, log);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
+      onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
+      createdTime: sampleEvent.createdTime.toISOString(),
+      logs: [log],
+    });
   });
 });
 
