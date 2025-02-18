@@ -6,6 +6,7 @@ import {
   NotFoundError,
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
 
 export class GetEventAdapter {
   private readonly useCase: GetEventUseCase;
@@ -24,17 +25,18 @@ export class GetEventAdapter {
   }
 
   public async processRequest(event: APIGatewayProxyEventV2) {
-    const { eventId } = event.pathParameters || {};
-    if (eventId === undefined) {
+    const pathParameters =
+      event.pathParameters as GetEventRequest['pathParameters'];
+    if (pathParameters?.eventId === undefined) {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.getEvent(eventId);
+    const result = await this.useCase.getEvent(pathParameters.eventId);
 
     if (!result) {
       throw new NotFoundError();
     }
 
-    return { event: result };
+    return { event: result } satisfies GetEventResponse['body'];
   }
 }
