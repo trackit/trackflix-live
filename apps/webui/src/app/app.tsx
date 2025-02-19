@@ -5,9 +5,9 @@ import '@aws-amplify/ui-react/styles.css';
 import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
+import { ListAssetView } from '@trackflix-live/list-asset-view';
 import { StatusView } from '@trackflix-live/status-view';
 import Topbar from './topbar';
-
 
 import { amplifyConfig } from '../amplify.config';
 
@@ -25,7 +25,8 @@ export function App() {
           }
         >
           <Routes>
-            <Route index element={<SingleAssetFlow />} />
+            <Route index element={<ListAssetView />} />
+            <Route path={'/create'} element={<SingleAssetFlow />}></Route>
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>
         </div>
