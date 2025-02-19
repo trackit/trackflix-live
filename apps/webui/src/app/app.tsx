@@ -2,6 +2,7 @@ import { Amplify } from 'aws-amplify';
 import { Route, Routes } from 'react-router';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
+import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
 import { StatusView } from '@trackflix-live/status-view';
@@ -15,6 +16,7 @@ Amplify.configure(amplifyConfig);
 export function App() {
   return (
     <Authenticator hideSignUp>
+      <SnackbarProvider />
       <div className="flex flex-col h-screen">
         <Topbar />
         <div

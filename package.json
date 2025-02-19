@@ -26,6 +26,7 @@
     "axios": "^1.6.0",
     "lucide-react": "^0.473.0",
     "luxon": "^3.5.0",
+    "notistack": "^3.0.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.54.2",
