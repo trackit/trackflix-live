@@ -35,13 +35,13 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return this.events.find((event) => event.id === eventId);
   }
 
-  async appendLogToEvent(eventId: string, log: EventLog): Promise<Event> {
+  async appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
       throw new Error('Event not found');
     }
 
-    event.logs.push(log);
+    event.logs.push(...logs);
 
     return event;
   }

@@ -97,7 +97,7 @@ describe('EventsDynamoDBRepository', () => {
       type: LogType.PACKAGE_CHANNEL_CREATED,
     };
 
-    await repository.appendLogToEvent(sampleEvent.id, log);
+    await repository.appendLogsToEvent(sampleEvent.id, [log]);
 
     const command = new GetCommand({
       TableName: 'EventsTable',

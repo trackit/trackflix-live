@@ -75,18 +75,18 @@ export class EventsDynamoDBRepository implements EventsRepository {
     return response.Item as Event;
   }
 
-  async appendLogToEvent(eventId: string, log: EventLog): Promise<Event> {
+  async appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event> {
     const params: UpdateCommandInput = {
       TableName: this.tableName,
       Key: {
         id: eventId,
       },
-      UpdateExpression: 'SET #logs = list_append(#logs, :log)',
+      UpdateExpression: 'SET #logs = list_append(#logs, :logs)',
       ExpressionAttributeNames: {
         '#logs': 'logs',
       },
       ExpressionAttributeValues: {
-        ':log': [log],
+        ':logs': logs,
       },
       ReturnValues: 'ALL_NEW',
     };

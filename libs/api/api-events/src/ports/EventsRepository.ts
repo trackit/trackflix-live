@@ -9,5 +9,5 @@ export interface EventsRepository {
   createEvent(event: Event): Promise<void>;
   listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
   getEvent(eventId: string): Promise<Event | undefined>;
-  appendLogToEvent(eventId: string, log: EventLog): Promise<Event>;
+  appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event>;
 }
