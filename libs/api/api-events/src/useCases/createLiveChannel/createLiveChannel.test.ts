@@ -1,6 +1,7 @@
 import { CreateLiveChannelUseCaseImpl } from './createLiveChannel';
 import {
   EventsRepositoryInMemory,
+  EventUpdateSenderFake,
   LiveChannelsManagerFake,
   TaskTokensRepositoryInMemory,
 } from '../../infrastructure';
@@ -86,6 +87,17 @@ describe('Create live channel use case', () => {
         taskToken,
       },
     ]);
+
+    expect(eventsRepository.events[0].logs).toEqual([
+      {
+        timestamp: expect.any(Number),
+        type: 'LIVE_INPUT_CREATED',
+      },
+      {
+        timestamp: expect.any(Number),
+        type: 'LIVE_CHANNEL_CREATED',
+      },
+    ]);
   });
 
   it('should throw if event does not exist', async () => {
@@ -108,11 +120,13 @@ const setup = () => {
   const eventsRepository = new EventsRepositoryInMemory();
   const taskTokensRepository = new TaskTokensRepositoryInMemory();
   const liveChannelsManager = new LiveChannelsManagerFake();
+  const eventUpdateSender = new EventUpdateSenderFake();
 
   const useCase = new CreateLiveChannelUseCaseImpl({
     eventsRepository,
     taskTokensRepository,
     liveChannelsManager,
+    eventUpdateSender,
   });
 
   return {
