@@ -1,21 +1,20 @@
+import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
 import { Amplify } from 'aws-amplify';
-import { Route, Routes } from 'react-router';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { AuthStyle } from './amplify-auth-theme';
 import '@aws-amplify/ui-react/styles.css';
 import { MaterialDesignContent, SnackbarProvider } from 'notistack';
 
-import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
 import { StatusView } from '@trackflix-live/status-view';
 import Topbar from './topbar';
 
-
 import { amplifyConfig } from '../amplify.config';
+import { Route, Routes } from 'react-router';
 
 Amplify.configure(amplifyConfig);
 
 export function App() {
   return (
-    <Authenticator hideSignUp>
+    <AuthStyle>
       <SnackbarProvider />
       <div className="flex flex-col h-screen">
         <Topbar />
@@ -30,7 +29,7 @@ export function App() {
           </Routes>
         </div>
       </div>
-    </Authenticator>
+    </AuthStyle>
   );
 }
 
