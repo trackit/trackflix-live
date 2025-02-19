@@ -27,9 +27,9 @@ export function App() {
             <Route index element={<SingleAssetFlow />} />
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>
-        </div>
+        </AuthStyle>
       </div>
-    </AuthStyle>
+    </div>
   );
 }
 

@@ -65,6 +65,7 @@ export function AuthStyle({ children }: AuthStyleProps) {
       <Authenticator
         className="w-full content-center justify-center"
         hideSignUp
+        loginMechanism={'email'}
       >
         {children}
       </Authenticator>
