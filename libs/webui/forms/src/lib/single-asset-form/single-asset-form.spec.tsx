@@ -29,8 +29,7 @@ describe('SingleAssetForm', () => {
 
     expect(screen.getByLabelText(/event name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/s3 bucket/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/s3 key/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/s3 media uri/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/start on air/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/end on air/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
@@ -55,8 +54,10 @@ describe('SingleAssetForm', () => {
     // Fill in text inputs
     await user.type(screen.getByLabelText(/event name/i), 'Test Event');
     await user.type(screen.getByLabelText(/description/i), 'Test Description');
-    await user.type(screen.getByLabelText(/s3 bucket/i), 'test-bucket');
-    await user.type(screen.getByLabelText(/s3 key/i), 'test-key');
+    await user.type(
+      screen.getByLabelText(/s3 media uri/i),
+      's3://test-bucket/test-key'
+    );
 
     // Handle datetime inputs
     const startInput = screen.getByLabelText(/start on air/i);
@@ -70,7 +71,6 @@ describe('SingleAssetForm', () => {
       .plus({ hours: 2 })
       .toFormat("yyyy-MM-dd'T'HH:mm");
 
-    // Use fireEvent directly for datetime inputs
     await user.clear(startInput);
     await user.type(startInput, startTime);
     await user.clear(endInput);
@@ -90,8 +90,7 @@ describe('SingleAssetForm', () => {
     expect(submitData).toEqual({
       name: 'Test Event',
       description: 'Test Description',
-      s3Bucket: 'test-bucket',
-      s3Key: 'test-key',
+      source: 's3://test-bucket/test-key',
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
         .startOf('minute')
@@ -103,13 +102,31 @@ describe('SingleAssetForm', () => {
     });
   });
 
+  it('should show error for invalid S3 URI format', async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+
+    await user.type(screen.getByLabelText(/event name/i), 'Test Event');
+    await user.type(screen.getByLabelText(/s3 media uri/i), 'invalid-uri');
+
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+      expect(screen.getByText(/Must be a valid S3 URI/i)).toBeInTheDocument();
+    });
+  });
+
   it('should show error when end time is before start time', async () => {
     const user = userEvent.setup({ delay: null }); // Disable delay for faster tests
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/event name/i), 'Test Event');
-    await user.type(screen.getByLabelText(/s3 bucket/i), 'test-bucket');
-    await user.type(screen.getByLabelText(/s3 key/i), 'test-key');
+    await user.type(
+      screen.getByLabelText(/s3 media uri/i),
+      's3://test-bucket/test-key'
+    );
 
     const startTime = DateTime.fromJSDate(fixedDate)
       .plus({ hours: 2 })

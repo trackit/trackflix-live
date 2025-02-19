@@ -1,16 +1,28 @@
 import { Clock, Panel, Timeline, TxTimeline } from '@trackflix-live/ui';
+import { useParams } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
+import { getEvent } from '@trackflix-live/api-client';
+import { GetEventResponse } from '@trackflix-live/types';
 
 export function StatusView() {
-  const devSteps = [
+  const { id } = useParams();
+  const { data } = useQuery<GetEventResponse['body'] | null>({
+    queryKey: ['event', id],
+    queryFn: () => {
+      if (!id) return null;
+      return getEvent(id);
+    },
+  });
+  const event = data?.event;
+
+  const txSteps = [
+    // TODO add created event time here
     { title: 'Pre-TX', datetime: DateTime.now().toISO() },
-    { title: 'TX', datetime: DateTime.now().plus({ seconds: 10 }).toISO() },
+    { title: 'TX', datetime: event?.onAirStartTime },
     {
       title: 'Post-TX',
-      datetime: DateTime.now()
-        .plus({ seconds: 10 })
-        .plus({ minutes: 1 })
-        .toISO(),
+      datetime: event?.onAirEndTime,
     },
     { title: 'End' },
   ];
@@ -31,7 +43,7 @@ export function StatusView() {
           <Clock />
         </div>
         <div className={'p-8'}>
-          <TxTimeline steps={devSteps} />
+          <TxTimeline steps={txSteps} />
         </div>
         <hr className={'m-6'} />
         <div className={'flex'}>
