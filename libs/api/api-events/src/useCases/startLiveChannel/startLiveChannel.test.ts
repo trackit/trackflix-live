@@ -62,26 +62,6 @@ describe('Start live channel use case', () => {
         taskToken,
       },
     ]);
-  });
-
-  it('should emit logs', async () => {
-    const { useCase, eventsRepository } = setup();
-    const taskToken = 'sample_task_token';
-    const packageChannelId = '8354829';
-    const liveChannelArn =
-      'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
-    const liveChannelId = '8626488';
-    const event = EventMother.basic().build();
-
-    await eventsRepository.createEvent(event);
-
-    await useCase.startLiveChannel({
-      eventId: event.id,
-      liveChannelId,
-      liveChannelArn,
-      packageChannelId,
-      taskToken,
-    });
 
     expect(eventsRepository.events[0].logs).toEqual([
       {
