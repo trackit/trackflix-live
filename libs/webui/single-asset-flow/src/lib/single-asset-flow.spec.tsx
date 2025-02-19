@@ -23,8 +23,6 @@ vi.mock('@trackflix-live/forms', () => ({
 }));
 
 describe('SingleAssetFlow', () => {
-  const mockNavigate = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock successful API response
@@ -64,7 +62,7 @@ describe('SingleAssetFlow', () => {
 
   it('should handle submission errors', async () => {
     // Mock console.error to prevent error output in tests
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
     // Mock API error
     (postEvent as any).mockRejectedValue(new Error('API Error'));
