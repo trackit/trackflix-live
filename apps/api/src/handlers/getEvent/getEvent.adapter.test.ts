@@ -33,8 +33,6 @@ describe('Get event adapter', () => {
     expect(JSON.parse(response.body || '')).toEqual({
       event: {
         ...event,
-        onAirEndTime: event.onAirEndTime.toISOString(),
-        onAirStartTime: event.onAirStartTime.toISOString(),
       },
     });
   });

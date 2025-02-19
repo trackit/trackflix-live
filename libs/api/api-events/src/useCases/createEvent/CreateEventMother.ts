@@ -11,8 +11,8 @@ export class CreateEventMother {
     return new CreateEventMother({
       name: 'My first event',
       description: 'This is a sample testing event',
-      onAirStartTime: new Date('2025-01-22T10:00:00.000Z'),
-      onAirEndTime: new Date('2025-01-22T11:00:00.000Z'),
+      onAirStartTime: new Date('2025-01-22T10:00:00.000Z').toISOString(),
+      onAirEndTime: new Date('2025-01-22T11:00:00.000Z').toISOString(),
       source: 's3://sample-bucket/sample-asset.mp4',
     });
   }
@@ -22,7 +22,7 @@ export class CreateEventMother {
     return this;
   }
 
-  public withOnAirStartTime(onAirStartTime: Date) {
+  public withOnAirStartTime(onAirStartTime: string) {
     this.data.onAirStartTime = onAirStartTime;
     return this;
   }

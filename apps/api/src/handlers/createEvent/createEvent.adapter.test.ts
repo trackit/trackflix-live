@@ -32,8 +32,6 @@ describe('Create event adapter', () => {
     expect(JSON.parse(response.body || '')).toEqual({
       event: {
         ...event,
-        onAirStartTime: event.onAirStartTime.toISOString(),
-        onAirEndTime: event.onAirEndTime.toISOString(),
       },
     });
   });
@@ -85,8 +83,6 @@ const setup = () => {
   const event = EventMother.basic().build();
   const createEventReq = {
     ...event,
-    onAirStartTime: event.onAirStartTime.toISOString(),
-    onAirEndTime: event.onAirEndTime.toISOString(),
     status: undefined,
     id: undefined,
   };

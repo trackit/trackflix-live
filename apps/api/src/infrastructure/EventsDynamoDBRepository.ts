@@ -28,8 +28,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
       TableName: this.tableName,
       Item: {
         ...event,
-        onAirStartTime: event.onAirStartTime.toISOString(),
-        onAirEndTime: event.onAirEndTime.toISOString(),
       },
     };
 
@@ -76,8 +74,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return {
       ...response.Item,
-      onAirStartTime: new Date(response?.Item?.onAirStartTime),
-      onAirEndTime: new Date(response?.Item?.onAirEndTime),
     } as Event;
   }
 }
