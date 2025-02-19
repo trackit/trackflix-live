@@ -5,6 +5,8 @@ import {
 import {
   CreateChannelCommand,
   CreateOriginEndpointCommand,
+  DeleteChannelCommand,
+  DeleteOriginEndpointCommand,
   MediaPackageClient,
 } from '@aws-sdk/client-mediapackage';
 import { EndpointType } from '@trackflix-live/types';
@@ -61,5 +63,23 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
         },
       ],
     };
+  }
+
+  public async deleteChannel(eventId: string): Promise<void> {
+    await this.client.send(
+      new DeleteOriginEndpointCommand({
+        Id: `TrackflixLiveMPOE-DASH-${eventId}`,
+      })
+    );
+    await this.client.send(
+      new DeleteOriginEndpointCommand({
+        Id: `TrackflixLiveMPOE-HLS-${eventId}`,
+      })
+    );
+    await this.client.send(
+      new DeleteChannelCommand({
+        Id: `TrackflixLiveMPC-${eventId}`,
+      })
+    );
   }
 }

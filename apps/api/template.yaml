@@ -114,6 +114,7 @@ Resources:
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
+                  - !GetAtt DeleteMediaPackageChannel.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -241,11 +242,13 @@ Resources:
               - Effect: Allow
                 Action:
                   - "mediapackage:CreateChannel"
+                  - "mediapackage:DeleteChannel"
                 Resource:
                   - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*"
               - Effect: Allow
                 Action:
                   - "mediapackage:CreateOriginEndpoint"
+                  - "mediapackage:DeleteOriginEndpoint"
                 Resource:
                   - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*"
         - PolicyName: !Sub "${AWS::StackName}-MediaLive-policy"
@@ -669,6 +672,21 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  DeleteMediaPackageChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteMediaPackageChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
 
   ####################
   #    API GATEWAY   #
@@ -779,6 +797,11 @@ Resources:
             "Delete MediaLive input": {
               "Type": "Task",
               "Resource": "${DeleteMediaLiveInput}",
+              "Next": "Delete MediaPackage channel"
+            },
+            "Delete MediaPackage channel": {
+              "Type": "Task",
+              "Resource": "${DeleteMediaPackageChannel}",
               "End": true
             }
           }
@@ -790,4 +813,5 @@ Resources:
         StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
+        DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

@@ -3,6 +3,8 @@ import {
   MediaPackageClient,
   CreateChannelCommand,
   CreateOriginEndpointCommand,
+  DeleteChannelCommand,
+  DeleteOriginEndpointCommand,
 } from '@aws-sdk/client-mediapackage';
 import { MediaPackageChannelsManager } from './MediaPackageChannelsManager';
 import { EndpointType, EventEndpoint } from '@trackflix-live/types';
@@ -85,6 +87,37 @@ describe('MediaPackage channels manager', () => {
         ChannelId: `TrackflixLiveMPC-${eventId}`,
         Id: `TrackflixLiveMPOE-DASH-${eventId}`,
         DashPackage: {},
+      });
+    });
+  });
+
+  describe('deleteChannel', () => {
+    it('should delete channel', async () => {
+      const { mediaPackageChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+
+      await mediaPackageChannelsManager.deleteChannel(eventId);
+
+      const commandCalls = mock.commandCalls(DeleteChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        Id: 'TrackflixLiveMPC-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
+      });
+    });
+
+    it('should delete HLS and DASH endpoints', async () => {
+      const { mediaPackageChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+
+      await mediaPackageChannelsManager.deleteChannel(eventId);
+
+      const commandCalls = mock.commandCalls(DeleteOriginEndpointCommand);
+      expect(commandCalls).toHaveLength(2);
+      expect(commandCalls[0].args[0].input).toEqual({
+        Id: 'TrackflixLiveMPOE-DASH-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
+      });
+      expect(commandCalls[1].args[0].input).toEqual({
+        Id: 'TrackflixLiveMPOE-HLS-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
     });
   });
