@@ -39,7 +39,7 @@ describe('CreateEvent use case', () => {
 
     await useCase.createEvent(
       CreateEventMother.basic()
-        .withOnAirStartTime(new Date('2025-01-22T09:45:07.202Z').toISOString())
+        .withOnAirStartTime('2025-01-22T09:45:07.202Z')
         .build()
     );
 
