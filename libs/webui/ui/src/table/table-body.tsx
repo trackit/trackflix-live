@@ -13,7 +13,7 @@ export function TableBody<T extends { id: string }>({
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="bg-white border-b hover:bg-gray-100 cursor-pointer"
+          className="border-b hover:bg-base-300 cursor-pointer"
           onClick={() => navigate(`/result/${row.original.id}`)}
         >
           {row.getVisibleCells().map((cell) => (
