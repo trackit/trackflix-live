@@ -9,9 +9,7 @@ import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 const ajv = new Ajv();
 addFormats(ajv);
 
-export type CreateEventSchema = CreateEventRequest['body'];
-
-const schema: JSONSchemaType<CreateEventSchema> = {
+const schema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
