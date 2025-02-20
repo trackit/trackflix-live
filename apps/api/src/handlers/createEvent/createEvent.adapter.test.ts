@@ -29,13 +29,7 @@ describe('Create event adapter', () => {
     } as APIGatewayProxyEventV2);
 
     expect(response.statusCode).toEqual(200);
-    expect(JSON.parse(response.body || '')).toEqual({
-      event: {
-        ...event,
-        onAirStartTime: event.onAirStartTime.toISOString(),
-        onAirEndTime: event.onAirEndTime.toISOString(),
-      },
-    });
+    expect(JSON.parse(response.body || '')).toEqual({ event });
   });
 
   it('should return 400 response if no body is provided', async () => {
@@ -85,8 +79,6 @@ const setup = () => {
   const event = EventMother.basic().build();
   const createEventReq = {
     ...event,
-    onAirStartTime: event.onAirStartTime.toISOString(),
-    onAirEndTime: event.onAirEndTime.toISOString(),
     status: undefined,
     id: undefined,
   };

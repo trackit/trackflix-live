@@ -26,11 +26,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async createEvent(event: Event): Promise<void> {
     const params: PutCommandInput = {
       TableName: this.tableName,
-      Item: {
-        ...event,
-        onAirStartTime: event.onAirStartTime.toISOString(),
-        onAirEndTime: event.onAirEndTime.toISOString(),
-      },
+      Item: event,
     };
 
     await this.client.send(new PutCommand(params));
@@ -74,10 +70,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
       return undefined;
     }
 
-    return {
-      ...response.Item,
-      onAirStartTime: new Date(response?.Item?.onAirStartTime),
-      onAirEndTime: new Date(response?.Item?.onAirEndTime),
-    } as Event;
+    return response.Item as Event;
   }
 }

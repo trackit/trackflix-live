@@ -9,15 +9,7 @@ import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 const ajv = new Ajv();
 addFormats(ajv);
 
-export type CreateEventSchema = Omit<
-  CreateEventRequest['body'],
-  'onAirStartTime' | 'onAirEndTime'
-> & {
-  onAirStartTime: string;
-  onAirEndTime: string;
-};
-
-const schema: JSONSchemaType<CreateEventSchema> = {
+const schema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -63,11 +55,7 @@ export class CreateEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.createEvent({
-      ...body,
-      onAirStartTime: new Date(body.onAirStartTime),
-      onAirEndTime: new Date(body.onAirEndTime),
-    });
+    const result = await this.useCase.createEvent(body);
 
     return {
       event: result,
