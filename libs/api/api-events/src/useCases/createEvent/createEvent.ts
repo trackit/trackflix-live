@@ -63,7 +63,7 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
 
     await this.eventSchedulerStop.scheduleEvent({
       id,
-      time: event.onAirEndTime,
+      time: new Date(event.onAirEndTime),
       name: 'TrackflixLiveStopTx',
     });
 

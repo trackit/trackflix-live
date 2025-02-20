@@ -27,7 +27,7 @@ export class CreateEventMother {
     return this;
   }
 
-  public withOnAirEndTime(onAirEndTime: Date) {
+  public withOnAirEndTime(onAirEndTime: string) {
     this.data.onAirEndTime = onAirEndTime;
     return this;
   }

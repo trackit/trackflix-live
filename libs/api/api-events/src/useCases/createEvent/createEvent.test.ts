@@ -59,7 +59,7 @@ describe('CreateEvent use case', () => {
 
     await useCase.createEvent(
       CreateEventMother.basic()
-        .withOnAirEndTime(new Date('2025-01-22T09:45:07.202Z'))
+        .withOnAirEndTime('2025-01-22T09:45:07.202Z')
         .build()
     );
 
