@@ -13,8 +13,8 @@ export function TableBody<T extends { id: string }>({
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="border-b hover:bg-base-300 cursor-pointer"
-          onClick={() => navigate(`/result/${row.original.id}`)}
+          className="flex flex-row border-b hover:bg-base-300 cursor-pointer w-full"
+          onClick={() => navigate(`/status/${row.original.id}`)}
         >
           {row.getVisibleCells().map((cell) => (
             <td key={cell.id} className="px-6 py-4 w-1/4">

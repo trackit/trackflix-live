@@ -1,57 +1,65 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Panel, Table } from '@trackflix-live/ui';
 import { listEvents } from '@trackflix-live/api-client';
 import { ColumnDef } from '@tanstack/react-table';
-import { Event } from '@trackflix-live/types';
-import { adapt } from './adapt';
+import { Event, ListEventsResponse } from '@trackflix-live/types';
+import { useQuery } from '@tanstack/react-query';
+import { DateTime } from 'luxon';
 
 export function ListAssetView() {
-  const [data, setData] = useState<Event[]>([]);
   const [nextToken, setNextToken] = useState<string | undefined>(undefined);
+  const [perPage, setPerPage] = useState<number>(10);
 
-  const getListEvents = async () => {
-    const events = await listEvents({
-      queryStringParameters: {
-        limit: '50',
-        nextToken: nextToken,
-      },
-    });
-
-    const adaptedData = adapt(events);
-
-    setNextToken(adaptedData.nextToken);
-    setData([...data, ...adaptedData.events]);
-  };
+  const { data, isPending } = useQuery<ListEventsResponse['body']>({
+    queryKey: ['events', nextToken, perPage],
+    queryFn: () => {
+      return listEvents({
+        queryStringParameters: {
+          limit: perPage.toString(),
+          nextToken: nextToken,
+        },
+      });
+    },
+  });
 
   const columns: ColumnDef<Event>[] = useMemo(
     () => [
-      {
-        header: 'ID',
-        accessorKey: 'id',
-      },
       {
         header: 'Name',
         accessorKey: 'name',
       },
       {
-        header: 'Description',
-        accessorKey: 'description',
+        header: 'Start time',
+        accessorFn: (originalRow) =>
+          DateTime.fromISO(originalRow.onAirStartTime).toLocaleString(
+            DateTime.DATETIME_MED
+          ),
+      },
+      {
+        header: 'End time',
+        accessorFn: (originalRow) =>
+          DateTime.fromISO(originalRow.onAirEndTime).toLocaleString(
+            DateTime.DATETIME_MED
+          ),
+      },
+      {
+        header: 'Status',
+        accessorKey: 'status',
       },
     ],
     []
   );
 
-  useEffect(() => {
-    getListEvents();
-  }, []);
-
   return (
     <Panel className={'h-[90%] max-h-[90%]'}>
       <Table
-        data={data}
+        data={data?.events || []}
         columns={columns}
-        nextToken={nextToken}
-        getNextData={getListEvents}
+        nextToken={data?.nextToken || undefined}
+        setNextToken={setNextToken}
+        isPending={isPending}
+        setPerPage={setPerPage}
+        perPage={perPage}
       ></Table>
     </Panel>
   );
