@@ -57,9 +57,7 @@ export class CreateEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.createEvent({
-      ...body,
-    });
+    const result = await this.useCase.createEvent(body);
 
     return {
       event: result,

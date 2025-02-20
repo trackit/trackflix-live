@@ -29,11 +29,7 @@ describe('Create event adapter', () => {
     } as APIGatewayProxyEventV2);
 
     expect(response.statusCode).toEqual(200);
-    expect(JSON.parse(response.body || '')).toEqual({
-      event: {
-        ...event,
-      },
-    });
+    expect(JSON.parse(response.body || '')).toEqual({ event });
   });
 
   it('should return 400 response if no body is provided', async () => {

@@ -26,9 +26,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async createEvent(event: Event): Promise<void> {
     const params: PutCommandInput = {
       TableName: this.tableName,
-      Item: {
-        ...event,
-      },
+      Item: event,
     };
 
     await this.client.send(new PutCommand(params));
@@ -72,8 +70,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
       return undefined;
     }
 
-    return {
-      ...response.Item,
-    } as Event;
+    return response.Item as Event;
   }
 }
