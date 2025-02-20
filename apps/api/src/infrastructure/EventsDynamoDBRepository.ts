@@ -13,7 +13,7 @@ import {
   UpdateCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
-import { Event, EventLog } from '@trackflix-live/types';
+import { Event, EventEndpoint, EventLog } from '@trackflix-live/types';
 
 export class EventsDynamoDBRepository implements EventsRepository {
   private readonly client: DynamoDBDocumentClient;
@@ -87,6 +87,35 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
       ExpressionAttributeValues: {
         ':logs': logs,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return {
+      ...response.Attributes,
+      onAirStartTime: new Date(response?.Attributes?.onAirStartTime),
+      onAirEndTime: new Date(response?.Attributes?.onAirEndTime),
+      createdTime: new Date(response?.Attributes?.createdTime),
+    } as Event;
+  }
+
+  async appendEndpointsToEvent(
+    eventId: string,
+    endpoints: EventEndpoint[]
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #endpoints = list_append(#endpoints, :endpoints)',
+      ExpressionAttributeNames: {
+        '#endpoints': 'endpoints',
+      },
+      ExpressionAttributeValues: {
+        ':endpoints': endpoints,
       },
       ReturnValues: 'ALL_NEW',
     };

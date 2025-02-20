@@ -15,7 +15,7 @@ const packageChannelsManager = new MediaPackageChannelsManager({
 
 const eventsRepository = new EventsDynamoDBRepository(
   new DynamoDBClient({}),
-  process.env.TABLE_NAME || ''
+  process.env.EVENTS_TABLE || ''
 );
 
 const eventUpdateSender = new EventsIotUpdateSender(

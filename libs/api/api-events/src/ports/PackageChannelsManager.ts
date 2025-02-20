@@ -1,3 +1,10 @@
+import { EventEndpoint } from '@trackflix-live/types';
+
+export interface CreatePackageChannelResponse {
+  channelId: string;
+  endpoints: EventEndpoint[];
+}
+
 export interface PackageChannelsManager {
-  createChannel(eventId: string): Promise<string>;
+  createChannel(eventId: string): Promise<CreatePackageChannelResponse>;
 }

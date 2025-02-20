@@ -37,6 +37,7 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
               - Effect: Allow
@@ -271,8 +272,17 @@ Resources:
               - Effect: Allow
                 Action:
                   - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
+        - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iot:Publish"
+                Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
   ###########
   # COGNITO #
   ###########
@@ -376,7 +386,7 @@ Resources:
       Role: !GetAtt ProjectLambdaRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventsTable
+          EVENTS_TABLE: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
@@ -403,7 +413,7 @@ Resources:
       Role: !GetAtt ProjectLambdaRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventsTable
+          EVENTS_TABLE: !Ref EventsTable
       Events:
         GetEvent:
           Type: Api
@@ -428,7 +438,7 @@ Resources:
       Role: !GetAtt ProjectLambdaRole.Arn
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventsTable
+          EVENTS_TABLE: !Ref EventsTable
       Events:
         ListEvents:
           Type: Api
@@ -496,6 +506,10 @@ Resources:
       CodeUri: ./src/stateMachines/createMediaPackageChannel/
       Handler: handler.main
       Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -516,6 +530,7 @@ Resources:
           EVENTS_TABLE: !Ref EventsTable
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -534,6 +549,8 @@ Resources:
       Environment:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

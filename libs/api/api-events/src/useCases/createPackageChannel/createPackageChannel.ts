@@ -33,7 +33,10 @@ export class CreatePackageChannelUseCaseImpl
   }
 
   public async createPackageChannel(eventId: string): Promise<string> {
-    const channelId = this.packageChannelsManager.createChannel(eventId);
+    const { channelId, endpoints } =
+      await this.packageChannelsManager.createChannel(eventId);
+
+    await this.eventsRepository.appendEndpointsToEvent(eventId, endpoints);
 
     const event = await this.eventsRepository.appendLogsToEvent(eventId, [
       {

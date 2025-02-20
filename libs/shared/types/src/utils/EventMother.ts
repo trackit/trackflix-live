@@ -31,8 +31,12 @@ export class EventMother {
       status: EventStatus.PRE_TX,
       endpoints: [
         {
-          url: 'https://formula-1.com/live/monaco-gp-2025',
+          url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
           type: EndpointType.HLS,
+        },
+        {
+          url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
+          type: EndpointType.DASH,
         },
       ],
       logs: [],

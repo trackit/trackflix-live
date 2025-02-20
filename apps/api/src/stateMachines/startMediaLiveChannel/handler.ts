@@ -30,7 +30,7 @@ const eventUpdateSender = new EventsIotUpdateSender(
 
 const eventsRepository = new EventsDynamoDBRepository(
   new DynamoDBClient({}),
-  process.env.TABLE_NAME || ''
+  process.env.EVENTS_TABLE || ''
 );
 
 const useCase = new StartLiveChannelUseCaseImpl({
