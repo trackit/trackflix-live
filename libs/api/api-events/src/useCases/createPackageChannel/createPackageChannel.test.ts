@@ -52,7 +52,7 @@ describe('Create Package channel use case', () => {
     ]);
   });
 
-  it('should store logs channel', async () => {
+  it('should store logs', async () => {
     const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
