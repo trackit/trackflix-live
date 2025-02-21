@@ -11,12 +11,7 @@ import {
 
 describe('Create Package channel use case', () => {
   it('should create channel', async () => {
-    const {
-      useCase,
-      packageChannelsManager,
-      eventsRepository,
-      eventUpdateSender,
-    } = setup();
+    const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
     const event = EventMother.basic().withEndpoints([]).build();
@@ -28,28 +23,6 @@ describe('Create Package channel use case', () => {
 
     expect(response).toEqual(packageChannelId);
     expect(packageChannelsManager.createdChannels).toEqual([event.id]);
-    expect(eventsRepository.events[0].logs).toEqual([
-      {
-        timestamp: expect.any(Number),
-        type: LogType.PACKAGE_CHANNEL_CREATED,
-      },
-    ]);
-    expect(eventsRepository.events[0].endpoints).toEqual([
-      {
-        url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
-        type: EndpointType.HLS,
-      },
-      {
-        url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
-        type: EndpointType.DASH,
-      },
-    ]);
-    expect(eventUpdateSender.eventUpdates).toEqual([
-      {
-        action: EventUpdateAction.EVENT_UPDATE_UPDATE,
-        value: eventsRepository.events[0],
-      },
-    ]);
   });
 
   it('should store logs', async () => {
@@ -79,6 +52,16 @@ describe('Create Package channel use case', () => {
     await eventsRepository.createEvent(event);
 
     packageChannelsManager.setPackageChannelId(packageChannelId);
+    packageChannelsManager.setPackageChannelEndpoints([
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+      },
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
+        type: EndpointType.DASH,
+      },
+    ]);
 
     await useCase.createPackageChannel(event.id);
 
