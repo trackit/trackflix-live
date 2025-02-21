@@ -34,16 +34,7 @@ export class EventMother {
       destroyedTime: undefined,
       source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
       status: EventStatus.PRE_TX,
-      endpoints: [
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
-          type: EndpointType.HLS,
-        },
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
-          type: EndpointType.DASH,
-        },
-      ],
+      endpoints: [],
       logs: [],
     });
   }
