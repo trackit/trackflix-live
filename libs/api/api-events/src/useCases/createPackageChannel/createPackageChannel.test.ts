@@ -19,8 +19,7 @@ describe('Create Package channel use case', () => {
     } = setup();
     const packageChannelId = '8123456';
 
-    const event = EventMother.basic().build();
-    event.endpoints = [];
+    const event = EventMother.basic().withEndpoints([]).build();
     await eventsRepository.createEvent(event);
 
     packageChannelsManager.setPackageChannelId(packageChannelId);
