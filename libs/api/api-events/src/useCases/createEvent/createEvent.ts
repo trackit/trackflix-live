@@ -3,9 +3,9 @@ import { EventScheduler, EventsRepository } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { EventUpdateSender } from '../../ports/EventUpdateSender';
 
-export type CreateEventArgs = Omit<
+export type CreateEventArgs = Pick<
   Event,
-  'id' | 'status' | 'createdTime' | 'logs' | 'endpoints'
+  'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
 >;
 
 export interface CreateEventUseCase {

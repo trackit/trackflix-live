@@ -1,9 +1,9 @@
 import { Event } from './types';
 
 export type CreateEventRequest = {
-  body: Omit<
+  body: Pick<
     Event,
-    'id' | 'status' | 'createdTime' | 'logs' | 'destroyedTime' | 'endpoints'
+    'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
   >;
 };
 export type CreateEventResponse = { body: { event: Event } };
