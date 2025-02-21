@@ -18,10 +18,12 @@ export function App() {
       <SnackbarProvider />
       <div className="flex flex-col h-screen">
         <Topbar />
-        <Routes>
-          <Route index element={<SingleAssetFlow />} />
-          <Route path={'/status/:id'} element={<StatusView />} />
-        </Routes>
+        <div className="flex flex-col flex-grow dark:bg-base-300 bg-base-200 ">
+          <Routes>
+            <Route index element={<SingleAssetFlow />} />
+            <Route path={'/status/:id'} element={<StatusView />} />
+          </Routes>
+        </div>
       </div>
     </Authenticator>
   );
