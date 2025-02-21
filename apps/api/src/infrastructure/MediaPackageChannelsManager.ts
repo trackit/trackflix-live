@@ -44,9 +44,6 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
       })
     );
 
-    console.log(hlsResponse);
-    console.log(dashResponse);
-
     if (!hlsResponse.Url || !dashResponse.Url) {
       throw new Error('Failed to create MediaPackage endpoints');
     }
