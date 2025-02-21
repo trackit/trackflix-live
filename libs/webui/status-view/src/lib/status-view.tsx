@@ -1,9 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Clock, Panel, Timeline, TxTimeline } from '@trackflix-live/ui';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import { getEvent } from '@trackflix-live/api-client';
 import { GetEventResponse } from '@trackflix-live/types';
+import { pubsub } from '@trackflix-live/api-client';
+
+type LiveMessage = {
+  message: string;
+  datetime: string;
+};
 
 export function StatusView() {
   const { id } = useParams();
@@ -15,6 +22,13 @@ export function StatusView() {
     },
   });
   const event = data?.event;
+
+  const [liveMessages, setLiveMessages] = useState<LiveMessage[]>([
+    {
+      datetime: DateTime.now().toISO(),
+      message: 'Listening for live events ...',
+    },
+  ]);
 
   const txSteps = [
     // TODO add created event time here
@@ -35,6 +49,23 @@ export function StatusView() {
     { text: 'Creating entity 5' },
   ];
 
+  useEffect(() => {
+    pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
+      // TODO fix type to real data
+      // @ts-expect-error will replace type
+      next: (data: { topic: string; message: string }) => {
+        console.log(data);
+        setLiveMessages((prev) => [
+          {
+            datetime: DateTime.now().toISO(),
+            message: data.message,
+          },
+          ...prev,
+        ]);
+      },
+    });
+  }, []);
+
   return (
     <div>
       <Panel className={'w-full min-w-[80dvw]'}>
@@ -47,11 +78,11 @@ export function StatusView() {
         </div>
         <hr className={'m-6'} />
         <div className={'flex'}>
-          <div className={'w-1/3'}>
+          <div className={'w-1/3 p-4'}>
             <Timeline steps={devTimelineSteps} />
           </div>
-          <div className={'flex-grow'}>
-            <video controls muted={true} autoPlay={true}>
+          <div className={'flex-grow w-1/2'}>
+            <video controls muted={true} autoPlay={false}>
               <source
                 src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                 type="video/mp4"
