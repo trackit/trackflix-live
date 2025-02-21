@@ -9,6 +9,7 @@ import {
   EndpointType,
   EventEndpoint,
   EventMother,
+  EventStatus,
   LogType,
 } from '@trackflix-live/types';
 
@@ -148,6 +149,30 @@ describe('EventsDynamoDBRepository', () => {
     expect(responseFromDB.Item).toEqual({
       ...sampleEvent,
       endpoints: [firstEndpoint, newEndpoint],
+    });
+  });
+
+  it('should update event status', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic()
+      .withStatus(EventStatus.PRE_TX)
+      .build();
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateEventStatus(sampleEvent.id, EventStatus.TX);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      status: EventStatus.TX,
     });
   });
 });

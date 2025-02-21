@@ -1,4 +1,9 @@
-import { Event, EventEndpoint, EventLog } from '@trackflix-live/types';
+import {
+  Event,
+  EventEndpoint,
+  EventLog,
+  EventStatus,
+} from '@trackflix-live/types';
 
 export interface ListEventsResponse {
   events: Event[];
@@ -14,4 +19,5 @@ export interface EventsRepository {
     eventId: string,
     endpoints: EventEndpoint[]
   ): Promise<Event>;
+  updateEventStatus(eventId: string, status: EventStatus): Promise<Event>;
 }

@@ -118,10 +118,6 @@ describe('Create live channel use case', () => {
         timestamp: expect.any(Number),
         type: 'LIVE_INPUT_CREATED',
       },
-      {
-        timestamp: expect.any(Number),
-        type: 'LIVE_CHANNEL_CREATED',
-      },
     ]);
   });
 
@@ -163,10 +159,6 @@ describe('Create live channel use case', () => {
             {
               timestamp: expect.any(Number),
               type: 'LIVE_INPUT_CREATED',
-            },
-            {
-              timestamp: expect.any(Number),
-              type: 'LIVE_CHANNEL_CREATED',
             },
           ],
         },
