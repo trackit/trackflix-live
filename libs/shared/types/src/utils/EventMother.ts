@@ -1,4 +1,4 @@
-import { EndpointType, Event, EventStatus } from '../lib/types';
+import { EndpointType, Event, EventEndpoint, EventStatus } from '../lib/types';
 
 export class EventMother {
   private readonly data: Event;
@@ -14,6 +14,11 @@ export class EventMother {
 
   public withSource(source: string): EventMother {
     this.data.source = source;
+    return this;
+  }
+
+  public withEndpoints(endpoints: EventEndpoint[]): EventMother {
+    this.data.endpoints = endpoints;
     return this;
   }
 

@@ -121,11 +121,17 @@ describe('EventsDynamoDBRepository', () => {
   it('should append endpoints to an event', async () => {
     const { ddbClient, repository } = setup();
 
-    const sampleEvent = EventMother.basic().build();
+    const firstEndpoint = {
+      url: 'https://formula-1.com/live/dash/monaco-gp-2025.m3u8',
+      type: EndpointType.HLS,
+    };
+    const sampleEvent = EventMother.basic()
+      .withEndpoints([firstEndpoint])
+      .build();
     await repository.createEvent(sampleEvent);
 
     const newEndpoint: EventEndpoint = {
-      url: 'https://formula-1.com/live/dash/monaco-gp-2025',
+      url: 'https://formula-1.com/live/dash/monaco-gp-2025.dash',
       type: EndpointType.DASH,
     };
 
@@ -141,7 +147,7 @@ describe('EventsDynamoDBRepository', () => {
 
     expect(responseFromDB.Item).toEqual({
       ...sampleEvent,
-      endpoints: [...sampleEvent.endpoints, newEndpoint],
+      endpoints: [firstEndpoint, newEndpoint],
     });
   });
 });
