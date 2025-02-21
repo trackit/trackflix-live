@@ -67,31 +67,38 @@ export function StatusView() {
   }, []);
 
   return (
-    <div>
-      <Panel className={'w-full min-w-[80dvw]'}>
-        <div className={'flex justify-between items-center mb-8'}>
-          <h1 className={'mb-0'}>Status</h1>
-          <Clock />
-        </div>
-        <div className={'p-8'}>
-          <TxTimeline steps={txSteps} />
-        </div>
-        <hr className={'m-6'} />
-        <div className={'flex'}>
-          <div className={'w-1/3 p-4'}>
-            <Timeline steps={devTimelineSteps} />
+    <div className={'flex flex-col flex-grow'}>
+      <div className="w-full">
+        <TxTimeline steps={txSteps} />
+      </div>
+      <div
+        className={
+          'flex justify-center items-center w-screen h-full bg-base-200 relative'
+        }
+      >
+        <Panel className={'w-full min-w-[80dvw]'}>
+          <div className={'flex justify-between items-center mb-8'}>
+            <h1 className={'mb-0'}>Status</h1>
+            <Clock />
           </div>
-          <div className={'flex-grow w-1/2'}>
-            <video controls muted={true} autoPlay={false}>
-              <source
-                src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-                type="video/mp4"
-              />
-              Your browser does not support the video tag.
-            </video>
+          <div className={'p-8'}></div>
+          <hr className={'m-6'} />
+          <div className={'flex'}>
+            <div className={'w-1/3 p-4'}>
+              <Timeline steps={devTimelineSteps} />
+            </div>
+            <div className={'flex-grow w-1/2'}>
+              <video controls muted={true} autoPlay={false}>
+                <source
+                  src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
-        </div>
-      </Panel>
+        </Panel>
+      </div>
     </div>
   );
 }

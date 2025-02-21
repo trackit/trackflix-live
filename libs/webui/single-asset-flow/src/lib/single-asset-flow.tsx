@@ -19,13 +19,19 @@ export function SingleAssetFlow() {
   };
 
   return (
-    <Panel>
-      <div className="prose ">
-        <h1>Create a new event</h1>
-      </div>
-      <hr className={'my-6'} />
-      <SingleAssetForm onSubmit={onSubmit} disabled={isSubmitting} />
-    </Panel>
+    <div
+      className={
+        'flex justify-center items-center w-screen h-full bg-base-200 relative'
+      }
+    >
+      <Panel>
+        <div className="prose ">
+          <h1>Create a new event</h1>
+        </div>
+        <hr className={'my-6'} />
+        <SingleAssetForm onSubmit={onSubmit} disabled={isSubmitting} />
+      </Panel>
+    </div>
   );
 }
 

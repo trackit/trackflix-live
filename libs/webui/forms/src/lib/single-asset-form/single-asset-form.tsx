@@ -9,8 +9,8 @@ export interface SingleAssetFormProps {
     name: string;
     description: string;
     source: string;
-    onAirStartTime: Date;
-    onAirEndTime: Date;
+    onAirStartTime: string;
+    onAirEndTime: string;
   }) => void;
   disabled?: boolean;
 }
@@ -55,7 +55,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit({
+          ...data,
+          onAirStartTime: data.onAirStartTime.toISOString(),
+          onAirEndTime: data.onAirEndTime.toISOString(),
+        });
+      })}
+    >
       <div className={'flex items-center'}>
         <label className="form-control w-full mb-2">
           <label
