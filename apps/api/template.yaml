@@ -37,7 +37,6 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
-                  - "dynamodb:UpdateItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
               - Effect: Allow
