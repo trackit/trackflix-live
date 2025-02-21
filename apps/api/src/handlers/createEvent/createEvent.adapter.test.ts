@@ -1,29 +1,25 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
+import { CreateEventMother } from '@trackflix-live/api-events';
 
 describe('Create event adapter', () => {
   it('should call use case', async () => {
-    const { adapter, useCase, createEventReq } = setup();
-
-    const event = EventMother.basic().build();
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic().build();
 
     await adapter.handle({
       body: JSON.stringify(createEventReq),
     } as APIGatewayProxyEventV2);
 
     expect(useCase.createEvent).toHaveBeenCalledWith({
-      ...event,
-      id: undefined,
-      status: undefined,
-      createdTime: undefined,
-      endpoints: undefined,
-      logs: undefined,
+      ...createEventReq,
     });
   });
 
   it('should return successful response', async () => {
-    const { adapter, useCase, createEventReq } = setup();
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic().build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
 
@@ -79,21 +75,10 @@ const setup = () => {
     createEvent: jest.fn(),
   };
 
-  const event = EventMother.basic().build();
-  const createEventReq = {
-    ...event,
-    createdTime: undefined,
-    endpoints: undefined,
-    status: undefined,
-    id: undefined,
-    logs: undefined,
-  };
-
   return {
     adapter: new CreateEventAdapter({
       useCase,
     }),
     useCase,
-    createEventReq,
   };
 };
