@@ -114,9 +114,6 @@ describe('EventsDynamoDBRepository', () => {
 
     expect(responseFromDB.Item).toEqual({
       ...sampleEvent,
-      onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
-      onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
-      createdTime: sampleEvent.createdTime.toISOString(),
       logs: [log],
     });
   });
@@ -144,9 +141,6 @@ describe('EventsDynamoDBRepository', () => {
 
     expect(responseFromDB.Item).toEqual({
       ...sampleEvent,
-      onAirStartTime: sampleEvent.onAirStartTime.toISOString(),
-      onAirEndTime: sampleEvent.onAirEndTime.toISOString(),
-      createdTime: sampleEvent.createdTime.toISOString(),
       endpoints: [...sampleEvent.endpoints, newEndpoint],
     });
   });

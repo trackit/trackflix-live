@@ -93,12 +93,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     const response = await this.client.send(new UpdateCommand(params));
 
-    return {
-      ...response.Attributes,
-      onAirStartTime: new Date(response?.Attributes?.onAirStartTime),
-      onAirEndTime: new Date(response?.Attributes?.onAirEndTime),
-      createdTime: new Date(response?.Attributes?.createdTime),
-    } as Event;
+    return response.Attributes as Event;
   }
 
   async appendEndpointsToEvent(
@@ -122,11 +117,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     const response = await this.client.send(new UpdateCommand(params));
 
-    return {
-      ...response.Attributes,
-      onAirStartTime: new Date(response?.Attributes?.onAirStartTime),
-      onAirEndTime: new Date(response?.Attributes?.onAirEndTime),
-      createdTime: new Date(response?.Attributes?.createdTime),
-    } as Event;
+    return response.Attributes as Event;
   }
 }

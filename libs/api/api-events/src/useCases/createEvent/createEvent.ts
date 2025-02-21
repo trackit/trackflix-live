@@ -39,7 +39,7 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const event = {
       ...args,
       id,
-      createdTime: new Date(),
+      createdTime: new Date().toISOString(),
       logs: [],
       endpoints: [],
       status: EventStatus.PRE_TX,
