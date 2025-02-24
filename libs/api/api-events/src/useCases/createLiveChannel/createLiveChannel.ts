@@ -66,14 +66,24 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     });
 
     const currentTimestamp = Date.now();
-    const eventAfterUpdate = await this.eventsRepository.appendLogsToEvent(
+    await this.eventsRepository.appendLogsToEvent(eventId, [
+      {
+        timestamp: currentTimestamp,
+        type: LogType.LIVE_INPUT_CREATED,
+      },
+    ]);
+
+    await this.eventsRepository.updateLiveChannelArn(
       eventId,
-      [
-        {
-          timestamp: currentTimestamp,
-          type: LogType.LIVE_INPUT_CREATED,
-        },
-      ]
+      liveChannel.channelArn
+    );
+    await this.eventsRepository.updateLiveChannelId(
+      eventId,
+      liveChannel.channelId
+    );
+    const eventAfterUpdate = await this.eventsRepository.updateLiveInputId(
+      eventId,
+      liveChannel.inputId
     );
 
     await this.eventUpdateSender.send({

@@ -7,3 +7,8 @@ export * from './listEvents';
 export * from './getEvent';
 export * from './handleLiveChannelStateChange';
 export * from './saveResults';
+export * from './stopTransmission';
+export * from './stopLiveChannel';
+export * from './deleteLiveChannel';
+export * from './deleteLiveInput';
+export * from './deletePackageChannel';

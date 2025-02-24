@@ -7,6 +7,7 @@ export interface CreateChannelParameters {
 export interface CreateChannelResponse {
   channelId: string;
   channelArn: string;
+  inputId: string;
 }
 
 export interface LiveChannelsManager {
@@ -14,4 +15,7 @@ export interface LiveChannelsManager {
     parameters: CreateChannelParameters
   ): Promise<CreateChannelResponse>;
   startChannel(channelId: string): Promise<void>;
+  stopChannel(channelId: string): Promise<void>;
+  deleteChannel(channelId: string): Promise<void>;
+  deleteInput(inputId: string): Promise<void>;
 }

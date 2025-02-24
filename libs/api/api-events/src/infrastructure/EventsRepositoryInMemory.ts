@@ -78,4 +78,46 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
     return event;
   }
+
+  public async updateLiveChannelArn(
+    eventId: string,
+    liveChannelArn: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.liveChannelArn = liveChannelArn;
+
+    return event;
+  }
+
+  public async updateLiveChannelId(
+    eventId: string,
+    liveChannelId: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.liveChannelId = liveChannelId;
+
+    return event;
+  }
+
+  public async updateLiveInputId(
+    eventId: string,
+    liveInputId: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.liveInputId = liveInputId;
+
+    return event;
+  }
 }

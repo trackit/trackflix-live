@@ -7,4 +7,5 @@ export interface CreatePackageChannelResponse {
 
 export interface PackageChannelsManager {
   createChannel(eventId: string): Promise<CreatePackageChannelResponse>;
+  deleteChannel(channelId: string): Promise<void>;
 }

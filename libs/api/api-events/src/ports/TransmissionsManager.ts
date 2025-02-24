@@ -8,4 +8,6 @@ export interface TransmissionsManager {
   resumeStartTransmission(
     parameters: ResumeStartTransmissionParameters
   ): Promise<void>;
+
+  stopTransmission(eventId: string): Promise<void>;
 }

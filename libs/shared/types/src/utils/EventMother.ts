@@ -27,6 +27,21 @@ export class EventMother {
     return this;
   }
 
+  public withLiveChannelArn(liveChannelArn: string | undefined): EventMother {
+    this.data.liveChannelArn = liveChannelArn;
+    return this;
+  }
+
+  public withLiveChannelId(liveChannelId: string | undefined): EventMother {
+    this.data.liveChannelId = liveChannelId;
+    return this;
+  }
+
+  public withLiveInputId(liveInputId: string | undefined): EventMother {
+    this.data.liveInputId = liveInputId;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',

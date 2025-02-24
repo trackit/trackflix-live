@@ -13,6 +13,9 @@ import {
   AudioDescriptionLanguageCodeControl,
   TimecodeConfigSource,
   StartChannelCommand,
+  StopChannelCommand,
+  DeleteChannelCommand,
+  DeleteInputCommand,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -49,7 +52,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    if (input.Input === undefined) {
+    if (input.Input === undefined || input.Input.Id === undefined) {
       throw new Error(`Could not create MediaLive input ${inputName}`);
     }
 
@@ -683,6 +686,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     return {
       channelArn: mediaLiveChannel.Channel.Arn,
       channelId: mediaLiveChannel.Channel.Id,
+      inputId: input.Input.Id,
     };
   }
 
@@ -690,6 +694,30 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     await this.client.send(
       new StartChannelCommand({
         ChannelId: channelId,
+      })
+    );
+  }
+
+  public async stopChannel(channelId: string): Promise<void> {
+    await this.client.send(
+      new StopChannelCommand({
+        ChannelId: channelId,
+      })
+    );
+  }
+
+  public async deleteChannel(channelId: string): Promise<void> {
+    await this.client.send(
+      new DeleteChannelCommand({
+        ChannelId: channelId,
+      })
+    );
+  }
+
+  public async deleteInput(inputId: string): Promise<void> {
+    await this.client.send(
+      new DeleteInputCommand({
+        InputId: inputId,
       })
     );
   }

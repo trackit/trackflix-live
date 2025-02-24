@@ -39,7 +39,7 @@ describe('CreateEvent use case', () => {
   });
 
   it('should schedule the creation of resources 15 minutes before air', async () => {
-    const { eventScheduler, useCase } = setup();
+    const { eventSchedulerStart, useCase } = setup();
 
     await useCase.createEvent(
       CreateEventMother.basic()
@@ -47,27 +47,46 @@ describe('CreateEvent use case', () => {
         .build()
     );
 
-    expect(eventScheduler.scheduledEvents).toMatchObject([
+    expect(eventSchedulerStart.scheduledEvents).toMatchObject([
       {
         time: new Date('2025-01-22T09:30:07.202Z'),
+      },
+    ]);
+  });
+
+  it('should schedule the destruction of resources after air', async () => {
+    const { eventSchedulerStop, useCase } = setup();
+
+    await useCase.createEvent(
+      CreateEventMother.basic()
+        .withOnAirEndTime('2025-01-22T09:45:07.202Z')
+        .build()
+    );
+
+    expect(eventSchedulerStop.scheduledEvents).toMatchObject([
+      {
+        time: new Date('2025-01-22T09:45:07.202Z'),
       },
     ]);
   });
 });
 
 const setup = () => {
-  const eventScheduler = new EventSchedulerFake();
+  const eventSchedulerStart = new EventSchedulerFake();
+  const eventSchedulerStop = new EventSchedulerFake();
   const eventsRepository = new EventsRepositoryInMemory();
   const eventUpdateSender = new EventUpdateSenderFake();
 
   const useCase = new CreateEventUseCaseImpl({
-    eventScheduler,
+    eventSchedulerStart,
+    eventSchedulerStop,
     eventsRepository,
     eventUpdateSender,
   });
 
   return {
-    eventScheduler,
+    eventSchedulerStart,
+    eventSchedulerStop,
     eventsRepository,
     eventUpdateSender,
     useCase,

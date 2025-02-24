@@ -10,36 +10,45 @@ import { CronConversion } from '@trackflix-live/formatting';
 export class EventBridgeScheduler implements EventScheduler {
   private readonly client: EventBridgeClient;
 
-  constructor(client: EventBridgeClient) {
+  private readonly target: string;
+
+  constructor({
+    client,
+    target,
+  }: {
+    client: EventBridgeClient;
+    target: string;
+  }) {
     this.client = client;
+    this.target = target;
   }
 
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
-    const { id, time } = scheduledEvent;
+    const { id, time, name } = scheduledEvent;
     console.log(
-      `Scheduling event with id: ${id} and time: ${
+      `Scheduling event ${name} with id: ${id} and time: ${
         Number.isNaN(time.getTime()) ? '?' : time.toISOString()
       }`
     );
 
-    const name = `TrackflixLiveTx-${id}`;
+    const finalName = `${name}-${id}`;
     const cronExpFromDate = CronConversion.toCronExpression(time);
 
     await this.client.send(
       new PutRuleCommand({
-        Name: name,
+        Name: finalName,
         ScheduleExpression: cronExpFromDate,
-        State: RuleState.DISABLED, // TODO: Enable once resources destruction is working
+        State: RuleState.ENABLED,
       })
     );
 
     await this.client.send(
       new PutTargetsCommand({
-        Rule: name,
+        Rule: finalName,
         Targets: [
           {
-            Id: name + '-Target',
-            Arn: process.env.START_TX_LAMBDA,
+            Id: finalName + '-Target',
+            Arn: this.target,
             Input: JSON.stringify({
               eventId: id,
             }),

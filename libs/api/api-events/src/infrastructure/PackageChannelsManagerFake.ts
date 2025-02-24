@@ -11,6 +11,8 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
 
   private returnedEndpoints: EventEndpoint[] = [];
 
+  public readonly deletedChannels: string[] = [];
+
   public async createChannel(
     eventId: string
   ): Promise<CreatePackageChannelResponse> {
@@ -27,5 +29,9 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
 
   public setPackageChannelEndpoints(endpoints: EventEndpoint[]) {
     this.returnedEndpoints = endpoints;
+  }
+
+  public async deleteChannel(eventId: string): Promise<void> {
+    this.deletedChannels.push(eventId);
   }
 }

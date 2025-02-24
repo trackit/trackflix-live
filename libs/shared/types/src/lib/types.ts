@@ -47,6 +47,10 @@ export interface Event {
   status: EventStatus;
   endpoints: EventEndpoint[];
   logs: EventLog[];
+
+  liveChannelId?: string;
+  liveChannelArn?: string;
+  liveInputId?: string;
 }
 
 export enum EventUpdateAction {

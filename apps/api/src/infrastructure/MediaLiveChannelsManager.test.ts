@@ -2,8 +2,11 @@ import { mockClient } from 'aws-sdk-client-mock';
 import {
   CreateChannelCommand,
   CreateInputCommand,
+  DeleteChannelCommand,
+  DeleteInputCommand,
   MediaLiveClient,
   StartChannelCommand,
+  StopChannelCommand,
 } from '@aws-sdk/client-medialive';
 import { MediaLiveChannelsManager } from './MediaLiveChannelsManager';
 
@@ -101,6 +104,51 @@ describe('MediaLive channels manager', () => {
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('stopChannel', () => {
+    it('should stop channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const channelId = '812345';
+
+      await mediaLiveChannelsManager.stopChannel(channelId);
+
+      const commandCalls = mock.commandCalls(StopChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('deleteChannel', () => {
+    it('should delete channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const channelId = '812345';
+
+      await mediaLiveChannelsManager.deleteChannel(channelId);
+
+      const commandCalls = mock.commandCalls(DeleteChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        ChannelId: channelId,
+      });
+    });
+  });
+
+  describe('deleteInput', () => {
+    it('should delete input', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const inputId = '812345';
+
+      await mediaLiveChannelsManager.deleteInput(inputId);
+
+      const commandCalls = mock.commandCalls(DeleteInputCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        InputId: inputId,
       });
     });
   });

@@ -140,4 +140,76 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return response.Attributes as Event;
   }
+
+  public async updateLiveChannelArn(
+    eventId: string,
+    liveChannelArn: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #liveChannelArn = :liveChannelArn',
+      ExpressionAttributeNames: {
+        '#liveChannelArn': 'liveChannelArn',
+      },
+      ExpressionAttributeValues: {
+        ':liveChannelArn': liveChannelArn,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
+  public async updateLiveChannelId(
+    eventId: string,
+    liveChannelId: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #liveChannelId = :liveChannelId',
+      ExpressionAttributeNames: {
+        '#liveChannelId': 'liveChannelId',
+      },
+      ExpressionAttributeValues: {
+        ':liveChannelId': liveChannelId,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
+  public async updateLiveInputId(
+    eventId: string,
+    liveInputId: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #liveInputId = :liveInputId',
+      ExpressionAttributeNames: {
+        '#liveInputId': 'liveInputId',
+      },
+      ExpressionAttributeValues: {
+        ':liveInputId': liveInputId,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
 }

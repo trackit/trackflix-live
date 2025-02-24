@@ -1,6 +1,6 @@
 import { MediaLiveClient } from '@aws-sdk/client-medialive';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { StartMediaLiveChannelAdapter } from './startMediaLiveChannel.adapter';
 import { StartLiveChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { TaskTokensDynamoDBRepository } from '../../infrastructure/TaskTokensDynamoDBRepository';

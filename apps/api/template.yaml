@@ -54,7 +54,8 @@ Resources:
                   - "events:PutRule"
                   - "events:PutTargets"
                 Resource:
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
+                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
         - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -65,6 +66,7 @@ Resources:
                   - "states:SendTaskSuccess"
                 Resource:
                   - !Ref StartTransmissionStateMachine
+                  - !Ref StopTransmissionStateMachine
         - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -73,13 +75,20 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
-  PermissionForEventBridgeToInvokeLambda:
+  PermissionForEventBridgeToInvokeStartLambda:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref StartTransmission
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveTx-*"
+      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
+  PermissionForEventBridgeToInvokeStopLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StopTransmission
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -102,6 +111,10 @@ Resources:
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
                   - !GetAtt SaveResults.Arn
+                  - !GetAtt StopMediaLiveChannel.Arn
+                  - !GetAtt DeleteMediaLiveChannel.Arn
+                  - !GetAtt DeleteMediaLiveInput.Arn
+                  - !GetAtt DeleteMediaPackageChannel.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -229,11 +242,13 @@ Resources:
               - Effect: Allow
                 Action:
                   - "mediapackage:CreateChannel"
+                  - "mediapackage:DeleteChannel"
                 Resource:
                   - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*"
               - Effect: Allow
                 Action:
                   - "mediapackage:CreateOriginEndpoint"
+                  - "mediapackage:DeleteOriginEndpoint"
                 Resource:
                   - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*"
         - PolicyName: !Sub "${AWS::StackName}-MediaLive-policy"
@@ -243,12 +258,15 @@ Resources:
               - Effect: Allow
                 Action:
                   - "medialive:CreateInput"
+                  - "medialive:DeleteInput"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*"
               - Effect: Allow
                 Action:
                   - "medialive:CreateChannel"
                   - "medialive:StartChannel"
+                  - "medialive:StopChannel"
+                  - "medialive:DeleteChannel"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
@@ -388,6 +406,7 @@ Resources:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
+          STOP_TX_LAMBDA: !GetAtt StopTransmission.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
         CreateEvent:
@@ -500,6 +519,24 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  StopTransmission:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/stopTransmission/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          STOP_TX_STATE_MACHINE: !Ref StopTransmissionStateMachine
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   CreateMediaPackageChannel:
     Type: AWS::Serverless::Function
     Properties:
@@ -570,6 +607,77 @@ Resources:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  StopMediaLiveChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/stopMediaLiveChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          TASK_TOKENS_TABLE: !Ref TaskTokensTable
+          EVENTS_TABLE: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteMediaLiveChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteMediaLiveChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          TASK_TOKENS_TABLE: !Ref TaskTokensTable
+          EVENTS_TABLE: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteMediaLiveInput:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteMediaLiveInput/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteMediaPackageChannel:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteMediaPackageChannel/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -652,4 +760,58 @@ Resources:
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
+      RoleArn: !GetAtt StepFunctionsRole.Arn
+  StopTransmissionStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-StopTransmission"
+      DefinitionString: |
+        {
+          "Comment": "State machine to stop a Trackflix Live transmission",
+          "StartAt": "Stop MediaLive channel",
+          "States": {
+            "Stop MediaLive channel": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Parameters": {
+                "FunctionName": "${StopMediaLiveChannel}",
+                "Payload": {
+                  "input.$": "$",
+                  "taskToken.$": "$$.Task.Token"
+                }
+              },
+              "Next": "Delete MediaLive channel"
+            },
+            "Delete MediaLive channel": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Parameters": {
+                "FunctionName": "${DeleteMediaLiveChannel}",
+                "Payload": {
+                  "input.$": "$",
+                  "taskToken.$": "$$.Task.Token"
+                }
+              },
+              "Next": "Delete MediaLive input"
+            },
+            "Delete MediaLive input": {
+              "Type": "Task",
+              "Resource": "${DeleteMediaLiveInput}",
+              "Next": "Delete MediaPackage channel"
+            },
+            "Delete MediaPackage channel": {
+              "Type": "Task",
+              "Resource": "${DeleteMediaPackageChannel}",
+              "End": true
+            }
+          }
+        }
+      DefinitionSubstitutions:
+        CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
+        CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
+        StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
+        DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
+        DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
+        DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
