@@ -73,10 +73,6 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
           timestamp: currentTimestamp,
           type: LogType.LIVE_INPUT_CREATED,
         },
-        {
-          timestamp: currentTimestamp,
-          type: LogType.LIVE_CHANNEL_CREATED,
-        },
       ]
     );
 

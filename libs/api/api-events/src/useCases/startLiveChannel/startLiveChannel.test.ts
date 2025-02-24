@@ -64,7 +64,7 @@ describe('Start live channel use case', () => {
     ]);
   });
 
-  it('should store logs', async () => {
+  it('should store LIVE_CHANNEL_CREATED log event', async () => {
     const { useCase, eventsRepository } = setup();
     const taskToken = 'sample_task_token';
     const packageChannelId = '8354829';
@@ -86,7 +86,7 @@ describe('Start live channel use case', () => {
     expect(eventsRepository.events[0].logs).toEqual([
       {
         timestamp: expect.any(Number),
-        type: LogType.LIVE_CHANNEL_STARTED,
+        type: LogType.LIVE_CHANNEL_CREATED,
       },
     ]);
   });

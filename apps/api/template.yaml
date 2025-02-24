@@ -101,6 +101,7 @@ Resources:
                   - !GetAtt CreateMediaPackageChannel.Arn
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
+                  - !GetAtt SaveResults.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -559,6 +560,25 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  SaveResults:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/saveResults/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
 
   ####################
   #    API GATEWAY   #
@@ -618,6 +638,11 @@ Resources:
                   "taskToken.$": "$$.Task.Token"
                 }
               },
+              "Next": "Save results"
+            },
+            "Save results": {
+              "Type": "Task",
+              "Resource": "${SaveResults}",
               "End": true
             }
           }
@@ -626,4 +651,5 @@ Resources:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
+        SaveResults: !GetAtt SaveResults.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

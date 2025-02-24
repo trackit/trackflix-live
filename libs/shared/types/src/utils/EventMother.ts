@@ -17,6 +17,11 @@ export class EventMother {
     return this;
   }
 
+  public withStatus(status: EventStatus): EventMother {
+    this.data.status = status;
+    return this;
+  }
+
   public withEndpoints(endpoints: EventEndpoint[]): EventMother {
     this.data.endpoints = endpoints;
     return this;

@@ -6,3 +6,4 @@ export * from './startTransmission';
 export * from './listEvents';
 export * from './getEvent';
 export * from './handleLiveChannelStateChange';
+export * from './saveResults';

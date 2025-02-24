@@ -51,18 +51,18 @@ export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
     eventId,
     taskToken,
   }: StartLiveChannelParameters): Promise<void> {
-    await this.liveChannelsManager.startChannel(liveChannelId);
-
     const event = await this.eventsRepository.appendLogsToEvent(eventId, [
       {
         timestamp: Date.now(),
-        type: LogType.LIVE_CHANNEL_STARTED,
+        type: LogType.LIVE_CHANNEL_CREATED,
       },
     ]);
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
       value: event,
     });
+
+    await this.liveChannelsManager.startChannel(liveChannelId);
 
     await this.taskTokensRepository.createTaskToken({
       channelArn: liveChannelArn,
