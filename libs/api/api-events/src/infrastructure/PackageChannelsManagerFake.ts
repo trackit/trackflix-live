@@ -1,16 +1,31 @@
-import { PackageChannelsManager } from '../ports/PackageChannelsManager';
+import {
+  CreatePackageChannelResponse,
+  PackageChannelsManager,
+} from '../ports/PackageChannelsManager';
+import { EventEndpoint } from '@trackflix-live/types';
 
 export class PackageChannelsManagerFake implements PackageChannelsManager {
   private packageChannelId = '8123456';
 
   public readonly createdChannels: string[] = [];
 
-  public async createChannel(eventId: string): Promise<string> {
+  private returnedEndpoints: EventEndpoint[] = [];
+
+  public async createChannel(
+    eventId: string
+  ): Promise<CreatePackageChannelResponse> {
     this.createdChannels.push(eventId);
-    return this.packageChannelId;
+    return {
+      channelId: this.packageChannelId,
+      endpoints: this.returnedEndpoints,
+    };
   }
 
   public setPackageChannelId(packageChannelId: string) {
     this.packageChannelId = packageChannelId;
+  }
+
+  public setPackageChannelEndpoints(endpoints: EventEndpoint[]) {
+    this.returnedEndpoints = endpoints;
   }
 }

@@ -1,5 +1,10 @@
 import { EventsRepository, ListEventsResponse } from '../ports';
-import { Event } from '@trackflix-live/types';
+import {
+  Event,
+  EventEndpoint,
+  EventLog,
+  EventStatus,
+} from '@trackflix-live/types';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -33,5 +38,44 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
   async getEvent(eventId: string): Promise<Event | undefined> {
     return this.events.find((event) => event.id === eventId);
+  }
+
+  async appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.logs.push(...logs);
+
+    return event;
+  }
+
+  async appendEndpointsToEvent(
+    eventId: string,
+    endpoints: EventEndpoint[]
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.endpoints.push(...endpoints);
+
+    return event;
+  }
+
+  async updateEventStatus(
+    eventId: string,
+    status: EventStatus
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.status = status;
+
+    return event;
   }
 }

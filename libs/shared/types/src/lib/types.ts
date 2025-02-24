@@ -2,7 +2,6 @@ export enum EventStatus {
   TX = 'TX',
   PRE_TX = 'PRE-TX',
   POST_TX = 'POST-TX',
-  CONFIRMED = 'CONFIRMED',
   ENDED = 'ENDED',
 }
 
@@ -10,18 +9,49 @@ export type S3Source = string;
 
 export type Source = S3Source;
 
+export enum LogType {
+  PACKAGE_CHANNEL_CREATED = 'PACKAGE_CHANNEL_CREATED',
+  LIVE_INPUT_CREATED = 'LIVE_INPUT_CREATED',
+  LIVE_CHANNEL_CREATED = 'LIVE_CHANNEL_CREATED',
+  LIVE_CHANNEL_STARTED = 'LIVE_CHANNEL_STARTED',
+  LIVE_CHANNEL_STOPPED = 'LIVE_CHANNEL_STOPPED',
+  LIVE_CHANNEL_DESTROYED = 'LIVE_CHANNEL_DESTROYED',
+  LIVE_INPUT_DESTROYED = 'LIVE_INPUT_DESTROYED',
+  PACKAGE_CHANNEL_DESTROYED = 'PACKAGE_CHANNEL_DESTROYED',
+}
+
+export enum EndpointType {
+  HLS = 'HLS',
+  DASH = 'DASH',
+}
+
+export interface EventLog {
+  timestamp: number;
+  type: LogType;
+}
+
+export interface EventEndpoint {
+  url: string;
+  type: EndpointType;
+}
+
 export interface Event {
   id: string;
   name: string;
   description: string;
   onAirStartTime: string;
   onAirEndTime: string;
+  createdTime: string;
+  destroyedTime?: string;
   source: Source;
   status: EventStatus;
+  endpoints: EventEndpoint[];
+  logs: EventLog[];
 }
 
 export enum EventUpdateAction {
   EVENT_UPDATE_CREATE = 'EVENT_UPDATE_CREATE',
+  EVENT_UPDATE_UPDATE = 'EVENT_UPDATE_UPDATE',
 }
 
 export interface EventUpdateCreate {
@@ -29,4 +59,9 @@ export interface EventUpdateCreate {
   value: Event;
 }
 
-export type EventUpdate = EventUpdateCreate;
+export interface EventUpdateUpdate {
+  action: EventUpdateAction.EVENT_UPDATE_UPDATE;
+  value: Event;
+}
+
+export type EventUpdate = EventUpdateCreate | EventUpdateUpdate;

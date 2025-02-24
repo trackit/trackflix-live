@@ -11,7 +11,7 @@ import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
 const eventScheduler = new EventBridgeScheduler(new EventBridgeClient({}));
 const eventsRepository = new EventsDynamoDBRepository(
   new DynamoDBClient({}),
-  process.env.TABLE_NAME || ''
+  process.env.EVENTS_TABLE || ''
 );
 const eventUpdateSender = new EventsIotUpdateSender(
   new IoTDataPlaneClient({}),

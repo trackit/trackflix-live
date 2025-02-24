@@ -3,7 +3,7 @@ import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryI
 import { EventSchedulerFake } from '../../infrastructure/EventSchedulerFake';
 import { CreateEventMother } from './CreateEventMother';
 import { EventUpdateSenderFake } from '../../infrastructure/EventUpdateSenderFake';
-import { EventUpdateAction } from '@trackflix-live/types';
+import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
@@ -16,6 +16,10 @@ describe('CreateEvent use case', () => {
     expect(eventsRepository.events).toMatchObject([
       {
         name: 'Test event',
+        createdTime: expect.any(String),
+        logs: [],
+        endpoints: [],
+        status: EventStatus.PRE_TX,
       },
     ]);
   });

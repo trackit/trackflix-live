@@ -3,7 +3,10 @@ import { EventScheduler, EventsRepository } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { EventUpdateSender } from '../../ports/EventUpdateSender';
 
-export type CreateEventArgs = Omit<Event, 'id' | 'status'>;
+export type CreateEventArgs = Pick<
+  Event,
+  'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
+>;
 
 export interface CreateEventUseCase {
   createEvent(args: CreateEventArgs): Promise<Event>;
@@ -36,6 +39,9 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const event = {
       ...args,
       id,
+      createdTime: new Date().toISOString(),
+      logs: [],
+      endpoints: [],
       status: EventStatus.PRE_TX,
     } satisfies Event;
 

@@ -1,8 +1,10 @@
 import {
   EventsRepository,
+  EventUpdateSender,
   LiveChannelsManager,
   TaskTokensRepository,
 } from '../../ports';
+import { EventUpdateAction, LogType } from '@trackflix-live/types';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
@@ -28,18 +30,23 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
 
   private readonly taskTokensRepository: TaskTokensRepository;
 
+  private readonly eventUpdateSender: EventUpdateSender;
+
   public constructor({
     eventsRepository,
     liveChannelsManager,
     taskTokensRepository,
+    eventUpdateSender,
   }: {
     eventsRepository: EventsRepository;
     liveChannelsManager: LiveChannelsManager;
     taskTokensRepository: TaskTokensRepository;
+    eventUpdateSender: EventUpdateSender;
   }) {
     this.eventsRepository = eventsRepository;
     this.liveChannelsManager = liveChannelsManager;
     this.taskTokensRepository = taskTokensRepository;
+    this.eventUpdateSender = eventUpdateSender;
   }
 
   public async createLiveChannel({
@@ -56,6 +63,22 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId: eventId,
       source: event.source,
       packageChannelId,
+    });
+
+    const currentTimestamp = Date.now();
+    const eventAfterUpdate = await this.eventsRepository.appendLogsToEvent(
+      eventId,
+      [
+        {
+          timestamp: currentTimestamp,
+          type: LogType.LIVE_INPUT_CREATED,
+        },
+      ]
+    );
+
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: eventAfterUpdate,
     });
 
     await this.taskTokensRepository.createTaskToken({

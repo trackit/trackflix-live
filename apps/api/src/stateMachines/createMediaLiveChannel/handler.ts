@@ -6,6 +6,8 @@ import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRep
 import { TaskTokensDynamoDBRepository } from '../../infrastructure/TaskTokensDynamoDBRepository';
 import { MediaLiveClient } from '@aws-sdk/client-medialive';
 import { MediaLiveChannelsManager } from '../../infrastructure/MediaLiveChannelsManager';
+import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
+import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
 
 const dynamoDbClient = new DynamoDBClient();
 const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
@@ -26,10 +28,16 @@ const liveChannelsManager = new MediaLiveChannelsManager({
   mediaLiveRoleArn: process.env.MEDIA_LIVE_ROLE!,
 });
 
+const eventUpdateSender = new EventsIotUpdateSender(
+  new IoTDataPlaneClient({}),
+  process.env.IOT_TOPIC || ''
+);
+
 const useCase = new CreateLiveChannelUseCaseImpl({
   eventsRepository,
   taskTokensRepository,
   liveChannelsManager,
+  eventUpdateSender,
 });
 
 const adapter = new CreateMediaLiveChannelAdapter({

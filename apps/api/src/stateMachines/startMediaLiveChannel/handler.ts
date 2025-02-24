@@ -5,6 +5,9 @@ import { StartMediaLiveChannelAdapter } from './startMediaLiveChannel.adapter';
 import { StartLiveChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { TaskTokensDynamoDBRepository } from '../../infrastructure/TaskTokensDynamoDBRepository';
 import { MediaLiveChannelsManager } from '../../infrastructure/MediaLiveChannelsManager';
+import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
+import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
+import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRepository';
 
 const dynamoDbClient = new DynamoDBClient();
 const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
@@ -20,9 +23,21 @@ const liveChannelsManager = new MediaLiveChannelsManager({
   mediaLiveRoleArn: process.env.MEDIA_LIVE_ROLE!,
 });
 
+const eventUpdateSender = new EventsIotUpdateSender(
+  new IoTDataPlaneClient({}),
+  process.env.IOT_TOPIC || ''
+);
+
+const eventsRepository = new EventsDynamoDBRepository(
+  new DynamoDBClient({}),
+  process.env.EVENTS_TABLE || ''
+);
+
 const useCase = new StartLiveChannelUseCaseImpl({
   taskTokensRepository,
   liveChannelsManager,
+  eventUpdateSender,
+  eventsRepository,
 });
 
 const adapter = new StartMediaLiveChannelAdapter({

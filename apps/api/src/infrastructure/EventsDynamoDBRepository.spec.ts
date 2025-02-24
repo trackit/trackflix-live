@@ -5,7 +5,13 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
-import { EventMother } from '@trackflix-live/types';
+import {
+  EndpointType,
+  EventEndpoint,
+  EventMother,
+  EventStatus,
+  LogType,
+} from '@trackflix-live/types';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -84,6 +90,90 @@ describe('EventsDynamoDBRepository', () => {
     const response = await repository.getEvent(sampleEvent.id);
 
     expect(response).toEqual(sampleEvent);
+  });
+
+  it('should append logs to an event', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    await repository.createEvent(sampleEvent);
+
+    const log = {
+      timestamp: Date.now(),
+      type: LogType.PACKAGE_CHANNEL_CREATED,
+    };
+
+    await repository.appendLogsToEvent(sampleEvent.id, [log]);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      logs: [log],
+    });
+  });
+
+  it('should append endpoints to an event', async () => {
+    const { ddbClient, repository } = setup();
+
+    const firstEndpoint = {
+      url: 'https://formula-1.com/live/dash/monaco-gp-2025.m3u8',
+      type: EndpointType.HLS,
+    };
+    const sampleEvent = EventMother.basic()
+      .withEndpoints([firstEndpoint])
+      .build();
+    await repository.createEvent(sampleEvent);
+
+    const newEndpoint: EventEndpoint = {
+      url: 'https://formula-1.com/live/dash/monaco-gp-2025.dash',
+      type: EndpointType.DASH,
+    };
+
+    await repository.appendEndpointsToEvent(sampleEvent.id, [newEndpoint]);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      endpoints: [firstEndpoint, newEndpoint],
+    });
+  });
+
+  it('should update event status', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic()
+      .withStatus(EventStatus.PRE_TX)
+      .build();
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateEventStatus(sampleEvent.id, EventStatus.TX);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      status: EventStatus.TX,
+    });
   });
 });
 
