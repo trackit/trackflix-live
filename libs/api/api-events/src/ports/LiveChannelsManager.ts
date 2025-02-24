@@ -7,6 +7,7 @@ export interface CreateChannelParameters {
 export interface CreateChannelResponse {
   channelId: string;
   channelArn: string;
+  inputId: string;
 }
 
 export interface LiveChannelsManager {

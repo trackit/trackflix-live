@@ -175,6 +175,76 @@ describe('EventsDynamoDBRepository', () => {
       status: EventStatus.TX,
     });
   });
+
+  it('should update event live channel arn', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    const liveChannelArn =
+      'arn:aws:medialive:us-west-2:000000000000:channel:1672338';
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateLiveChannelArn(sampleEvent.id, liveChannelArn);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      liveChannelArn,
+    });
+  });
+
+  it('should update event live channel id', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    const liveChannelId = '1672338';
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateLiveChannelId(sampleEvent.id, liveChannelId);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      liveChannelId,
+    });
+  });
+
+  it('should update event live input id', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    const liveInputId = '1672338';
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateLiveInputId(sampleEvent.id, liveInputId);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      liveInputId,
+    });
+  });
 });
 
 const setup = () => {

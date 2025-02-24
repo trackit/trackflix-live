@@ -52,7 +52,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    if (input.Input === undefined) {
+    if (input.Input === undefined || input.Input.Id === undefined) {
       throw new Error(`Could not create MediaLive input ${inputName}`);
     }
 
@@ -686,6 +686,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     return {
       channelArn: mediaLiveChannel.Channel.Arn,
       channelId: mediaLiveChannel.Channel.Id,
+      inputId: input.Input.Id,
     };
   }
 

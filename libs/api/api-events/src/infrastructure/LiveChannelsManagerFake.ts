@@ -8,6 +8,7 @@ export class LiveChannelsManagerFake implements LiveChannelsManager {
   private createChannelResponse: CreateChannelResponse = {
     channelArn: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488',
     channelId: '8626488',
+    inputId: '1234567',
   };
 
   public readonly createdChannels: CreateChannelParameters[] = [];
