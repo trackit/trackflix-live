@@ -119,7 +119,7 @@ export function StatusView() {
           </div>
           {event?.status && (
             <div
-              className={`flex items-center gap-2 text-center text-sm font-extrabold border rounded-lg p-2 ${getStatusColorClass(
+              className={`flex bg-base-100 items-center gap-2 text-center text-sm font-extrabold border rounded-lg p-2 ${getStatusColorClass(
                 event.status
               )}`}
             >
