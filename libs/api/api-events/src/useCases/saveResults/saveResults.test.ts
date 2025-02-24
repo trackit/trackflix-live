@@ -55,8 +55,6 @@ describe('Save results use case', () => {
 
     await useCase.saveResults(event.id);
 
-    await eventsRepository.getEvent(event.id);
-
     expect(eventsRepository.events[0].status).toBe(EventStatus.TX);
   });
 });
