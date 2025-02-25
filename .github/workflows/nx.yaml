@@ -37,7 +37,7 @@ jobs:
           sleep 10
       - run: npm ci
       - run: npx nx run-many -t test
-  Build and validate API:
+  Build_and_validate_API:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
