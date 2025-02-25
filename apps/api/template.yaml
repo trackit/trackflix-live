@@ -710,6 +710,7 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
