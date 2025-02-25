@@ -23,6 +23,34 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
   private readonly tableName: string;
 
+  /* Contains all attributes to return when listing events or getting one. */
+  private readonly expressionAttributeNames = {
+    '#id': 'id',
+    '#name': 'name',
+    '#description': 'description',
+    '#onAirStartTime': 'onAirStartTime',
+    '#onAirEndTime': 'onAirEndTime',
+    '#createdTime': 'createdTime',
+    '#destroyedTime': 'destroyedTime',
+    '#source': 'source',
+    '#status': 'status',
+    '#liveChannelArn': 'liveChannelArn',
+    '#liveChannelId': 'liveChannelId',
+    '#liveInputId': 'liveInputId',
+    '#logs': 'logs',
+    '#endpoints': 'endpoints',
+  };
+  private readonly projectionExpression = Object.keys(
+    this.expressionAttributeNames
+  ).join(', ');
+
+  private readonly gsiProperties = {
+    'GSI-name-PK': 'name',
+    'GSI-onAirStartTime-PK': 'onAirStartTime',
+    'GSI-onAirEndTime-PK': 'onAirEndTime',
+    'GSI-status-PK': 'status',
+  };
+
   constructor(client: DynamoDBDocumentClient, tableName: string) {
     this.client = client;
     this.tableName = tableName;
@@ -33,6 +61,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
       TableName: this.tableName,
       Item: {
         ...event,
+        ...this.gsiProperties,
       },
     };
 
@@ -42,6 +71,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
   private async listEventsSimple({ limit, nextToken }: ListEventsParams) {
     const params: ScanCommandInput = {
       TableName: this.tableName,
+      ProjectionExpression: this.projectionExpression,
+      ExpressionAttributeNames: this.expressionAttributeNames,
       Limit: limit,
       ExclusiveStartKey: nextToken
         ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
@@ -54,19 +85,20 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return { Items, LastEvaluatedKey } as {
       Items: Event[];
-      LastEvaluatedKey: Event;
+      LastEvaluatedKey: Record<string, string>;
     };
   }
 
   private async listEventsSorted({
     limit,
     nextToken,
-    sortOrder,
+    sortOrder = 'asc',
     sortBy,
   }: ListEventsParams) {
     const params: QueryCommandInput = {
       TableName: this.tableName,
       IndexName: `GSI-${sortBy}`,
+      ProjectionExpression: this.projectionExpression,
       ScanIndexForward: sortOrder === 'asc',
       KeyConditionExpression: '#PK = :PK',
       ExpressionAttributeValues: {
@@ -74,6 +106,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
       ExpressionAttributeNames: {
         '#PK': `GSI-${sortBy}-PK`,
+        ...this.expressionAttributeNames,
       },
       Limit: limit,
       ExclusiveStartKey: nextToken
@@ -87,7 +120,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return { Items, LastEvaluatedKey } as {
       Items: Event[];
-      LastEvaluatedKey: Event;
+      LastEvaluatedKey: Record<string, string>;
     };
   }
 
@@ -98,7 +131,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     sortBy,
   }: ListEventsParams): Promise<ListEventsResponse> {
     let items: Event[];
-    let lastEvaluatedKey: Event;
+    let lastEvaluatedKey: Record<string, string>;
 
     if (sortBy) {
       ({ Items: items, LastEvaluatedKey: lastEvaluatedKey } =
@@ -127,6 +160,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async getEvent(eventId: string): Promise<Event | undefined> {
     const params: GetCommandInput = {
       TableName: this.tableName,
+      ProjectionExpression: this.projectionExpression,
+      ExpressionAttributeNames: this.expressionAttributeNames,
       Key: {
         id: eventId,
       },

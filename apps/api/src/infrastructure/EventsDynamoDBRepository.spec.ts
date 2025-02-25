@@ -12,6 +12,7 @@ import {
   EventStatus,
   LogType,
 } from '@trackflix-live/types';
+import { ListEventsSortEnum } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -39,7 +40,7 @@ describe('EventsDynamoDBRepository', () => {
     const responseFromDB = await ddbClient.send(command);
 
     expect(response).toBeUndefined();
-    expect(responseFromDB.Item).toEqual(sampleEvent);
+    expect(responseFromDB.Item).toMatchObject(sampleEvent);
   });
 
   it('should list events from DynamoDB', async () => {
@@ -50,7 +51,7 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.listEvents({ limit: 10 });
 
-    expect(response.events).toEqual([sampleEvent]);
+    expect(response.events).toMatchObject([sampleEvent]);
     expect(response.nextToken).toBeNull();
   });
 
@@ -89,7 +90,7 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.getEvent(sampleEvent.id);
 
-    expect(response).toEqual(sampleEvent);
+    expect(response).toMatchObject(sampleEvent);
   });
 
   it('should append logs to an event', async () => {
@@ -113,7 +114,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       logs: [log],
     });
@@ -146,7 +147,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       endpoints: [firstEndpoint, newEndpoint],
     });
@@ -170,7 +171,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       status: EventStatus.TX,
     });
@@ -194,7 +195,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       liveChannelArn,
     });
@@ -217,7 +218,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       liveChannelId,
     });
@@ -240,10 +241,100 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       liveInputId,
     });
+  });
+
+  it('should list and sort items by a given attribute in asc order', async () => {
+    const { repository } = setup();
+
+    const event1 = EventMother.basic()
+      .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+      .withName('Event 1')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
+      .withName('Event 2')
+      .build();
+    const event3 = EventMother.basic()
+      .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+      .withName('Event 3')
+      .build();
+    await repository.createEvent(event3);
+    await repository.createEvent(event1);
+    await repository.createEvent(event2);
+
+    const response = await repository.listEvents({
+      limit: 10,
+      sortBy: ListEventsSortEnum.name,
+    });
+
+    expect(response.events).toMatchObject([event1, event2, event3]);
+  });
+
+  it('should list and sort items by a given attribute in desc order', async () => {
+    const { repository } = setup();
+
+    const event1 = EventMother.basic()
+      .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+      .withName('Event 1')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
+      .withName('Event 2')
+      .build();
+    const event3 = EventMother.basic()
+      .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+      .withName('Event 3')
+      .build();
+    await repository.createEvent(event3);
+    await repository.createEvent(event1);
+    await repository.createEvent(event2);
+
+    const response = await repository.listEvents({
+      limit: 10,
+      sortBy: ListEventsSortEnum.name,
+      sortOrder: 'desc',
+    });
+
+    expect(response.events).toMatchObject([event3, event2, event1]);
+  });
+
+  it('should list and sort items by a given attribute in asc order and using pagination', async () => {
+    const { repository } = setup();
+
+    const event1 = EventMother.basic()
+      .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+      .withName('Event 1')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
+      .withName('Event 2')
+      .build();
+    const event3 = EventMother.basic()
+      .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+      .withName('Event 3')
+      .build();
+    await repository.createEvent(event3);
+    await repository.createEvent(event1);
+    await repository.createEvent(event2);
+
+    const response = await repository.listEvents({
+      limit: 2,
+      sortBy: ListEventsSortEnum.name,
+    });
+
+    expect(response.events).toMatchObject([event1, event2]);
+
+    const response2 = await repository.listEvents({
+      limit: 10,
+      sortBy: ListEventsSortEnum.name,
+      nextToken: response.nextToken as string,
+    });
+
+    expect(response2.events).toMatchObject([event3]);
   });
 
   it('should update event destroyed time', async () => {
@@ -288,13 +379,13 @@ const setup = () => {
         AttributeDefinitions: [
           { AttributeName: 'id', AttributeType: 'S' },
           { AttributeName: 'GSI-name-PK', AttributeType: 'S' },
-          { AttributeName: 'GSI-name-SK', AttributeType: 'S' },
+          { AttributeName: 'name', AttributeType: 'S' },
           { AttributeName: 'GSI-onAirStartTime-PK', AttributeType: 'S' },
-          { AttributeName: 'GSI-onAirStartTime-SK', AttributeType: 'S' },
+          { AttributeName: 'onAirStartTime', AttributeType: 'S' },
           { AttributeName: 'GSI-onAirEndTime-PK', AttributeType: 'S' },
-          { AttributeName: 'GSI-onAirEndTime-SK', AttributeType: 'S' },
+          { AttributeName: 'onAirEndTime', AttributeType: 'S' },
           { AttributeName: 'GSI-status-PK', AttributeType: 'S' },
-          { AttributeName: 'GSI-status-SK', AttributeType: 'S' },
+          { AttributeName: 'status', AttributeType: 'S' },
         ],
         KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
         GlobalSecondaryIndexes: [
@@ -302,7 +393,7 @@ const setup = () => {
             IndexName: 'GSI-name',
             KeySchema: [
               { AttributeName: 'GSI-name-PK', KeyType: 'HASH' },
-              { AttributeName: 'GSI-name-SK', KeyType: 'RANGE' },
+              { AttributeName: 'name', KeyType: 'RANGE' },
             ],
             Projection: { ProjectionType: 'ALL' },
           },
@@ -310,7 +401,7 @@ const setup = () => {
             IndexName: 'GSI-onAirStartTime',
             KeySchema: [
               { AttributeName: 'GSI-onAirStartTime-PK', KeyType: 'HASH' },
-              { AttributeName: 'GSI-onAirStartTime-SK', KeyType: 'RANGE' },
+              { AttributeName: 'onAirStartTime', KeyType: 'RANGE' },
             ],
             Projection: { ProjectionType: 'ALL' },
           },
@@ -318,7 +409,7 @@ const setup = () => {
             IndexName: 'GSI-onAirEndTime',
             KeySchema: [
               { AttributeName: 'GSI-onAirEndTime-PK', KeyType: 'HASH' },
-              { AttributeName: 'GSI-onAirEndTime-SK', KeyType: 'RANGE' },
+              { AttributeName: 'onAirEndTime', KeyType: 'RANGE' },
             ],
             Projection: { ProjectionType: 'ALL' },
           },
@@ -326,7 +417,7 @@ const setup = () => {
             IndexName: 'GSI-status',
             KeySchema: [
               { AttributeName: 'GSI-status-PK', KeyType: 'HASH' },
-              { AttributeName: 'GSI-status-SK', KeyType: 'RANGE' },
+              { AttributeName: 'status', KeyType: 'RANGE' },
             ],
             Projection: { ProjectionType: 'ALL' },
           },
