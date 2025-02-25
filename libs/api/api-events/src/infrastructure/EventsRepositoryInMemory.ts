@@ -120,4 +120,18 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
     return event;
   }
+
+  public async updateEventDestroyedTime(
+    eventId: string,
+    destroyedTime: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.destroyedTime = destroyedTime;
+
+    return event;
+  }
 }

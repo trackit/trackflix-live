@@ -1,8 +1,10 @@
 import {
   EventsRepository,
+  EventUpdateSender,
   LiveChannelsManager,
   TaskTokensRepository,
 } from '../../ports';
+import { EventUpdateAction, LogType } from '@trackflix-live/types';
 
 export interface DeleteLiveChannelParameters {
   eventId: string;
@@ -20,18 +22,23 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
 
   private readonly eventsRepository: EventsRepository;
 
+  private readonly eventUpdateSender: EventUpdateSender;
+
   public constructor({
     liveChannelsManager,
     taskTokensRepository,
     eventsRepository,
+    eventUpdateSender,
   }: {
     liveChannelsManager: LiveChannelsManager;
     taskTokensRepository: TaskTokensRepository;
     eventsRepository: EventsRepository;
+    eventUpdateSender: EventUpdateSender;
   }) {
     this.liveChannelsManager = liveChannelsManager;
     this.taskTokensRepository = taskTokensRepository;
     this.eventsRepository = eventsRepository;
+    this.eventUpdateSender = eventUpdateSender;
   }
 
   public async deleteLiveChannel({
@@ -48,6 +55,21 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     ) {
       throw new Error('Missing live channel ID or live channel ARN.');
     }
+
+    const currentTimestamp = Date.now();
+    const eventAfterUpdate = await this.eventsRepository.appendLogsToEvent(
+      eventId,
+      [
+        {
+          timestamp: currentTimestamp,
+          type: LogType.LIVE_CHANNEL_STOPPED,
+        },
+      ]
+    );
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: eventAfterUpdate,
+    });
 
     const { liveChannelArn, liveChannelId } = event;
 

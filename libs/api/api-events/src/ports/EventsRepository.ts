@@ -23,4 +23,8 @@ export interface EventsRepository {
   updateLiveChannelId(eventId: string, liveChannelId: string): Promise<Event>;
   updateLiveChannelArn(eventId: string, liveChannelArn: string): Promise<Event>;
   updateLiveInputId(eventId: string, liveInputId: string): Promise<Event>;
+  updateEventDestroyedTime(
+    eventId: string,
+    destroyedTime: string
+  ): Promise<Event>;
 }

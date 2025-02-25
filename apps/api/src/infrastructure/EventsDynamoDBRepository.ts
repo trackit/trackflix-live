@@ -212,4 +212,28 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
     return response.Attributes as Event;
   }
+
+  public async updateEventDestroyedTime(
+    eventId: string,
+    destroyedTime: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #destroyedTime = :destroyedTime',
+      ExpressionAttributeNames: {
+        '#destroyedTime': 'destroyedTime',
+      },
+      ExpressionAttributeValues: {
+        ':destroyedTime': destroyedTime,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
 }
