@@ -13,11 +13,11 @@ export function TableBody<T extends { id: string }>({
       {table.getRowModel().rows.map((row) => (
         <tr
           key={row.id}
-          className="flex flex-row border-b hover:bg-base-300 cursor-pointer w-full"
+          className="cursor-pointer hover"
           onClick={() => navigate(`/status/${row.original.id}`)}
         >
           {row.getVisibleCells().map((cell) => (
-            <td key={cell.id} className="px-6 py-4 w-1/4">
+            <td key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>
           ))}

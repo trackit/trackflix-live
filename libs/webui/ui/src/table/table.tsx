@@ -78,7 +78,7 @@ export function Table<T extends { id: string }>({
   return (
     <div className="h-full flex flex-col">
       <div className="flex-grow overflow-auto">
-        <table className="flex text-sm text-left w-full h-full flex-col table-fixed">
+        <table className="table w-full h-full">
           <TableHeader table={table} />
           {isPending ? (
             <tbody
@@ -102,6 +102,7 @@ export function Table<T extends { id: string }>({
           className={`btn btn-outline ${
             table.getCanPreviousPage() ? '' : 'btn-disabled'
           }`}
+          disabled={!table.getCanPreviousPage()}
           onClick={() => {
             goToPreviousPage();
           }}
@@ -116,6 +117,7 @@ export function Table<T extends { id: string }>({
             table.getCanNextPage() && nextToken ? '' : 'btn-disabled'
           }`}
           aria-label={'Go to next page'}
+          disabled={!table.getCanNextPage() && nextToken === undefined}
           onClick={() => {
             goToNextPage();
           }}

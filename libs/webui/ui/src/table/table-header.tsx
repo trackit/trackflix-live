@@ -4,9 +4,9 @@ export function TableHeader<T>({ table }: { table: Table<T> }) {
   return (
     <thead>
       {table.getHeaderGroups().map((headerGroup) => (
-        <tr key={headerGroup.id} className={'flex flex-row w-full'}>
+        <tr key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
-            <th key={header.id} className="px-6 py-3 w-1/4">
+            <th key={header.id}>
               {header.isPlaceholder
                 ? null
                 : flexRender(
