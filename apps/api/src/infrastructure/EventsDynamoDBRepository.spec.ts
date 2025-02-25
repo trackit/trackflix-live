@@ -245,6 +245,29 @@ describe('EventsDynamoDBRepository', () => {
       liveInputId,
     });
   });
+
+  it('should update event destroyed time', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    const destroyedTime = '2025-02-25T15:56:34.400Z';
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateEventDestroyedTime(sampleEvent.id, destroyedTime);
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toEqual({
+      ...sampleEvent,
+      destroyedTime,
+    });
+  });
 });
 
 const setup = () => {

@@ -726,6 +726,10 @@ Resources:
       CodeUri: ./src/stateMachines/deleteMediaPackageChannel/
       Handler: handler.main
       Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
