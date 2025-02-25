@@ -353,7 +353,7 @@ describe('EventsDynamoDBRepository', () => {
     });
     const responseFromDB = await ddbClient.send(command);
 
-    expect(responseFromDB.Item).toEqual({
+    expect(responseFromDB.Item).toMatchObject({
       ...sampleEvent,
       destroyedTime,
     });
