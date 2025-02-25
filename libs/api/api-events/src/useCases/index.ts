@@ -12,3 +12,4 @@ export * from './stopLiveChannel';
 export * from './deleteLiveChannel';
 export * from './deleteLiveInput';
 export * from './deletePackageChannel';
+export * from './attachIotPolicy';

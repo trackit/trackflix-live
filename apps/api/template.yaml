@@ -75,6 +75,9 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+              - Effect: Allow
+                Action: "iot:AttachPolicy"
+                Resource: "*"
   PermissionForEventBridgeToInvokeStartLambda:
     Type: AWS::Lambda::Permission
     Properties:
@@ -143,6 +146,23 @@ Resources:
                   - "iot:Subscribe"
                   - "iot:Receive"
                 Resource: "*"
+  IoTCorePolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyName: !Sub "IoTCoreAccessPolicy-${AWS::StackName}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "iot:Connect"
+            Resource: "*"
+          - Effect: Allow
+            Action: "iot:Subscribe"
+            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/${AWS::StackName}"
+          - Effect: Allow
+            Action: "iot:Receive"
+            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
   MediaLiveRole:
     Type: AWS::IAM::Role
     Properties:
@@ -465,6 +485,31 @@ Resources:
             RestApiId: !Ref ApiGateway
             Path: /events
             Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  AttachIotPolicy:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/attachIotPolicy/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          IOT_POLICY: !Sub "IoTCoreAccessPolicy-${AWS::StackName}"
+      Events:
+        AttachIotPolicy:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /iot
+            Method: post
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
