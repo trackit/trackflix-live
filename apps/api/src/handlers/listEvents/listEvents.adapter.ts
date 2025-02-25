@@ -75,9 +75,9 @@ export class ListEventsAdapter {
 
     const parsedLimit = Number(limit) || 10;
 
-    return (await this.useCase.listEvents(
-      parsedLimit,
-      nextToken
-    )) satisfies ListEventsResponse['body'];
+    return (await this.useCase.listEvents({
+      limit: parsedLimit,
+      nextToken,
+    })) satisfies ListEventsResponse['body'];
   }
 }

@@ -1,7 +1,21 @@
 import { EventsRepository, ListEventsResponse } from '../../ports';
 
+export enum ListEventsSortEnum {
+  name = 'name',
+  onAirStartTime = 'onAirStartTime',
+  onAirEndTime = 'onAirEndTime',
+  status = 'status',
+}
+
+export interface ListEventsParams {
+  limit: number;
+  sortBy?: ListEventsSortEnum;
+  sortOrder?: 'asc' | 'desc';
+  nextToken?: string;
+}
+
 export interface ListEventsUseCase {
-  listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
+  listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
@@ -15,10 +29,17 @@ export class ListEventsUseCaseImpl implements ListEventsUseCase {
     this.eventsRepository = eventsRepository;
   }
 
-  public async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
-    return await this.eventsRepository.listEvents(limit, nextToken);
+  public async listEvents({
+    limit,
+    sortBy,
+    sortOrder = 'asc',
+    nextToken,
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    return await this.eventsRepository.listEvents({
+      limit,
+      sortBy,
+      sortOrder,
+      nextToken,
+    });
   }
 }

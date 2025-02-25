@@ -5,6 +5,7 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
+import { ListEventsParams } from '../useCases';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -13,20 +14,45 @@ export class EventsRepositoryInMemory implements EventsRepository {
     this.events.push(event);
   }
 
-  async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
+  async listEvents(params: ListEventsParams): Promise<ListEventsResponse> {
+    const { limit, sortBy, sortOrder, nextToken } = params;
     let startIndex = 0;
 
+    let transformedEvents = this.events;
+    if (sortBy) {
+      transformedEvents = transformedEvents.sort((a, b) => {
+        if (sortBy === 'name') {
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === 'onAirStartTime') {
+          return (
+            new Date(a.onAirStartTime).getTime() -
+            new Date(b.onAirStartTime).getTime()
+          );
+        } else if (sortBy === 'onAirEndTime') {
+          return (
+            new Date(a.onAirEndTime).getTime() -
+            new Date(b.onAirEndTime).getTime()
+          );
+        } else if (sortBy === 'status') {
+          return a.status.localeCompare(b.status);
+        }
+        return 0;
+      });
+    }
+
+    if (sortOrder === 'desc') {
+      transformedEvents = transformedEvents.reverse();
+    }
+
     if (nextToken) {
-      startIndex = this.events.findIndex((event) => event.id === nextToken) + 1;
+      startIndex =
+        transformedEvents.findIndex((event) => event.id === nextToken) + 1;
       if (startIndex <= 0) {
         throw new Error('Invalid token');
       }
     }
 
-    const events = this.events.slice(startIndex, startIndex + limit);
+    const events = transformedEvents.slice(startIndex, startIndex + limit);
     const lastEvaluatedKey =
       events.length === limit ? events[events.length - 1].id : null;
 

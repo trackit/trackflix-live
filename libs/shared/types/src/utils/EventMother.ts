@@ -42,6 +42,21 @@ export class EventMother {
     return this;
   }
 
+  public withName(name: string): EventMother {
+    this.data.name = name;
+    return this;
+  }
+
+  public withOnAirStartTime(onAirStartTime: string): EventMother {
+    this.data.onAirStartTime = onAirStartTime;
+    return this;
+  }
+
+  public withOnAirEndTime(onAirEndTime: string): EventMother {
+    this.data.onAirEndTime = onAirEndTime;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',

@@ -397,9 +397,58 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: "S"
+        - AttributeName: GSI-name-PK
+          AttributeType: "S"
+        - AttributeName: GSI-name-SK
+          AttributeType: "S"
+        - AttributeName: GSI-onAirStartTime-PK
+          AttributeType: "S"
+        - AttributeName: GSI-onAirStartTime-SK
+          AttributeType: "S"
+        - AttributeName: GSI-onAirEndTime-PK
+          AttributeType: "S"
+        - AttributeName: GSI-onAirEndTime-SK
+          AttributeType: "S"
+        - AttributeName: GSI-status-PK
+          AttributeType: "S"
+        - AttributeName: GSI-status-SK
+          AttributeType: "S"
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: GSI-name
+          KeySchema:
+            - AttributeName: GSI-name-PK
+              KeyType: HASH
+            - AttributeName: GSI-name-SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirStartTime
+          KeySchema:
+            - AttributeName: GSI-onAirStartTime-PK
+              KeyType: HASH
+            - AttributeName: GSI-onAirStartTime-SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirEndTime
+          KeySchema:
+            - AttributeName: GSI-onAirEndTime-PK
+              KeyType: HASH
+            - AttributeName: GSI-onAirEndTime-SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-status
+          KeySchema:
+            - AttributeName: GSI-status-PK
+              KeyType: HASH
+            - AttributeName: GSI-status-SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
   TaskTokensTable:
     Type: AWS::DynamoDB::Table

@@ -48,7 +48,7 @@ describe('EventsDynamoDBRepository', () => {
     const sampleEvent = EventMother.basic().build();
     await repository.createEvent(sampleEvent);
 
-    const response = await repository.listEvents(10);
+    const response = await repository.listEvents({ limit: 10 });
 
     expect(response.events).toEqual([sampleEvent]);
     expect(response.nextToken).toBeNull();
@@ -67,15 +67,15 @@ describe('EventsDynamoDBRepository', () => {
       EventMother.basic().withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70').build()
     );
 
-    const response = await repository.listEvents(1);
+    const response = await repository.listEvents({ limit: 1 });
 
     expect(response.events.length).toBe(1);
     expect(response.nextToken).toBeDefined();
 
-    const response2 = await repository.listEvents(
-      3,
-      response.nextToken as string
-    );
+    const response2 = await repository.listEvents({
+      limit: 3,
+      nextToken: response.nextToken as string,
+    });
 
     expect(response2.events.length).toBe(2);
     expect(response2.nextToken).toBeNull();
@@ -285,12 +285,53 @@ const setup = () => {
     await dynamoDBClient.send(
       new CreateTableCommand({
         TableName: 'EventsTable',
-        AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+        AttributeDefinitions: [
+          { AttributeName: 'id', AttributeType: 'S' },
+          { AttributeName: 'GSI-name-PK', AttributeType: 'S' },
+          { AttributeName: 'GSI-name-SK', AttributeType: 'S' },
+          { AttributeName: 'GSI-onAirStartTime-PK', AttributeType: 'S' },
+          { AttributeName: 'GSI-onAirStartTime-SK', AttributeType: 'S' },
+          { AttributeName: 'GSI-onAirEndTime-PK', AttributeType: 'S' },
+          { AttributeName: 'GSI-onAirEndTime-SK', AttributeType: 'S' },
+          { AttributeName: 'GSI-status-PK', AttributeType: 'S' },
+          { AttributeName: 'GSI-status-SK', AttributeType: 'S' },
+        ],
         KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
-        ProvisionedThroughput: {
-          ReadCapacityUnits: 1,
-          WriteCapacityUnits: 1,
-        },
+        GlobalSecondaryIndexes: [
+          {
+            IndexName: 'GSI-name',
+            KeySchema: [
+              { AttributeName: 'GSI-name-PK', KeyType: 'HASH' },
+              { AttributeName: 'GSI-name-SK', KeyType: 'RANGE' },
+            ],
+            Projection: { ProjectionType: 'ALL' },
+          },
+          {
+            IndexName: 'GSI-onAirStartTime',
+            KeySchema: [
+              { AttributeName: 'GSI-onAirStartTime-PK', KeyType: 'HASH' },
+              { AttributeName: 'GSI-onAirStartTime-SK', KeyType: 'RANGE' },
+            ],
+            Projection: { ProjectionType: 'ALL' },
+          },
+          {
+            IndexName: 'GSI-onAirEndTime',
+            KeySchema: [
+              { AttributeName: 'GSI-onAirEndTime-PK', KeyType: 'HASH' },
+              { AttributeName: 'GSI-onAirEndTime-SK', KeyType: 'RANGE' },
+            ],
+            Projection: { ProjectionType: 'ALL' },
+          },
+          {
+            IndexName: 'GSI-status',
+            KeySchema: [
+              { AttributeName: 'GSI-status-PK', KeyType: 'HASH' },
+              { AttributeName: 'GSI-status-SK', KeyType: 'RANGE' },
+            ],
+            Projection: { ProjectionType: 'ALL' },
+          },
+        ],
+        BillingMode: 'PAY_PER_REQUEST',
       })
     );
   };

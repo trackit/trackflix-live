@@ -1,5 +1,6 @@
 import {
   EventsRepository,
+  ListEventsParams,
   ListEventsResponse,
 } from '@trackflix-live/api-events';
 import {
@@ -8,6 +9,8 @@ import {
   GetCommandInput,
   PutCommand,
   PutCommandInput,
+  QueryCommand,
+  QueryCommandInput,
   ScanCommand,
   ScanCommandInput,
   UpdateCommand,
@@ -28,16 +31,15 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async createEvent(event: Event): Promise<void> {
     const params: PutCommandInput = {
       TableName: this.tableName,
-      Item: event,
+      Item: {
+        ...event,
+      },
     };
 
     await this.client.send(new PutCommand(params));
   }
 
-  async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
+  private async listEventsSimple({ limit, nextToken }: ListEventsParams) {
     const params: ScanCommandInput = {
       TableName: this.tableName,
       Limit: limit,
@@ -50,10 +52,74 @@ export class EventsDynamoDBRepository implements EventsRepository {
       new ScanCommand(params)
     );
 
+    return { Items, LastEvaluatedKey } as {
+      Items: Event[];
+      LastEvaluatedKey: Event;
+    };
+  }
+
+  private async listEventsSorted({
+    limit,
+    nextToken,
+    sortOrder,
+    sortBy,
+  }: ListEventsParams) {
+    const params: QueryCommandInput = {
+      TableName: this.tableName,
+      IndexName: `GSI-${sortBy}`,
+      ScanIndexForward: sortOrder === 'asc',
+      KeyConditionExpression: '#PK = :PK',
+      ExpressionAttributeValues: {
+        ':PK': sortBy,
+      },
+      ExpressionAttributeNames: {
+        '#PK': `GSI-${sortBy}-PK`,
+      },
+      Limit: limit,
+      ExclusiveStartKey: nextToken
+        ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
+        : undefined,
+    };
+
+    const { Items, LastEvaluatedKey } = await this.client.send(
+      new QueryCommand(params)
+    );
+
+    return { Items, LastEvaluatedKey } as {
+      Items: Event[];
+      LastEvaluatedKey: Event;
+    };
+  }
+
+  async listEvents({
+    limit,
+    nextToken,
+    sortOrder,
+    sortBy,
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    let items: Event[];
+    let lastEvaluatedKey: Event;
+
+    if (sortBy) {
+      ({ Items: items, LastEvaluatedKey: lastEvaluatedKey } =
+        await this.listEventsSorted({
+          limit,
+          nextToken,
+          sortOrder,
+          sortBy,
+        }));
+    } else {
+      ({ Items: items, LastEvaluatedKey: lastEvaluatedKey } =
+        await this.listEventsSimple({
+          limit,
+          nextToken,
+        }));
+    }
+
     return {
-      events: Items as Event[],
-      nextToken: LastEvaluatedKey
-        ? Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64')
+      events: items as Event[],
+      nextToken: lastEvaluatedKey
+        ? Buffer.from(JSON.stringify(lastEvaluatedKey)).toString('base64')
         : null,
     };
   }
