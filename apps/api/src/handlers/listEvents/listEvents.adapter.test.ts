@@ -66,6 +66,37 @@ describe('List events adapter', () => {
     });
   });
 
+  it('should return a successful response is a sort attribute is defined', async () => {
+    const { adapter, useCase, sampleEvent } = setup();
+    const event1 = EventMother.basic()
+      .withId('bbaf9b7d-5f75-468d-b81d-8ba7637af888')
+      .withName('Event 1')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('7d64ba46-8c8e-41e8-87fc-a3c1b02cda76')
+      .withName('Event 2')
+      .build();
+
+    useCase.listEvents.mockImplementationOnce(() => ({
+      events: [event1, event2],
+      nextToken: null,
+    }));
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        limit: '2',
+        sortBy: 'name',
+        sortOrder: 'asc',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({
+      events: [event1, event2],
+      nextToken: null,
+    });
+  });
+
   it('should return a response with status code 400 if the limit is invalid', async () => {
     const { adapter } = setup();
 

@@ -12,6 +12,8 @@ export type ListEventsRequest = {
   queryStringParameters: {
     limit?: string;
     nextToken?: string;
+    sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
+    sortOrder?: 'asc' | 'desc';
   };
 };
 export type ListEventsResponse = {

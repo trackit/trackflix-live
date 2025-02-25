@@ -12,7 +12,6 @@ import {
   EventStatus,
   LogType,
 } from '@trackflix-live/types';
-import { ListEventsSortEnum } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -268,7 +267,7 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
     });
 
     expect(response.events).toMatchObject([event1, event2, event3]);
@@ -295,7 +294,7 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
       sortOrder: 'desc',
     });
 
@@ -323,14 +322,14 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.listEvents({
       limit: 2,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
     });
 
     expect(response.events).toMatchObject([event1, event2]);
 
     const response2 = await repository.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
       nextToken: response.nextToken as string,
     });
 

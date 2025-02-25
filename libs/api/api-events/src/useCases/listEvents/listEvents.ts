@@ -1,15 +1,8 @@
 import { EventsRepository, ListEventsResponse } from '../../ports';
 
-export enum ListEventsSortEnum {
-  name = 'name',
-  onAirStartTime = 'onAirStartTime',
-  onAirEndTime = 'onAirEndTime',
-  status = 'status',
-}
-
 export interface ListEventsParams {
   limit: number;
-  sortBy?: ListEventsSortEnum;
+  sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
   sortOrder?: 'asc' | 'desc';
   nextToken?: string;
 }
