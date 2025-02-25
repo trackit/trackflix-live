@@ -86,7 +86,10 @@ export function Table<T extends { id: string }>({
                 'flex content-center justify-center center h-full w-full'
               }
             >
-              <tr className="loading loading-dots loading-lg"></tr>
+              <tr
+                className="loading loading-dots loading-lg"
+                data-testid="loader"
+              ></tr>
             </tbody>
           ) : (
             <TableBody table={table} />
@@ -95,6 +98,7 @@ export function Table<T extends { id: string }>({
       </div>
       <div className="flex justify-center items-center space-x-4 w-full p-4 border-t">
         <button
+          aria-label={'Go to previous page'}
           className={`btn btn-outline ${
             table.getCanPreviousPage() ? '' : 'btn-disabled'
           }`}
@@ -111,6 +115,7 @@ export function Table<T extends { id: string }>({
           className={`btn btn-outline ${
             table.getCanNextPage() && nextToken ? '' : 'btn-disabled'
           }`}
+          aria-label={'Go to next page'}
           onClick={() => {
             goToNextPage();
           }}
