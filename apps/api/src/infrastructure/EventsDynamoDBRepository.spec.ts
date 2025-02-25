@@ -12,6 +12,7 @@ import {
   EventStatus,
   LogType,
 } from '@trackflix-live/types';
+import { ListEventsSortEnum } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
