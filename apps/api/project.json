@@ -17,6 +17,12 @@
         "cwd": "apps/api"
       }
     },
+    "validate": {
+      "command": "sam validate",
+      "options": {
+        "cwd": "apps/api"
+      }
+    },
     "deploy": {
       "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\"",
       "options": {
