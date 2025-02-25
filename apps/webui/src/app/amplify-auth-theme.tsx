@@ -14,7 +14,7 @@ export function AuthStyle({ children }: AuthStyleProps) {
   const { tokens } = useTheme();
 
   const theme: Theme = {
-    name: 'Auth Example Theme',
+    name: 'Auth Theme',
     tokens: {
       components: {
         authenticator: {
@@ -61,14 +61,12 @@ export function AuthStyle({ children }: AuthStyleProps) {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Authenticator
-        className="w-full content-center justify-center"
-        hideSignUp
-        loginMechanism={'email'}
-      >
-        {children}
-      </Authenticator>
-    </ThemeProvider>
+    <div className="w-full content-center h-full justify-center">
+      <ThemeProvider theme={theme}>
+        <Authenticator hideSignUp loginMechanism={'email'}>
+          {children}
+        </Authenticator>
+      </ThemeProvider>
+    </div>
   );
 }

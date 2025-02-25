@@ -14,9 +14,9 @@ Amplify.configure(amplifyConfig);
 
 export function App() {
   return (
-    <AuthStyle>
-      <SnackbarProvider />
-      <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen">
+      <AuthStyle>
+        <SnackbarProvider />
         <Topbar />
         <div
           className={
@@ -27,8 +27,8 @@ export function App() {
             <Route index element={<SingleAssetFlow />} />
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>
-        </AuthStyle>
-      </div>
+        </div>
+      </AuthStyle>
     </div>
   );
 }
