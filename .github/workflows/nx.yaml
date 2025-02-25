@@ -37,6 +37,16 @@ jobs:
           sleep 10
       - run: npm ci
       - run: npx nx run-many -t test
+  Typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - run: npx nx run-many -t typecheck
   Build_and_validate_API:
     runs-on: ubuntu-latest
     steps:
