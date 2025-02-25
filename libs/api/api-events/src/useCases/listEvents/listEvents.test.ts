@@ -1,4 +1,4 @@
-import { ListEventsSortEnum, ListEventsUseCaseImpl } from './listEvents';
+import { ListEventsUseCaseImpl } from './listEvents';
 import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
 import { EventMother, EventStatus } from '@trackflix-live/types';
 
@@ -65,7 +65,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
       sortOrder: 'asc',
     });
 
@@ -87,7 +87,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
       sortOrder: 'desc',
     });
 
@@ -109,7 +109,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.name,
+      sortBy: 'name',
     });
 
     expect(events.events.map((event) => event.name)).toEqual([
@@ -130,7 +130,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.onAirStartTime,
+      sortBy: 'onAirStartTime',
     });
 
     expect(events.events.map((event) => event.onAirStartTime)).toEqual([
@@ -151,7 +151,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.onAirEndTime,
+      sortBy: 'onAirEndTime',
     });
 
     expect(events.events.map((event) => event.onAirEndTime)).toEqual([
@@ -172,7 +172,7 @@ describe('ListEvents use case', () => {
 
     const events = await useCase.listEvents({
       limit: 10,
-      sortBy: ListEventsSortEnum.status,
+      sortBy: 'status',
     });
 
     expect(events.events.map((event) => event.status)).toEqual([
