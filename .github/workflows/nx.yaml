@@ -47,7 +47,7 @@ jobs:
           node-version: '20.x'
       - run: npm ci
       - run: npx nx run-many -t typecheck
-  Build_and_validate_API:
+  Validate_API_template:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,5 +56,4 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
-      - run: npx nx run api:build
       - run: npx nx run api:validate
