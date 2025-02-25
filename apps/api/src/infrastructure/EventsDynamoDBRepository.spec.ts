@@ -387,6 +387,10 @@ const setup = () => {
           { AttributeName: 'status', AttributeType: 'S' },
         ],
         KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 1,
+          WriteCapacityUnits: 1,
+        },
         GlobalSecondaryIndexes: [
           {
             IndexName: 'GSI-name',
