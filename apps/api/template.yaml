@@ -671,6 +671,7 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

@@ -1,8 +1,10 @@
 import {
   EventsRepository,
+  EventUpdateSender,
   LiveChannelsManager,
   TaskTokensRepository,
 } from '../../ports';
+import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 
 export interface StopLiveChannelParameters {
   eventId: string;
@@ -20,18 +22,23 @@ export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
 
   private readonly eventsRepository: EventsRepository;
 
+  private readonly eventUpdateSender: EventUpdateSender;
+
   public constructor({
     liveChannelsManager,
     taskTokensRepository,
     eventsRepository,
+    eventUpdateSender,
   }: {
     liveChannelsManager: LiveChannelsManager;
     taskTokensRepository: TaskTokensRepository;
     eventsRepository: EventsRepository;
+    eventUpdateSender: EventUpdateSender;
   }) {
     this.liveChannelsManager = liveChannelsManager;
     this.taskTokensRepository = taskTokensRepository;
     this.eventsRepository = eventsRepository;
+    this.eventUpdateSender = eventUpdateSender;
   }
 
   public async stopLiveChannel({
@@ -48,6 +55,15 @@ export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
     ) {
       throw new Error('Missing live channel ID or live channel ARN.');
     }
+
+    const eventAfterUpdate = await this.eventsRepository.updateEventStatus(
+      eventId,
+      EventStatus.POST_TX
+    );
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: eventAfterUpdate,
+    });
 
     const { liveChannelArn, liveChannelId } = event;
 
