@@ -359,6 +359,36 @@ describe('EventsDynamoDBRepository', () => {
       destroyedTime,
     });
   });
+
+
+  it.only('should return results matching name when specified', async () => {
+    const { repository } = setup();
+
+    const event1 = EventMother.basic()
+      .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+      .withName('Moto GP Race')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
+      .withName('F1 Race car')
+      .build();
+    const event3 = EventMother.basic()
+      .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+      .withName('CS:GO Tournament EUW 2025')
+      .build();
+    await repository.createEvent(event1);
+    await repository.createEvent(event2);
+    await repository.createEvent(event3);
+
+    const response = await repository.listEvents({
+      limit: 10,
+      name: 'Race',
+      sortBy: 'name',
+      sortOrder: 'asc',
+    });
+
+    expect(response.events).toMatchObject([event2, event1]);
+  });
 });
 
 const setup = () => {

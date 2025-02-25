@@ -75,6 +75,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     nextToken,
     sortOrder = 'asc',
     sortBy,
+    name,
   }: ListEventsParams): Promise<ListEventsResponse> {
     const defaultInput: QueryCommandInput | ScanCommandInput = {
       TableName: this.tableName,

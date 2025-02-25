@@ -51,6 +51,7 @@ const schema: JSONSchemaType<ListEventsRequest['queryStringParameters']> = {
       enum: ['name', 'onAirStartTime', 'onAirEndTime', 'status'],
     },
     sortOrder: { type: 'string', nullable: true, enum: ['asc', 'desc'] },
+    name: { type: 'string', nullable: true },
   },
   dependencies: {
     sortOrder: ['sortBy'],
@@ -75,7 +76,7 @@ export class ListEventsAdapter {
 
   public async processRequest(event: APIGatewayProxyEventV2) {
     const queryParams = event.queryStringParameters || {};
-    const { limit, nextToken, sortBy, sortOrder } =
+    const { limit, nextToken, sortBy, sortOrder, name } =
       queryParams as ListEventsRequest['queryStringParameters'];
 
     if (!ajv.validate(schema, queryParams)) {
@@ -89,6 +90,7 @@ export class ListEventsAdapter {
       nextToken,
       sortBy,
       sortOrder,
+      name,
     })) satisfies ListEventsResponse['body'];
   }
 }
