@@ -27,6 +27,7 @@ module.exports = [
               sourceTag: 'type:app',
               onlyDependOnLibsWithTags: [
                 'type:feature',
+                'type:infra',
                 'type:ui',
                 'type:types',
                 'type:utils',
