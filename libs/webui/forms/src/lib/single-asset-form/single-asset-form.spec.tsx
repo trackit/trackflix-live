@@ -94,11 +94,13 @@ describe('SingleAssetForm', () => {
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
         .startOf('minute')
-        .toJSDate(),
+        .toUTC()
+        .toISO(),
       onAirEndTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 2 })
         .startOf('minute')
-        .toJSDate(),
+        .toUTC()
+        .toISO(),
     });
   });
 
