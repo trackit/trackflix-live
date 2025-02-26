@@ -23,7 +23,6 @@ const getStatusColorClass = (status: EventStatus | undefined) => {
     case 'TX':
       return 'border-error text-error';
     case 'POST-TX':
-    case 'CONFIRMED':
     case 'ENDED':
       return 'border-success text-success';
     default:
@@ -39,7 +38,6 @@ const getStatusIcon = (status: EventStatus | undefined) => {
       return <Play className="w-4 h-4" />;
     case 'POST-TX':
       return <Check className="w-4 h-4" />;
-    case 'CONFIRMED':
     case 'ENDED':
       return <CheckCheck className="w-4 h-4" />;
   }
