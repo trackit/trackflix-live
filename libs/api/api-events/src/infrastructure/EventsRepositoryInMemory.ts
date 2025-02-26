@@ -5,7 +5,7 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
-import { ListEventsParams } from '../useCases';
+import { ListEventsParams } from '../ports';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];

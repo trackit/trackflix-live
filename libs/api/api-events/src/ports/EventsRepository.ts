@@ -4,7 +4,13 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
-import { ListEventsParams } from '../useCases';
+
+export interface ListEventsParams {
+  limit: number;
+  sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
+  sortOrder?: 'asc' | 'desc';
+  nextToken?: string;
+}
 
 export interface ListEventsResponse {
   events: Event[];

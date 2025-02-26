@@ -1,11 +1,8 @@
-import { EventsRepository, ListEventsResponse } from '../../ports';
-
-export interface ListEventsParams {
-  limit: number;
-  sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
-  sortOrder?: 'asc' | 'desc';
-  nextToken?: string;
-}
+import {
+  EventsRepository,
+  ListEventsParams,
+  ListEventsResponse,
+} from '../../ports';
 
 export interface ListEventsUseCase {
   listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
