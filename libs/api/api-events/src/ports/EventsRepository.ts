@@ -10,6 +10,7 @@ export interface ListEventsParams {
   sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
   sortOrder?: 'asc' | 'desc';
   nextToken?: string;
+  name?: string;
 }
 
 export interface ListEventsResponse {

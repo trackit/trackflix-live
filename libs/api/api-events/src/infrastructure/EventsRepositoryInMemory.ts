@@ -15,7 +15,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   }
 
   async listEvents(params: ListEventsParams): Promise<ListEventsResponse> {
-    const { limit, sortBy, sortOrder, nextToken } = params;
+    const { limit, sortBy, sortOrder, nextToken, name } = params;
     let startIndex = 0;
 
     let transformedEvents = this.events;
@@ -45,6 +45,12 @@ export class EventsRepositoryInMemory implements EventsRepository {
 
     if (sortOrder === 'desc') {
       transformedEvents = transformedEvents.reverse();
+    }
+
+    if (name) {
+      transformedEvents = transformedEvents.filter((event) =>
+        event.name.toLowerCase().includes(name.toLowerCase())
+      );
     }
 
     if (nextToken) {

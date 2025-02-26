@@ -24,12 +24,14 @@ export class ListEventsUseCaseImpl implements ListEventsUseCase {
     sortBy,
     sortOrder = 'asc',
     nextToken,
+    name,
   }: ListEventsParams): Promise<ListEventsResponse> {
     return await this.eventsRepository.listEvents({
       limit,
       sortBy,
       sortOrder,
       nextToken,
+      name,
     });
   }
 }

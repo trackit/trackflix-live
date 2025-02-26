@@ -97,6 +97,35 @@ describe('List events adapter', () => {
     });
   });
 
+  it('should return the events matching a name if specified', async () => {
+    const { adapter, useCase } = setup();
+    const event1 = EventMother.basic()
+      .withId('bbaf9b7d-5f75-468d-b81d-8ba7637af888')
+      .withName('OSS 117 Is Not Dead')
+      .build();
+    const event3 = EventMother.basic()
+      .withId('01bc2f48-56bc-4274-988e-ff8ed1064f40')
+      .withName('OSS 117: Cairo, Nest of Spies')
+      .build();
+
+    useCase.listEvents.mockImplementationOnce(() => ({
+      events: [event1, event3],
+      nextToken: null,
+    }));
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        name: 'oss 117',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({
+      events: [event1, event3],
+      nextToken: null,
+    });
+  });
+
   it('should return a response with status code 400 if the limit is invalid', async () => {
     const { adapter } = setup();
 

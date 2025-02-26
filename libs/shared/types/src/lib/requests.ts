@@ -14,6 +14,7 @@ export type ListEventsRequest = {
     nextToken?: string;
     sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
     sortOrder?: 'asc' | 'desc';
+    name?: string;
   };
 };
 export type ListEventsResponse = {
