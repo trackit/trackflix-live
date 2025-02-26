@@ -37,8 +37,10 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
+                  - "dynamodb:Query"
                 Resource:
                   - !GetAtt EventsTable.Arn
+                  - !Sub "${EventsTable.Arn}/index/*"
               - Effect: Allow
                 Action:
                   - "dynamodb:GetItem"
@@ -397,9 +399,58 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: "S"
+        - AttributeName: GSI-name-PK
+          AttributeType: "S"
+        - AttributeName: name
+          AttributeType: "S"
+        - AttributeName: GSI-onAirStartTime-PK
+          AttributeType: "S"
+        - AttributeName: onAirStartTime
+          AttributeType: "S"
+        - AttributeName: GSI-onAirEndTime-PK
+          AttributeType: "S"
+        - AttributeName: onAirEndTime
+          AttributeType: "S"
+        - AttributeName: GSI-status-PK
+          AttributeType: "S"
+        - AttributeName: status
+          AttributeType: "S"
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: GSI-name
+          KeySchema:
+            - AttributeName: GSI-name-PK
+              KeyType: HASH
+            - AttributeName: name
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirStartTime
+          KeySchema:
+            - AttributeName: GSI-onAirStartTime-PK
+              KeyType: HASH
+            - AttributeName: onAirStartTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirEndTime
+          KeySchema:
+            - AttributeName: GSI-onAirEndTime-PK
+              KeyType: HASH
+            - AttributeName: onAirEndTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-status
+          KeySchema:
+            - AttributeName: GSI-status-PK
+              KeyType: HASH
+            - AttributeName: status
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
   TaskTokensTable:
     Type: AWS::DynamoDB::Table

@@ -5,6 +5,13 @@ import {
   EventStatus,
 } from '@trackflix-live/types';
 
+export interface ListEventsParams {
+  limit: number;
+  sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
+  sortOrder?: 'asc' | 'desc';
+  nextToken?: string;
+}
+
 export interface ListEventsResponse {
   events: Event[];
   nextToken: string | null;
@@ -12,7 +19,7 @@ export interface ListEventsResponse {
 
 export interface EventsRepository {
   createEvent(event: Event): Promise<void>;
-  listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
+  listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
   getEvent(eventId: string): Promise<Event | undefined>;
   appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event>;
   appendEndpointsToEvent(

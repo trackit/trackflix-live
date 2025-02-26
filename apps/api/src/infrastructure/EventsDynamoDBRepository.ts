@@ -1,5 +1,6 @@
 import {
   EventsRepository,
+  ListEventsParams,
   ListEventsResponse,
 } from '@trackflix-live/api-events';
 import {
@@ -8,8 +9,12 @@ import {
   GetCommandInput,
   PutCommand,
   PutCommandInput,
+  QueryCommand,
+  QueryCommandInput,
+  QueryCommandOutput,
   ScanCommand,
   ScanCommandInput,
+  ScanCommandOutput,
   UpdateCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
@@ -20,6 +25,34 @@ export class EventsDynamoDBRepository implements EventsRepository {
 
   private readonly tableName: string;
 
+  /* Contains all attributes to return when listing events or getting one. */
+  private readonly expressionAttributeNames = {
+    '#id': 'id',
+    '#name': 'name',
+    '#description': 'description',
+    '#onAirStartTime': 'onAirStartTime',
+    '#onAirEndTime': 'onAirEndTime',
+    '#createdTime': 'createdTime',
+    '#destroyedTime': 'destroyedTime',
+    '#source': 'source',
+    '#status': 'status',
+    '#liveChannelArn': 'liveChannelArn',
+    '#liveChannelId': 'liveChannelId',
+    '#liveInputId': 'liveInputId',
+    '#logs': 'logs',
+    '#endpoints': 'endpoints',
+  };
+  private readonly projectionExpression = Object.keys(
+    this.expressionAttributeNames
+  ).join(', ');
+
+  private readonly gsiProperties = {
+    'GSI-name-PK': 'name',
+    'GSI-onAirStartTime-PK': 'onAirStartTime',
+    'GSI-onAirEndTime-PK': 'onAirEndTime',
+    'GSI-status-PK': 'status',
+  };
+
   constructor(client: DynamoDBDocumentClient, tableName: string) {
     this.client = client;
     this.tableName = tableName;
@@ -28,32 +61,60 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async createEvent(event: Event): Promise<void> {
     const params: PutCommandInput = {
       TableName: this.tableName,
-      Item: event,
+      Item: {
+        ...event,
+        ...this.gsiProperties,
+      },
     };
 
     await this.client.send(new PutCommand(params));
   }
 
-  async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
-    const params: ScanCommandInput = {
+  async listEvents({
+    limit,
+    nextToken,
+    sortOrder = 'asc',
+    sortBy,
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    const defaultInput: QueryCommandInput | ScanCommandInput = {
       TableName: this.tableName,
+      ProjectionExpression: this.projectionExpression,
       Limit: limit,
       ExclusiveStartKey: nextToken
         ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
         : undefined,
+      ExpressionAttributeNames: this.expressionAttributeNames,
     };
+    let response: ScanCommandOutput | QueryCommandOutput;
 
-    const { Items, LastEvaluatedKey } = await this.client.send(
-      new ScanCommand(params)
-    );
+    if (sortBy) {
+      response = (await this.client.send(
+        new QueryCommand({
+          ...(defaultInput satisfies QueryCommandInput),
+          IndexName: `GSI-${sortBy}`,
+          ScanIndexForward: sortOrder === 'asc',
+          KeyConditionExpression: '#PK = :PK',
+          ExpressionAttributeValues: {
+            ':PK': sortBy,
+          },
+          ExpressionAttributeNames: {
+            '#PK': `GSI-${sortBy}-PK`,
+            ...this.expressionAttributeNames,
+          },
+        })
+      )) satisfies QueryCommandOutput;
+    } else {
+      response = (await this.client.send(
+        new ScanCommand(defaultInput satisfies ScanCommandInput)
+      )) satisfies ScanCommandOutput;
+    }
 
     return {
-      events: Items as Event[],
-      nextToken: LastEvaluatedKey
-        ? Buffer.from(JSON.stringify(LastEvaluatedKey)).toString('base64')
+      events: response.Items as Event[],
+      nextToken: response.LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString(
+            'base64'
+          )
         : null,
     };
   }
@@ -61,6 +122,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
   async getEvent(eventId: string): Promise<Event | undefined> {
     const params: GetCommandInput = {
       TableName: this.tableName,
+      ProjectionExpression: this.projectionExpression,
+      ExpressionAttributeNames: this.expressionAttributeNames,
       Key: {
         id: eventId,
       },
