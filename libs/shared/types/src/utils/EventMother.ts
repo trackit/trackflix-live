@@ -57,27 +57,6 @@ export class EventMother {
     return this;
   }
 
-  public static allProperties() {
-    return new EventMother({
-      id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
-      name: 'Formula 1 Monaco Grand Prix',
-      description:
-        'Live broadcast of the Formula 1 Monaco Grand Prix, featuring the top drivers battling on the iconic street circuit.',
-      onAirStartTime: '2025-01-22T10:00:00.000Z',
-      onAirEndTime: '2025-01-22T20:00:00.000Z',
-      createdTime: '2025-01-20T09:00:00.000Z',
-      source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
-      destroyedTime: '2025-01-23T20:00:00.000Z',
-      status: EventStatus.PRE_TX,
-      endpoints: [],
-      logs: [],
-      liveChannelArn:
-        'arn:aws:medialive:eu-west-1:123456789012:channel:1234567',
-      liveChannelId: '1234567',
-      liveInputId: '1234567',
-    });
-  }
-
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
