@@ -21,20 +21,23 @@ export class EventsRepositoryInMemory implements EventsRepository {
     let transformedEvents = this.events;
     if (sortBy) {
       transformedEvents = transformedEvents.sort((a, b) => {
-        if (sortBy === 'name') {
-          return a.name.localeCompare(b.name);
-        } else if (sortBy === 'onAirStartTime') {
-          return (
-            new Date(a.onAirStartTime).getTime() -
-            new Date(b.onAirStartTime).getTime()
-          );
-        } else if (sortBy === 'onAirEndTime') {
-          return (
-            new Date(a.onAirEndTime).getTime() -
-            new Date(b.onAirEndTime).getTime()
-          );
-        } else if (sortBy === 'status') {
-          return a.status.localeCompare(b.status);
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name);
+          case 'onAirStartTime':
+            return (
+              new Date(a.onAirStartTime).getTime() -
+              new Date(b.onAirStartTime).getTime()
+            );
+          case 'onAirEndTime':
+            return (
+              new Date(a.onAirEndTime).getTime() -
+              new Date(b.onAirEndTime).getTime()
+            );
+          case 'status':
+            return a.status.localeCompare(b.status);
+          default:
+            break;
         }
         return 0;
       });
