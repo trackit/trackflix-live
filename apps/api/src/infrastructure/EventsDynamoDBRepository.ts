@@ -81,20 +81,26 @@ export class EventsDynamoDBRepository implements EventsRepository {
     const defaultInput: QueryCommandInput | ScanCommandInput = {
       TableName: this.tableName,
       ProjectionExpression: this.projectionExpression,
-      FilterExpression: name ? 'contains(#nameLowercase, :nameLowercase)' : undefined,
       Limit: limit,
       ExclusiveStartKey: nextToken
         ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
         : undefined,
-      ExpressionAttributeNames: {
-        this.expressionAttributeNames,
-        (name ? '#nameLowercase': 'nameLowercase'),
-      },
-      ExpressionAttributeValues: name ? {
-        ':nameLowercase': name.trim().toLowerCase(),
-      } : undefined,
+      ExpressionAttributeNames: this.expressionAttributeNames,
     };
     let response: ScanCommandOutput | QueryCommandOutput;
+
+    if (name) {
+      defaultInput.FilterExpression =
+        'contains(#nameLowercase, :nameLowercase)';
+      defaultInput.ExpressionAttributeNames = {
+        ...defaultInput.ExpressionAttributeNames,
+        '#nameLowercase': 'nameLowercase',
+      };
+      defaultInput.ExpressionAttributeValues = {
+        ...defaultInput.ExpressionAttributeValues,
+        ':nameLowercase': name.trim().toLowerCase(),
+      };
+    }
 
     if (sortBy) {
       response = (await this.client.send(
@@ -104,11 +110,11 @@ export class EventsDynamoDBRepository implements EventsRepository {
           ScanIndexForward: sortOrder === 'asc',
           KeyConditionExpression: '#PK = :PK',
           ExpressionAttributeValues: {
-            ...defaultParams.ExpressionAttributeValues,
+            ...defaultInput.ExpressionAttributeValues,
             ':PK': sortBy,
           },
           ExpressionAttributeNames: {
-            ...defaultParams.ExpressionAttributeNames,
+            ...defaultInput.ExpressionAttributeNames,
             '#PK': `GSI-${sortBy}-PK`,
           },
         })
