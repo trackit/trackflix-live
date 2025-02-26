@@ -7,19 +7,32 @@ import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRep
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
+import { IoTClient } from '@aws-sdk/client-iot';
 
-const eventScheduler = new EventBridgeScheduler(new EventBridgeClient({}));
+const eventBridgeClient = new EventBridgeClient({});
+const eventSchedulerStart = new EventBridgeScheduler({
+  client: eventBridgeClient,
+  target: process.env.START_TX_LAMBDA || '',
+});
+const eventSchedulerStop = new EventBridgeScheduler({
+  client: eventBridgeClient,
+  target: process.env.STOP_TX_LAMBDA || '',
+});
+
 const eventsRepository = new EventsDynamoDBRepository(
   new DynamoDBClient({}),
-  process.env.TABLE_NAME || ''
+  process.env.EVENTS_TABLE || ''
 );
-const eventUpdateSender = new EventsIotUpdateSender(
-  new IoTDataPlaneClient({}),
-  process.env.IOT_TOPIC || ''
-);
+const eventUpdateSender = new EventsIotUpdateSender({
+  dataPlaneClient: new IoTDataPlaneClient({}),
+  client: new IoTClient(),
+  iotTopicName: process.env.IOT_TOPIC || '',
+  iotPolicy: process.env.IOT_POLICY || '',
+});
 
 const useCase = new CreateEventUseCaseImpl({
-  eventScheduler,
+  eventSchedulerStart,
+  eventSchedulerStop,
   eventsRepository,
   eventUpdateSender,
 });

@@ -17,7 +17,8 @@ const taskTokensRepository = new TaskTokensDynamoDBRepository({
 
 const transmissionsManager = new TransmissionsManagerSfn({
   client: new SFNClient(),
-  stateMachineArn: process.env['START_TX_STATE_MACHINE']!,
+  startTransmissionStateMachineArn: process.env['START_TX_STATE_MACHINE']!,
+  stopTransmissionStateMachineArn: process.env['STOP_TX_STATE_MACHINE']!,
 });
 
 const useCase = new HandleLiveChannelStateChangeUseCaseImpl({

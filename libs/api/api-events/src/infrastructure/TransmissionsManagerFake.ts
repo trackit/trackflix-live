@@ -9,6 +9,8 @@ export class TransmissionsManagerFake implements TransmissionsManager {
   public readonly resumedStartedTransmissions: ResumeStartTransmissionParameters[] =
     [];
 
+  public readonly stoppedTransmissions: string[] = [];
+
   public async startTransmission(eventId: string): Promise<void> {
     this.startedTransmissions.push(eventId);
   }
@@ -17,5 +19,9 @@ export class TransmissionsManagerFake implements TransmissionsManager {
     parameters: ResumeStartTransmissionParameters
   ): Promise<void> {
     this.resumedStartedTransmissions.push(parameters);
+  }
+
+  public async stopTransmission(eventId: string): Promise<void> {
+    this.stoppedTransmissions.push(eventId);
   }
 }

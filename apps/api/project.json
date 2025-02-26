@@ -17,6 +17,19 @@
         "cwd": "apps/api"
       }
     },
+    "validate": {
+      "command": "sam validate",
+      "options": {
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["build"]
+    },
+    "typecheck": {
+      "command": "tsc --noEmit -p tsconfig.app.json",
+      "options": {
+        "cwd": "apps/api"
+      }
+    },
     "deploy": {
       "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\"",
       "options": {

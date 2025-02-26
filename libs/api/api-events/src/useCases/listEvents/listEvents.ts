@@ -1,7 +1,11 @@
-import { EventsRepository, ListEventsResponse } from '../../ports';
+import {
+  EventsRepository,
+  ListEventsParams,
+  ListEventsResponse,
+} from '../../ports';
 
 export interface ListEventsUseCase {
-  listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
+  listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
@@ -15,10 +19,19 @@ export class ListEventsUseCaseImpl implements ListEventsUseCase {
     this.eventsRepository = eventsRepository;
   }
 
-  public async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
-    return await this.eventsRepository.listEvents(limit, nextToken);
+  public async listEvents({
+    limit,
+    sortBy,
+    sortOrder = 'asc',
+    nextToken,
+    name,
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    return await this.eventsRepository.listEvents({
+      limit,
+      sortBy,
+      sortOrder,
+      nextToken,
+      name,
+    });
   }
 }

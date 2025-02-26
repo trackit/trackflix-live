@@ -3,29 +3,37 @@ import { EventScheduler, EventsRepository } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { EventUpdateSender } from '../../ports/EventUpdateSender';
 
-export type CreateEventArgs = Omit<Event, 'id' | 'status'>;
+export type CreateEventArgs = Pick<
+  Event,
+  'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
+>;
 
 export interface CreateEventUseCase {
   createEvent(args: CreateEventArgs): Promise<Event>;
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
-  private readonly eventScheduler: EventScheduler;
+  private readonly eventSchedulerStart: EventScheduler;
+
+  private readonly eventSchedulerStop: EventScheduler;
 
   private readonly eventsRepository: EventsRepository;
 
   private readonly eventUpdateSender: EventUpdateSender;
 
   public constructor({
-    eventScheduler,
+    eventSchedulerStart,
+    eventSchedulerStop,
     eventsRepository,
     eventUpdateSender,
   }: {
-    eventScheduler: EventScheduler;
+    eventSchedulerStart: EventScheduler;
+    eventSchedulerStop: EventScheduler;
     eventsRepository: EventsRepository;
     eventUpdateSender: EventUpdateSender;
   }) {
-    this.eventScheduler = eventScheduler;
+    this.eventSchedulerStart = eventSchedulerStart;
+    this.eventSchedulerStop = eventSchedulerStop;
     this.eventsRepository = eventsRepository;
     this.eventUpdateSender = eventUpdateSender;
   }
@@ -36,6 +44,9 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const event = {
       ...args,
       id,
+      createdTime: new Date().toISOString(),
+      logs: [],
+      endpoints: [],
       status: EventStatus.PRE_TX,
     } satisfies Event;
 
@@ -44,9 +55,16 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const preTxTime = new Date(event.onAirStartTime);
     preTxTime.setMinutes(preTxTime.getMinutes() - 15);
 
-    await this.eventScheduler.scheduleEvent({
+    await this.eventSchedulerStart.scheduleEvent({
       id,
       time: preTxTime,
+      name: 'TrackflixLiveStartTx',
+    });
+
+    await this.eventSchedulerStop.scheduleEvent({
+      id,
+      time: new Date(event.onAirEndTime),
+      name: 'TrackflixLiveStopTx',
     });
 
     await this.eventUpdateSender.send({

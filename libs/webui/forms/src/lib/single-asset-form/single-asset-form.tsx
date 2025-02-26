@@ -131,7 +131,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </label>
-
       <div className={'flex items-center mb-2'}>
         <label className={'align-middle mr-2 flex items-center gap-2'}>
           <Clock />
@@ -164,7 +163,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </div>
-
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>
           Submit

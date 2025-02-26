@@ -1,20 +1,31 @@
-import { Amplify } from 'aws-amplify';
+import { useEffect } from 'react';
 import { Route, Routes } from 'react-router';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
 import { SnackbarProvider } from 'notistack';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
 import { StatusView } from '@trackflix-live/status-view';
+import { postIot } from '@trackflix-live/api-client';
+
 import Topbar from './topbar';
 
-import { amplifyConfig } from '../amplify.config';
-
-Amplify.configure(amplifyConfig);
 
 export function App() {
+  useEffect(() => {
+    const postIotWithCognitoIdentity = async () => {
+      try {
+        const session = await fetchAuthSession();
+        if (session.identityId)
+          await postIot({ identityId: session.identityId });
+      } catch (error) {
+        console.error('Error attaching IoT Core to cognito identity:', error);
+      }
+    };
+    postIotWithCognitoIdentity();
+  }, []);
+
   return (
-    <Authenticator hideSignUp>
+    <>
       <SnackbarProvider />
       <div className="flex flex-col h-screen">
         <Topbar />
@@ -25,7 +36,7 @@ export function App() {
           </Routes>
         </div>
       </div>
-    </Authenticator>
+    </>
   );
 }
 
