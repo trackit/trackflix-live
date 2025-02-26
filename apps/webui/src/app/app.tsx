@@ -9,6 +9,7 @@ import { postIot } from '@trackflix-live/api-client';
 
 import Topbar from './topbar';
 
+
 export function App() {
   useEffect(() => {
     const postIotWithCognitoIdentity = async () => {
@@ -28,11 +29,7 @@ export function App() {
       <SnackbarProvider />
       <div className="flex flex-col h-screen">
         <Topbar />
-        <div
-          className={
-            'flex justify-center items-center w-screen h-full bg-base-200 relative'
-          }
-        >
+        <div className="flex flex-col flex-grow dark:bg-base-300 bg-base-200 ">
           <Routes>
             <Route index element={<SingleAssetFlow />} />
             <Route path={'/status/:id'} element={<StatusView />} />

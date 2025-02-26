@@ -7,7 +7,7 @@ export function Panel({
 }) {
   return (
     <div
-      className={`container p-8 bg-base-100 rounded-xl shadow ${
+      className={`p-8 bg-base-100 rounded-xl shadow-lg transition-all duration-300 ${
         className || ''
       }`}
     >
