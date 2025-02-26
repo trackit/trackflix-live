@@ -66,8 +66,8 @@ describe('List events adapter', () => {
     });
   });
 
-  it('should return a successful response is a sort attribute is defined', async () => {
-    const { adapter, useCase, sampleEvent } = setup();
+  it('should return a successful response if a sort attribute is defined', async () => {
+    const { adapter, useCase } = setup();
     const event1 = EventMother.basic()
       .withId('bbaf9b7d-5f75-468d-b81d-8ba7637af888')
       .withName('Event 1')
@@ -115,6 +115,42 @@ describe('List events adapter', () => {
     const response = await adapter.handle({
       queryStringParameters: {
         nextToken: 'invalid',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+  });
+
+  it('should return a response with status code 400 if the sortOrder is specified without sortBy', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        sortOrder: 'asc',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+  });
+
+  it('should return a response with status code 400 if the sortOrder is invalid', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        sortOrder: 'invalid',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+  });
+
+  it('should return a response with status code 400 if the sortBy is invalid', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      queryStringParameters: {
+        sortBy: 'invalid',
       } as unknown,
     } as APIGatewayProxyEventV2);
 

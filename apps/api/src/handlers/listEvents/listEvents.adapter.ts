@@ -52,6 +52,9 @@ const schema: JSONSchemaType<ListEventsRequest['queryStringParameters']> = {
     },
     sortOrder: { type: 'string', nullable: true, enum: ['asc', 'desc'] },
   },
+  dependencies: {
+    sortOrder: ['sortBy'],
+  },
 };
 
 export class ListEventsAdapter {
