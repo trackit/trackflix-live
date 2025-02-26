@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { Table, TableProps } from './Table';
+import { Table, TableProps } from './table';
 import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 import { MemoryRouter } from 'react-router';
