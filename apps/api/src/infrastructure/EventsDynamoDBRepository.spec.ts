@@ -12,7 +12,6 @@ import {
   EventStatus,
   LogType,
 } from '@trackflix-live/types';
-import { ListEventsSortEnum } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -360,8 +359,29 @@ describe('EventsDynamoDBRepository', () => {
     });
   });
 
+  it('should return results matching name when specified', async () => {
+    const { repository } = setup();
 
-  it.only('should return results matching name when specified', async () => {
+    const event1 = EventMother.basic()
+      .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+      .withName('Moto GP Race')
+      .build();
+    const event2 = EventMother.basic()
+      .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+      .withName('CS:GO Tournament EUW 2025')
+      .build();
+    await repository.createEvent(event1);
+    await repository.createEvent(event2);
+
+    const response = await repository.listEvents({
+      limit: 10,
+      name: 'RaCe',
+    });
+
+    expect(response.events).toEqual([event1]);
+  });
+
+  it('should return results matching name when specified in any order', async () => {
     const { repository } = setup();
 
     const event1 = EventMother.basic()
@@ -382,12 +402,12 @@ describe('EventsDynamoDBRepository', () => {
 
     const response = await repository.listEvents({
       limit: 10,
-      name: 'Race',
+      name: 'race',
       sortBy: 'name',
-      sortOrder: 'asc',
+      sortOrder: 'desc',
     });
 
-    expect(response.events).toMatchObject([event2, event1]);
+    expect(response.events).toMatchObject([event1, event2]);
   });
 });
 

@@ -64,6 +64,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
       Item: {
         ...event,
         ...this.gsiProperties,
+        nameLowercase: event.name.trim().toLowerCase(),
       },
     };
 
@@ -80,11 +81,18 @@ export class EventsDynamoDBRepository implements EventsRepository {
     const defaultInput: QueryCommandInput | ScanCommandInput = {
       TableName: this.tableName,
       ProjectionExpression: this.projectionExpression,
+      FilterExpression: name ? 'contains(#nameLowercase, :nameLowercase)' : undefined,
       Limit: limit,
       ExclusiveStartKey: nextToken
         ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
         : undefined,
-      ExpressionAttributeNames: this.expressionAttributeNames,
+      ExpressionAttributeNames: {
+        this.expressionAttributeNames,
+        (name ? '#nameLowercase': 'nameLowercase'),
+      },
+      ExpressionAttributeValues: name ? {
+        ':nameLowercase': name.trim().toLowerCase(),
+      } : undefined,
     };
     let response: ScanCommandOutput | QueryCommandOutput;
 
@@ -96,11 +104,12 @@ export class EventsDynamoDBRepository implements EventsRepository {
           ScanIndexForward: sortOrder === 'asc',
           KeyConditionExpression: '#PK = :PK',
           ExpressionAttributeValues: {
+            ...defaultParams.ExpressionAttributeValues,
             ':PK': sortBy,
           },
           ExpressionAttributeNames: {
+            ...defaultParams.ExpressionAttributeNames,
             '#PK': `GSI-${sortBy}-PK`,
-            ...this.expressionAttributeNames,
           },
         })
       )) satisfies QueryCommandOutput;
