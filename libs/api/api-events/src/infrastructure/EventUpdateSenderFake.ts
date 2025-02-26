@@ -7,7 +7,7 @@ export class EventUpdateSenderFake implements EventUpdateSender {
   public readonly attachedIdentities: string[] = [];
 
   public async send(eventUpdate: EventUpdate): Promise<void> {
-    this.eventUpdates.push(eventUpdate);
+    this.eventUpdates.push(structuredClone(eventUpdate));
   }
 
   public async attachPolicyToIdentity(identityId: string): Promise<void> {

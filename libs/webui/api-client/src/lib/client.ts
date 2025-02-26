@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { fetchAuthSession } from 'aws-amplify/auth';
 import axios, { AxiosInstance, CreateAxiosDefaults, AxiosError } from 'axios';
 import { enqueueSnackbar } from 'notistack';

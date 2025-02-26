@@ -12,6 +12,9 @@ export type ListEventsRequest = {
   queryStringParameters: {
     limit?: string;
     nextToken?: string;
+    sortBy?: 'name' | 'onAirStartTime' | 'onAirEndTime' | 'status';
+    sortOrder?: 'asc' | 'desc';
+    name?: string;
   };
 };
 export type ListEventsResponse = {
@@ -28,7 +31,7 @@ export type GetEventResponse = { body: { event: Event } };
 
 export interface AttachIotPolicyRequest {
   body: {
-    identityId: 'string';
+    identityId: string;
   };
 }
 export type AttachIotPolicyResponse = {

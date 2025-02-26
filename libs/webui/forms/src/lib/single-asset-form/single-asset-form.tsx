@@ -9,8 +9,8 @@ export interface SingleAssetFormProps {
     name: string;
     description: string;
     source: string;
-    onAirStartTime: Date;
-    onAirEndTime: Date;
+    onAirStartTime: string;
+    onAirEndTime: string;
   }) => void;
   disabled?: boolean;
 }
@@ -55,7 +55,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit({
+          ...data,
+          onAirStartTime: data.onAirStartTime.toISOString(),
+          onAirEndTime: data.onAirEndTime.toISOString(),
+        });
+      })}
+    >
       <div className={'flex items-center'}>
         <label className="form-control w-full mb-2">
           <label
@@ -123,7 +131,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </label>
-
       <div className={'flex items-center mb-2'}>
         <label className={'align-middle mr-2 flex items-center gap-2'}>
           <Clock />
@@ -156,7 +163,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </div>
-
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>
           Submit
