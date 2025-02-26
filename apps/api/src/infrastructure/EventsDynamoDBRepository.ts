@@ -11,8 +11,10 @@ import {
   PutCommandInput,
   QueryCommand,
   QueryCommandInput,
+  QueryCommandOutput,
   ScanCommand,
   ScanCommandInput,
+  ScanCommandOutput,
   UpdateCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
@@ -68,91 +70,51 @@ export class EventsDynamoDBRepository implements EventsRepository {
     await this.client.send(new PutCommand(params));
   }
 
-  private async listEventsSimple({ limit, nextToken }: ListEventsParams) {
-    const params: ScanCommandInput = {
-      TableName: this.tableName,
-      ProjectionExpression: this.projectionExpression,
-      ExpressionAttributeNames: this.expressionAttributeNames,
-      Limit: limit,
-      ExclusiveStartKey: nextToken
-        ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
-        : undefined,
-    };
-
-    const { Items, LastEvaluatedKey } = await this.client.send(
-      new ScanCommand(params)
-    );
-
-    return { Items, LastEvaluatedKey } as {
-      Items: Event[];
-      LastEvaluatedKey: Record<string, string>;
-    };
-  }
-
-  private async listEventsSorted({
+  async listEvents({
     limit,
     nextToken,
     sortOrder = 'asc',
     sortBy,
-  }: ListEventsParams) {
-    const params: QueryCommandInput = {
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    const defaultInput: QueryCommandInput | ScanCommandInput = {
       TableName: this.tableName,
-      IndexName: `GSI-${sortBy}`,
       ProjectionExpression: this.projectionExpression,
-      ScanIndexForward: sortOrder === 'asc',
-      KeyConditionExpression: '#PK = :PK',
-      ExpressionAttributeValues: {
-        ':PK': sortBy,
-      },
-      ExpressionAttributeNames: {
-        '#PK': `GSI-${sortBy}-PK`,
-        ...this.expressionAttributeNames,
-      },
       Limit: limit,
       ExclusiveStartKey: nextToken
         ? JSON.parse(Buffer.from(nextToken, 'base64').toString())
         : undefined,
+      ExpressionAttributeNames: this.expressionAttributeNames,
     };
-
-    const { Items, LastEvaluatedKey } = await this.client.send(
-      new QueryCommand(params)
-    );
-
-    return { Items, LastEvaluatedKey } as {
-      Items: Event[];
-      LastEvaluatedKey: Record<string, string>;
-    };
-  }
-
-  async listEvents({
-    limit,
-    nextToken,
-    sortOrder,
-    sortBy,
-  }: ListEventsParams): Promise<ListEventsResponse> {
-    let items: Event[];
-    let lastEvaluatedKey: Record<string, string>;
+    let response: ScanCommandOutput | QueryCommandOutput;
 
     if (sortBy) {
-      ({ Items: items, LastEvaluatedKey: lastEvaluatedKey } =
-        await this.listEventsSorted({
-          limit,
-          nextToken,
-          sortOrder,
-          sortBy,
-        }));
+      response = (await this.client.send(
+        new QueryCommand({
+          ...(defaultInput satisfies QueryCommandInput),
+          IndexName: `GSI-${sortBy}`,
+          ScanIndexForward: sortOrder === 'asc',
+          KeyConditionExpression: '#PK = :PK',
+          ExpressionAttributeValues: {
+            ':PK': sortBy,
+          },
+          ExpressionAttributeNames: {
+            '#PK': `GSI-${sortBy}-PK`,
+            ...this.expressionAttributeNames,
+          },
+        })
+      )) satisfies QueryCommandOutput;
     } else {
-      ({ Items: items, LastEvaluatedKey: lastEvaluatedKey } =
-        await this.listEventsSimple({
-          limit,
-          nextToken,
-        }));
+      response = (await this.client.send(
+        new ScanCommand(defaultInput satisfies ScanCommandInput)
+      )) satisfies ScanCommandOutput;
     }
 
     return {
-      events: items as Event[],
-      nextToken: lastEvaluatedKey
-        ? Buffer.from(JSON.stringify(lastEvaluatedKey)).toString('base64')
+      events: response.Items as Event[],
+      nextToken: response.LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString(
+            'base64'
+          )
         : null,
     };
   }
