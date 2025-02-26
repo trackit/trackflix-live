@@ -37,8 +37,10 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
+                  - "dynamodb:Query"
                 Resource:
                   - !GetAtt EventsTable.Arn
+                  - !Sub "${EventsTable.Arn}/index/*"
               - Effect: Allow
                 Action:
                   - "dynamodb:GetItem"
