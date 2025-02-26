@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { beforeAll, describe, it, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import App from './app';
 
@@ -24,10 +25,14 @@ beforeAll(() => {
 
 describe('App', () => {
   it('should render successfully', () => {
+    const queryClient = new QueryClient();
+
     const { baseElement } = render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
     );
     expect(baseElement).toBeTruthy();
   });
