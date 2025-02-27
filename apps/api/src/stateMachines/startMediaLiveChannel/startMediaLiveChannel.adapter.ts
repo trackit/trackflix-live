@@ -1,11 +1,8 @@
-import { StartLiveChannelUseCase } from '@trackflix-live/api-events';
+import { tokenStartLiveChannelUseCase } from '@trackflix-live/api-events';
+import { inject } from 'di';
 
 export class StartMediaLiveChannelAdapter {
-  private readonly useCase: StartLiveChannelUseCase;
-
-  public constructor({ useCase }: { useCase: StartLiveChannelUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenStartLiveChannelUseCase);
 
   public async handle(params: {
     input: {

@@ -1,6 +1,6 @@
 import { tokenEventsRepository } from '../../ports';
 import { Event } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface GetEventUseCase {
   getEvent(eventId: string): Promise<Event | undefined>;
@@ -13,3 +13,10 @@ export class GetEventUseCaseImpl implements GetEventUseCase {
     return this.eventsRepository.getEvent(eventId);
   }
 }
+
+export const tokenGetEventUseCase = createInjectionToken<GetEventUseCase>(
+  'GetEventUseCase',
+  {
+    useClass: GetEventUseCaseImpl,
+  }
+);

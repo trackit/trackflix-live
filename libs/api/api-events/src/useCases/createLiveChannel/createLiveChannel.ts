@@ -5,7 +5,7 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
@@ -90,3 +90,8 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     return liveChannel;
   }
 }
+
+export const tokenCreateLiveChannelUseCase =
+  createInjectionToken<CreateLiveChannelUseCase>('CreateLiveChannelUseCase', {
+    useClass: CreateLiveChannelUseCaseImpl,
+  });

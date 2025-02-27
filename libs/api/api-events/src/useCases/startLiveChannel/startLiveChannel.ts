@@ -5,7 +5,7 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface StartLiveChannelParameters {
   eventId: string;
@@ -61,3 +61,8 @@ export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
     });
   }
 }
+
+export const tokenStartLiveChannelUseCase =
+  createInjectionToken<StartLiveChannelUseCase>('StartLiveChannelUseCase', {
+    useClass: StartLiveChannelUseCaseImpl,
+  });

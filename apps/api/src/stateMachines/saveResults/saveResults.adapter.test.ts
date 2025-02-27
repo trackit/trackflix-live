@@ -1,4 +1,6 @@
 import { SaveResultsAdapter } from './saveResults.adapter';
+import { register, reset } from 'di';
+import { tokenSaveResultsUseCase } from '@trackflix-live/api-events';
 
 describe('Save results adapter', () => {
   it('should call use case', async () => {
@@ -17,12 +19,14 @@ describe('Save results adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     saveResults: jest.fn(),
   };
-  const adapter = new SaveResultsAdapter({
-    useCase,
-  });
+  register(tokenSaveResultsUseCase, { useValue: useCase });
+
+  const adapter = new SaveResultsAdapter();
 
   return {
     useCase,

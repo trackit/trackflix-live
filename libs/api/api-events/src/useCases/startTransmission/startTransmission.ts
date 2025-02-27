@@ -1,5 +1,5 @@
 import { tokenTransmissionsManager } from '../../ports';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface StartTransmissionUseCase {
   startTransmission(eventId: string): Promise<void>;
@@ -14,3 +14,8 @@ export class StartTransmissionUseCaseImpl implements StartTransmissionUseCase {
     await this.transmissionsManager.startTransmission(eventId);
   }
 }
+
+export const tokenStartTransmissionUseCase =
+  createInjectionToken<StartTransmissionUseCase>('StartTransmissionUseCase', {
+    useClass: StartTransmissionUseCaseImpl,
+  });

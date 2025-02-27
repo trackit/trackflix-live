@@ -1,16 +1,9 @@
 import { EventBridgeEvent } from 'aws-lambda';
-import { HandleLiveChannelStateChangeUseCase } from '@trackflix-live/api-events';
+import { tokenHandleLiveChannelStateChangeUseCase } from '@trackflix-live/api-events';
+import { inject } from 'di';
 
 export class HandleMediaLiveChannelStateChangeAdapter {
-  private readonly useCase: HandleLiveChannelStateChangeUseCase;
-
-  public constructor({
-    useCase,
-  }: {
-    useCase: HandleLiveChannelStateChangeUseCase;
-  }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenHandleLiveChannelStateChangeUseCase);
 
   public async handle(
     event: EventBridgeEvent<

@@ -1,6 +1,6 @@
 import { tokenEventsRepository, tokenEventUpdateSender } from '../../ports';
 import { EventStatus, EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface SaveResultsUseCase {
   saveResults(eventId: string): Promise<void>;
@@ -30,3 +30,8 @@ export class SaveResultsUseCaseImpl implements SaveResultsUseCase {
     });
   }
 }
+
+export const tokenSaveResultsUseCase = createInjectionToken<SaveResultsUseCase>(
+  'SaveResultsUseCase',
+  { useClass: SaveResultsUseCaseImpl }
+);

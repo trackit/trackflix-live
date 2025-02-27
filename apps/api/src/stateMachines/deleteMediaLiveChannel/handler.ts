@@ -1,14 +1,9 @@
 import { DeleteMediaLiveChannelAdapter } from './deleteMediaLiveChannel.adapter';
-import { DeleteLiveChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
 registerProductionInfrastructure();
 
-const useCase = new DeleteLiveChannelUseCaseImpl();
-
-const adapter = new DeleteMediaLiveChannelAdapter({
-  useCase,
-});
+const adapter = new DeleteMediaLiveChannelAdapter();
 
 export const main = async (params: {
   input: {

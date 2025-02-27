@@ -1,15 +1,10 @@
 import { EventBridgeEvent } from 'aws-lambda';
-import { HandleLiveChannelStateChangeUseCaseImpl } from '@trackflix-live/api-events';
 import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChannelStateChange.adapter';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
 registerProductionInfrastructure();
 
-const useCase = new HandleLiveChannelStateChangeUseCaseImpl();
-
-const adapter = new HandleMediaLiveChannelStateChangeAdapter({
-  useCase,
-});
+const adapter = new HandleMediaLiveChannelStateChangeAdapter();
 
 export const main = async (
   event: EventBridgeEvent<

@@ -1,14 +1,9 @@
 import { CreateMediaLiveChannelAdapter } from './createMediaLiveChannel.adapter';
-import { CreateLiveChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
 registerProductionInfrastructure();
 
-const useCase = new CreateLiveChannelUseCaseImpl();
-
-const adapter = new CreateMediaLiveChannelAdapter({
-  useCase,
-});
+const adapter = new CreateMediaLiveChannelAdapter();
 
 export const main = async (params: {
   input: {

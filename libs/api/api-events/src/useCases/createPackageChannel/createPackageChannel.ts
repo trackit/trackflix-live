@@ -4,7 +4,7 @@ import {
   tokenPackageChannelsManager,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface CreatePackageChannelUseCase {
   createPackageChannel(eventId: string): Promise<string>;
@@ -40,3 +40,11 @@ export class CreatePackageChannelUseCaseImpl
     return channelId;
   }
 }
+
+export const tokenCreatePackageChannelUseCase =
+  createInjectionToken<CreatePackageChannelUseCase>(
+    'CreatePackageChannelUseCase',
+    {
+      useClass: CreatePackageChannelUseCaseImpl,
+    }
+  );

@@ -4,7 +4,7 @@ import {
   tokenPackageChannelsManager,
 } from '../../ports';
 import { EventStatus, EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface DeletePackageChannelParameters {
   eventId: string;
@@ -45,3 +45,11 @@ export class DeletePackageChannelUseCaseImpl
     });
   }
 }
+
+export const tokenDeletePackageChannelUseCase =
+  createInjectionToken<DeletePackageChannelUseCase>(
+    'DeletePackageChannelUseCase',
+    {
+      useClass: DeletePackageChannelUseCaseImpl,
+    }
+  );

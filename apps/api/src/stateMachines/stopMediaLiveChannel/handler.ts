@@ -1,14 +1,9 @@
 import { StopMediaLiveChannelAdapter } from './stopMediaLiveChannel.adapter';
-import { StopLiveChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
 registerProductionInfrastructure();
 
-const useCase = new StopLiveChannelUseCaseImpl();
-
-const adapter = new StopMediaLiveChannelAdapter({
-  useCase,
-});
+const adapter = new StopMediaLiveChannelAdapter();
 
 export const main = async (params: {
   input: {

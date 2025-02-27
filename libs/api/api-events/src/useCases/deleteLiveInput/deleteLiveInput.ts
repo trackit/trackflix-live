@@ -4,7 +4,7 @@ import {
   tokenLiveChannelsManager,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface DeleteLiveInputParameters {
   eventId: string;
@@ -57,3 +57,8 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
     });
   }
 }
+
+export const tokenDeleteLiveInputUseCase =
+  createInjectionToken<DeleteLiveInputUseCase>('DeleteLiveInputUseCase', {
+    useClass: DeleteLiveInputUseCaseImpl,
+  });

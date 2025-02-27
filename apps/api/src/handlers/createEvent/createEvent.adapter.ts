@@ -1,10 +1,11 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { CreateEventUseCase } from '@trackflix-live/api-events';
+import { tokenCreateEventUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
+import { inject } from 'di';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -25,11 +26,7 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
 const validate = ajv.compile(schema);
 
 export class CreateEventAdapter {
-  private readonly useCase: CreateEventUseCase;
-
-  public constructor({ useCase }: { useCase: CreateEventUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenCreateEventUseCase);
 
   public async handle(
     event: APIGatewayProxyEventV2

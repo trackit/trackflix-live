@@ -1,11 +1,8 @@
-import { DeleteLiveChannelUseCase } from '@trackflix-live/api-events';
+import { tokenDeleteLiveChannelUseCase } from '@trackflix-live/api-events';
+import { inject } from 'di';
 
 export class DeleteMediaLiveChannelAdapter {
-  private readonly useCase: DeleteLiveChannelUseCase;
-
-  public constructor({ useCase }: { useCase: DeleteLiveChannelUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenDeleteLiveChannelUseCase);
 
   public async handle(params: {
     input: {

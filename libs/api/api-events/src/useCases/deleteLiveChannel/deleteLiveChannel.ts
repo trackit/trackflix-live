@@ -5,7 +5,7 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface DeleteLiveChannelParameters {
   eventId: string;
@@ -69,3 +69,8 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     });
   }
 }
+
+export const tokenDeleteLiveChannelUseCase =
+  createInjectionToken<DeleteLiveChannelUseCase>('DeleteLiveChannelUseCase', {
+    useClass: DeleteLiveChannelUseCaseImpl,
+  });

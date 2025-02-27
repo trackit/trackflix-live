@@ -1,4 +1,6 @@
 import { CreateMediaLiveChannelAdapter } from './createMediaLiveChannel.adapter';
+import { register, reset } from 'di';
+import { tokenCreateLiveChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Create MediaLive channel adapter', () => {
   it('should call use case', async () => {
@@ -38,12 +40,14 @@ describe('Create MediaLive channel adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     createLiveChannel: jest.fn(),
   };
-  const adapter = new CreateMediaLiveChannelAdapter({
-    useCase,
-  });
+  register(tokenCreateLiveChannelUseCase, { useValue: useCase });
+
+  const adapter = new CreateMediaLiveChannelAdapter();
 
   return {
     useCase,

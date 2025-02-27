@@ -1,4 +1,6 @@
 import { DeleteMediaLiveChannelAdapter } from './deleteMediaLiveChannel.adapter';
+import { register, reset } from 'di';
+import { tokenDeleteLiveChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Delete MediaLive channel adapter', () => {
   it('should call use case', async () => {
@@ -24,12 +26,15 @@ describe('Delete MediaLive channel adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     deleteLiveChannel: jest.fn(),
   };
-  const adapter = new DeleteMediaLiveChannelAdapter({
-    useCase,
-  });
+  register(tokenDeleteLiveChannelUseCase, { useValue: useCase });
+
+  const adapter = new DeleteMediaLiveChannelAdapter();
+
   return {
     useCase,
     adapter,

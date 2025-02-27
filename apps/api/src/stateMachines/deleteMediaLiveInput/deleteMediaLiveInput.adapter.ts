@@ -1,11 +1,8 @@
-import { DeleteLiveInputUseCase } from '@trackflix-live/api-events';
+import { tokenDeleteLiveInputUseCase } from '@trackflix-live/api-events';
+import { inject } from 'di';
 
 export class DeleteMediaLiveInputAdapter {
-  private readonly useCase: DeleteLiveInputUseCase;
-
-  public constructor({ useCase }: { useCase: DeleteLiveInputUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenDeleteLiveInputUseCase);
 
   public async handle(params: { eventId: string }): Promise<{
     eventId: string;

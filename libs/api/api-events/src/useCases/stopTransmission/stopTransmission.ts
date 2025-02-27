@@ -1,5 +1,5 @@
 import { tokenTransmissionsManager } from '../../ports';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface StopTransmissionUseCase {
   stopTransmission(eventId: string): Promise<void>;
@@ -14,3 +14,8 @@ export class StopTransmissionUseCaseImpl implements StopTransmissionUseCase {
     await this.transmissionsManager.stopTransmission(eventId);
   }
 }
+
+export const tokenStopTransmissionUseCase =
+  createInjectionToken<StopTransmissionUseCase>('StopTransmissionUseCase', {
+    useClass: StopTransmissionUseCaseImpl,
+  });

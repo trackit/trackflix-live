@@ -5,7 +5,8 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
+import { StopTransmissionUseCaseImpl } from '../stopTransmission';
 
 export interface StopLiveChannelParameters {
   eventId: string;
@@ -63,3 +64,8 @@ export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
     });
   }
 }
+
+export const tokenStopLiveChannelUseCase =
+  createInjectionToken<StopLiveChannelUseCase>('StopLiveChannelUseCase', {
+    useClass: StopLiveChannelUseCaseImpl,
+  });

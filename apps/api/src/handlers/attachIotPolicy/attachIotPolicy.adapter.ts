@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { AttachIotPolicyUseCase } from '@trackflix-live/api-events';
+import { tokenAttachIotPolicyUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
@@ -7,6 +7,7 @@ import {
   AttachIotPolicyRequest,
   AttachIotPolicyResponse,
 } from '@trackflix-live/types';
+import { inject } from 'di';
 
 const ajv = new Ajv();
 
@@ -22,11 +23,7 @@ const schema: JSONSchemaType<AttachIotPolicyRequest['body']> = {
 const validate = ajv.compile(schema);
 
 export class AttachIotPolicyAdapter {
-  private readonly useCase: AttachIotPolicyUseCase;
-
-  public constructor({ useCase }: { useCase: AttachIotPolicyUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenAttachIotPolicyUseCase);
 
   public async handle(
     event: APIGatewayProxyEventV2

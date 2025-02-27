@@ -1,15 +1,10 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { AttachIotPolicyUseCaseImpl } from '@trackflix-live/api-events';
 import { AttachIotPolicyAdapter } from './attachIotPolicy.adapter';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
 registerProductionInfrastructure();
 
-const useCase = new AttachIotPolicyUseCaseImpl();
-
-const adapter = new AttachIotPolicyAdapter({
-  useCase,
-});
+const adapter = new AttachIotPolicyAdapter();
 
 export const main = async (
   event: APIGatewayProxyEventV2

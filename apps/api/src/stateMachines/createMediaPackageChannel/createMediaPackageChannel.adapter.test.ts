@@ -1,4 +1,6 @@
 import { CreateMediaPackageChannelAdapter } from './createMediaPackageChannel.adapter';
+import { register, reset } from 'di';
+import { tokenCreatePackageChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Create MediaPackage channel', () => {
   it('should call use case', async () => {
@@ -21,12 +23,15 @@ describe('Create MediaPackage channel', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     createPackageChannel: jest.fn(),
   };
-  const adapter = new CreateMediaPackageChannelAdapter({
-    useCase,
-  });
+  register(tokenCreatePackageChannelUseCase, { useValue: useCase });
+
+  const adapter = new CreateMediaPackageChannelAdapter();
+
   return {
     useCase,
     adapter,

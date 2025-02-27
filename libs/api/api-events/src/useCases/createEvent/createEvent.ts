@@ -6,7 +6,7 @@ import {
   tokenEventUpdateSender,
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export type CreateEventArgs = Pick<
   Event,
@@ -63,3 +63,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     return event;
   }
 }
+
+export const tokenCreateEventUseCase = createInjectionToken<CreateEventUseCase>(
+  'CreateEventUseCase',
+  {
+    useClass: CreateEventUseCaseImpl,
+  }
+);

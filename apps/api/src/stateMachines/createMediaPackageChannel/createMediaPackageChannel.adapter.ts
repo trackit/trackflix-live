@@ -1,11 +1,8 @@
-import { CreatePackageChannelUseCase } from '@trackflix-live/api-events';
+import { tokenCreatePackageChannelUseCase } from '@trackflix-live/api-events';
+import { inject } from 'di';
 
 export class CreateMediaPackageChannelAdapter {
-  private readonly useCase: CreatePackageChannelUseCase;
-
-  public constructor({ useCase }: { useCase: CreatePackageChannelUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenCreatePackageChannelUseCase);
 
   public async handle({
     eventId,

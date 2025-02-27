@@ -1,5 +1,7 @@
 import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChannelStateChange.adapter';
 import { EventBridgeEvent } from 'aws-lambda';
+import { register, reset } from 'di';
+import { tokenHandleLiveChannelStateChangeUseCase } from '@trackflix-live/api-events';
 
 describe('Handle MediaLive channel state change adapter', () => {
   it('should call use case', async () => {
@@ -30,12 +32,14 @@ describe('Handle MediaLive channel state change adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     handleLiveChannelStateChange: jest.fn(),
   };
-  const adapter = new HandleMediaLiveChannelStateChangeAdapter({
-    useCase,
-  });
+  register(tokenHandleLiveChannelStateChangeUseCase, { useValue: useCase });
+
+  const adapter = new HandleMediaLiveChannelStateChangeAdapter();
 
   return {
     adapter,

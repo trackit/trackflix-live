@@ -1,5 +1,7 @@
 import { AttachIotPolicyAdapter } from './attachIotPolicy.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { register, reset } from 'di';
+import { tokenAttachIotPolicyUseCase } from '@trackflix-live/api-events';
 
 describe('Attach Iot Policy adapter', () => {
   it('should call use case', async () => {
@@ -70,13 +72,14 @@ describe('Attach Iot Policy adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     attachIotPolicy: jest.fn(),
   };
+  register(tokenAttachIotPolicyUseCase, { useValue: useCase });
 
-  const adapter = new AttachIotPolicyAdapter({
-    useCase,
-  });
+  const adapter = new AttachIotPolicyAdapter();
 
   return {
     useCase,

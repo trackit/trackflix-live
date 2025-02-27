@@ -1,5 +1,9 @@
-import { StartTransmissionUseCase } from '@trackflix-live/api-events';
+import {
+  StartTransmissionUseCase,
+  tokenStartTransmissionUseCase,
+} from '@trackflix-live/api-events';
 import { StartTransmissionAdapter } from './startTransmission.adapter';
+import { register, reset } from 'di';
 
 describe('Start Transmission adapter', () => {
   it('should call use case', async () => {
@@ -15,13 +19,15 @@ describe('Start Transmission adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase: StartTransmissionUseCase = {
     startTransmission: jest.fn(),
   };
+  register(tokenStartTransmissionUseCase, { useValue: useCase });
+
   return {
-    adapter: new StartTransmissionAdapter({
-      useCase,
-    }),
+    adapter: new StartTransmissionAdapter(),
     useCase,
   };
 };

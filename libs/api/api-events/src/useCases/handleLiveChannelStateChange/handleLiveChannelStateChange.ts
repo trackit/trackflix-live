@@ -2,7 +2,7 @@ import {
   tokenTaskTokensRepository,
   tokenTransmissionsManager,
 } from '../../ports';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface HandleLiveChannelStateChangeParameters {
   channelArn: string;
@@ -37,3 +37,9 @@ export class HandleLiveChannelStateChangeUseCaseImpl
     await this.transmissionsManager.resumeStartTransmission(taskToken);
   }
 }
+
+export const tokenHandleLiveChannelStateChangeUseCase =
+  createInjectionToken<HandleLiveChannelStateChangeUseCase>(
+    'HandleLiveChannelStateChangeUseCase',
+    { useClass: HandleLiveChannelStateChangeUseCaseImpl }
+  );

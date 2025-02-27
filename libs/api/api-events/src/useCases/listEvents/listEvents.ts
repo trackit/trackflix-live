@@ -3,7 +3,7 @@ import {
   ListEventsResponse,
   tokenEventsRepository,
 } from '../../ports';
-import { inject } from 'di';
+import { createInjectionToken, inject } from 'di';
 
 export interface ListEventsUseCase {
   listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
@@ -28,3 +28,8 @@ export class ListEventsUseCaseImpl implements ListEventsUseCase {
     });
   }
 }
+
+export const tokenListEventsUseCase = createInjectionToken<ListEventsUseCase>(
+  'ListEventsUseCase',
+  { useClass: ListEventsUseCaseImpl }
+);
