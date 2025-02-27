@@ -5,7 +5,7 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreateLiveChannelParameters {
   eventId: string;

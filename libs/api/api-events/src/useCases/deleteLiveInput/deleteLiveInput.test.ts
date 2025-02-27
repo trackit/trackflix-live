@@ -6,7 +6,7 @@ import {
 } from '../../infrastructure';
 import { DeleteLiveInputUseCaseImpl } from './deleteLiveInput';
 import { EventMother, LogType } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Delete live input use case', () => {
   it('should delete live input', async () => {

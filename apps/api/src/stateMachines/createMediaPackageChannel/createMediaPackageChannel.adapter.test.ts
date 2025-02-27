@@ -1,5 +1,5 @@
 import { CreateMediaPackageChannelAdapter } from './createMediaPackageChannel.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenCreatePackageChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Create MediaPackage channel', () => {

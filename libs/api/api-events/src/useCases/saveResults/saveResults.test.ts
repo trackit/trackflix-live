@@ -10,7 +10,7 @@ import {
   EventUpdateAction,
   LogType,
 } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Save results use case', () => {
   it('should store LIVE_CHANNEL_STARTED log event', async () => {

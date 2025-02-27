@@ -7,7 +7,7 @@ import {
 } from '../../infrastructure';
 import { DeleteLiveChannelUseCaseImpl } from './deleteLiveChannel';
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Delete live channel use case', () => {
   it('should delete live channel', async () => {

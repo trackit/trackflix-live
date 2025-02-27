@@ -3,7 +3,7 @@ import {
   ListEventsResponse,
   tokenEventsRepository,
 } from '../../ports';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface ListEventsUseCase {
   listEvents(params: ListEventsParams): Promise<ListEventsResponse>;

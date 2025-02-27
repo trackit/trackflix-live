@@ -1,5 +1,5 @@
 import { DeleteMediaLiveInputAdapter } from './deleteMediaLiveInput.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenDeleteLiveInputUseCase } from '@trackflix-live/api-events';
 
 describe('Delete MediaLive input adapter', () => {

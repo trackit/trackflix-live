@@ -7,7 +7,7 @@ import {
   AttachIotPolicyRequest,
   AttachIotPolicyResponse,
 } from '@trackflix-live/types';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
 

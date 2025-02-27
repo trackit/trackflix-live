@@ -4,7 +4,7 @@ import {
   tokenEventsRepositoryInMemory,
 } from '../../infrastructure';
 import { EventMother, EventStatus } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('ListEvents use case', () => {
   it('should return a list of events', async () => {

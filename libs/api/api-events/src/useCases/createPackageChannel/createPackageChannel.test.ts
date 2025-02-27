@@ -11,7 +11,7 @@ import {
   EventUpdateAction,
   LogType,
 } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Create Package channel use case', () => {
   it('should create channel', async () => {

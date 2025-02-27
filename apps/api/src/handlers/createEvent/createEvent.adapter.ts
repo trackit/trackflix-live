@@ -5,7 +5,7 @@ import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
 addFormats(ajv);

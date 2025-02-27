@@ -5,7 +5,7 @@ import {
   CreateEventMother,
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 
 describe('Create event adapter', () => {
   it('should call use case', async () => {

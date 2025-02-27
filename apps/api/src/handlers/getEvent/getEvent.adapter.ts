@@ -7,7 +7,7 @@ import {
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 export class GetEventAdapter {
   private readonly useCase = inject(tokenGetEventUseCase);

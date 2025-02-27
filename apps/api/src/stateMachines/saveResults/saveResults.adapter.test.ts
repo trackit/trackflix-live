@@ -1,5 +1,5 @@
 import { SaveResultsAdapter } from './saveResults.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenSaveResultsUseCase } from '@trackflix-live/api-events';
 
 describe('Save results adapter', () => {

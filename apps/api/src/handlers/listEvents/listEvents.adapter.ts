@@ -4,7 +4,7 @@ import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gatewa
 import { tokenListEventsUseCase } from '@trackflix-live/api-events';
 import Ajv, { JSONSchemaType } from 'ajv';
 import { ListEventsRequest, ListEventsResponse } from '@trackflix-live/types';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
 

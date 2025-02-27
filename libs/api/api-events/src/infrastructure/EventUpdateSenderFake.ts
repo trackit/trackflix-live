@@ -1,6 +1,6 @@
 import { EventUpdateSender } from '../ports/EventUpdateSender';
 import { EventUpdate } from '@trackflix-live/types';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export class EventUpdateSenderFake implements EventUpdateSender {
   public readonly eventUpdates: EventUpdate[] = [];

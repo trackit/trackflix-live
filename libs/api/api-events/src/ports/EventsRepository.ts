@@ -4,7 +4,7 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface ListEventsParams {
   limit: number;

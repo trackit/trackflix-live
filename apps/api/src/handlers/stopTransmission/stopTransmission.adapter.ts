@@ -1,5 +1,5 @@
 import { tokenStopTransmissionUseCase } from '@trackflix-live/api-events';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 export class StopTransmissionAdapter {
   private readonly useCase = inject(tokenStopTransmissionUseCase);

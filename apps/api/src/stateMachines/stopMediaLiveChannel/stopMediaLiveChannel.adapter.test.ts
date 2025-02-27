@@ -1,5 +1,5 @@
 import { StopMediaLiveChannelAdapter } from './stopMediaLiveChannel.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenStopLiveChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Stop MediaLive channel adapter', () => {

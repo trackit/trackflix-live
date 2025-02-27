@@ -1,5 +1,5 @@
 import { tokenEventUpdateSender } from '../../ports';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface AttachIotPolicyUseCase {
   attachIotPolicy(identityId: string): Promise<void>;

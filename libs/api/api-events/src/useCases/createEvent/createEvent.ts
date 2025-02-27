@@ -6,7 +6,7 @@ import {
   tokenEventUpdateSender,
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export type CreateEventArgs = Pick<
   Event,

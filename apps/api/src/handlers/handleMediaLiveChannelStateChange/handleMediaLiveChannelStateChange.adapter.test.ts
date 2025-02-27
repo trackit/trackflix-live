@@ -1,6 +1,6 @@
 import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChannelStateChange.adapter';
 import { EventBridgeEvent } from 'aws-lambda';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenHandleLiveChannelStateChangeUseCase } from '@trackflix-live/api-events';
 
 describe('Handle MediaLive channel state change adapter', () => {

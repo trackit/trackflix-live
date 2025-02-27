@@ -3,7 +3,7 @@ import {
   tokenStopTransmissionUseCase,
 } from '@trackflix-live/api-events';
 import { StopTransmissionAdapter } from './stopTransmission.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 
 describe('Stop Transmission adapter', () => {
   it('should call use case', async () => {

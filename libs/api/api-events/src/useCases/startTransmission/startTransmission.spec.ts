@@ -3,7 +3,7 @@ import {
   registerTestInfrastructure,
   tokenTransmissionsManagerFake,
 } from '../../infrastructure';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Start transmission use case', () => {
   it('should start transmission', async () => {

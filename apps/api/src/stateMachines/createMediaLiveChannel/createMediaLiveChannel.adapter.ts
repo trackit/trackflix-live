@@ -1,5 +1,5 @@
 import { tokenCreateLiveChannelUseCase } from '@trackflix-live/api-events';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 export class CreateMediaLiveChannelAdapter {
   private readonly useCase = inject(tokenCreateLiveChannelUseCase);

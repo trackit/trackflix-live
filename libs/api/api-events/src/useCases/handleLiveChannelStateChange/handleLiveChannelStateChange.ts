@@ -2,7 +2,7 @@ import {
   tokenTaskTokensRepository,
   tokenTransmissionsManager,
 } from '../../ports';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface HandleLiveChannelStateChangeParameters {
   channelArn: string;

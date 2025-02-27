@@ -1,5 +1,5 @@
 import { tokenDeletePackageChannelUseCase } from '@trackflix-live/api-events';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 export class DeleteMediaPackageChannelAdapter {
   private readonly useCase = inject(tokenDeletePackageChannelUseCase);

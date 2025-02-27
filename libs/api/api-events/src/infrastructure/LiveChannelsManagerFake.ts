@@ -3,7 +3,7 @@ import {
   CreateChannelResponse,
   LiveChannelsManager,
 } from '../ports/LiveChannelsManager';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 import { EventsRepositoryInMemory } from './EventsRepositoryInMemory';
 
 export class LiveChannelsManagerFake implements LiveChannelsManager {

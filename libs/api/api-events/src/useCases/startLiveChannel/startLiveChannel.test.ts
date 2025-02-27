@@ -7,7 +7,7 @@ import {
 } from '../../infrastructure';
 import { StartLiveChannelUseCaseImpl } from './startLiveChannel';
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Start live channel use case', () => {
   it('should start live channel', async () => {

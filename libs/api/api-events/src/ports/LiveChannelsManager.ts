@@ -1,4 +1,4 @@
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface CreateChannelParameters {
   eventId: string;

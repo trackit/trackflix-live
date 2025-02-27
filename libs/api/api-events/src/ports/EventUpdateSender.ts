@@ -1,5 +1,5 @@
 import { EventUpdate } from '@trackflix-live/types';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface EventUpdateSender {
   send(eventUpdate: EventUpdate): Promise<void>;

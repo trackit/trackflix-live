@@ -4,7 +4,7 @@ import {
   tokenTaskTokensRepositoryInMemory,
   tokenTransmissionsManagerFake,
 } from '../../infrastructure';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 describe('Handle live channel state change use case', () => {
   it('should do nothing if no task token exist', async () => {
     const { useCase } = setup();

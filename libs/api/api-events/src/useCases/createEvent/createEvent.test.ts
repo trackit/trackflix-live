@@ -8,7 +8,7 @@ import {
 import { CreateEventMother } from './CreateEventMother';
 import { tokenEventUpdateSenderFake } from '../../infrastructure';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {

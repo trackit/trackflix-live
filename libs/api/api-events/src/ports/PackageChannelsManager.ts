@@ -1,5 +1,5 @@
 import { EventEndpoint } from '@trackflix-live/types';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface CreatePackageChannelResponse {
   channelId: string;

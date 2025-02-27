@@ -1,4 +1,4 @@
-import { register } from 'di';
+import { register } from '@trackflix-live/di';
 import {
   tokenEventSchedulerStart,
   tokenEventSchedulerStop,

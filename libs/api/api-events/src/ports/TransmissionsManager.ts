@@ -1,4 +1,4 @@
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface ResumeStartTransmissionParameters {
   taskToken: string;

@@ -3,7 +3,7 @@ import {
   PackageChannelsManager,
 } from '../ports/PackageChannelsManager';
 import { EventEndpoint } from '@trackflix-live/types';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export class PackageChannelsManagerFake implements PackageChannelsManager {
   private packageChannelId = '8123456';

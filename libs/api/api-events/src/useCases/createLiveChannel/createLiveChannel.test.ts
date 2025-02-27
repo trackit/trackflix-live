@@ -7,7 +7,7 @@ import {
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {

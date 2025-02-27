@@ -1,5 +1,5 @@
 import { DeleteMediaPackageChannelAdapter } from './deleteMediaPackageChannel.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenDeletePackageChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Delete MediaPackage channel adapter', () => {

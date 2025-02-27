@@ -1,5 +1,5 @@
 import { EventScheduler, ScheduledEvent } from '../ports';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export class EventSchedulerFake implements EventScheduler {
   public readonly scheduledEvents: ScheduledEvent[] = [];

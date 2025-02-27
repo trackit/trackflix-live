@@ -1,5 +1,5 @@
 import { tokenTransmissionsManager } from '../../ports';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface StartTransmissionUseCase {
   startTransmission(eventId: string): Promise<void>;

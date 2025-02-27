@@ -6,7 +6,7 @@ import {
   EventStatus,
 } from '@trackflix-live/types';
 import { ListEventsParams } from '../ports';
-import { createInjectionToken } from 'di';
+import { createInjectionToken } from '@trackflix-live/di';
 import { EventSchedulerFake } from './EventSchedulerFake';
 
 export class EventsRepositoryInMemory implements EventsRepository {

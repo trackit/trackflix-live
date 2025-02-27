@@ -5,7 +5,7 @@ import {
   tokenTaskTokensRepository,
 } from '../../ports';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { createInjectionToken, inject } from 'di';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 import { StopTransmissionUseCaseImpl } from '../stopTransmission';
 
 export interface StopLiveChannelParameters {

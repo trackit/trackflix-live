@@ -1,7 +1,7 @@
 import { ListEventsAdapter } from './listEvents.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenListEventsUseCase } from '@trackflix-live/api-events';
 
 describe('List events adapter', () => {

@@ -3,7 +3,7 @@ import {
   tokenEventUpdateSenderFake,
   registerTestInfrastructure,
 } from '../../infrastructure';
-import { inject, reset } from 'di';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Attach Iot policy use case', () => {
   it('should attach policy', async () => {

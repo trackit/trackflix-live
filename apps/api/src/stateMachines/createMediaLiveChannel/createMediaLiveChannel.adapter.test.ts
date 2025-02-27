@@ -1,5 +1,5 @@
 import { CreateMediaLiveChannelAdapter } from './createMediaLiveChannel.adapter';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenCreateLiveChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Create MediaLive channel adapter', () => {

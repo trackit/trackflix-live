@@ -1,6 +1,6 @@
 import { AttachIotPolicyAdapter } from './attachIotPolicy.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { register, reset } from 'di';
+import { register, reset } from '@trackflix-live/di';
 import { tokenAttachIotPolicyUseCase } from '@trackflix-live/api-events';
 
 describe('Attach Iot Policy adapter', () => {

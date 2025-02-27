@@ -1,4 +1,4 @@
-import { inject, register } from 'di';
+import { inject, register } from '@trackflix-live/di';
 import {
   tokenEventSchedulerStartFake,
   tokenEventSchedulerStopFake,

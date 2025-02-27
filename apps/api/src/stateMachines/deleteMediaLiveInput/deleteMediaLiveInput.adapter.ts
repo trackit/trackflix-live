@@ -1,5 +1,5 @@
 import { tokenDeleteLiveInputUseCase } from '@trackflix-live/api-events';
-import { inject } from 'di';
+import { inject } from '@trackflix-live/di';
 
 export class DeleteMediaLiveInputAdapter {
   private readonly useCase = inject(tokenDeleteLiveInputUseCase);
