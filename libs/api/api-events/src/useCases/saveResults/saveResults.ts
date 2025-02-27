@@ -1,25 +1,15 @@
-import { EventsRepository, EventUpdateSender } from '../../ports';
+import { tokenEventsRepository, tokenEventUpdateSender } from '../../ports';
 import { EventStatus, EventUpdateAction, LogType } from '@trackflix-live/types';
+import { inject } from 'di';
 
 export interface SaveResultsUseCase {
   saveResults(eventId: string): Promise<void>;
 }
 
 export class SaveResultsUseCaseImpl implements SaveResultsUseCase {
-  private readonly eventUpdateSender: EventUpdateSender;
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  private readonly eventsRepository: EventsRepository;
-
-  public constructor({
-    eventUpdateSender,
-    eventsRepository,
-  }: {
-    eventUpdateSender: EventUpdateSender;
-    eventsRepository: EventsRepository;
-  }) {
-    this.eventUpdateSender = eventUpdateSender;
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
   public async saveResults(eventId: string): Promise<void> {
     await this.eventsRepository.appendLogsToEvent(eventId, [

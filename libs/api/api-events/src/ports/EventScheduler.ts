@@ -1,3 +1,5 @@
+import { createInjectionToken } from 'di';
+
 export interface ScheduledEvent {
   time: Date;
   id: string;
@@ -7,3 +9,10 @@ export interface ScheduledEvent {
 export interface EventScheduler {
   scheduleEvent(args: ScheduledEvent): Promise<void>;
 }
+
+export const tokenEventSchedulerStart = createInjectionToken<EventScheduler>(
+  'EventSchedulerStart'
+);
+
+export const tokenEventSchedulerStop =
+  createInjectionToken<EventScheduler>('EventSchedulerStop');

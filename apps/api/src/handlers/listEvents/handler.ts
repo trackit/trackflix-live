@@ -1,17 +1,11 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ListEventsAdapter } from './listEvents.adapter';
-import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRepository';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { ListEventsUseCaseImpl } from '@trackflix-live/api-events';
+import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
-const eventsRepository = new EventsDynamoDBRepository(
-  new DynamoDBClient({}),
-  process.env.EVENTS_TABLE || ''
-);
+registerProductionInfrastructure();
 
-const useCase = new ListEventsUseCaseImpl({
-  eventsRepository,
-});
+const useCase = new ListEventsUseCaseImpl();
 
 const adapter = new ListEventsAdapter({
   useCase,

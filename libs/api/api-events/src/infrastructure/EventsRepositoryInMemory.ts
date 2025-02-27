@@ -6,6 +6,8 @@ import {
   EventStatus,
 } from '@trackflix-live/types';
 import { ListEventsParams } from '../ports';
+import { createInjectionToken } from 'di';
+import { EventSchedulerFake } from './EventSchedulerFake';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -170,3 +172,8 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 }
+
+export const tokenEventsRepositoryInMemory =
+  createInjectionToken<EventsRepositoryInMemory>('EventsRepositoryInMemory', {
+    useClass: EventsRepositoryInMemory,
+  });

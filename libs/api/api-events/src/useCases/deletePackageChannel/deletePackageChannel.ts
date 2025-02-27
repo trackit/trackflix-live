@@ -1,9 +1,10 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  PackageChannelsManager,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenPackageChannelsManager,
 } from '../../ports';
 import { EventStatus, EventUpdateAction, LogType } from '@trackflix-live/types';
+import { inject } from 'di';
 
 export interface DeletePackageChannelParameters {
   eventId: string;
@@ -16,25 +17,11 @@ export interface DeletePackageChannelUseCase {
 export class DeletePackageChannelUseCaseImpl
   implements DeletePackageChannelUseCase
 {
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  private readonly packageChannelsManager: PackageChannelsManager;
-
-  public constructor({
-    packageChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    packageChannelsManager: PackageChannelsManager;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.packageChannelsManager = packageChannelsManager;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly packageChannelsManager = inject(tokenPackageChannelsManager);
 
   public async deletePackageChannel({
     eventId,

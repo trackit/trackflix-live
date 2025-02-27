@@ -1,36 +1,10 @@
-import { MediaPackageClient } from '@aws-sdk/client-mediapackage';
-import { MediaPackageChannelsManager } from '../../infrastructure/MediaPackageChannelsManager';
 import { CreatePackageChannelUseCaseImpl } from '@trackflix-live/api-events';
 import { CreateMediaPackageChannelAdapter } from './createMediaPackageChannel.adapter';
-import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRepository';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
-import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
-import { IoTClient } from '@aws-sdk/client-iot';
+import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
-const mediaPackageClient = new MediaPackageClient();
+registerProductionInfrastructure();
 
-const packageChannelsManager = new MediaPackageChannelsManager({
-  client: mediaPackageClient,
-});
-
-const eventsRepository = new EventsDynamoDBRepository(
-  new DynamoDBClient({}),
-  process.env.EVENTS_TABLE || ''
-);
-
-const eventUpdateSender = new EventsIotUpdateSender({
-  dataPlaneClient: new IoTDataPlaneClient({}),
-  client: new IoTClient(),
-  iotTopicName: process.env.IOT_TOPIC || '',
-  iotPolicy: process.env.IOT_POLICY || '',
-});
-
-const useCase = new CreatePackageChannelUseCaseImpl({
-  packageChannelsManager,
-  eventsRepository,
-  eventUpdateSender,
-});
+const useCase = new CreatePackageChannelUseCaseImpl();
 
 const adapter = new CreateMediaPackageChannelAdapter({
   useCase,

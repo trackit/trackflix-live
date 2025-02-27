@@ -1,23 +1,16 @@
 import {
-  EventsRepository,
   ListEventsParams,
   ListEventsResponse,
+  tokenEventsRepository,
 } from '../../ports';
+import { inject } from 'di';
 
 export interface ListEventsUseCase {
   listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
-  private readonly eventsRepository: EventsRepository;
-
-  public constructor({
-    eventsRepository,
-  }: {
-    eventsRepository: EventsRepository;
-  }) {
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
   public async listEvents({
     limit,

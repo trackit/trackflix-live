@@ -1,5 +1,9 @@
 import { StartTransmissionUseCaseImpl } from './startTransmission';
-import { TransmissionsManagerFake } from '../../infrastructure/TransmissionsManagerFake';
+import {
+  registerTestInfrastructure,
+  tokenTransmissionsManagerFake,
+} from '../../infrastructure';
+import { inject, reset } from 'di';
 
 describe('Start transmission use case', () => {
   it('should start transmission', async () => {
@@ -13,11 +17,14 @@ describe('Start transmission use case', () => {
 });
 
 const setup = () => {
-  const transmissionsManager = new TransmissionsManagerFake();
+  reset();
+  registerTestInfrastructure();
+  const transmissionsManager = inject(tokenTransmissionsManagerFake);
+
+  const useCase = new StartTransmissionUseCaseImpl();
+
   return {
     transmissionsManager,
-    useCase: new StartTransmissionUseCaseImpl({
-      transmissionsManager,
-    }),
+    useCase,
   };
 };

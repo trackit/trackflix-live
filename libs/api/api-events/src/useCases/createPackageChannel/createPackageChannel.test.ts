@@ -1,13 +1,17 @@
 import { CreatePackageChannelUseCaseImpl } from './createPackageChannel';
-import { PackageChannelsManagerFake } from '../../infrastructure/PackageChannelsManagerFake';
-import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
-import { EventUpdateSenderFake } from '../../infrastructure/EventUpdateSenderFake';
+import {
+  tokenPackageChannelsManagerFake,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  registerTestInfrastructure,
+} from '../../infrastructure';
 import {
   EndpointType,
   EventMother,
   EventUpdateAction,
   LogType,
 } from '@trackflix-live/types';
+import { inject, reset } from 'di';
 
 describe('Create Package channel use case', () => {
   it('should create channel', async () => {
@@ -103,14 +107,13 @@ describe('Create Package channel use case', () => {
 });
 
 const setup = () => {
-  const packageChannelsManager = new PackageChannelsManagerFake();
-  const eventsRepository = new EventsRepositoryInMemory();
-  const eventUpdateSender = new EventUpdateSenderFake();
-  const useCase = new CreatePackageChannelUseCaseImpl({
-    packageChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  });
+  reset();
+  registerTestInfrastructure();
+  const packageChannelsManager = inject(tokenPackageChannelsManagerFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
+
+  const useCase = new CreatePackageChannelUseCaseImpl();
 
   return {
     useCase,

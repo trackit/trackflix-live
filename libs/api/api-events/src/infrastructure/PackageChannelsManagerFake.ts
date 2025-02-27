@@ -3,6 +3,7 @@ import {
   PackageChannelsManager,
 } from '../ports/PackageChannelsManager';
 import { EventEndpoint } from '@trackflix-live/types';
+import { createInjectionToken } from 'di';
 
 export class PackageChannelsManagerFake implements PackageChannelsManager {
   private packageChannelId = '8123456';
@@ -35,3 +36,11 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
     this.deletedChannels.push(eventId);
   }
 }
+
+export const tokenPackageChannelsManagerFake =
+  createInjectionToken<PackageChannelsManagerFake>(
+    'PackageChannelsManagerFake',
+    {
+      useClass: PackageChannelsManagerFake,
+    }
+  );

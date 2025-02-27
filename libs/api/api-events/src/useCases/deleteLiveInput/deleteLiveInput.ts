@@ -1,9 +1,10 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  LiveChannelsManager,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { inject } from 'di';
 
 export interface DeleteLiveInputParameters {
   eventId: string;
@@ -14,25 +15,11 @@ export interface DeleteLiveInputUseCase {
 }
 
 export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    liveChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async deleteLiveInput({
     eventId,

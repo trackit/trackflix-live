@@ -4,6 +4,7 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
+import { createInjectionToken } from 'di';
 
 export interface ListEventsParams {
   limit: number;
@@ -36,3 +37,6 @@ export interface EventsRepository {
     destroyedTime: string
   ): Promise<Event>;
 }
+
+export const tokenEventsRepository =
+  createInjectionToken<EventsRepository>('EventsRepository');

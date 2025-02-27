@@ -1,3 +1,6 @@
+import { createInjectionToken } from 'di';
+import { PackageChannelsManager } from './PackageChannelsManager';
+
 export interface CreateTaskTokenParameters {
   channelArn: string;
   expectedStatus: 'CREATED' | 'RUNNING' | 'STOPPING' | 'STOPPED' | 'DELETED';
@@ -21,3 +24,6 @@ export interface TaskTokensRepository {
     parameters: ConsumeTaskTokenParameters
   ): Promise<ConsumeTaskTokenResponse | undefined>;
 }
+
+export const tokenTaskTokensRepository =
+  createInjectionToken<TaskTokensRepository>('TaskTokensRepository');

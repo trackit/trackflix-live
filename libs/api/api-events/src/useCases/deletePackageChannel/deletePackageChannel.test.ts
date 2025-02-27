@@ -1,7 +1,8 @@
 import {
-  EventsRepositoryInMemory,
-  EventUpdateSenderFake,
-  PackageChannelsManagerFake,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenPackageChannelsManagerFake,
 } from '../../infrastructure';
 import { DeletePackageChannelUseCaseImpl } from './deletePackageChannel';
 import {
@@ -10,6 +11,7 @@ import {
   EventUpdateAction,
   LogType,
 } from '@trackflix-live/types';
+import { inject, reset } from 'di';
 
 describe('Delete live channel use case', () => {
   it('should delete live channel', async () => {
@@ -110,15 +112,13 @@ describe('Delete live channel use case', () => {
 });
 
 const setup = () => {
-  const packageChannelsManager = new PackageChannelsManagerFake();
-  const eventsRepository = new EventsRepositoryInMemory();
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const packageChannelsManager = inject(tokenPackageChannelsManagerFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new DeletePackageChannelUseCaseImpl({
-    packageChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  });
+  const useCase = new DeletePackageChannelUseCaseImpl();
 
   return {
     packageChannelsManager,

@@ -1,19 +1,12 @@
-import { TransmissionsManager } from '../../ports';
+import { tokenTransmissionsManager } from '../../ports';
+import { inject } from 'di';
 
 export interface StartTransmissionUseCase {
   startTransmission(eventId: string): Promise<void>;
 }
 
 export class StartTransmissionUseCaseImpl implements StartTransmissionUseCase {
-  private readonly transmissionsManager: TransmissionsManager;
-
-  constructor({
-    transmissionsManager,
-  }: {
-    transmissionsManager: TransmissionsManager;
-  }) {
-    this.transmissionsManager = transmissionsManager;
-  }
+  private readonly transmissionsManager = inject(tokenTransmissionsManager);
 
   public async startTransmission(eventId: string): Promise<void> {
     console.log(`Starting transmission ${eventId}`);

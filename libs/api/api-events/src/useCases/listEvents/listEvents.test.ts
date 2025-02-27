@@ -1,6 +1,10 @@
 import { ListEventsUseCaseImpl } from './listEvents';
-import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
+import {
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+} from '../../infrastructure';
 import { EventMother, EventStatus } from '@trackflix-live/types';
+import { inject, reset } from 'di';
 
 describe('ListEvents use case', () => {
   it('should return a list of events', async () => {
@@ -183,11 +187,11 @@ describe('ListEvents use case', () => {
 });
 
 const setup = () => {
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
 
-  const useCase = new ListEventsUseCaseImpl({
-    eventsRepository,
-  });
+  const useCase = new ListEventsUseCaseImpl();
 
   return {
     eventsRepository,
