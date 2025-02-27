@@ -5,3 +5,4 @@ export * from './EventUpdateSenderFake';
 export * from './LiveChannelsManagerFake';
 export * from './PackageChannelsManagerFake';
 export * from './TaskTokensRepositoryInMemory';
+export * from './registerTestInfrastructure';

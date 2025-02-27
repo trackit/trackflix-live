@@ -1,9 +1,10 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  PackageChannelsManager,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenPackageChannelsManager,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreatePackageChannelUseCase {
   createPackageChannel(eventId: string): Promise<string>;
@@ -12,25 +13,11 @@ export interface CreatePackageChannelUseCase {
 export class CreatePackageChannelUseCaseImpl
   implements CreatePackageChannelUseCase
 {
-  private readonly packageChannelsManager: PackageChannelsManager;
+  private readonly packageChannelsManager = inject(tokenPackageChannelsManager);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    packageChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    packageChannelsManager: PackageChannelsManager;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.packageChannelsManager = packageChannelsManager;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async createPackageChannel(eventId: string): Promise<string> {
     const { channelId, endpoints } =
@@ -53,3 +40,11 @@ export class CreatePackageChannelUseCaseImpl
     return channelId;
   }
 }
+
+export const tokenCreatePackageChannelUseCase =
+  createInjectionToken<CreatePackageChannelUseCase>(
+    'CreatePackageChannelUseCase',
+    {
+      useClass: CreatePackageChannelUseCaseImpl,
+    }
+  );

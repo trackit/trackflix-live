@@ -1,4 +1,5 @@
 import { EventScheduler, ScheduledEvent } from '../ports';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export class EventSchedulerFake implements EventScheduler {
   public readonly scheduledEvents: ScheduledEvent[] = [];
@@ -7,3 +8,13 @@ export class EventSchedulerFake implements EventScheduler {
     this.scheduledEvents.push(scheduledEvent);
   }
 }
+
+export const tokenEventSchedulerStartFake =
+  createInjectionToken<EventSchedulerFake>('EventSchedulerStartFake', {
+    useClass: EventSchedulerFake,
+  });
+
+export const tokenEventSchedulerStopFake =
+  createInjectionToken<EventSchedulerFake>('EventSchedulerStopFake', {
+    useClass: EventSchedulerFake,
+  });

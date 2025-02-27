@@ -1,4 +1,6 @@
 import { DeleteMediaLiveInputAdapter } from './deleteMediaLiveInput.adapter';
+import { register, reset } from '@trackflix-live/di';
+import { tokenDeleteLiveInputUseCase } from '@trackflix-live/api-events';
 
 describe('Delete MediaLive input adapter', () => {
   it('should call use case', async () => {
@@ -19,12 +21,15 @@ describe('Delete MediaLive input adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     deleteLiveInput: jest.fn(),
   };
-  const adapter = new DeleteMediaLiveInputAdapter({
-    useCase,
-  });
+  register(tokenDeleteLiveInputUseCase, { useValue: useCase });
+
+  const adapter = new DeleteMediaLiveInputAdapter();
+
   return {
     useCase,
     adapter,

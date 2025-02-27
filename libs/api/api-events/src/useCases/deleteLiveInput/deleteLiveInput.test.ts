@@ -1,10 +1,12 @@
 import {
-  EventsRepositoryInMemory,
-  EventUpdateSenderFake,
-  LiveChannelsManagerFake,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenLiveChannelsManagerFake,
 } from '../../infrastructure';
 import { DeleteLiveInputUseCaseImpl } from './deleteLiveInput';
 import { EventMother, LogType } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Delete live input use case', () => {
   it('should delete live input', async () => {
@@ -131,15 +133,13 @@ describe('Delete live input use case', () => {
 });
 
 const setup = () => {
-  const liveChannelsManager = new LiveChannelsManagerFake();
-  const eventsRepository = new EventsRepositoryInMemory();
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new DeleteLiveInputUseCaseImpl({
-    liveChannelsManager,
-    eventsRepository,
-    eventUpdateSender,
-  });
+  const useCase = new DeleteLiveInputUseCaseImpl();
 
   return {
     liveChannelsManager,

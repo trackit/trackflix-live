@@ -1,10 +1,11 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
@@ -24,30 +25,13 @@ export interface CreateLiveChannelUseCase {
 }
 
 export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    eventsRepository,
-    liveChannelsManager,
-    taskTokensRepository,
-    eventUpdateSender,
-  }: {
-    eventsRepository: EventsRepository;
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.eventsRepository = eventsRepository;
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async createLiveChannel({
     eventId,
@@ -106,3 +90,8 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     return liveChannel;
   }
 }
+
+export const tokenCreateLiveChannelUseCase =
+  createInjectionToken<CreateLiveChannelUseCase>('CreateLiveChannelUseCase', {
+    useClass: CreateLiveChannelUseCaseImpl,
+  });

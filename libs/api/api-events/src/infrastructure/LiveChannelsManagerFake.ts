@@ -3,6 +3,8 @@ import {
   CreateChannelResponse,
   LiveChannelsManager,
 } from '../ports/LiveChannelsManager';
+import { createInjectionToken } from '@trackflix-live/di';
+import { EventsRepositoryInMemory } from './EventsRepositoryInMemory';
 
 export class LiveChannelsManagerFake implements LiveChannelsManager {
   private createChannelResponse: CreateChannelResponse = {
@@ -50,3 +52,8 @@ export class LiveChannelsManagerFake implements LiveChannelsManager {
     this.deletedInputs.push(inputId);
   }
 }
+
+export const tokenLiveChannelsManagerFake =
+  createInjectionToken<LiveChannelsManagerFake>('LiveChannelsManagerFake', {
+    useClass: LiveChannelsManagerFake,
+  });

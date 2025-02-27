@@ -1,10 +1,11 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface StartLiveChannelParameters {
   eventId: string;
@@ -19,30 +20,13 @@ export interface StartLiveChannelUseCase {
 }
 
 export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  private readonly eventsRepository: EventsRepository;
-
-  public constructor({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventUpdateSender,
-    eventsRepository,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventUpdateSender: EventUpdateSender;
-    eventsRepository: EventsRepository;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventUpdateSender = eventUpdateSender;
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
   public async startLiveChannel({
     liveChannelId,
@@ -77,3 +61,8 @@ export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
     });
   }
 }
+
+export const tokenStartLiveChannelUseCase =
+  createInjectionToken<StartLiveChannelUseCase>('StartLiveChannelUseCase', {
+    useClass: StartLiveChannelUseCaseImpl,
+  });

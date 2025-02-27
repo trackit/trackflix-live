@@ -1,3 +1,5 @@
+import { createInjectionToken } from '@trackflix-live/di';
+
 export interface CreateChannelParameters {
   eventId: string;
   source: string;
@@ -19,3 +21,5 @@ export interface LiveChannelsManager {
   deleteChannel(channelId: string): Promise<void>;
   deleteInput(inputId: string): Promise<void>;
 }
+export const tokenLiveChannelsManager =
+  createInjectionToken<LiveChannelsManager>('LiveChannelsManager');

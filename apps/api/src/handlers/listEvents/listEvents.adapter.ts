@@ -1,9 +1,10 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { ListEventsUseCase } from '@trackflix-live/api-events';
+import { tokenListEventsUseCase } from '@trackflix-live/api-events';
 import Ajv, { JSONSchemaType } from 'ajv';
 import { ListEventsRequest, ListEventsResponse } from '@trackflix-live/types';
+import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
 
@@ -59,11 +60,7 @@ const schema: JSONSchemaType<ListEventsRequest['queryStringParameters']> = {
 };
 
 export class ListEventsAdapter {
-  private readonly useCase: ListEventsUseCase;
-
-  public constructor({ useCase }: { useCase: ListEventsUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenListEventsUseCase);
 
   public async handle(
     event: APIGatewayProxyEventV2

@@ -2,6 +2,8 @@ import {
   ResumeStartTransmissionParameters,
   TransmissionsManager,
 } from '../ports/TransmissionsManager';
+import { createInjectionToken } from '@trackflix-live/di';
+import { TaskTokensRepositoryInMemory } from './TaskTokensRepositoryInMemory';
 
 export class TransmissionsManagerFake implements TransmissionsManager {
   public readonly startedTransmissions: string[] = [];
@@ -25,3 +27,8 @@ export class TransmissionsManagerFake implements TransmissionsManager {
     this.stoppedTransmissions.push(eventId);
   }
 }
+
+export const tokenTransmissionsManagerFake =
+  createInjectionToken<TransmissionsManagerFake>('TransmissionsManagerFake', {
+    useClass: TransmissionsManagerFake,
+  });

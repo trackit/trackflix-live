@@ -1,6 +1,8 @@
 import { ListEventsAdapter } from './listEvents.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
+import { register, reset } from '@trackflix-live/di';
+import { tokenListEventsUseCase } from '@trackflix-live/api-events';
 
 describe('List events adapter', () => {
   it('should call use case', async () => {
@@ -12,7 +14,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response', async () => {
-    const { adapter, useCase, sampleEvent } = setup();
+    const { adapter, useCase } = setup();
+    const sampleEvent = EventMother.basic().build();
+
     useCase.listEvents.mockImplementationOnce(() => ({
       events: [sampleEvent],
       nextToken: null,
@@ -28,7 +32,8 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if nextToken is valid', async () => {
-    const { adapter, useCase, sampleEvent } = setup();
+    const { adapter, useCase } = setup();
+    const sampleEvent = EventMother.basic().build();
 
     useCase.listEvents.mockImplementationOnce(() => ({
       events: [sampleEvent],
@@ -188,17 +193,15 @@ describe('List events adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     listEvents: jest.fn(),
   };
-
-  const sampleEvent = EventMother.basic().build();
+  register(tokenListEventsUseCase, { useValue: useCase });
 
   return {
-    adapter: new ListEventsAdapter({
-      useCase,
-    }),
+    adapter: new ListEventsAdapter(),
     useCase,
-    sampleEvent,
   };
 };
