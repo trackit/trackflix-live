@@ -1,22 +1,25 @@
 import {
   ColumnDef,
+  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   PaginationState,
+  SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { TableHeader } from './table-header';
 import { TableBody } from './table-body';
 import { useState } from 'react';
-
+import { ChevronUp, ChevronDown } from 'lucide-react';
 export interface TableProps<T> {
   data: T[];
   nextToken?: string;
   setNextToken: (nextToken?: string) => void;
   columns: ColumnDef<T, string>[];
-  isPending: boolean;
+  isPending?: boolean;
   setPerPage: (page: number) => void;
   perPage: number;
+  sorting?: SortingState;
+  setSorting?: (sorting: SortingState) => void;
 }
 
 export function Table<T extends { id: string }>({
@@ -27,6 +30,8 @@ export function Table<T extends { id: string }>({
   isPending,
   setPerPage,
   perPage,
+  sorting,
+  setSorting,
 }: TableProps<T>) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -39,8 +44,14 @@ export function Table<T extends { id: string }>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    state: { pagination },
+    onSortingChange: (updater) => {
+      setSorting?.(
+        typeof updater === 'function' ? updater(sorting ?? []) : updater
+      );
+    },
+    state: { pagination, sorting },
     manualPagination: true,
+    manualSorting: true,
   });
 
   const [tokenMap, setTokenMap] = useState<{
@@ -78,28 +89,55 @@ export function Table<T extends { id: string }>({
   return (
     <div className="h-full flex flex-col">
       <div className="flex-grow overflow-auto">
-        <table className="table w-full h-full">
-          <TableHeader table={table} />
+        <table className="table w-full">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    onClick={header.column.getToggleSortingHandler()}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {header.column.getIsSorted() ? (
+                        header.column.getIsSorted() === 'asc' ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )
+                      ) : null}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
           {isPending ? (
-            <tbody
-              className={
-                'flex content-center justify-center center h-full w-full'
-              }
-            >
-              <tr
-                className="loading loading-dots loading-lg"
-                data-testid="loader"
-              ></tr>
+            <tbody>
+              <tr>
+                <td colSpan={columns.length} className="h-full w-full">
+                  <div className="flex justify-center items-center h-full w-full">
+                    <span className="loading loading-ring loading-lg"></span>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           ) : (
             <TableBody table={table} />
           )}
         </table>
       </div>
-      <div className="flex justify-center items-center space-x-4 w-full p-4 border-t">
+      <div className="flex justify-center items-center space-x-4 w-full p-4 border-t border-base-300">
         <button
           aria-label={'Go to previous page'}
-          className={`btn btn-outline ${
+          className={`btn btn-sm ${
             table.getCanPreviousPage() ? '' : 'btn-disabled'
           }`}
           disabled={!table.getCanPreviousPage()}
@@ -113,7 +151,7 @@ export function Table<T extends { id: string }>({
           {table.getState().pagination.pageIndex + 1}
         </span>
         <button
-          className={`btn btn-outline ${
+          className={`btn btn-sm ${
             table.getCanNextPage() && nextToken ? '' : 'btn-disabled'
           }`}
           aria-label={'Go to next page'}
@@ -125,7 +163,8 @@ export function Table<T extends { id: string }>({
           {'>'}
         </button>
         <select
-          className="select select-bordered max-w-xs"
+          className="select select-bordered select-sm"
+          value={perPage}
           onChange={(e) => {
             setPerPage(+e.target.value);
           }}
