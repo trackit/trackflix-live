@@ -58,40 +58,87 @@ const getStatusIcon = (status: EventStatus | undefined) => {
   }
 };
 
-const initialTimelineSteps: TimelineStepWithLog[] = [
-  {
-    text: 'Create MediaPackage Channel',
-    id: LogType.PACKAGE_CHANNEL_CREATED,
-  },
-  {
-    text: 'Create MediaLive Input',
-    id: LogType.LIVE_INPUT_CREATED,
-  },
-  {
-    text: 'Create MediaLive Channel',
-    id: LogType.LIVE_CHANNEL_CREATED,
-  },
-  {
-    text: 'Start MediaLive Channel',
-    id: LogType.LIVE_CHANNEL_STARTED,
-  },
-  {
-    text: 'Stop MediaLive Channel',
-    id: LogType.LIVE_CHANNEL_STOPPED,
-  },
-  {
-    text: 'Delete MediaLive Channel',
-    id: LogType.LIVE_CHANNEL_DESTROYED,
-  },
-  {
-    text: 'Delete MediaLive Input',
-    id: LogType.LIVE_INPUT_DESTROYED,
-  },
-  {
-    text: 'Delete MediaPackage Channel',
-    id: LogType.PACKAGE_CHANNEL_DESTROYED,
-  },
-];
+const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
+  const res: TimelineStepWithLog[] = [
+    {
+      id: LogType.PACKAGE_CHANNEL_CREATED,
+      text: 'Create MediaPackage Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.PACKAGE_CHANNEL_CREATED
+      ),
+    },
+    {
+      id: LogType.LIVE_INPUT_CREATED,
+      text: 'Create MediaLive Input',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_INPUT_CREATED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type ===
+        LogType.PACKAGE_CHANNEL_CREATED,
+    },
+    {
+      id: LogType.LIVE_CHANNEL_CREATED,
+      text: 'Create MediaLive Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_CHANNEL_CREATED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type === LogType.LIVE_INPUT_CREATED,
+    },
+    {
+      id: LogType.LIVE_CHANNEL_STARTED,
+      text: 'Start MediaLive Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_CHANNEL_STARTED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type === LogType.LIVE_CHANNEL_CREATED,
+    },
+    {
+      id: LogType.LIVE_CHANNEL_STOPPED,
+      text: 'Stop MediaLive Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_CHANNEL_STOPPED
+      ),
+    },
+    {
+      id: LogType.LIVE_CHANNEL_DESTROYED,
+      text: 'Delete MediaLive Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_CHANNEL_DESTROYED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type === LogType.LIVE_CHANNEL_STOPPED,
+    },
+    {
+      id: LogType.LIVE_INPUT_DESTROYED,
+      text: 'Delete MediaLive Input',
+      completed: event.logs.some(
+        (log) => log.type === LogType.LIVE_INPUT_DESTROYED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type ===
+        LogType.LIVE_CHANNEL_DESTROYED,
+    },
+    {
+      id: LogType.PACKAGE_CHANNEL_DESTROYED,
+      text: 'Delete MediaPackage Channel',
+      completed: event.logs.some(
+        (log) => log.type === LogType.PACKAGE_CHANNEL_DESTROYED
+      ),
+      loading:
+        event.logs[event.logs.length - 1].type === LogType.LIVE_INPUT_DESTROYED,
+    },
+  ];
+  for (const log of event.logs) {
+    const step = res.find((step) => step.id === log.type);
+    if (step) {
+      step.datetime = DateTime.fromMillis(log.timestamp).toISO() || undefined;
+    }
+  }
+  return res;
+};
 
 const getTxSteps = (event: Event): Step[] => {
   const isEnded = event?.status === 'ENDED';
@@ -134,9 +181,9 @@ export function StatusView() {
     },
   });
   const [event, setEvent] = useState<Event | null>(null);
-  const [streamUrl, setStreamUrl] = useState<string | null>(null);
-  const [timelineSteps, setTimelineSteps] =
-    useState<TimelineStepWithLog[]>(initialTimelineSteps);
+  const [timelineSteps, setTimelineSteps] = useState<TimelineStepWithLog[]>(
+    event ? getTimelineSteps(event) : []
+  );
 
   const [txSteps, setTxSteps] = useState<Step[]>(
     event ? getTxSteps(event) : []
@@ -152,17 +199,7 @@ export function StatusView() {
   // On event update, update the timeline steps
   useEffect(() => {
     if (event && event.logs) {
-      const newTimelineSteps = timelineSteps.map((step) => {
-        const log = event.logs.find((log) => log.type === step.id);
-        return {
-          ...step,
-          completed: log ? true : false,
-          datetime: log
-            ? DateTime.fromMillis(log.timestamp).toISO() || undefined
-            : undefined,
-        };
-      });
-      setTimelineSteps(newTimelineSteps);
+      setTimelineSteps(getTimelineSteps(event));
     }
     if (event?.status === 'ENDED') {
       const updatedTxSteps = [...txSteps];
@@ -173,17 +210,6 @@ export function StatusView() {
       setTxSteps(updatedTxSteps);
     }
   }, [event]);
-
-  // TODO remove this when backend is ready
-  // Wait 10s before showing the player
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setStreamUrl(
-        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-      );
-    }, 10000);
-    return () => clearTimeout(timeout);
-  }, []);
 
   useEffect(() => {
     pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
@@ -240,18 +266,24 @@ export function StatusView() {
           </div>
 
           <Panel className={'w-full min-w-[80dvw]'}>
-            {streamUrl && (
-              <>
-                <CopyText text={streamUrl} icon={<Link />} />
-                <hr className={'my-6'} />
-              </>
-            )}
+            <>
+              <CopyText
+                text={'URL'}
+                icon={
+                  <div className="badge badge-primary badge-outline flex items-center gap-2">
+                    <Link className="w-3 h-3" />
+                    DASH
+                  </div>
+                }
+              />
+              <hr className={'my-6'} />
+            </>
             <div className={'flex'}>
               <div className={'w-1/3 p-4'}>
                 <Timeline steps={timelineSteps} />
               </div>
               <div className={'flex-grow w-1/2'}>
-                {streamUrl ? (
+                {/* {streamUrl ? (
                   <video controls muted={true} autoPlay={true}>
                     <source src={streamUrl} type="video/mp4" />
                     Your browser does not support the video tag.
@@ -261,7 +293,7 @@ export function StatusView() {
                     <SquarePlay className="w-12 h-12" />
                     <p>Player will be available soon</p>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </Panel>
