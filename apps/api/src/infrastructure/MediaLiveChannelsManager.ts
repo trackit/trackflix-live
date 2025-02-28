@@ -2,6 +2,7 @@ import {
   CreateChannelParameters,
   CreateChannelResponse,
   LiveChannelsManager,
+  StartChannelParameters,
 } from '@trackflix-live/api-events';
 import {
   CreateInputCommand,
@@ -44,7 +45,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     eventId,
     source,
     packageChannelId,
-    onAirStartTime,
   }: CreateChannelParameters): Promise<CreateChannelResponse> {
     const waitingInputName = `TrackflixLiveMLIW-${eventId}`;
     const waitingInput = await this.client.send(
@@ -714,16 +714,31 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       throw new Error(`Could not create MediaLive channel ${channelName}`);
     }
 
+    return {
+      channelArn: mediaLiveChannel.Channel.Arn,
+      channelId: mediaLiveChannel.Channel.Id,
+      inputId: input.Input.Id,
+      waitingInputId: waitingInput.Input.Id,
+    };
+  }
+
+  public async startChannel({
+    eventId,
+    channelId,
+    onAirStartTime,
+  }: StartChannelParameters): Promise<void> {
+    const inputName = `TrackflixLiveMLI-${eventId}`;
+
     await this.client.send(
       new BatchUpdateScheduleCommand({
-        ChannelId: mediaLiveChannel.Channel.Id,
+        ChannelId: channelId,
         Creates: {
           ScheduleActions: [
             {
               ActionName: 'StartContent',
               ScheduleActionSettings: {
                 InputSwitchSettings: {
-                  InputAttachmentNameReference: waitingInputName,
+                  InputAttachmentNameReference: inputName,
                 },
               },
               ScheduleActionStartSettings: {
@@ -737,15 +752,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    return {
-      channelArn: mediaLiveChannel.Channel.Arn,
-      channelId: mediaLiveChannel.Channel.Id,
-      inputId: input.Input.Id,
-      waitingInputId: waitingInput.Input.Id,
-    };
-  }
-
-  public async startChannel(channelId: string): Promise<void> {
     await this.client.send(
       new StartChannelCommand({
         ChannelId: channelId,

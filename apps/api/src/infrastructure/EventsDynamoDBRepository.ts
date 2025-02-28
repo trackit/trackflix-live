@@ -39,6 +39,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     '#liveChannelArn': 'liveChannelArn',
     '#liveChannelId': 'liveChannelId',
     '#liveInputId': 'liveInputId',
+    '#liveWaitingInputId': 'liveWaitingInputId',
     '#logs': 'logs',
     '#endpoints': 'endpoints',
   };

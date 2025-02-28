@@ -47,7 +47,6 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId: eventId,
       source: event.source,
       packageChannelId,
-      onAirStartTime: event.onAirStartTime,
     });
 
     const currentTimestamp = Date.now();

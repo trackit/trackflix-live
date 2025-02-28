@@ -21,14 +21,9 @@ describe('Create live channel use case', () => {
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
-    const onAirStartTime = '2025-02-28T10:29:23.890Z';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .withSource(source)
-        .withOnAirStartTime(onAirStartTime)
-        .build()
+      EventMother.basic().withId(eventId).withSource(source).build()
     );
     liveChannelsManager.setCreateChannelResponse({
       channelArn: liveChannelArn,
@@ -54,7 +49,6 @@ describe('Create live channel use case', () => {
         eventId,
         packageChannelId,
         source,
-        onAirStartTime,
       },
     ]);
   });
