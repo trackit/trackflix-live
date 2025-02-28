@@ -36,6 +36,8 @@
     "react-hook-form": "^7.54.2",
     "react-router": "^7.1.4",
     "usehooks-ts": "^3.1.1",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.8.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {

@@ -1,8 +1,9 @@
 import {
-  EventsRepositoryInMemory,
-  EventUpdateSenderFake,
-  LiveChannelsManagerFake,
-  TaskTokensRepositoryInMemory,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenLiveChannelsManagerFake,
+  tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { StopLiveChannelUseCaseImpl } from './stopLiveChannel';
 import {
@@ -10,6 +11,7 @@ import {
   EventStatus,
   EventUpdateAction,
 } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Stop live channel use case', () => {
   it('should stop live channel', async () => {
@@ -172,17 +174,14 @@ describe('Stop live channel use case', () => {
 });
 
 const setup = () => {
-  const liveChannelsManager = new LiveChannelsManagerFake();
-  const taskTokensRepository = new TaskTokensRepositoryInMemory();
-  const eventsRepository = new EventsRepositoryInMemory();
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
+  const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new StopLiveChannelUseCaseImpl({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventsRepository,
-    eventUpdateSender,
-  });
+  const useCase = new StopLiveChannelUseCaseImpl();
 
   return {
     liveChannelsManager,

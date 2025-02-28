@@ -1,5 +1,9 @@
-import { StopTransmissionUseCase } from '@trackflix-live/api-events';
+import {
+  StopTransmissionUseCase,
+  tokenStopTransmissionUseCase,
+} from '@trackflix-live/api-events';
 import { StopTransmissionAdapter } from './stopTransmission.adapter';
+import { register, reset } from '@trackflix-live/di';
 
 describe('Stop Transmission adapter', () => {
   it('should call use case', async () => {
@@ -15,13 +19,15 @@ describe('Stop Transmission adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase: StopTransmissionUseCase = {
     stopTransmission: jest.fn(),
   };
+  register(tokenStopTransmissionUseCase, { useValue: useCase });
+
   return {
-    adapter: new StopTransmissionAdapter({
-      useCase,
-    }),
+    adapter: new StopTransmissionAdapter(),
     useCase,
   };
 };

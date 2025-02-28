@@ -1,11 +1,8 @@
-import { DeletePackageChannelUseCase } from '@trackflix-live/api-events';
+import { tokenDeletePackageChannelUseCase } from '@trackflix-live/api-events';
+import { inject } from '@trackflix-live/di';
 
 export class DeleteMediaPackageChannelAdapter {
-  private readonly useCase: DeletePackageChannelUseCase;
-
-  public constructor({ useCase }: { useCase: DeletePackageChannelUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenDeletePackageChannelUseCase);
 
   public async handle(params: { eventId: string }): Promise<{
     eventId: string;

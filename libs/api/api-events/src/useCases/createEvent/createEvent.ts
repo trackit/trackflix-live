@@ -1,7 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { EventScheduler, EventsRepository } from '../../ports';
+import {
+  tokenEventSchedulerStart,
+  tokenEventSchedulerStop,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+} from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { EventUpdateSender } from '../../ports/EventUpdateSender';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export type CreateEventArgs = Pick<
   Event,
@@ -13,30 +18,13 @@ export interface CreateEventUseCase {
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
-  private readonly eventSchedulerStart: EventScheduler;
+  private readonly eventSchedulerStart = inject(tokenEventSchedulerStart);
 
-  private readonly eventSchedulerStop: EventScheduler;
+  private readonly eventSchedulerStop = inject(tokenEventSchedulerStop);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    eventSchedulerStart,
-    eventSchedulerStop,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    eventSchedulerStart: EventScheduler;
-    eventSchedulerStop: EventScheduler;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.eventSchedulerStart = eventSchedulerStart;
-    this.eventSchedulerStop = eventSchedulerStop;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async createEvent(args: CreateEventArgs): Promise<Event> {
     const id = randomUUID();
@@ -75,3 +63,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     return event;
   }
 }
+
+export const tokenCreateEventUseCase = createInjectionToken<CreateEventUseCase>(
+  'CreateEventUseCase',
+  {
+    useClass: CreateEventUseCaseImpl,
+  }
+);

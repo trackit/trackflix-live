@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Template for the TrackFlix Live application
 
+Parameters:
+  WaitingSource:
+    Type: String
+
 Globals:
   Function:
     Timeout: 60
@@ -289,6 +293,7 @@ Resources:
                   - "medialive:StartChannel"
                   - "medialive:StopChannel"
                   - "medialive:DeleteChannel"
+                  - "medialive:BatchUpdateSchedule"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
@@ -664,6 +669,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
+          WAITING_SOURCE: !Ref WaitingSource
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

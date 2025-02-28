@@ -4,6 +4,7 @@ import {
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export interface ListEventsParams {
   limit: number;
@@ -31,8 +32,15 @@ export interface EventsRepository {
   updateLiveChannelId(eventId: string, liveChannelId: string): Promise<Event>;
   updateLiveChannelArn(eventId: string, liveChannelArn: string): Promise<Event>;
   updateLiveInputId(eventId: string, liveInputId: string): Promise<Event>;
+  updateLiveWaitingInputId(
+    eventId: string,
+    liveWaitingInputId: string
+  ): Promise<Event>;
   updateEventDestroyedTime(
     eventId: string,
     destroyedTime: string
   ): Promise<Event>;
 }
+
+export const tokenEventsRepository =
+  createInjectionToken<EventsRepository>('EventsRepository');

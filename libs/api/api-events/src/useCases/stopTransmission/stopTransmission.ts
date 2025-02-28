@@ -1,19 +1,12 @@
-import { TransmissionsManager } from '../../ports';
+import { tokenTransmissionsManager } from '../../ports';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface StopTransmissionUseCase {
   stopTransmission(eventId: string): Promise<void>;
 }
 
 export class StopTransmissionUseCaseImpl implements StopTransmissionUseCase {
-  private readonly transmissionsManager: TransmissionsManager;
-
-  constructor({
-    transmissionsManager,
-  }: {
-    transmissionsManager: TransmissionsManager;
-  }) {
-    this.transmissionsManager = transmissionsManager;
-  }
+  private readonly transmissionsManager = inject(tokenTransmissionsManager);
 
   public async stopTransmission(eventId: string): Promise<void> {
     console.log(`Stopping transmission ${eventId}`);
@@ -21,3 +14,8 @@ export class StopTransmissionUseCaseImpl implements StopTransmissionUseCase {
     await this.transmissionsManager.stopTransmission(eventId);
   }
 }
+
+export const tokenStopTransmissionUseCase =
+  createInjectionToken<StopTransmissionUseCase>('StopTransmissionUseCase', {
+    useClass: StopTransmissionUseCaseImpl,
+  });

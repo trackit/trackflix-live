@@ -6,6 +6,7 @@ import {
   EventStatus,
 } from '@trackflix-live/types';
 import { ListEventsParams } from '../ports';
+import { createInjectionToken } from '@trackflix-live/di';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -156,6 +157,20 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
+  public async updateLiveWaitingInputId(
+    eventId: string,
+    liveWaitingInputId: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    event.liveWaitingInputId = liveWaitingInputId;
+
+    return event;
+  }
+
   public async updateEventDestroyedTime(
     eventId: string,
     destroyedTime: string
@@ -170,3 +185,8 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 }
+
+export const tokenEventsRepositoryInMemory =
+  createInjectionToken<EventsRepositoryInMemory>('EventsRepositoryInMemory', {
+    useClass: EventsRepositoryInMemory,
+  });

@@ -1,4 +1,6 @@
 import { StopMediaLiveChannelAdapter } from './stopMediaLiveChannel.adapter';
+import { register, reset } from '@trackflix-live/di';
+import { tokenStopLiveChannelUseCase } from '@trackflix-live/api-events';
 
 describe('Stop MediaLive channel adapter', () => {
   it('should call use case', async () => {
@@ -24,12 +26,15 @@ describe('Stop MediaLive channel adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     stopLiveChannel: jest.fn(),
   };
-  const adapter = new StopMediaLiveChannelAdapter({
-    useCase,
-  });
+  register(tokenStopLiveChannelUseCase, { useValue: useCase });
+
+  const adapter = new StopMediaLiveChannelAdapter();
+
   return {
     useCase,
     adapter,

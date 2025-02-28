@@ -1,8 +1,10 @@
 import { HandleLiveChannelStateChangeUseCaseImpl } from './handleLiveChannelStateChange';
 import {
-  TaskTokensRepositoryInMemory,
-  TransmissionsManagerFake,
+  registerTestInfrastructure,
+  tokenTaskTokensRepositoryInMemory,
+  tokenTransmissionsManagerFake,
 } from '../../infrastructure';
+import { inject, reset } from '@trackflix-live/di';
 describe('Handle live channel state change use case', () => {
   it('should do nothing if no task token exist', async () => {
     const { useCase } = setup();
@@ -45,12 +47,12 @@ describe('Handle live channel state change use case', () => {
 });
 
 const setup = () => {
-  const taskTokensRepository = new TaskTokensRepositoryInMemory();
-  const transmissionsManager = new TransmissionsManagerFake();
-  const useCase = new HandleLiveChannelStateChangeUseCaseImpl({
-    taskTokensRepository,
-    transmissionsManager,
-  });
+  reset();
+  registerTestInfrastructure();
+  const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
+  const transmissionsManager = inject(tokenTransmissionsManagerFake);
+
+  const useCase = new HandleLiveChannelStateChangeUseCaseImpl();
 
   return {
     taskTokensRepository,

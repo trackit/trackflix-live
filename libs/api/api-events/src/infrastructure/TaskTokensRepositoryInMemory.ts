@@ -4,6 +4,8 @@ import {
   CreateTaskTokenParameters,
   TaskTokensRepository,
 } from '../ports/TaskTokensRepository';
+import { createInjectionToken } from '@trackflix-live/di';
+import { PackageChannelsManagerFake } from './PackageChannelsManagerFake';
 
 export type Document = CreateTaskTokenParameters;
 
@@ -40,3 +42,11 @@ export class TaskTokensRepositoryInMemory implements TaskTokensRepository {
     };
   }
 }
+
+export const tokenTaskTokensRepositoryInMemory =
+  createInjectionToken<TaskTokensRepositoryInMemory>(
+    'TaskTokensRepositoryInMemory',
+    {
+      useClass: TaskTokensRepositoryInMemory,
+    }
+  );

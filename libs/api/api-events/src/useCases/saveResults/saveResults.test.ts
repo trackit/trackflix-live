@@ -1,6 +1,7 @@
 import {
-  EventsRepositoryInMemory,
-  EventUpdateSenderFake,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
 } from '../../infrastructure';
 import { SaveResultsUseCaseImpl } from './saveResults';
 import {
@@ -9,6 +10,7 @@ import {
   EventUpdateAction,
   LogType,
 } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Save results use case', () => {
   it('should store LIVE_CHANNEL_STARTED log event', async () => {
@@ -60,13 +62,12 @@ describe('Save results use case', () => {
 });
 
 const setup = () => {
-  const eventUpdateSender = new EventUpdateSenderFake();
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
 
-  const useCase = new SaveResultsUseCaseImpl({
-    eventUpdateSender,
-    eventsRepository,
-  });
+  const useCase = new SaveResultsUseCaseImpl();
 
   return {
     useCase,

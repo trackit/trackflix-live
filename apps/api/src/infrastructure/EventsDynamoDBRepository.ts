@@ -39,6 +39,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     '#liveChannelArn': 'liveChannelArn',
     '#liveChannelId': 'liveChannelId',
     '#liveInputId': 'liveInputId',
+    '#liveWaitingInputId': 'liveWaitingInputId',
     '#logs': 'logs',
     '#endpoints': 'endpoints',
   };
@@ -283,6 +284,30 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
       ExpressionAttributeValues: {
         ':liveInputId': liveInputId,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
+  public async updateLiveWaitingInputId(
+    eventId: string,
+    liveWaitingInputId: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #liveWaitingInputId = :liveWaitingInputId',
+      ExpressionAttributeNames: {
+        '#liveWaitingInputId': 'liveWaitingInputId',
+      },
+      ExpressionAttributeValues: {
+        ':liveWaitingInputId': liveWaitingInputId,
       },
       ReturnValues: 'ALL_NEW',
     };

@@ -1,10 +1,11 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface DeleteLiveChannelParameters {
   eventId: string;
@@ -16,30 +17,13 @@ export interface DeleteLiveChannelUseCase {
 }
 
 export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async deleteLiveChannel({
     eventId,
@@ -85,3 +69,8 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     });
   }
 }
+
+export const tokenDeleteLiveChannelUseCase =
+  createInjectionToken<DeleteLiveChannelUseCase>('DeleteLiveChannelUseCase', {
+    useClass: DeleteLiveChannelUseCaseImpl,
+  });

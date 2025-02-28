@@ -1,9 +1,14 @@
 import { CreateEventUseCaseImpl } from './createEvent';
-import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
-import { EventSchedulerFake } from '../../infrastructure/EventSchedulerFake';
+import {
+  registerTestInfrastructure,
+  tokenEventSchedulerStartFake,
+  tokenEventSchedulerStopFake,
+  tokenEventsRepositoryInMemory,
+} from '../../infrastructure';
 import { CreateEventMother } from './CreateEventMother';
-import { EventUpdateSenderFake } from '../../infrastructure/EventUpdateSenderFake';
+import { tokenEventUpdateSenderFake } from '../../infrastructure';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
@@ -72,17 +77,14 @@ describe('CreateEvent use case', () => {
 });
 
 const setup = () => {
-  const eventSchedulerStart = new EventSchedulerFake();
-  const eventSchedulerStop = new EventSchedulerFake();
-  const eventsRepository = new EventsRepositoryInMemory();
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const eventSchedulerStart = inject(tokenEventSchedulerStartFake);
+  const eventSchedulerStop = inject(tokenEventSchedulerStopFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new CreateEventUseCaseImpl({
-    eventSchedulerStart,
-    eventSchedulerStop,
-    eventsRepository,
-    eventUpdateSender,
-  });
+  const useCase = new CreateEventUseCaseImpl();
 
   return {
     eventSchedulerStart,

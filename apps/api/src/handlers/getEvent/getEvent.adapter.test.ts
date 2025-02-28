@@ -1,6 +1,8 @@
 import { GetEventAdapter } from './getEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
+import { register, reset } from '@trackflix-live/di';
+import { tokenGetEventUseCase } from '@trackflix-live/api-events';
 
 describe('Get event adapter', () => {
   it('should call use case', async () => {
@@ -59,13 +61,15 @@ describe('Get event adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     getEvent: jest.fn(),
   };
+  register(tokenGetEventUseCase, { useValue: useCase });
+
   return {
-    adapter: new GetEventAdapter({
-      useCase,
-    }),
+    adapter: new GetEventAdapter(),
     useCase,
   };
 };

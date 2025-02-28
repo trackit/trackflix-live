@@ -1,11 +1,13 @@
 import { CreateLiveChannelUseCaseImpl } from './createLiveChannel';
 import {
-  EventsRepositoryInMemory,
-  EventUpdateSenderFake,
-  LiveChannelsManagerFake,
-  TaskTokensRepositoryInMemory,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenLiveChannelsManagerFake,
+  tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {
@@ -18,6 +20,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -26,6 +29,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     const response = await useCase.createLiveChannel({
@@ -38,6 +42,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
     expect(liveChannelsManager.createdChannels).toEqual([
       {
@@ -63,6 +68,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -71,6 +77,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -104,6 +111,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -112,6 +120,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -138,6 +147,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -146,6 +156,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -159,6 +170,7 @@ describe('Create live channel use case', () => {
         liveChannelArn,
         liveChannelId,
         liveInputId,
+        liveWaitingInputId,
       },
     ]);
   });
@@ -178,6 +190,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -186,6 +199,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -227,17 +241,14 @@ describe('Create live channel use case', () => {
 });
 
 const setup = () => {
-  const eventsRepository = new EventsRepositoryInMemory();
-  const taskTokensRepository = new TaskTokensRepositoryInMemory();
-  const liveChannelsManager = new LiveChannelsManagerFake();
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
+  const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new CreateLiveChannelUseCaseImpl({
-    eventsRepository,
-    taskTokensRepository,
-    liveChannelsManager,
-    eventUpdateSender,
-  });
+  const useCase = new CreateLiveChannelUseCaseImpl();
 
   return {
     eventsRepository,

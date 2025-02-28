@@ -1,7 +1,11 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
-import { CreateEventMother } from '@trackflix-live/api-events';
+import {
+  CreateEventMother,
+  tokenCreateEventUseCase,
+} from '@trackflix-live/api-events';
+import { register, reset } from '@trackflix-live/di';
 
 describe('Create event adapter', () => {
   it('should call use case', async () => {
@@ -71,14 +75,15 @@ describe('Create event adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     createEvent: jest.fn(),
   };
+  register(tokenCreateEventUseCase, { useValue: useCase });
 
   return {
-    adapter: new CreateEventAdapter({
-      useCase,
-    }),
+    adapter: new CreateEventAdapter(),
     useCase,
   };
 };
