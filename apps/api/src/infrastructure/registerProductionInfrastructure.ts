@@ -41,7 +41,7 @@ export const registerProductionInfrastructure = () => {
       return new EventBridgeScheduler({
         client: schedulerClient,
         target: '',
-        roleArn: process.env.ROLE_ARN || '',
+        roleArn: '',
       });
     },
   });
