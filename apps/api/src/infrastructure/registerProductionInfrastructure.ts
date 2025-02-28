@@ -74,6 +74,7 @@ export const registerProductionInfrastructure = () => {
       return new MediaLiveChannelsManager({
         client: mediaLiveClient,
         mediaLiveRoleArn: process.env.MEDIA_LIVE_ROLE || '',
+        waitingSource: process.env.WAITING_SOURCE || '',
       });
     },
   });

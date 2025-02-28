@@ -46,7 +46,11 @@ export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
       value: event,
     });
 
-    await this.liveChannelsManager.startChannel(liveChannelId);
+    await this.liveChannelsManager.startChannel({
+      channelId: liveChannelId,
+      eventId,
+      onAirStartTime: event.onAirStartTime,
+    });
 
     await this.taskTokensRepository.createTaskToken({
       channelArn: liveChannelArn,

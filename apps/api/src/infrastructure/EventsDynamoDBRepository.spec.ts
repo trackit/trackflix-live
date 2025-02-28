@@ -246,6 +246,32 @@ describe('EventsDynamoDBRepository', () => {
     });
   });
 
+  it('should update event live waiting input id', async () => {
+    const { ddbClient, repository } = setup();
+
+    const sampleEvent = EventMother.basic().build();
+    const liveWaitingInputId = '1672338';
+    await repository.createEvent(sampleEvent);
+
+    await repository.updateLiveWaitingInputId(
+      sampleEvent.id,
+      liveWaitingInputId
+    );
+
+    const command = new GetCommand({
+      TableName: 'EventsTable',
+      Key: {
+        id: sampleEvent.id,
+      },
+    });
+    const responseFromDB = await ddbClient.send(command);
+
+    expect(responseFromDB.Item).toMatchObject({
+      ...sampleEvent,
+      liveWaitingInputId,
+    });
+  });
+
   it('should list and sort items by a given attribute in asc order', async () => {
     const { repository } = setup();
 

@@ -42,6 +42,13 @@ export class EventMother {
     return this;
   }
 
+  public withLiveWaitingInputId(
+    liveWaitingInputId: string | undefined
+  ): EventMother {
+    this.data.liveWaitingInputId = liveWaitingInputId;
+    return this;
+  }
+
   public withName(name: string): EventMother {
     this.data.name = name;
     return this;

@@ -20,6 +20,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -28,6 +29,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     const response = await useCase.createLiveChannel({
@@ -40,6 +42,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
     expect(liveChannelsManager.createdChannels).toEqual([
       {
@@ -65,6 +68,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -73,6 +77,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -106,6 +111,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -114,6 +120,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -140,6 +147,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -148,6 +156,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({
@@ -161,6 +170,7 @@ describe('Create live channel use case', () => {
         liveChannelArn,
         liveChannelId,
         liveInputId,
+        liveWaitingInputId,
       },
     ]);
   });
@@ -180,6 +190,7 @@ describe('Create live channel use case', () => {
     const liveChannelId = '8626488';
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -188,6 +199,7 @@ describe('Create live channel use case', () => {
       channelArn: liveChannelArn,
       channelId: liveChannelId,
       inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
     });
 
     await useCase.createLiveChannel({

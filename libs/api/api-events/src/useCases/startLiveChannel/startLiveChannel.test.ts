@@ -12,7 +12,12 @@ import { inject, reset } from '@trackflix-live/di';
 describe('Start live channel use case', () => {
   it('should start live channel', async () => {
     const { liveChannelsManager, useCase, eventsRepository } = setup();
-    const event = EventMother.basic().build();
+    const eventId = '40ce5014-1b9f-4dc0-89d3-d85a8fa599e1';
+    const onAirStartTime = '2025-02-28T14:05:21.641Z';
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withOnAirStartTime(onAirStartTime)
+      .build();
     const taskToken = 'sample_task_token';
     const packageChannelId = '8354829';
     const liveChannelArn =
@@ -29,7 +34,13 @@ describe('Start live channel use case', () => {
       taskToken,
     });
 
-    expect(liveChannelsManager.startedChannels).toEqual([liveChannelId]);
+    expect(liveChannelsManager.startedChannels).toEqual([
+      {
+        channelId: liveChannelId,
+        eventId,
+        onAirStartTime,
+      },
+    ]);
   });
 
   it('should create task token', async () => {
