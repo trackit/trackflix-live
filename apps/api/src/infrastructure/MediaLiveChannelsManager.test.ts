@@ -1,5 +1,6 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import {
+  BatchUpdateScheduleCommand,
   CreateChannelCommand,
   CreateInputCommand,
   DeleteChannelCommand,
@@ -18,7 +19,7 @@ describe('MediaLive channels manager', () => {
   });
 
   describe('createChannel', () => {
-    it('should create input', async () => {
+    it('should create inputs', async () => {
       const { mediaLiveChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
@@ -27,6 +28,7 @@ describe('MediaLive channels manager', () => {
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
+      const onAirStartTime = '2025-02-28T10:29:23.890Z';
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -44,11 +46,21 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
+        onAirStartTime,
       });
 
       const commandCalls = mock.commandCalls(CreateInputCommand);
-      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[0].args[0].input).toEqual({
+        Name: expect.stringMatching(/^TrackflixLiveMLIW-.*/),
+        Sources: [
+          {
+            Url: source,
+          },
+        ],
+        Type: 'MP4_FILE',
+      });
+      expect(commandCalls[1].args[0].input).toEqual({
         Name: expect.stringMatching(/^TrackflixLiveMLI-.*/),
         Sources: [
           {
@@ -68,6 +80,7 @@ describe('MediaLive channels manager', () => {
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
+      const onAirStartTime = '2025-02-28T10:29:23.890Z';
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -85,11 +98,90 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
+        onAirStartTime,
       });
 
       const commandCalls = mock.commandCalls(CreateChannelCommand);
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toMatchSnapshot();
+    });
+
+    it('should create schedule', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+      const packageChannelId = '456789';
+      const source = 's3://trackflix-live-demo-videos/oss117.mp4';
+      const inputId = '9876543';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+      const liveChannelId = '8626488';
+      const onAirStartTime = '2025-02-28T10:29:23.890Z';
+
+      mock.on(CreateInputCommand).resolves({
+        Input: {
+          Id: inputId,
+        },
+      });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: {
+          Arn: liveChannelArn,
+          Id: liveChannelId,
+        },
+      });
+
+      await mediaLiveChannelsManager.createChannel({
+        eventId,
+        packageChannelId,
+        source,
+        onAirStartTime,
+      });
+
+      const commandCalls = mock.commandCalls(BatchUpdateScheduleCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toMatchInlineSnapshot(
+        {
+          ChannelId: liveChannelId,
+          Creates: {
+            ScheduleActions: [
+              {
+                ActionName: 'StartContent',
+                ScheduleActionSettings: {
+                  InputSwitchSettings: {
+                    InputAttachmentNameReference: `TrackflixLiveMLIW-${eventId}`,
+                  },
+                },
+                ScheduleActionStartSettings: {
+                  FixedModeScheduleActionStartSettings: {
+                    Time: onAirStartTime,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        `
+        {
+          "ChannelId": "8626488",
+          "Creates": {
+            "ScheduleActions": [
+              {
+                "ActionName": "StartContent",
+                "ScheduleActionSettings": {
+                  "InputSwitchSettings": {
+                    "InputAttachmentNameReference": "TrackflixLiveMLIW-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d",
+                  },
+                },
+                "ScheduleActionStartSettings": {
+                  "FixedModeScheduleActionStartSettings": {
+                    "Time": "2025-02-28T10:29:23.890Z",
+                  },
+                },
+              },
+            ],
+          },
+        }
+      `
+      );
     });
   });
 

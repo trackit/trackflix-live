@@ -28,7 +28,10 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
     if (event === undefined) {
       throw new Error('Event not found.');
     }
-    if (event.liveInputId === undefined) {
+    if (
+      event.liveInputId === undefined ||
+      event.liveWaitingInputId === undefined
+    ) {
       throw new Error('Missing live input ID.');
     }
 
@@ -42,9 +45,10 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
       ]),
     });
 
-    const { liveInputId } = event;
+    const { liveInputId, liveWaitingInputId } = event;
 
     await this.liveChannelsManager.deleteInput(liveInputId);
+    await this.liveChannelsManager.deleteInput(liveWaitingInputId);
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,

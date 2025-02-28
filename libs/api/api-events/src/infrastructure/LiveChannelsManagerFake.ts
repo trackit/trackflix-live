@@ -4,13 +4,13 @@ import {
   LiveChannelsManager,
 } from '../ports/LiveChannelsManager';
 import { createInjectionToken } from '@trackflix-live/di';
-import { EventsRepositoryInMemory } from './EventsRepositoryInMemory';
 
 export class LiveChannelsManagerFake implements LiveChannelsManager {
   private createChannelResponse: CreateChannelResponse = {
     channelArn: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488',
     channelId: '8626488',
     inputId: '1234567',
+    waitingInputId: '7654321',
   };
 
   public readonly createdChannels: CreateChannelParameters[] = [];

@@ -16,6 +16,7 @@ import {
   StopChannelCommand,
   DeleteChannelCommand,
   DeleteInputCommand,
+  BatchUpdateScheduleCommand,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -23,22 +24,48 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
 
   private readonly mediaLiveRoleArn: string;
 
+  private readonly waitingSource: string;
+
   public constructor({
     client,
     mediaLiveRoleArn,
+    waitingSource,
   }: {
     client: MediaLiveClient;
     mediaLiveRoleArn: string;
+    waitingSource: string;
   }) {
     this.client = client;
     this.mediaLiveRoleArn = mediaLiveRoleArn;
+    this.waitingSource = waitingSource;
   }
 
   public async createChannel({
     eventId,
     source,
     packageChannelId,
+    onAirStartTime,
   }: CreateChannelParameters): Promise<CreateChannelResponse> {
+    const waitingInputName = `TrackflixLiveMLIW-${eventId}`;
+    const waitingInput = await this.client.send(
+      new CreateInputCommand({
+        Name: waitingInputName,
+        Type: 'MP4_FILE',
+        Sources: [
+          {
+            Url: this.waitingSource,
+          },
+        ],
+      })
+    );
+
+    if (
+      waitingInput.Input === undefined ||
+      waitingInput.Input.Id === undefined
+    ) {
+      throw new Error(`Could not create MediaLive input ${waitingInputName}`);
+    }
+
     const inputName = `TrackflixLiveMLI-${eventId}`;
     const input = await this.client.send(
       new CreateInputCommand({
@@ -669,6 +696,10 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
         ],
         InputAttachments: [
           {
+            InputId: waitingInput.Input.Id,
+            InputAttachmentName: waitingInputName,
+          },
+          {
             InputId: input.Input.Id,
             InputAttachmentName: inputName,
           },
@@ -683,10 +714,34 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       throw new Error(`Could not create MediaLive channel ${channelName}`);
     }
 
+    await this.client.send(
+      new BatchUpdateScheduleCommand({
+        ChannelId: mediaLiveChannel.Channel.Id,
+        Creates: {
+          ScheduleActions: [
+            {
+              ActionName: 'StartContent',
+              ScheduleActionSettings: {
+                InputSwitchSettings: {
+                  InputAttachmentNameReference: waitingInputName,
+                },
+              },
+              ScheduleActionStartSettings: {
+                FixedModeScheduleActionStartSettings: {
+                  Time: onAirStartTime,
+                },
+              },
+            },
+          ],
+        },
+      })
+    );
+
     return {
       channelArn: mediaLiveChannel.Channel.Arn,
       channelId: mediaLiveChannel.Channel.Id,
       inputId: input.Input.Id,
+      waitingInputId: waitingInput.Input.Id,
     };
   }
 

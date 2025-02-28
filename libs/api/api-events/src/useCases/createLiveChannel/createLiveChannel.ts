@@ -47,6 +47,7 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId: eventId,
       source: event.source,
       packageChannelId,
+      onAirStartTime: event.onAirStartTime,
     });
 
     const currentTimestamp = Date.now();
@@ -65,10 +66,12 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId,
       liveChannel.channelId
     );
-    const eventAfterUpdate = await this.eventsRepository.updateLiveInputId(
-      eventId,
-      liveChannel.inputId
-    );
+    await this.eventsRepository.updateLiveInputId(eventId, liveChannel.inputId);
+    const eventAfterUpdate =
+      await this.eventsRepository.updateLiveWaitingInputId(
+        eventId,
+        liveChannel.waitingInputId
+      );
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,

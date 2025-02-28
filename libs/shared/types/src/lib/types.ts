@@ -51,6 +51,7 @@ export interface Event {
   liveChannelId?: string;
   liveChannelArn?: string;
   liveInputId?: string;
+  liveWaitingInputId?: string;
 }
 
 export enum EventUpdateAction {

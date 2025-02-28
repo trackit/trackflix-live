@@ -4,12 +4,14 @@ export interface CreateChannelParameters {
   eventId: string;
   source: string;
   packageChannelId: string;
+  onAirStartTime: string;
 }
 
 export interface CreateChannelResponse {
   channelId: string;
   channelArn: string;
   inputId: string;
+  waitingInputId: string;
 }
 
 export interface LiveChannelsManager {
