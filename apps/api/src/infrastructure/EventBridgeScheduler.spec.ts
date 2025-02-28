@@ -3,6 +3,7 @@ import { EventBridgeScheduler } from './EventBridgeScheduler';
 import {
   SchedulerClient,
   CreateScheduleCommand,
+  DeleteScheduleCommand,
 } from '@aws-sdk/client-scheduler';
 
 describe('EventBridgeScheduler', () => {
@@ -71,6 +72,23 @@ describe('EventBridgeScheduler', () => {
         time: new Date('Invalid date'),
       })
     ).rejects.toThrow('Invalid date');
+  });
+
+  it('should delete schedule', async () => {
+    const { scheduler } = setup();
+
+    await expect(scheduler.deleteSchedule('test-event')).resolves.not.toThrow();
+  });
+
+  it('should throw an error if the delete schedule throws an error', async () => {
+    const { scheduler } = setup();
+    mock
+      .on(DeleteScheduleCommand)
+      .rejects(new Error('Failed to delete schedule'));
+
+    await expect(scheduler.deleteSchedule('test-event')).rejects.toThrow(
+      'Failed to delete schedule'
+    );
   });
 });
 

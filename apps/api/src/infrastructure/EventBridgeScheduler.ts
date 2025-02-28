@@ -2,6 +2,7 @@ import { EventScheduler, ScheduledEvent } from '@trackflix-live/api-events';
 import {
   SchedulerClient,
   CreateScheduleCommand,
+  DeleteScheduleCommand,
 } from '@aws-sdk/client-scheduler';
 
 export class EventBridgeScheduler implements EventScheduler {
@@ -55,6 +56,14 @@ export class EventBridgeScheduler implements EventScheduler {
         FlexibleTimeWindow: {
           Mode: 'OFF',
         },
+      })
+    );
+  }
+
+  public async deleteSchedule(scheduleName: string): Promise<void> {
+    const a = await this.client.send(
+      new DeleteScheduleCommand({
+        Name: scheduleName,
       })
     );
   }

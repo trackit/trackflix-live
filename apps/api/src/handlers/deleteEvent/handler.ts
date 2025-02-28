@@ -1,21 +1,10 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { DeleteEventAdapter } from './deleteEvent.adapter';
-import { DeleteEventUseCaseImpl } from '@trackflix-live/api-events';
-import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRepository';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
-const eventsRepository = new EventsDynamoDBRepository(
-  new DynamoDBClient({}),
-  process.env.TABLE_NAME || ''
-);
+registerProductionInfrastructure();
 
-const useCase = new DeleteEventUseCaseImpl({
-  eventsRepository,
-});
-
-const adapter = new DeleteEventAdapter({
-  useCase,
-});
+const adapter = new DeleteEventAdapter();
 
 export const main = (
   event: APIGatewayProxyEventV2

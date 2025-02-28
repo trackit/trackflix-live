@@ -1,5 +1,6 @@
 import { inject, register } from '@trackflix-live/di';
 import {
+  tokenEventSchedulerDeleteFake,
   tokenEventSchedulerStartFake,
   tokenEventSchedulerStopFake,
   tokenEventsRepositoryInMemory,
@@ -10,6 +11,7 @@ import {
   tokenTransmissionsManagerFake,
 } from '.';
 import {
+  tokenEventSchedulerDelete,
   tokenEventSchedulerStart,
   tokenEventSchedulerStop,
   tokenEventsRepository,
@@ -26,6 +28,9 @@ export const registerTestInfrastructure = () => {
   });
   register(tokenEventSchedulerStop, {
     useFactory: () => inject(tokenEventSchedulerStopFake),
+  });
+  register(tokenEventSchedulerDelete, {
+    useFactory: () => inject(tokenEventSchedulerDeleteFake),
   });
   register(tokenEventsRepository, {
     useFactory: () => inject(tokenEventsRepositoryInMemory),

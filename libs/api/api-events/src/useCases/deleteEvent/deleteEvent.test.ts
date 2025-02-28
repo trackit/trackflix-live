@@ -1,6 +1,9 @@
 import { DeleteEventUseCaseImpl } from './deleteEvent';
-import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
+import { tokenEventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
 import { EventMother, EventStatus } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
+import { tokenEventSchedulerDeleteFake } from '../../infrastructure/EventSchedulerFake';
+import { registerTestInfrastructure } from '../../infrastructure';
 
 describe('DeleteEvent use case', () => {
   it('should delete event', async () => {
@@ -50,17 +53,29 @@ describe('DeleteEvent use case', () => {
       'Cannot delete event while it is on air'
     );
   });
+
+  it('should delete schedules', async () => {
+    const { eventsRepository, useCase, eventSchedulerDelete } = setup();
+
+    const event = EventMother.basic().build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.deleteEvent(event.id);
+    expect(eventSchedulerDelete.scheduledEvents).toEqual([]);
+  });
 });
 
 const setup = () => {
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventSchedulerDelete = inject(tokenEventSchedulerDeleteFake);
 
-  const useCase = new DeleteEventUseCaseImpl({
-    eventsRepository,
-  });
+  const useCase = new DeleteEventUseCaseImpl();
 
   return {
     eventsRepository,
     useCase,
+    eventSchedulerDelete,
   };
 };

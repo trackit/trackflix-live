@@ -8,6 +8,7 @@ export interface ScheduledEvent {
 
 export interface EventScheduler {
   scheduleEvent(args: ScheduledEvent): Promise<void>;
+  deleteSchedule(eventId: string): Promise<void>;
 }
 
 export const tokenEventSchedulerStart = createInjectionToken<EventScheduler>(
@@ -16,3 +17,7 @@ export const tokenEventSchedulerStart = createInjectionToken<EventScheduler>(
 
 export const tokenEventSchedulerStop =
   createInjectionToken<EventScheduler>('EventSchedulerStop');
+
+export const tokenEventSchedulerDelete = createInjectionToken<EventScheduler>(
+  'EventSchedulerDelete'
+);

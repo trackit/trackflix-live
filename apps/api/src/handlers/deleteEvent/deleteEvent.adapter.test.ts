@@ -1,9 +1,8 @@
 import { DeleteEventAdapter } from './deleteEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { EventsDynamoDBRepository } from '../../infrastructure/EventsDynamoDBRepository';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { NotFoundError } from '../HttpErrors';
+import { register, reset } from '@trackflix-live/di';
+import { tokenDeleteEventUseCase } from '@trackflix-live/api-events';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
@@ -50,13 +49,15 @@ describe('Delete Event adapter', () => {
 });
 
 const setup = () => {
+  reset();
+
   const useCase = {
     deleteEvent: jest.fn(),
   };
+  register(tokenDeleteEventUseCase, { useValue: useCase });
+
   return {
-    adapter: new DeleteEventAdapter({
-      useCase,
-    }),
+    adapter: new DeleteEventAdapter(),
     useCase,
   };
 };

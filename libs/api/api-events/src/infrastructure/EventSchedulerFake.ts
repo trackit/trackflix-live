@@ -7,6 +7,13 @@ export class EventSchedulerFake implements EventScheduler {
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
     this.scheduledEvents.push(scheduledEvent);
   }
+
+  public async deleteSchedule(eventId: string) {
+    this.scheduledEvents.splice(
+      this.scheduledEvents.findIndex((event) => event.id === eventId),
+      1
+    );
+  }
 }
 
 export const tokenEventSchedulerStartFake =
@@ -16,5 +23,10 @@ export const tokenEventSchedulerStartFake =
 
 export const tokenEventSchedulerStopFake =
   createInjectionToken<EventSchedulerFake>('EventSchedulerStopFake', {
+    useClass: EventSchedulerFake,
+  });
+
+export const tokenEventSchedulerDeleteFake =
+  createInjectionToken<EventSchedulerFake>('EventSchedulerDeleteFake', {
     useClass: EventSchedulerFake,
   });
