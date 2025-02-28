@@ -13,7 +13,7 @@ import { EventsIotUpdateSender } from './EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
 import { IoTClient } from '@aws-sdk/client-iot';
 import { EventBridgeScheduler } from './EventBridgeScheduler';
-import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
+import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import { EventsDynamoDBRepository } from './EventsDynamoDBRepository';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
@@ -26,7 +26,7 @@ import { TransmissionsManagerSfn } from './TransmissionsManagerSfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
 
 export const registerProductionInfrastructure = () => {
-  const eventBridgeClient = new EventBridgeClient();
+  const eventBridgeClient = new SchedulerClient();
   const iotDataPlaneClient = new IoTDataPlaneClient();
   const iotClient = new IoTClient();
   const dynamoClient = new DynamoDBClient();
@@ -40,6 +40,7 @@ export const registerProductionInfrastructure = () => {
       return new EventBridgeScheduler({
         client: eventBridgeClient,
         target: process.env.START_TX_LAMBDA || '',
+        roleArn: process.env.ROLE_ARN || '',
       });
     },
   });
@@ -48,6 +49,7 @@ export const registerProductionInfrastructure = () => {
       return new EventBridgeScheduler({
         client: eventBridgeClient,
         target: process.env.STOP_TX_LAMBDA || '',
+        roleArn: process.env.ROLE_ARN || '',
       });
     },
   });

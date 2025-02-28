@@ -1,20 +1,19 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { EventBridgeScheduler } from './EventBridgeScheduler';
 import {
-  EventBridgeClient,
-  PutTargetsCommand,
-} from '@aws-sdk/client-eventbridge';
-import { PutRuleCommand } from '@aws-sdk/client-eventbridge';
+  SchedulerClient,
+  CreateScheduleCommand,
+} from '@aws-sdk/client-scheduler';
 
 describe('EventBridgeScheduler', () => {
-  const mock = mockClient(EventBridgeClient);
+  const mock = mockClient(SchedulerClient);
 
   beforeEach(() => {
     mock.reset();
   });
 
   it('should schedule an event', async () => {
-    const { scheduler, target } = setup();
+    const { scheduler, target, roleArn } = setup();
     const eventId = '005fc3b5-623c-41f6-8885-22dc72f30676';
 
     await scheduler.scheduleEvent({
@@ -23,38 +22,27 @@ describe('EventBridgeScheduler', () => {
       time: new Date('2022-01-01T00:00:00Z'),
     });
 
-    const putRuleCommandCalls = mock.commandCalls(PutRuleCommand);
+    const putRuleCommandCalls = mock.commandCalls(CreateScheduleCommand);
     expect(putRuleCommandCalls).toHaveLength(1);
     expect(putRuleCommandCalls[0].args[0].input).toEqual({
       Name: `TrackflixLiveTx-${eventId}`,
-      ScheduleExpression: 'cron(0 0 1 1 ? 2022)',
-      State: 'ENABLED',
-    });
-
-    const putTargetsCommandCalls = mock.commandCalls(PutTargetsCommand);
-    expect(putTargetsCommandCalls).toHaveLength(1);
-    expect(putTargetsCommandCalls[0].args[0].input).toEqual({
-      Rule: 'TrackflixLiveTx-005fc3b5-623c-41f6-8885-22dc72f30676',
-      Targets: [
-        {
-          Id: 'TrackflixLiveTx-005fc3b5-623c-41f6-8885-22dc72f30676-Target',
-          Input: expect.any(String),
-          Arn: target,
-        },
-      ],
-    });
-    expect(
-      JSON.parse(
-        putTargetsCommandCalls[0].args[0].input.Targets?.[0].Input || '{}'
-      )
-    ).toEqual({
-      eventId,
+      ScheduleExpression: 'at(2022-01-01T00:00:00)',
+      ActionAfterCompletion: 'DELETE',
+      Target: {
+        Arn: target,
+        RoleArn: roleArn,
+      },
+      FlexibleTimeWindow: {
+        Mode: 'OFF',
+      },
     });
   });
 
   it('should throw an error when scheduling an event fails', async () => {
     const { scheduler } = setup();
-    mock.on(PutRuleCommand).rejects(new Error('Failed to schedule event'));
+    mock
+      .on(CreateScheduleCommand)
+      .rejects(new Error('Failed to schedule event'));
 
     await expect(
       scheduler.scheduleEvent({
@@ -79,14 +67,15 @@ describe('EventBridgeScheduler', () => {
 });
 
 const setup = () => {
-  const client = new EventBridgeClient({
+  const client = new SchedulerClient({
     credentials: {
       accessKeyId: 'fakeAccessKeyId',
       secretAccessKey: 'fakeSecretAccessKey',
     },
   });
   const target = 'fake_target';
-  const scheduler = new EventBridgeScheduler({ client, target });
+  const roleArn = 'fake_role_arn';
+  const scheduler = new EventBridgeScheduler({ client, target, roleArn });
 
-  return { client, scheduler, target };
+  return { client, scheduler, target, roleArn };
 };
