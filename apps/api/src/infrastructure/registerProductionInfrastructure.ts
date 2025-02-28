@@ -26,7 +26,7 @@ import { TransmissionsManagerSfn } from './TransmissionsManagerSfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
 
 export const registerProductionInfrastructure = () => {
-  const eventBridgeClient = new SchedulerClient();
+  const schedulerClient = new SchedulerClient();
   const iotDataPlaneClient = new IoTDataPlaneClient();
   const iotClient = new IoTClient();
   const dynamoClient = new DynamoDBClient();
@@ -38,7 +38,7 @@ export const registerProductionInfrastructure = () => {
   register(tokenEventSchedulerStart, {
     useFactory: () => {
       return new EventBridgeScheduler({
-        client: eventBridgeClient,
+        client: schedulerClient,
         target: process.env.START_TX_LAMBDA || '',
         roleArn: process.env.ROLE_ARN || '',
       });
@@ -47,7 +47,7 @@ export const registerProductionInfrastructure = () => {
   register(tokenEventSchedulerStop, {
     useFactory: () => {
       return new EventBridgeScheduler({
-        client: eventBridgeClient,
+        client: schedulerClient,
         target: process.env.STOP_TX_LAMBDA || '',
         roleArn: process.env.ROLE_ARN || '',
       });

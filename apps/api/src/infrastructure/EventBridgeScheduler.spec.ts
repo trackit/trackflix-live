@@ -22,9 +22,9 @@ describe('EventBridgeScheduler', () => {
       time: new Date('2022-01-01T00:00:00Z'),
     });
 
-    const putRuleCommandCalls = mock.commandCalls(CreateScheduleCommand);
-    expect(putRuleCommandCalls).toHaveLength(1);
-    expect(putRuleCommandCalls[0].args[0].input).toEqual({
+    const createScheduleCommandCalls = mock.commandCalls(CreateScheduleCommand);
+    expect(createScheduleCommandCalls).toHaveLength(1);
+    expect(createScheduleCommandCalls[0].args[0].input).toEqual({
       Name: `TrackflixLiveTx-${eventId}`,
       ScheduleExpression: 'at(2022-01-01T00:00:00)',
       ActionAfterCompletion: 'DELETE',
@@ -36,6 +36,13 @@ describe('EventBridgeScheduler', () => {
       FlexibleTimeWindow: {
         Mode: 'OFF',
       },
+    });
+    expect(
+      JSON.parse(
+        createScheduleCommandCalls[0].args[0].input.Target?.Input || '{}'
+      )
+    ).toEqual({
+      eventId,
     });
   });
 
