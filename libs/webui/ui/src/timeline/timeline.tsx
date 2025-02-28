@@ -1,12 +1,16 @@
-import { CircleCheck, CircleMinus } from 'lucide-react';
+import { Check, CircleCheck, CircleMinus } from 'lucide-react';
 import './timeline.css';
+import { DateTime } from 'luxon';
 
-type TimelineProps = {
-  steps: {
-    text: string;
-    loading?: boolean;
-    completed?: boolean;
-  }[];
+export type TimelineStep = {
+  text: string;
+  datetime?: string;
+  loading?: boolean;
+  completed?: boolean;
+};
+
+export type TimelineProps = {
+  steps: TimelineStep[];
 };
 
 export function Timeline({ steps }: TimelineProps) {
@@ -40,6 +44,16 @@ export function Timeline({ steps }: TimelineProps) {
                 }`}
               >
                 {step.text}
+                {step.datetime && (
+                  <>
+                    <br />
+                    <div className="text-xs text-base-content/50 flex items-center gap-2">
+                      {DateTime.fromISO(step.datetime).toLocaleString(
+                        DateTime.TIME_WITH_SECONDS
+                      )}
+                    </div>
+                  </>
+                )}
               </span>
               {/* {step.loading && (
                 <span className="loading loading-spinner loading-xs ml-2 text-primary"></span>

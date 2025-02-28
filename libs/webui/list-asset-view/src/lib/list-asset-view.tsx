@@ -86,7 +86,7 @@ export function ListAssetView() {
             />
           </label>
         </div>
-        <Panel className={'max-h-[90%] p-0'}>
+        <Panel className={'max-h-[90%] !p-0'}>
           <Table
             data={data?.events || []}
             columns={columns}

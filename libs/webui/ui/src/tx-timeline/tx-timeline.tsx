@@ -1,13 +1,14 @@
 import { DateTime } from 'luxon';
 import { useState, useEffect } from 'react';
 
-type Step = {
+export type Step = {
   title: string;
   datetime?: string;
 };
 
 interface TxTimelineProps {
   steps: Step[];
+  completed?: boolean;
 }
 
 function formatDateTime(datetime?: string): string {
@@ -95,7 +96,7 @@ function calculateProgress(steps: Step[]): number {
   return 100;
 }
 
-export function TxTimeline({ steps }: TxTimelineProps) {
+export function TxTimeline({ steps, completed }: TxTimelineProps) {
   const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export function TxTimeline({ steps }: TxTimelineProps) {
       {/* Progress bar */}
       <progress
         className="progress progress-primary w-full h-[12px] absolute top-0 left-0 m-0"
-        value={progress}
+        value={completed ? 100 : progress}
         max="100"
       />
 

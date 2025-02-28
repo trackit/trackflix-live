@@ -7,14 +7,29 @@ import {
   CheckCheck,
   SquarePlay,
 } from 'lucide-react';
-import { Panel, Timeline, TxTimeline } from '@trackflix-live/ui';
+import {
+  Panel,
+  Timeline,
+  TxTimeline,
+  TimelineStep,
+  Step,
+} from '@trackflix-live/ui';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import { getEvent } from '@trackflix-live/api-client';
-import { GetEventResponse, EventStatus } from '@trackflix-live/types';
+import {
+  GetEventResponse,
+  EventStatus,
+  LogType,
+  Event,
+} from '@trackflix-live/types';
 import { pubsub } from '@trackflix-live/api-client';
 import { CopyText } from '@trackflix-live/ui';
+
+const PRE_TX_TIME = 5;
+
+type TimelineStepWithLog = TimelineStep & { id: LogType };
 
 const getStatusColorClass = (status: EventStatus | undefined) => {
   switch (status) {
@@ -43,6 +58,72 @@ const getStatusIcon = (status: EventStatus | undefined) => {
   }
 };
 
+const initialTimelineSteps: TimelineStepWithLog[] = [
+  {
+    text: 'Create MediaPackage Channel',
+    id: LogType.PACKAGE_CHANNEL_CREATED,
+  },
+  {
+    text: 'Create MediaLive Input',
+    id: LogType.LIVE_INPUT_CREATED,
+  },
+  {
+    text: 'Create MediaLive Channel',
+    id: LogType.LIVE_CHANNEL_CREATED,
+  },
+  {
+    text: 'Start MediaLive Channel',
+    id: LogType.LIVE_CHANNEL_STARTED,
+  },
+  {
+    text: 'Stop MediaLive Channel',
+    id: LogType.LIVE_CHANNEL_STOPPED,
+  },
+  {
+    text: 'Delete MediaLive Channel',
+    id: LogType.LIVE_CHANNEL_DESTROYED,
+  },
+  {
+    text: 'Delete MediaLive Input',
+    id: LogType.LIVE_INPUT_DESTROYED,
+  },
+  {
+    text: 'Delete MediaPackage Channel',
+    id: LogType.PACKAGE_CHANNEL_DESTROYED,
+  },
+];
+
+const getTxSteps = (event: Event): Step[] => {
+  const isEnded = event?.status === 'ENDED';
+  const endTime = isEnded
+    ? event?.logs[event?.logs.length - 1].timestamp
+    : undefined;
+
+  return [
+    { title: 'Created', datetime: event?.createdTime },
+    {
+      title: 'Pre-TX',
+      datetime:
+        DateTime.fromISO(event?.onAirStartTime || '')
+          .minus({
+            minutes: PRE_TX_TIME,
+          })
+          .toISO() || undefined,
+    },
+    { title: 'TX', datetime: event?.onAirStartTime },
+    {
+      title: 'Post-TX',
+      datetime: event?.onAirEndTime,
+    },
+    {
+      title: 'End',
+      datetime: endTime
+        ? DateTime.fromMillis(endTime).toISO() || undefined
+        : undefined,
+    },
+  ];
+};
+
 export function StatusView() {
   const { id } = useParams();
   const { data, isLoading } = useQuery<GetEventResponse['body'] | null>({
@@ -52,30 +133,46 @@ export function StatusView() {
       return getEvent(id);
     },
   });
-  const event = data?.event;
+  const [event, setEvent] = useState<Event | null>(null);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [timelineSteps, setTimelineSteps] =
+    useState<TimelineStepWithLog[]>(initialTimelineSteps);
 
-  const txSteps = [
-    // TODO add created event time here
-    { title: 'Pre-TX', datetime: DateTime.now().toISO() },
-    { title: 'TX', datetime: event?.onAirStartTime },
-    {
-      title: 'Post-TX',
-      datetime: event?.onAirEndTime,
-    },
-    { title: 'End' },
-  ];
+  const [txSteps, setTxSteps] = useState<Step[]>(
+    event ? getTxSteps(event) : []
+  );
 
-  const devTimelineSteps = [
-    { text: 'Creating MediaPackage', completed: true },
-    { text: 'Creating MediaLive Channel', completed: true },
-    { text: 'Creating MediaLive Input', completed: true },
-    { text: 'Creating MediaLive Endpoint', loading: true },
-    { text: 'Deleting MediaLive Endpoint' },
-    { text: 'Deleting MediaLive Input' },
-    { text: 'Deleting MediaLive Channel' },
-    { text: 'Deleting MediaPackage' },
-  ];
+  useEffect(() => {
+    if (data && data.event) {
+      setEvent(data.event);
+      setTxSteps(getTxSteps(data.event));
+    }
+  }, [data]);
+
+  // On event update, update the timeline steps
+  useEffect(() => {
+    if (event && event.logs) {
+      const newTimelineSteps = timelineSteps.map((step) => {
+        const log = event.logs.find((log) => log.type === step.id);
+        return {
+          ...step,
+          completed: log ? true : false,
+          datetime: log
+            ? DateTime.fromMillis(log.timestamp).toISO() || undefined
+            : undefined,
+        };
+      });
+      setTimelineSteps(newTimelineSteps);
+    }
+    if (event?.status === 'ENDED') {
+      const updatedTxSteps = [...txSteps];
+      updatedTxSteps[updatedTxSteps.length - 1] = {
+        title: 'End',
+        datetime: event?.onAirEndTime,
+      };
+      setTxSteps(updatedTxSteps);
+    }
+  }, [event]);
 
   // TODO remove this when backend is ready
   // Wait 10s before showing the player
@@ -90,10 +187,12 @@ export function StatusView() {
 
   useEffect(() => {
     pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
-      // TODO fix type to real data
-      // @ts-expect-error will replace type
-      next: (data: { topic: string; message: string }) => {
-        console.log(data);
+      next: (value) => {
+        const msg = value as { action: string; value: Event };
+        console.log(msg);
+        if (msg.value) {
+          setEvent(msg.value);
+        }
       },
     });
   }, []);
@@ -133,7 +232,10 @@ export function StatusView() {
             }
           >
             <div className={'w-full'}>
-              <TxTimeline steps={txSteps} />
+              <TxTimeline
+                steps={txSteps}
+                completed={event?.status === 'ENDED'}
+              />
             </div>
           </div>
 
@@ -146,7 +248,7 @@ export function StatusView() {
             )}
             <div className={'flex'}>
               <div className={'w-1/3 p-4'}>
-                <Timeline steps={devTimelineSteps} />
+                <Timeline steps={timelineSteps} />
               </div>
               <div className={'flex-grow w-1/2'}>
                 {streamUrl ? (
