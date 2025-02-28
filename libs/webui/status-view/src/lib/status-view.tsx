@@ -13,6 +13,7 @@ import {
   TxTimeline,
   TimelineStep,
   Step,
+  VideoPlayer,
 } from '@trackflix-live/ui';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -27,7 +28,7 @@ import {
 import { pubsub } from '@trackflix-live/api-client';
 import { CopyText } from '@trackflix-live/ui';
 
-const PRE_TX_TIME = 5;
+const PRE_TX_TIME = 15;
 
 type TimelineStepWithLog = TimelineStep & { id: LogType };
 
@@ -74,7 +75,7 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.LIVE_INPUT_CREATED
       ),
       loading:
-        event.logs[event.logs.length - 1].type ===
+        event.logs[event.logs.length - 1]?.type ===
         LogType.PACKAGE_CHANNEL_CREATED,
     },
     {
@@ -84,7 +85,7 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.LIVE_CHANNEL_CREATED
       ),
       loading:
-        event.logs[event.logs.length - 1].type === LogType.LIVE_INPUT_CREATED,
+        event.logs[event.logs.length - 1]?.type === LogType.LIVE_INPUT_CREATED,
     },
     {
       id: LogType.LIVE_CHANNEL_STARTED,
@@ -93,7 +94,8 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.LIVE_CHANNEL_STARTED
       ),
       loading:
-        event.logs[event.logs.length - 1].type === LogType.LIVE_CHANNEL_CREATED,
+        event.logs[event.logs.length - 1]?.type ===
+        LogType.LIVE_CHANNEL_CREATED,
     },
     {
       id: LogType.LIVE_CHANNEL_STOPPED,
@@ -109,7 +111,8 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.LIVE_CHANNEL_DESTROYED
       ),
       loading:
-        event.logs[event.logs.length - 1].type === LogType.LIVE_CHANNEL_STOPPED,
+        event.logs[event.logs.length - 1]?.type ===
+        LogType.LIVE_CHANNEL_STOPPED,
     },
     {
       id: LogType.LIVE_INPUT_DESTROYED,
@@ -118,7 +121,7 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.LIVE_INPUT_DESTROYED
       ),
       loading:
-        event.logs[event.logs.length - 1].type ===
+        event.logs[event.logs.length - 1]?.type ===
         LogType.LIVE_CHANNEL_DESTROYED,
     },
     {
@@ -128,7 +131,8 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.PACKAGE_CHANNEL_DESTROYED
       ),
       loading:
-        event.logs[event.logs.length - 1].type === LogType.LIVE_INPUT_DESTROYED,
+        event.logs[event.logs.length - 1]?.type ===
+        LogType.LIVE_INPUT_DESTROYED,
     },
   ];
   for (const log of event.logs) {
@@ -198,6 +202,7 @@ export function StatusView() {
 
   // On event update, update the timeline steps
   useEffect(() => {
+    console.log('event', event);
     if (event && event.logs) {
       setTimelineSteps(getTimelineSteps(event));
     }
@@ -267,33 +272,49 @@ export function StatusView() {
 
           <Panel className={'w-full min-w-[80dvw]'}>
             <>
-              <CopyText
-                text={'URL'}
-                icon={
-                  <div className="badge badge-primary badge-outline flex items-center gap-2">
-                    <Link className="w-3 h-3" />
-                    DASH
-                  </div>
-                }
-              />
-              <hr className={'my-6'} />
+              {event?.status === 'TX' && (
+                <>
+                  {event?.endpoints.map((endpoint) => (
+                    <CopyText
+                      key={endpoint.url}
+                      className={'w-full mb-2'}
+                      text={endpoint.url}
+                      icon={
+                        <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
+                          <Link className="w-3 h-3" />
+                          {endpoint.type}
+                        </div>
+                      }
+                    />
+                  ))}
+                  <hr className={'my-6'} />
+                </>
+              )}
             </>
             <div className={'flex'}>
               <div className={'w-1/3 p-4'}>
                 <Timeline steps={timelineSteps} />
               </div>
               <div className={'flex-grow w-1/2'}>
-                {/* {streamUrl ? (
-                  <video controls muted={true} autoPlay={true}>
-                    <source src={streamUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                {event?.endpoints &&
+                event?.endpoints.length > 0 &&
+                event?.logs.some(
+                  (log) => log.type === LogType.LIVE_CHANNEL_STARTED
+                ) &&
+                event?.status === 'TX' ? (
+                  <VideoPlayer
+                    src={
+                      event?.endpoints.find(
+                        (endpoint) => endpoint.type === 'HLS'
+                      )?.url || ''
+                    }
+                  />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-lg p-4 shadow-inner text-base-content/40">
                     <SquarePlay className="w-12 h-12" />
-                    <p>Player will be available soon</p>
+                    <p>Player is not yet available</p>
                   </div>
-                )} */}
+                )}
               </div>
             </div>
           </Panel>

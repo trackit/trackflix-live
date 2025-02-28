@@ -140,7 +140,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             type={'datetime-local'}
             {...register('onAirStartTime')}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 30 })
+              .set({ minute: DateTime.now().minute + 15 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
           />
         </label>
@@ -152,7 +152,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             className={'input input-bordered'}
             type={'datetime-local'}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 30 })
+              .set({ minute: DateTime.now().minute + 15 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
             {...register('onAirEndTime')}
           />
