@@ -57,11 +57,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "events:PutRule"
-                  - "events:PutTargets"
+                  - "scheduler:CreateSchedule"
                 Resource:
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*"
         - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -84,20 +83,15 @@ Resources:
               - Effect: Allow
                 Action: "iot:AttachPolicy"
                 Resource: "*"
-  PermissionForEventBridgeToInvokeStartLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref StartTransmission
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
-  PermissionForEventBridgeToInvokeStopLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref StopTransmission
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
+        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -328,6 +322,27 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+  SchedulerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-Scheduler-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt StartTransmission.Arn
+                  - !GetAtt StopTransmission.Arn
   ###########
   # COGNITO #
   ###########
@@ -483,6 +498,7 @@ Resources:
           EVENTS_TABLE: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
           STOP_TX_LAMBDA: !GetAtt StopTransmission.Arn
+          ROLE_ARN: !GetAtt SchedulerExecutionRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
         CreateEvent:
