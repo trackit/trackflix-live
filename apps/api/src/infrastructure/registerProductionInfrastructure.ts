@@ -40,7 +40,7 @@ export const registerProductionInfrastructure = () => {
     useFactory: () => {
       return new EventBridgeScheduler({
         client: schedulerClient,
-        target: process.env.DELETE_TX_LAMBDA || '',
+        target: '',
         roleArn: process.env.ROLE_ARN || '',
       });
     },

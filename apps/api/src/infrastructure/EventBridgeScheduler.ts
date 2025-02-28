@@ -61,7 +61,7 @@ export class EventBridgeScheduler implements EventScheduler {
   }
 
   public async deleteSchedule(scheduleName: string): Promise<void> {
-    const a = await this.client.send(
+    await this.client.send(
       new DeleteScheduleCommand({
         Name: scheduleName,
       })
