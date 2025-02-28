@@ -57,11 +57,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "events:PutRule"
-                  - "events:PutTargets"
+                  - "scheduler:CreateSchedule"
                 Resource:
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*"
         - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -84,6 +83,15 @@ Resources:
               - Effect: Allow
                 Action: "iot:AttachPolicy"
                 Resource: "*"
+        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -282,15 +290,6 @@ Resources:
                   - "medialive:BatchUpdateSchedule"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
-        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "iam:PassRole"
-                Resource:
-                  - !GetAtt MediaLiveRole.Arn
         - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
           PolicyDocument:
             Version: "2012-10-17"

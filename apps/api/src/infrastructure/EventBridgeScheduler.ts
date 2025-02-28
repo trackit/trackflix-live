@@ -50,6 +50,7 @@ export class EventBridgeScheduler implements EventScheduler {
         Target: {
           Arn: this.target,
           RoleArn: this.roleArn,
+          Input: JSON.stringify({ eventId: id }),
         },
         FlexibleTimeWindow: {
           Mode: 'OFF',
