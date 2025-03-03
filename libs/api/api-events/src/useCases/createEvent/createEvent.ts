@@ -41,7 +41,7 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     await this.eventsRepository.createEvent(event);
 
     const preTxTime = new Date(event.onAirStartTime);
-    preTxTime.setMinutes(preTxTime.getMinutes() - 15);
+    preTxTime.setMinutes(preTxTime.getMinutes() - 5);
 
     await this.eventSchedulerStart.scheduleEvent({
       id,
