@@ -10,6 +10,12 @@
       "options": {
         "cwd": "apps/api"
       }
+    },
+    "typecheck": {
+      "command": "tsc --noEmit -p tsconfig.lib.json",
+      "options": {
+        "cwd": "libs/api/api-events"
+      }
     }
   }
 }

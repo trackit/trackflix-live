@@ -17,7 +17,6 @@
     "paths": {
       "@trackflix-live/api-client": ["libs/webui/api-client/src/index.ts"],
       "@trackflix-live/api-events": ["libs/api/api-events/src/index.ts"],
-      "@trackflix-live/formatting": ["libs/shared/formatting/src/index.ts"],
       "@trackflix-live/forms": ["libs/webui/forms/src/index.ts"],
       "@trackflix-live/single-asset-flow": [
         "libs/webui/single-asset-flow/src/index.ts"
