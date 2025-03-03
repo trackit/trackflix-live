@@ -12,4 +12,7 @@ export class DIToken<T> {
   }
 }
 
-export const createInjectionToken = <T>(name: string, defaultProvider?: Provider<T>): DIToken<T> => new DIToken<T>(name, defaultProvider);
+export const createInjectionToken = <T>(
+  name: string,
+  defaultProvider?: Provider<T>
+): DIToken<T> => new DIToken<T>(name, defaultProvider);
