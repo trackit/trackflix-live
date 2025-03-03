@@ -11,6 +11,15 @@ minimizing operational overhead and providing a cost-efficient, high-quality liv
 
 This project is a mono-repo using [Nx](https://nx.dev/) as its build system.
 
+# Code quality and Unit tests
+
+You can run Prettier, ESLint, type checks and unit tests using the following commands:
+```shell
+$ nx run-many -t lint # Runs ESLint on all Nx projects
+$ nx run-many -t prettier # Runs Prettier on all Nx projects
+$ nx run-many -t typecheck  # Runs Typescript type-checking on all Nx projects
+$ nx run-many -t test  # Runs unit tests on all Nx projects
+```
 
 # Back-end
 
