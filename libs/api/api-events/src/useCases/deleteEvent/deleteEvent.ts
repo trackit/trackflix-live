@@ -3,9 +3,9 @@ import { EventStatus } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
 
-export class EventCannotBeDeletedError extends Error {
+export class EventCannotBeDeletedIfNotOnPreTxError extends Error {
   constructor() {
-    super('Event cannot be deleted');
+    super('Event cannot be deleted if not on pre tx');
   }
 }
 
@@ -31,7 +31,7 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
       throw new EventDoesNotExistError();
     }
     if (event.status !== EventStatus.PRE_TX) {
-      throw new EventCannotBeDeletedError();
+      throw new EventCannotBeDeletedIfNotOnPreTxError();
     }
 
     const currentDate = Date.now();

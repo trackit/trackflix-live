@@ -3,7 +3,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { NotFoundError } from '../HttpErrors';
 import { register, reset } from '@trackflix-live/di';
 import {
-  EventCannotBeDeletedError,
+  EventCannotBeDeletedIfNotOnPreTxError,
   EventCannotBeDeletedWhileOnAirError,
   tokenDeleteEventUseCase,
 } from '@trackflix-live/api-events';
@@ -53,7 +53,9 @@ describe('Delete Event adapter', () => {
 
   it('should return 400 if the event status is not PRE_TX', async () => {
     const { adapter, useCase } = setup();
-    useCase.deleteEvent.mockRejectedValue(new EventCannotBeDeletedError());
+    useCase.deleteEvent.mockRejectedValue(
+      new EventCannotBeDeletedIfNotOnPreTxError()
+    );
 
     const response = await adapter.handle({
       pathParameters: {
@@ -64,7 +66,7 @@ describe('Delete Event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
       message: 'Bad Request',
-      description: 'Event cannot be deleted',
+      description: 'Event cannot be deleted if not on pre tx',
     });
   });
 
