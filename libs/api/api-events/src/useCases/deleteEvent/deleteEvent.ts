@@ -1,5 +1,5 @@
 import { tokenEventSchedulerDelete, tokenEventsRepository } from '../../ports';
-import { EventStatus } from '@trackflix-live/types';
+import { EventDoesNotExistError, EventStatus } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface DeleteEventUseCase {
@@ -15,7 +15,7 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
     const event = await this.eventsRepository.getEvent(eventId);
 
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
     if (event.status !== EventStatus.PRE_TX) {
       throw new Error('Event cannot be deleted');

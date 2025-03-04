@@ -21,7 +21,8 @@ import {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { Event, EventEndpoint, EventLog } from '@trackflix-live/types';
-import { NotFoundError } from '../handlers/HttpErrors';
+import { EventDoesNotExistError } from '@trackflix-live/types';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 
 export class EventsDynamoDBRepository implements EventsRepository {
   private readonly client: DynamoDBDocumentClient;
@@ -356,8 +357,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
     try {
       await this.client.send(new DeleteCommand(params));
     } catch (error) {
-      if (error.name === 'ConditionalCheckFailedException') {
-        throw new NotFoundError();
+      if (error instanceof ConditionalCheckFailedException) {
+        throw new EventDoesNotExistError();
       }
 
       throw error;

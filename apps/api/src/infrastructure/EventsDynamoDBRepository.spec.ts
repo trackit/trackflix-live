@@ -7,6 +7,7 @@ import {
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import {
   EndpointType,
+  EventDoesNotExistError,
   EventEndpoint,
   EventMother,
   EventStatus,
@@ -451,7 +452,7 @@ describe('EventsDynamoDBRepository', () => {
     const { repository } = setup();
 
     await expect(repository.deleteEvent('non-existing-id')).rejects.toThrow(
-      'Not Found'
+      EventDoesNotExistError
     );
   });
 });

@@ -10,6 +10,7 @@ import {
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '@trackflix-live/types';
 
 export class DeleteEventAdapter {
   private readonly useCase: DeleteEventUseCase = inject(
@@ -35,9 +36,10 @@ export class DeleteEventAdapter {
     try {
       await this.useCase.deleteEvent(eventId);
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (error instanceof EventDoesNotExistError) {
         throw new NotFoundError();
       }
+
       throw error;
     }
   }

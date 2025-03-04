@@ -4,7 +4,11 @@ import {
   tokenLiveChannelsManager,
   tokenTaskTokensRepository,
 } from '../../ports';
-import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventDoesNotExistError,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface DeleteLiveChannelParameters {
@@ -31,7 +35,7 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
   }: DeleteLiveChannelParameters): Promise<void> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
-      throw new Error('Event not found.');
+      throw new EventDoesNotExistError();
     }
     if (
       event.liveChannelId === undefined ||

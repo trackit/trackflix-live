@@ -6,7 +6,11 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import {
+  EventDoesNotExistError,
+  EventMother,
+  EventUpdateAction,
+} from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 
 describe('Create live channel use case', () => {
@@ -236,7 +240,7 @@ describe('Create live channel use case', () => {
         taskToken,
         packageChannelId,
       })
-    ).rejects.toThrow('Event not found.');
+    ).rejects.toThrow(EventDoesNotExistError);
   });
 });
 
