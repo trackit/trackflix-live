@@ -50,7 +50,7 @@ The handlers for Lambda functions used in state machines can be found in the `sr
 ### Start transmission
 
 <p align="center">
-  <img width="250" height="380" src="SfnStartTx.png" alt="Start Transmission graph">
+  <img width="250" height="503" src="SfnStartTx.png" alt="Start Transmission graph">
 </p>
 This state machine handles the creation of the Amazon Elemental resources:
 
@@ -70,6 +70,12 @@ Finally, it creates a task token to resume the state machine once the MediaLive 
 
 #### 4. Save results
 This handler calls the `saveResults` use case which updates some values in the database.
+
+#### 5. Wait for air time
+This is a Wait task which waits for the transmission's on air start time.
+
+#### 6. Update status
+This handler calls the `updateStatus` use case which updates some values in the database.
 
 ### Stop transmission
 
