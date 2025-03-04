@@ -3,8 +3,9 @@ import {
   registerTestInfrastructure,
   tokenEventsRepositoryInMemory,
 } from '../../infrastructure';
-import { EventDoesNotExistError, EventMother } from '@trackflix-live/types';
+import { EventMother } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Get event use case', () => {
   it('should return the event requested', async () => {

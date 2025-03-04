@@ -1,13 +1,13 @@
 import { EventsRepository, ListEventsResponse } from '../ports';
 import {
   Event,
-  EventDoesNotExistError,
   EventEndpoint,
   EventLog,
   EventStatus,
 } from '@trackflix-live/types';
 import { ListEventsParams } from '../ports';
 import { createInjectionToken } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../utils';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];

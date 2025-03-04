@@ -6,12 +6,9 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import {
-  EventDoesNotExistError,
-  EventMother,
-  EventUpdateAction,
-} from '@trackflix-live/types';
+import { EventMother, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {

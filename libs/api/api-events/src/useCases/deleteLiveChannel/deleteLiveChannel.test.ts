@@ -6,13 +6,9 @@ import {
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { DeleteLiveChannelUseCaseImpl } from './deleteLiveChannel';
-import {
-  EventDoesNotExistError,
-  EventMother,
-  EventUpdateAction,
-  LogType,
-} from '@trackflix-live/types';
+import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Delete live channel use case', () => {
   it('should delete live channel', async () => {

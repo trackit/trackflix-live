@@ -1,6 +1,7 @@
 import { tokenEventSchedulerDelete, tokenEventsRepository } from '../../ports';
-import { EventDoesNotExistError, EventStatus } from '@trackflix-live/types';
+import { EventStatus } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export class EventCannotBeDeletedError extends Error {
   constructor() {

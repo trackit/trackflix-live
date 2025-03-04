@@ -1,13 +1,10 @@
 import { DeleteEventUseCaseImpl } from './deleteEvent';
 import { tokenEventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
-import {
-  EventDoesNotExistError,
-  EventMother,
-  EventStatus,
-} from '@trackflix-live/types';
+import { EventMother, EventStatus } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenEventSchedulerDeleteFake } from '../../infrastructure/EventSchedulerFake';
 import { registerTestInfrastructure } from '../../infrastructure';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('DeleteEvent use case', () => {
   it('should delete event', async () => {

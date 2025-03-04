@@ -4,12 +4,9 @@ import {
   tokenLiveChannelsManager,
   tokenTaskTokensRepository,
 } from '../../ports';
-import {
-  EventDoesNotExistError,
-  EventUpdateAction,
-  LogType,
-} from '@trackflix-live/types';
+import { EventUpdateAction, LogType } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export interface CreateLiveChannelParameters {
   eventId: string;

@@ -12,7 +12,7 @@ import {
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { inject } from '@trackflix-live/di';
-import { EventDoesNotExistError } from '@trackflix-live/types';
+import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 export class DeleteEventAdapter {
   private readonly useCase: DeleteEventUseCase = inject(

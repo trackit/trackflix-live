@@ -21,8 +21,8 @@ import {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { Event, EventEndpoint, EventLog } from '@trackflix-live/types';
-import { EventDoesNotExistError } from '@trackflix-live/types';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 export class EventsDynamoDBRepository implements EventsRepository {
   private readonly client: DynamoDBDocumentClient;

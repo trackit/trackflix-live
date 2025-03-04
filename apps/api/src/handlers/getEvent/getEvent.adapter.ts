@@ -1,16 +1,15 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { tokenGetEventUseCase } from '@trackflix-live/api-events';
+import {
+  tokenGetEventUseCase,
+  EventDoesNotExistError,
+} from '@trackflix-live/api-events';
 import {
   BadRequestError,
   handleHttpRequest,
   NotFoundError,
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import {
-  EventDoesNotExistError,
-  GetEventRequest,
-  GetEventResponse,
-} from '@trackflix-live/types';
+import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 
 export class GetEventAdapter {

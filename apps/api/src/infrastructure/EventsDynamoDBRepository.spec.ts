@@ -7,12 +7,12 @@ import {
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import {
   EndpointType,
-  EventDoesNotExistError,
   EventEndpoint,
   EventMother,
   EventStatus,
   LogType,
 } from '@trackflix-live/types';
+import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {

@@ -1,6 +1,7 @@
 import { tokenEventsRepository } from '../../ports';
-import { Event, EventDoesNotExistError } from '@trackflix-live/types';
+import { Event } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export interface GetEventUseCase {
   getEvent(eventId: string): Promise<Event>;
