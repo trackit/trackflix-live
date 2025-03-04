@@ -56,11 +56,16 @@ describe('DeleteEvent use case', () => {
   it('should delete schedules', async () => {
     const { eventsRepository, useCase, eventSchedulerDelete } = setup();
 
-    const event = EventMother.basic().build();
+    const event = EventMother.basic()
+      .withId('5e9019f4-b937-465c-ab7c-baeb74eb26a2')
+      .build();
     await eventsRepository.createEvent(event);
 
     await useCase.deleteEvent(event.id);
-    expect(eventSchedulerDelete.scheduledEvents).toEqual([]);
+    expect(eventSchedulerDelete.deletedScheduledEvents).toEqual([
+      'TrackflixLiveStartTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
+      'TrackflixLiveStopTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
+    ]);
   });
 });
 

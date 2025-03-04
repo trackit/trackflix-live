@@ -4,6 +4,8 @@ import { createInjectionToken } from '@trackflix-live/di';
 export class EventSchedulerFake implements EventScheduler {
   public readonly scheduledEvents: ScheduledEvent[] = [];
 
+  public readonly deletedScheduledEvents: string[] = [];
+
   public async scheduleEvent(scheduledEvent: ScheduledEvent) {
     this.scheduledEvents.push(scheduledEvent);
   }
@@ -13,6 +15,7 @@ export class EventSchedulerFake implements EventScheduler {
       this.scheduledEvents.findIndex((event) => event.id === eventId),
       1
     );
+    this.deletedScheduledEvents.push(eventId);
   }
 }
 
