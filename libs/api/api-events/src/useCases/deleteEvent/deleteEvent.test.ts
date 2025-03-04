@@ -37,18 +37,16 @@ describe('DeleteEvent use case', () => {
     );
   });
 
-  it('should throw an error if the current time is between onAirStartTime and onAirEndTime', async () => {
+  it('should throw an error if the current time is between onAirStartTime (-6min) and onAirEndTime', async () => {
     const { eventsRepository, useCase } = setup();
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2025-01-01T04:56:00Z'));
 
     const event = EventMother.basic()
-      .withOnAirStartTime('2025-01-01T00:00:00Z')
-      .withOnAirEndTime('2025-01-01T01:00:00Z')
+      .withOnAirStartTime('2025-01-01T05:00:00Z')
+      .withOnAirEndTime('2025-01-01T06:00:00Z')
       .build();
     await eventsRepository.createEvent(event);
-
-    jest
-      .spyOn(global.Date, 'now')
-      .mockImplementation(() => new Date('2025-01-01T00:30:00Z').getTime());
 
     await expect(useCase.deleteEvent(event.id)).rejects.toThrow(
       'Cannot delete event while it is on air'
