@@ -4,12 +4,7 @@ import {
   tokenEventUpdateSenderFake,
 } from '../../infrastructure';
 import { SaveResultsUseCaseImpl } from './saveResults';
-import {
-  EventMother,
-  EventStatus,
-  EventUpdateAction,
-  LogType,
-} from '@trackflix-live/types';
+import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 
 describe('Save results use case', () => {
@@ -47,17 +42,6 @@ describe('Save results use case', () => {
         value: updatedEvent,
       },
     ]);
-  });
-
-  it('should update event status to TX', async () => {
-    const { useCase, eventsRepository } = setup();
-    const event = EventMother.basic().withStatus(EventStatus.PRE_TX).build();
-
-    await eventsRepository.createEvent(event);
-
-    await useCase.saveResults(event.id);
-
-    expect(eventsRepository.events[0].status).toBe(EventStatus.TX);
   });
 });
 

@@ -114,6 +114,7 @@ Resources:
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
                   - !GetAtt SaveResults.Arn
+                  - !GetAtt UpdateStatus.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
@@ -734,6 +735,25 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  UpdateStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/updateStatus/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   StopMediaLiveChannel:
     Type: AWS::Serverless::Function
     Properties:
@@ -876,6 +896,16 @@ Resources:
             "Save results": {
               "Type": "Task",
               "Resource": "${SaveResults}",
+              "Next": "Wait for air time"
+            },
+            "Wait for air time": {
+              "Type": "Wait",
+              "TimestampPath": "$.onAirStartTime",
+              "Next": "Update status"
+            },
+            "Update status": {
+              "Type": "Task",
+              "Resource": "${UpdateStatus}",
               "End": true
             }
           }
@@ -885,6 +915,7 @@ Resources:
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
+        UpdateStatus: !GetAtt UpdateStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
   StopTransmissionStateMachine:
     Type: AWS::StepFunctions::StateMachine
