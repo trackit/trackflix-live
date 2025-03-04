@@ -8,6 +8,7 @@ import {
 } from '../../infrastructure';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {
@@ -236,7 +237,7 @@ describe('Create live channel use case', () => {
         taskToken,
         packageChannelId,
       })
-    ).rejects.toThrow('Event not found.');
+    ).rejects.toThrow(EventDoesNotExistError);
   });
 });
 

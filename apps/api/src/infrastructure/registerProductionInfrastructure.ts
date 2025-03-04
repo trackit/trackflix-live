@@ -8,6 +8,7 @@ import {
   tokenPackageChannelsManager,
   tokenTaskTokensRepository,
   tokenTransmissionsManager,
+  tokenEventSchedulerDelete,
 } from '@trackflix-live/api-events';
 import { EventsIotUpdateSender } from './EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
@@ -35,6 +36,15 @@ export const registerProductionInfrastructure = () => {
   const mediaPackageClient = new MediaPackageClient();
   const sfnClient = new SFNClient();
 
+  register(tokenEventSchedulerDelete, {
+    useFactory: () => {
+      return new EventBridgeScheduler({
+        client: schedulerClient,
+        target: '',
+        roleArn: '',
+      });
+    },
+  });
   register(tokenEventSchedulerStart, {
     useFactory: () => {
       return new EventBridgeScheduler({

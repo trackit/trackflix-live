@@ -42,6 +42,7 @@ Resources:
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
                   - "dynamodb:Query"
+                  - "dynamodb:DeleteItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
                   - !Sub "${EventsTable.Arn}/index/*"
@@ -58,6 +59,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "scheduler:CreateSchedule"
+                  - "scheduler:DeleteSchedule"
                 Resource:
                   - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*"
                   - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*"
@@ -610,6 +612,31 @@ Resources:
                 - aws.medialive
               detail-type:
                 - MediaLive Channel State Change
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/deleteEvent/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+      Events:
+        DeleteEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event/{eventId}
+            Method: delete
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

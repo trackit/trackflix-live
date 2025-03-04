@@ -1,5 +1,8 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { tokenGetEventUseCase } from '@trackflix-live/api-events';
+import {
+  tokenGetEventUseCase,
+  EventDoesNotExistError,
+} from '@trackflix-live/api-events';
 import {
   BadRequestError,
   handleHttpRequest,
@@ -28,12 +31,15 @@ export class GetEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.getEvent(pathParameters.eventId);
+    try {
+      const result = await this.useCase.getEvent(pathParameters.eventId);
 
-    if (!result) {
-      throw new NotFoundError();
+      return { event: result } satisfies GetEventResponse['body'];
+    } catch (error) {
+      if (error instanceof EventDoesNotExistError) {
+        throw new NotFoundError();
+      }
+      throw error;
     }
-
-    return { event: result } satisfies GetEventResponse['body'];
   }
 }

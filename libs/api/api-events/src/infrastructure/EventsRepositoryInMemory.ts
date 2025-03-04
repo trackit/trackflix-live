@@ -7,6 +7,7 @@ import {
 } from '@trackflix-live/types';
 import { ListEventsParams } from '../ports';
 import { createInjectionToken } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../utils';
 
 export class EventsRepositoryInMemory implements EventsRepository {
   public readonly events: Event[] = [];
@@ -79,7 +80,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   async appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.logs.push(...logs);
@@ -93,7 +94,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.endpoints.push(...endpoints);
@@ -107,7 +108,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.status = status;
@@ -121,7 +122,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.liveChannelArn = liveChannelArn;
@@ -135,7 +136,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.liveChannelId = liveChannelId;
@@ -149,7 +150,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.liveInputId = liveInputId;
@@ -163,7 +164,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.liveWaitingInputId = liveWaitingInputId;
@@ -177,12 +178,21 @@ export class EventsRepositoryInMemory implements EventsRepository {
   ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
-      throw new Error('Event not found');
+      throw new EventDoesNotExistError();
     }
 
     event.destroyedTime = destroyedTime;
 
     return event;
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    const eventIndex = this.events.findIndex((event) => event.id === eventId);
+    if (eventIndex === -1) {
+      throw new EventDoesNotExistError();
+    }
+
+    this.events.splice(eventIndex, 1);
   }
 }
 
