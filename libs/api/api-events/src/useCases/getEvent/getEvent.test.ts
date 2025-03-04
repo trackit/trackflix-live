@@ -3,7 +3,7 @@ import {
   registerTestInfrastructure,
   tokenEventsRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother } from '@trackflix-live/types';
+import { EventDoesNotExistError, EventMother } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 
 describe('Get event use case', () => {
@@ -18,12 +18,12 @@ describe('Get event use case', () => {
     expect(result).toEqual(event);
   });
 
-  it('should return an undefined event if it does not exist', async () => {
+  it('should throw an error if the event does not exist', async () => {
     const { useCase } = setup();
 
-    const result = await useCase.getEvent('non-existing-id');
-
-    expect(result).toBeUndefined();
+    await expect(useCase.getEvent('non-existing-id')).rejects.toThrow(
+      EventDoesNotExistError
+    );
   });
 });
 

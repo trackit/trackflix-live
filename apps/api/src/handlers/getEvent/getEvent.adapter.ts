@@ -6,7 +6,11 @@ import {
   NotFoundError,
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
+import {
+  EventDoesNotExistError,
+  GetEventRequest,
+  GetEventResponse,
+} from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 
 export class GetEventAdapter {
@@ -28,12 +32,15 @@ export class GetEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.getEvent(pathParameters.eventId);
+    try {
+      const result = await this.useCase.getEvent(pathParameters.eventId);
 
-    if (!result) {
-      throw new NotFoundError();
+      return { event: result } satisfies GetEventResponse['body'];
+    } catch (error) {
+      if (error instanceof EventDoesNotExistError) {
+        throw new NotFoundError();
+      }
+      throw error;
     }
-
-    return { event: result } satisfies GetEventResponse['body'];
   }
 }

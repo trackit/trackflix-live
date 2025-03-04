@@ -2,7 +2,11 @@ import { DeleteEventAdapter } from './deleteEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { NotFoundError } from '../HttpErrors';
 import { register, reset } from '@trackflix-live/di';
-import { tokenDeleteEventUseCase } from '@trackflix-live/api-events';
+import {
+  EventCannotBeDeletedError,
+  EventCannotBeDeletedWhileOnAirError,
+  tokenDeleteEventUseCase,
+} from '@trackflix-live/api-events';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
@@ -45,6 +49,42 @@ describe('Delete Event adapter', () => {
 
     expect(response.statusCode).toEqual(404);
     expect(JSON.parse(response.body || '').message).toEqual('Not Found');
+  });
+
+  it('should return 400 if the event status is not PRE_TX', async () => {
+    const { adapter, useCase } = setup();
+    useCase.deleteEvent.mockRejectedValue(new EventCannotBeDeletedError());
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+    expect(JSON.parse(response.body || '')).toMatchObject({
+      message: 'Bad Request',
+      description: 'Event cannot be deleted',
+    });
+  });
+
+  it('should return 400 if the event is on air', async () => {
+    const { adapter, useCase } = setup();
+    useCase.deleteEvent.mockRejectedValue(
+      new EventCannotBeDeletedWhileOnAirError()
+    );
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+    } as APIGatewayProxyEventV2);
+
+    expect(response.statusCode).toEqual(400);
+    expect(JSON.parse(response.body || '')).toMatchObject({
+      message: 'Bad Request',
+      description: 'Event cannot be deleted while on air',
+    });
   });
 });
 

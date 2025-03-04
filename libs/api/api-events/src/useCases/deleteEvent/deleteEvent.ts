@@ -2,6 +2,18 @@ import { tokenEventSchedulerDelete, tokenEventsRepository } from '../../ports';
 import { EventDoesNotExistError, EventStatus } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
+export class EventCannotBeDeletedError extends Error {
+  constructor() {
+    super('Event cannot be deleted');
+  }
+}
+
+export class EventCannotBeDeletedWhileOnAirError extends Error {
+  constructor() {
+    super('Cannot delete event while it is on air');
+  }
+}
+
 export interface DeleteEventUseCase {
   deleteEvent(eventId: string): Promise<void>;
 }
@@ -18,7 +30,7 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
       throw new EventDoesNotExistError();
     }
     if (event.status !== EventStatus.PRE_TX) {
-      throw new Error('Event cannot be deleted');
+      throw new EventCannotBeDeletedError();
     }
 
     const currentDate = Date.now();
@@ -28,7 +40,7 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
       currentDate >= onAirStartTime.getTime() &&
       currentDate <= onAirEndTime.getTime()
     ) {
-      throw new Error('Cannot delete event while it is on air');
+      throw new EventCannotBeDeletedWhileOnAirError();
     }
 
     await this.eventSchedulerDelete.deleteSchedule(

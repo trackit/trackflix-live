@@ -1,6 +1,8 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   DeleteEventUseCase,
+  EventCannotBeDeletedError,
+  EventCannotBeDeletedWhileOnAirError,
   tokenDeleteEventUseCase,
 } from '@trackflix-live/api-events';
 import {
@@ -36,11 +38,16 @@ export class DeleteEventAdapter {
     try {
       await this.useCase.deleteEvent(eventId);
     } catch (error) {
-      if (error instanceof EventDoesNotExistError) {
-        throw new NotFoundError();
+      switch (true) {
+        case error instanceof EventDoesNotExistError:
+          throw new NotFoundError();
+        case error instanceof EventCannotBeDeletedError:
+          throw new BadRequestError('Event cannot be deleted');
+        case error instanceof EventCannotBeDeletedWhileOnAirError:
+          throw new BadRequestError('Event cannot be deleted while on air');
+        default:
+          throw error;
       }
-
-      throw error;
     }
   }
 }
