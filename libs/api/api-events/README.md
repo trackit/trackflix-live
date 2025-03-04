@@ -87,7 +87,6 @@ This use case:
 ### SaveResults
 This use case:
 - appends to the event's logs
-- update the event's status to TX
 - sends a live update informing about the updated event
 
 ### StartLiveChannel
@@ -111,3 +110,8 @@ This use case:
 ### StopTransmission
 This use case:
 - starts a workflow to stop the transmission of an event
+
+### UpdateStatus
+This use case:
+- update the event's status to TX
+- sends a live update informing about the updated event
