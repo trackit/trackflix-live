@@ -2,8 +2,10 @@ import { GetEventAdapter } from './getEvent.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
 import { register, reset } from '@trackflix-live/di';
-import { tokenGetEventUseCase } from '@trackflix-live/api-events';
-import { EventDoesNotExistError } from '@trackflix-live/api-events';
+import {
+  tokenGetEventUseCase,
+  EventDoesNotExistError,
+} from '@trackflix-live/api-events';
 
 describe('Get event adapter', () => {
   it('should call use case', async () => {
