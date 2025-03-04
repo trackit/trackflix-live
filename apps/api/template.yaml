@@ -630,7 +630,7 @@ Resources:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
       Events:
-        GetEvent:
+        DeleteEvent:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
