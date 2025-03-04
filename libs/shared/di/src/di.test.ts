@@ -9,7 +9,8 @@ type NumberGetter = {
   getNumber: () => number;
 };
 
-const NumberGetterToken = createInjectionToken<NumberGetter>('NumberGetterToken');
+const NumberGetterToken =
+  createInjectionToken<NumberGetter>('NumberGetterToken');
 
 class OneGetter implements NumberGetter {
   public getNumber(): number {
@@ -86,11 +87,14 @@ describe('di-container', () => {
         }
       }
 
-      const ExternalNumberLoggerToken = createInjectionToken<ExternalNumberLogger>(ExternalNumberLogger.name);
+      const ExternalNumberLoggerToken =
+        createInjectionToken<ExternalNumberLogger>(ExternalNumberLogger.name);
 
       it('should register an external dependency through use factory with dependencies', () => {
         register(NumberGetterToken, { useValue: new OneGetter() });
-        register(ExternalNumberLoggerToken, { useFactory: () => new ExternalNumberLogger(inject(NumberGetterToken)) });
+        register(ExternalNumberLoggerToken, {
+          useFactory: () => new ExternalNumberLogger(inject(NumberGetterToken)),
+        });
 
         const logger = inject<ExternalNumberLogger>(ExternalNumberLoggerToken);
 
@@ -103,7 +107,9 @@ describe('di-container', () => {
 
       it('should register an external dependency through use value with dependencies', () => {
         register(NumberGetterToken, { useValue: new OneGetter() });
-        register(ExternalNumberLoggerToken, { useValue: new ExternalNumberLogger(inject(NumberGetterToken)) });
+        register(ExternalNumberLoggerToken, {
+          useValue: new ExternalNumberLogger(inject(NumberGetterToken)),
+        });
 
         const logger = inject<ExternalNumberLogger>(ExternalNumberLoggerToken);
 
@@ -119,7 +125,9 @@ describe('di-container', () => {
       it('should throw an error when registering a dependency twice', () => {
         register(NumberGetterToken, { useValue: new OneGetter() });
 
-        expect(() => register(NumberGetterToken, { useValue: new OneGetter() })).toThrowError();
+        expect(() =>
+          register(NumberGetterToken, { useValue: new OneGetter() })
+        ).toThrowError();
       });
     });
   });
