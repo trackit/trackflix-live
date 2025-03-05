@@ -1,6 +1,7 @@
 import { tokenEventsRepository, tokenEventUpdateSender } from '../../ports';
 import { EventUpdateAction, LogType, Event } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+
 export interface SaveResultsUseCase {
   saveResults(eventId: string): Promise<Event>;
 }

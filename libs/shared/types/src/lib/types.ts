@@ -3,6 +3,7 @@ export enum EventStatus {
   PRE_TX = 'PRE-TX',
   POST_TX = 'POST-TX',
   ENDED = 'ENDED',
+  ERROR = 'ERROR',
 }
 
 export type S3Source = string;
@@ -18,6 +19,7 @@ export enum LogType {
   LIVE_CHANNEL_DESTROYED = 'LIVE_CHANNEL_DESTROYED',
   LIVE_INPUT_DESTROYED = 'LIVE_INPUT_DESTROYED',
   PACKAGE_CHANNEL_DESTROYED = 'PACKAGE_CHANNEL_DESTROYED',
+  EVENT_ERROR_OCCURED = 'EVENT_ERROR_OCCURED',
 }
 
 export enum EndpointType {
