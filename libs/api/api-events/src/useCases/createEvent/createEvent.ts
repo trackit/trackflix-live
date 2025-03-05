@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
+  tokenAssetsService,
   tokenEventSchedulerStart,
   tokenEventSchedulerStop,
   tokenEventsRepository,
@@ -12,6 +13,12 @@ export type CreateEventArgs = Pick<
   Event,
   'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
 >;
+
+export class AssetNotFoundError extends Error {
+  constructor() {
+    super('Asset not found');
+  }
+}
 
 export interface CreateEventUseCase {
   createEvent(args: CreateEventArgs): Promise<Event>;
@@ -26,6 +33,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
+  private readonly assetsService = inject(tokenAssetsService);
+
   public async createEvent(args: CreateEventArgs): Promise<Event> {
     const id = randomUUID();
 
@@ -37,6 +46,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       endpoints: [],
       status: EventStatus.PRE_TX,
     } satisfies Event;
+
+    if (!(await this.assetsService.assetExists(event.source))) {
+      throw new AssetNotFoundError();
+    }
 
     await this.eventsRepository.createEvent(event);
 

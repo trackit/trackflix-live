@@ -8,6 +8,7 @@ import {
 import { DeleteLiveChannelUseCaseImpl } from './deleteLiveChannel';
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Delete live channel use case', () => {
   it('should delete live channel', async () => {
@@ -72,7 +73,7 @@ describe('Delete live channel use case', () => {
         eventId,
         taskToken: 'sample_task_token',
       })
-    ).rejects.toThrow('Event not found.');
+    ).rejects.toThrow(EventDoesNotExistError);
   });
 
   it('should throw if event does not have live channel id', async () => {

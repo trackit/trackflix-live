@@ -40,6 +40,7 @@ export interface EventsRepository {
     eventId: string,
     destroyedTime: string
   ): Promise<Event>;
+  deleteEvent(eventId: string): Promise<void>;
 }
 
 export const tokenEventsRepository =

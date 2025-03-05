@@ -1,4 +1,5 @@
 import { CreateEventArgs } from './createEvent';
+import { Source } from '@trackflix-live/types';
 
 export class CreateEventMother {
   private readonly data: CreateEventArgs;
@@ -11,8 +12,8 @@ export class CreateEventMother {
     return new CreateEventMother({
       name: 'My first event',
       description: 'This is a sample testing event',
-      onAirStartTime: '2025-01-22T10:00:00.000Z',
-      onAirEndTime: '2025-01-22T11:00:00.000Z',
+      onAirStartTime: '2030-01-22T10:00:00.000Z',
+      onAirEndTime: '2030-01-22T11:00:00.000Z',
       source: 's3://sample-bucket/sample-asset.mp4',
     });
   }
@@ -29,6 +30,11 @@ export class CreateEventMother {
 
   public withOnAirEndTime(onAirEndTime: string) {
     this.data.onAirEndTime = onAirEndTime;
+    return this;
+  }
+
+  public withSource(source: Source) {
+    this.data.source = source;
     return this;
   }
 

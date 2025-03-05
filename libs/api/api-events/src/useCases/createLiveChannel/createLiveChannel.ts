@@ -6,6 +6,7 @@ import {
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
@@ -40,7 +41,7 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
   }: CreateLiveChannelParameters): Promise<CreateLiveChannelResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
-      throw new Error('Event not found.');
+      throw new EventDoesNotExistError();
     }
 
     const liveChannel = await this.liveChannelsManager.createChannel({
