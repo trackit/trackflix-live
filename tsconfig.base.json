@@ -23,8 +23,8 @@
       "@trackflix-live/list-events-view": [
         "libs/webui/list-events-view/src/index.ts"
       ],
-      "@trackflix-live/single-asset-flow": [
-        "libs/webui/single-asset-flow/src/index.ts"
+      "@trackflix-live/create-event": [
+        "libs/webui/create-event/src/index.ts"
       ],
       "@trackflix-live/status-view": ["libs/webui/status-view/src/index.ts"],
       "@trackflix-live/types": ["libs/shared/types/src/index.ts"],

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import SingleAssetFlow from './single-asset-flow';
+import CreateEvent from './create-event';
 import { postEvent } from '@trackflix-live/api-client';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
@@ -34,7 +34,7 @@ describe('SingleAssetFlow', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
       <MemoryRouter>
-        <SingleAssetFlow />
+        <CreateEvent />
       </MemoryRouter>
     );
     expect(baseElement).toBeTruthy();
@@ -44,7 +44,7 @@ describe('SingleAssetFlow', () => {
   it('should handle form submission successfully', async () => {
     render(
       <MemoryRouter>
-        <SingleAssetFlow />
+        <CreateEvent />
       </MemoryRouter>
     );
 
@@ -69,7 +69,7 @@ describe('SingleAssetFlow', () => {
 
     render(
       <MemoryRouter>
-        <SingleAssetFlow />
+        <CreateEvent />
       </MemoryRouter>
     );
 

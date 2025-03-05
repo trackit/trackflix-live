@@ -1,7 +1,7 @@
 {
   "name": "single-asset-flow",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/webui/single-asset-flow/src",
+  "sourceRoot": "libs/webui/create-event/src",
   "projectType": "library",
   "tags": ["type:feature", "scope:webui"],
   "// targets": "to see all targets run: nx show project single-asset-flow --web",

@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router';
 import { SnackbarProvider } from 'notistack';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
+import { CreateEvent } from '@trackflix-live/create-event';
 import { ListEventsView } from '@trackflix-live/list-events-view';
 import { StatusView } from '@trackflix-live/status-view';
 import { postIot } from '@trackflix-live/api-client';
@@ -32,7 +32,7 @@ export function App() {
         <div className="flex flex-col flex-grow dark:bg-base-300 bg-base-200 ">
           <Routes>
             <Route index element={<ListEventsView />} />
-            <Route path={'/create'} element={<SingleAssetFlow />}></Route>
+            <Route path={'/create'} element={<CreateEvent />}></Route>
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>
         </div>
