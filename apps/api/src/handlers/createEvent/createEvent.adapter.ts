@@ -7,11 +7,7 @@ import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import {
-  CreateEventRequest,
-  CreateEventResponse,
-  Event,
-} from '@trackflix-live/types';
+import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
@@ -28,44 +24,7 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
   },
   required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
   additionalProperties: false,
-  isStartBeforeEnd: true,
-  isStartInTheFuture: true,
-  isStartLessThanAYearInFuture: true,
 };
-
-ajv.addKeyword({
-  keyword: 'isStartBeforeEnd',
-  validate: (_: boolean, data: Event) => {
-    const startTime = new Date(data.onAirStartTime).getTime();
-    const endTime = new Date(data.onAirEndTime).getTime();
-
-    return startTime < endTime;
-  },
-  errors: false,
-});
-
-ajv.addKeyword({
-  keyword: 'isStartInTheFuture',
-  validate: function (_: boolean, data: Event) {
-    const startTime = new Date(data.onAirStartTime).getTime();
-    const currentTime = Date.now();
-
-    return startTime > currentTime + 6 * 60 * 1000;
-  },
-  errors: false,
-});
-
-ajv.addKeyword({
-  keyword: 'isStartLessThanAYearInFuture',
-  validate: function (_: boolean, data: Event) {
-    const startTime = new Date(data.onAirStartTime);
-    const currentTime = new Date();
-    currentTime.setHours(currentTime.getHours() + 24 * 364);
-
-    return startTime.getTime() < currentTime.getTime();
-  },
-  errors: false,
-});
 
 const validate = ajv.compile(schema);
 
@@ -83,18 +42,19 @@ export class CreateEventAdapter {
 
   public async processRequest(event: APIGatewayProxyEventV2) {
     if (event.body === undefined) {
-      throw new BadRequestError();
+      throw new BadRequestError('No body received.');
     }
 
     let body: undefined | CreateEventRequest['body'] = undefined;
     try {
       body = JSON.parse(event.body);
     } catch (err) {
-      throw new BadRequestError();
+      throw new BadRequestError('Body is not valid JSON.');
     }
     if (!validate(body)) {
-      throw new BadRequestError();
+      throw new BadRequestError('Body does not match schema.');
     }
+    this.validateInput(body);
 
     try {
       const result = await this.useCase.createEvent(body);
@@ -104,9 +64,54 @@ export class CreateEventAdapter {
       } satisfies CreateEventResponse['body'];
     } catch (err: unknown) {
       if (err instanceof AssetNotFoundError) {
-        throw new BadRequestError();
+        throw new BadRequestError('Asset not found.');
       }
       throw err;
+    }
+  }
+
+  private validateInput(input: CreateEventRequest['body']) {
+    const validations = [
+      this.startDateIsBeforeEndDate,
+      this.startDateIsInFuture,
+      this.startDateIsLessThan364YearsInTheFuture,
+    ];
+
+    validations.forEach((validation) => validation(input));
+  }
+
+  private startDateIsBeforeEndDate(input: CreateEventRequest['body']) {
+    const startTime = new Date(input.onAirStartTime).getTime();
+    const endTime = new Date(input.onAirEndTime).getTime();
+
+    if (startTime >= endTime) {
+      throw new BadRequestError('Start time should be before end time.');
+    }
+  }
+
+  private startDateIsInFuture(input: CreateEventRequest['body']) {
+    const startTime = new Date(input.onAirStartTime).getTime();
+    const currentTime = Date.now();
+    const minimumTime = currentTime + 6 * 60 * 1000;
+
+    if (startTime < minimumTime) {
+      throw new BadRequestError(
+        'Start time should be at least 6 minutes in the future.'
+      );
+    }
+  }
+
+  private startDateIsLessThan364YearsInTheFuture(
+    input: CreateEventRequest['body']
+  ) {
+    const startTime = new Date(input.onAirStartTime).getTime();
+    const currentTime = Date.now();
+    const maximumTime = currentTime + 364 * 24 * 60 * 60 * 1000;
+
+    if (startTime > maximumTime) {
+      throw new BadRequestError(
+        'Start time should be at most 364 days in the future.'
+      );
     }
   }
 }

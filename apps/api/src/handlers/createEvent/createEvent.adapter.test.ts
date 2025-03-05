@@ -50,6 +50,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'No body received.',
     });
   });
 
@@ -62,6 +63,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Body is not valid JSON.',
     });
   });
 
@@ -76,14 +78,15 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Body does not match schema.',
     });
   });
 
   it('should return 400 response if start date is after end date', async () => {
     const { adapter } = setup();
     const createEventReq = CreateEventMother.basic()
-      .withOnAirStartTime('2025-03-05T16:00:00.000Z')
-      .withOnAirEndTime('2025-03-05T15:00:00.000Z')
+      .withOnAirStartTime('2025-03-15T16:00:00.000Z')
+      .withOnAirEndTime('2025-03-15T15:00:00.000Z')
       .build();
 
     const response = await adapter.handle({
@@ -93,6 +96,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Start time should be before end time.',
     });
   });
 
@@ -109,6 +113,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Start time should be at least 6 minutes in the future.',
     });
   });
 
@@ -125,6 +130,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Start time should be at least 6 minutes in the future.',
     });
   });
 
@@ -141,6 +147,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Start time should be at most 364 days in the future.',
     });
   });
 
@@ -159,6 +166,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Body does not match schema.',
     });
   });
 
@@ -176,6 +184,7 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
+      description: 'Asset not found.',
     });
   });
 });
