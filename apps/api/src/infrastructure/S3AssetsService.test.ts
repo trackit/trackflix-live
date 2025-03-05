@@ -1,7 +1,6 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import { S3AssetsService } from './S3AssetsService';
-import { undefined } from 'zod';
 
 describe('S3AssetsService', () => {
   const mock = mockClient(S3Client);
