@@ -1,3 +1,4 @@
+export * from './AssetsService';
 export * from './EventScheduler';
 export * from './EventsRepository';
 export * from './LiveChannelsManager';

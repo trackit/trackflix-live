@@ -94,6 +94,18 @@ Resources:
                   - "iam:PassRole"
                 Resource:
                   - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*"
+        - PolicyName: !Sub "${AWS::StackName}-S3-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:GetObjectAttributes
+                Resource:
+                  - "arn:aws:s3:::*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:

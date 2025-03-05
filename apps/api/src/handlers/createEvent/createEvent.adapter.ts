@@ -1,10 +1,17 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { tokenCreateEventUseCase } from '@trackflix-live/api-events';
+import {
+  AssetNotFoundError,
+  tokenCreateEventUseCase,
+} from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
+import {
+  CreateEventRequest,
+  CreateEventResponse,
+  Event,
+} from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 
 const ajv = new Ajv();
@@ -17,11 +24,48 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
     description: { type: 'string' },
     onAirStartTime: { type: 'string', format: 'date-time' },
     onAirEndTime: { type: 'string', format: 'date-time' },
-    source: { type: 'string', format: 'uri' },
+    source: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
   },
   required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
   additionalProperties: false,
+  isStartBeforeEnd: true,
+  isStartInTheFuture: true,
+  isStartLessThanAYearInFuture: true,
 };
+
+ajv.addKeyword({
+  keyword: 'isStartBeforeEnd',
+  validate: (_: boolean, data: Event) => {
+    const startTime = new Date(data.onAirStartTime).getTime();
+    const endTime = new Date(data.onAirEndTime).getTime();
+
+    return startTime < endTime;
+  },
+  errors: false,
+});
+
+ajv.addKeyword({
+  keyword: 'isStartInTheFuture',
+  validate: function (_: boolean, data: Event) {
+    const startTime = new Date(data.onAirStartTime).getTime();
+    const currentTime = Date.now();
+
+    return startTime > currentTime + 6 * 60 * 1000;
+  },
+  errors: false,
+});
+
+ajv.addKeyword({
+  keyword: 'isStartLessThanAYearInFuture',
+  validate: function (_: boolean, data: Event) {
+    const startTime = new Date(data.onAirStartTime);
+    const currentTime = new Date();
+    currentTime.setHours(currentTime.getHours() + 24 * 364);
+
+    return startTime.getTime() < currentTime.getTime();
+  },
+  errors: false,
+});
 
 const validate = ajv.compile(schema);
 
@@ -52,10 +96,17 @@ export class CreateEventAdapter {
       throw new BadRequestError();
     }
 
-    const result = await this.useCase.createEvent(body);
+    try {
+      const result = await this.useCase.createEvent(body);
 
-    return {
-      event: result,
-    } satisfies CreateEventResponse['body'];
+      return {
+        event: result,
+      } satisfies CreateEventResponse['body'];
+    } catch (err: unknown) {
+      if (err instanceof AssetNotFoundError) {
+        throw new BadRequestError();
+      }
+      throw err;
+    }
   }
 }

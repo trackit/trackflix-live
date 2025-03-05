@@ -9,6 +9,7 @@ import {
   tokenTaskTokensRepository,
   tokenTransmissionsManager,
   tokenEventSchedulerDelete,
+  tokenAssetsService,
 } from '@trackflix-live/api-events';
 import { EventsIotUpdateSender } from './EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
@@ -25,6 +26,8 @@ import { MediaPackageClient } from '@aws-sdk/client-mediapackage';
 import { TaskTokensDynamoDBRepository } from './TaskTokensDynamoDBRepository';
 import { TransmissionsManagerSfn } from './TransmissionsManagerSfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
+import { S3Client } from '@aws-sdk/client-s3';
+import { S3AssetsService } from './S3AssetsService';
 
 export const registerProductionInfrastructure = () => {
   const schedulerClient = new SchedulerClient();
@@ -35,7 +38,13 @@ export const registerProductionInfrastructure = () => {
   const mediaLiveClient = new MediaLiveClient();
   const mediaPackageClient = new MediaPackageClient();
   const sfnClient = new SFNClient();
+  const s3Client = new S3Client();
 
+  register(tokenAssetsService, {
+    useFactory: () => {
+      return new S3AssetsService(s3Client);
+    },
+  });
   register(tokenEventSchedulerDelete, {
     useFactory: () => {
       return new EventBridgeScheduler({
