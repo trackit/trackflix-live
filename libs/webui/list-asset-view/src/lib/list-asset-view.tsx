@@ -1,19 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { Panel, Table } from '@trackflix-live/ui';
+import { Panel, Table, StatusBadge } from '@trackflix-live/ui';
 import { listEvents } from '@trackflix-live/api-client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Event,
   ListEventsRequest,
   ListEventsResponse,
+  EventStatus,
 } from '@trackflix-live/types';
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { SortingState } from '@tanstack/react-table';
 import { useDebounceValue } from 'usehooks-ts';
+import { useNavigate } from 'react-router';
 
 export function ListAssetView() {
+  const navigate = useNavigate();
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 500);
   const [nextToken, setNextToken] = useState<string | undefined>(undefined);
   const [perPage, setPerPage] = useState<number>(10);
@@ -45,6 +48,9 @@ export function ListAssetView() {
         id: 'name',
         header: 'Name',
         accessorKey: 'name',
+        cell: (info) => (
+          <span className="font-bold">{info.getValue() as string}</span>
+        ),
       },
       {
         id: 'onAirStartTime',
@@ -66,6 +72,11 @@ export function ListAssetView() {
         id: 'status',
         header: 'Status',
         accessorKey: 'status',
+        cell: (info) => (
+          <div className="flex">
+            <StatusBadge size="sm" status={info.getValue() as EventStatus} />
+          </div>
+        ),
       },
     ],
     []
@@ -85,6 +96,15 @@ export function ListAssetView() {
               onChange={(e) => setDebouncedSearch(e.target.value)}
             />
           </label>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              navigate('/create');
+            }}
+          >
+            <Plus className="w-4 h-4" />
+            New Event
+          </button>
         </div>
         <Panel className={'max-h-[90%] !p-0'}>
           <Table

@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  CloudCog,
-  Link,
-  Play,
-  Check,
-  CheckCheck,
-  SquarePlay,
-} from 'lucide-react';
+import { Link, SquarePlay } from 'lucide-react';
 import {
   Panel,
   Timeline,
@@ -14,50 +7,20 @@ import {
   TimelineStep,
   Step,
   VideoPlayer,
+  StatusBadge,
 } from '@trackflix-live/ui';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import { getEvent } from '@trackflix-live/api-client';
-import {
-  GetEventResponse,
-  EventStatus,
-  LogType,
-  Event,
-} from '@trackflix-live/types';
+import { GetEventResponse, LogType, Event } from '@trackflix-live/types';
 import { pubsub } from '@trackflix-live/api-client';
 import { CopyText } from '@trackflix-live/ui';
 
-const PRE_TX_TIME = 15;
+const PRE_TX_TIME = 5;
+const PLAYER_DELAY = 0;
 
 type TimelineStepWithLog = TimelineStep & { id: LogType };
-
-const getStatusColorClass = (status: EventStatus | undefined) => {
-  switch (status) {
-    case 'PRE-TX':
-      return 'border-info text-info';
-    case 'TX':
-      return 'border-error text-error';
-    case 'POST-TX':
-    case 'ENDED':
-      return 'border-success text-success';
-    default:
-      return 'border-gray-500 text-gray-500';
-  }
-};
-
-const getStatusIcon = (status: EventStatus | undefined) => {
-  switch (status) {
-    case 'PRE-TX':
-      return <CloudCog className="w-4 h-4" />;
-    case 'TX':
-      return <Play className="w-4 h-4" />;
-    case 'POST-TX':
-      return <Check className="w-4 h-4" />;
-    case 'ENDED':
-      return <CheckCheck className="w-4 h-4" />;
-  }
-};
 
 const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
   const res: TimelineStepWithLog[] = [
@@ -192,6 +155,36 @@ export function StatusView() {
   const [txSteps, setTxSteps] = useState<Step[]>(
     event ? getTxSteps(event) : []
   );
+  const [displayPlayer, setDisplayPlayer] = useState(false);
+  const [displayLinks, setDisplayLinks] = useState(false);
+
+  // Display player when TX is started and there are endpoints
+  useEffect(() => {
+    if (
+      event?.status === 'TX' &&
+      event?.endpoints.length > 0 &&
+      event?.logs.some((log) => log.type === LogType.LIVE_CHANNEL_STARTED)
+    ) {
+      setTimeout(() => {
+        setDisplayPlayer(true);
+      }, PLAYER_DELAY);
+    } else {
+      setDisplayPlayer(false);
+    }
+  }, [event]);
+
+  // Display links when PRE-TX or TX is started and there are endpoints
+  useEffect(() => {
+    if (
+      (event?.status === 'PRE-TX' || event?.status === 'TX') &&
+      event?.endpoints.length > 0 &&
+      event?.logs.some((log) => log.type === LogType.LIVE_CHANNEL_STARTED)
+    ) {
+      setDisplayLinks(true);
+    } else {
+      setDisplayLinks(false);
+    }
+  }, [event]);
 
   useEffect(() => {
     if (data && data.event) {
@@ -245,16 +238,7 @@ export function StatusView() {
             <h1 className={'mb-0'}>{event?.name}</h1>
             <p className={'m-0'}>{event?.description}</p>
           </div>
-          {event?.status && (
-            <div
-              className={`flex bg-base-100 items-center gap-2 text-center text-sm font-extrabold border rounded-lg p-2 ${getStatusColorClass(
-                event.status
-              )}`}
-            >
-              {getStatusIcon(event?.status)}
-              {event?.status === 'TX' ? 'On Air (TX)' : event?.status}
-            </div>
-          )}
+          {event?.status && <StatusBadge status={event.status} />}
         </div>
         <div className={'flex flex-col items-center'}>
           <div
@@ -271,37 +255,30 @@ export function StatusView() {
           </div>
 
           <Panel className={'w-full min-w-[80dvw]'}>
-            <>
-              {event?.status === 'TX' && (
-                <>
-                  {event?.endpoints.map((endpoint) => (
-                    <CopyText
-                      key={endpoint.url}
-                      className={'w-full mb-2'}
-                      text={endpoint.url}
-                      icon={
-                        <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
-                          <Link className="w-3 h-3" />
-                          {endpoint.type}
-                        </div>
-                      }
-                    />
-                  ))}
-                  <hr className={'my-6'} />
-                </>
-              )}
-            </>
+            {displayLinks ? (
+              <>
+                {event?.endpoints.map((endpoint) => (
+                  <CopyText
+                    key={endpoint.url}
+                    className={'w-full mb-2'}
+                    text={endpoint.url}
+                    icon={
+                      <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
+                        <Link className="w-3 h-3" />
+                        {endpoint.type}
+                      </div>
+                    }
+                  />
+                ))}
+                <hr className={'my-6'} />
+              </>
+            ) : null}
             <div className={'flex'}>
               <div className={'w-1/3 p-4'}>
                 <Timeline steps={timelineSteps} />
               </div>
               <div className={'flex-grow w-1/2'}>
-                {event?.endpoints &&
-                event?.endpoints.length > 0 &&
-                event?.logs.some(
-                  (log) => log.type === LogType.LIVE_CHANNEL_STARTED
-                ) &&
-                event?.status === 'TX' ? (
+                {displayPlayer ? (
                   <VideoPlayer
                     src={
                       event?.endpoints.find(
@@ -312,7 +289,7 @@ export function StatusView() {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-lg p-4 shadow-inner text-base-content/40">
                     <SquarePlay className="w-12 h-12" />
-                    <p>Player is not yet available</p>
+                    <p>Player is not available</p>
                   </div>
                 )}
               </div>

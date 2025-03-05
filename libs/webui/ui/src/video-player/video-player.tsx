@@ -33,7 +33,14 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
     if (!videoRef.current) return;
 
     if (Hls.isSupported()) {
-      const hls = new Hls();
+      const hls = new Hls({
+        lowLatencyMode: true,
+        liveSyncDurationCount: 5,
+        liveMaxLatencyDurationCount: 10,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        liveDurationInfinity: true,
+      });
       hlsRef.current = hls;
 
       hls.loadSource(src);
@@ -114,7 +121,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         </div>
         {qualities.length > 0 && (
           <select
-            className="select select-bordered select-xs select-info text-info font-bold"
+            className="select select-ghost select-bordered select-xs font-bold"
             value={currentQuality}
             onChange={handleQualityChange}
           >
