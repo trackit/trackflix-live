@@ -1,3 +1,4 @@
+export * from './page-title/page-title';
 export * from './status-badge/status-badge';
 export * from './video-player/video-player';
 export * from './copy-text/copy-text';

@@ -14,7 +14,7 @@ import { Search, Plus } from 'lucide-react';
 import { SortingState } from '@tanstack/react-table';
 import { useDebounceValue } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
-
+import { PageTitle } from '@trackflix-live/ui';
 export function ListAssetView() {
   const navigate = useNavigate();
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 500);
@@ -85,6 +85,7 @@ export function ListAssetView() {
   return (
     <div className={'flex justify-center w-screen h-full p-8 relative'}>
       <div className={'w-full container flex flex-col gap-8'}>
+        <PageTitle title="Events" />
         <div className={'flex flex-row gap-4'}>
           <label className="input input-bordered input-sm flex items-center gap-2 w-full">
             <Search className="w-4 h-4 text-base-content/50" />
