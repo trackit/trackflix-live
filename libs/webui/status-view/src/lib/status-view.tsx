@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, SquarePlay } from 'lucide-react';
+import { Link, SquarePlay, X } from 'lucide-react';
 import {
   Panel,
   Timeline,
@@ -9,10 +9,10 @@ import {
   VideoPlayer,
   StatusBadge,
 } from '@trackflix-live/ui';
-import { useParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useParams, useNavigate } from 'react-router';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import { getEvent } from '@trackflix-live/api-client';
+import { deleteEvent, getEvent } from '@trackflix-live/api-client';
 import { GetEventResponse, LogType, Event } from '@trackflix-live/types';
 import { pubsub } from '@trackflix-live/api-client';
 import { CopyText } from '@trackflix-live/ui';
@@ -140,6 +140,7 @@ const getTxSteps = (event: Event): Step[] => {
 
 export function StatusView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery<GetEventResponse['body'] | null>({
     queryKey: ['event', id],
     queryFn: () => {
@@ -157,6 +158,34 @@ export function StatusView() {
   );
   const [displayPlayer, setDisplayPlayer] = useState(false);
   const [displayLinks, setDisplayLinks] = useState(false);
+  const [now, setNow] = useState<DateTime | null>(null);
+  const [canDelete, setCanDelete] = useState(false);
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteEvent(event?.id || ''),
+    onSuccess: () => {
+      navigate('/');
+    },
+  });
+
+  // Clock
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(DateTime.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check if the event can be deleted
+  useEffect(() => {
+    if (event?.status === 'PRE-TX' && now) {
+      const preTxTime = DateTime.fromISO(event?.onAirStartTime || '')
+        .minus({
+          minutes: PRE_TX_TIME + 1,
+        })
+        .toMillis();
+      setCanDelete(now.toMillis() < preTxTime);
+    }
+  }, [event, now]);
 
   // Display player when TX is started and there are endpoints
   useEffect(() => {
@@ -186,6 +215,7 @@ export function StatusView() {
     }
   }, [event]);
 
+  // On event update, update the Tx timeline steps
   useEffect(() => {
     if (data && data.event) {
       setEvent(data.event);
@@ -209,6 +239,7 @@ export function StatusView() {
     }
   }, [event]);
 
+  // Subscribe to event updates
   useEffect(() => {
     pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
       next: (value) => {
@@ -220,6 +251,13 @@ export function StatusView() {
       },
     });
   }, []);
+
+  // Delete event
+  const handleDelete = async () => {
+    if (event?.id) {
+      await deleteMutation.mutateAsync();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -238,7 +276,23 @@ export function StatusView() {
             <h1 className={'mb-0'}>{event?.name}</h1>
             <p className={'m-0'}>{event?.description}</p>
           </div>
-          {event?.status && <StatusBadge status={event.status} />}
+          <div className="flex gap-2">
+            {event?.status && <StatusBadge status={event.status} />}
+            {canDelete && (
+              <button
+                className="btn  btn-outline btn-error"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? (
+                  <span className="loading loading-spinner loading-xs" />
+                ) : (
+                  <X className="w-4 h-4" />
+                )}
+                Delete Event
+              </button>
+            )}
+          </div>
         </div>
         <div className={'flex flex-col items-center'}>
           <div
