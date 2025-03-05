@@ -35,6 +35,7 @@ export class StartLiveChannelUseCaseImpl implements StartLiveChannelUseCase {
     eventId,
     taskToken,
   }: StartLiveChannelParameters): Promise<void> {
+    throw new Error('test');
     const event = await this.eventsRepository.appendLogsToEvent(eventId, [
       {
         timestamp: Date.now(),

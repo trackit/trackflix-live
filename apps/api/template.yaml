@@ -1032,6 +1032,13 @@ Resources:
             "Stop MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${StopMediaLiveChannel}",
                 "Payload": {
@@ -1044,6 +1051,13 @@ Resources:
             "Delete MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${DeleteMediaLiveChannel}",
                 "Payload": {
@@ -1056,11 +1070,33 @@ Resources:
             "Delete MediaLive input": {
               "Type": "Task",
               "Resource": "${DeleteMediaLiveInput}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Next": "Delete MediaPackage channel"
             },
             "Delete MediaPackage channel": {
               "Type": "Task",
               "Resource": "${DeleteMediaPackageChannel}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "End": true
+            },
+            "Set error status": {
+              "Type": "Task",
+              "Resource": "${SetErrorStatus}",
+              "Parameters": {
+                "eventId.$": "$.eventId"
+              },
               "End": true
             }
           }
@@ -1073,6 +1109,7 @@ Resources:
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
+        SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
 
 Outputs:

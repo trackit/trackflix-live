@@ -53,7 +53,7 @@ The handlers for Lambda functions used in state machines can be found in the `sr
 ### Start transmission
 
 <p align="center">
-  <img width="250" height="503" src="SfnStartTx.png" alt="Start Transmission graph">
+  <img width="300" src="SfnStartTx.png" alt="Start Transmission graph">
 </p>
 This state machine handles the creation of the Amazon Elemental resources:
 
@@ -80,10 +80,13 @@ This is a Wait task which waits for the transmission's on air start time.
 #### 6. Update status
 This handler calls the `updateStatus` use case which updates some values in the database.
 
+#### 7. Set error status
+This handler calls the `setErrorStatus` use case which updates some values in the database if an error occurred.
+
 ### Stop transmission
 
 <p align="center">
-  <img width="250" height="380" src="SfnStopTx.png" alt="Stop Transmission graph">
+  <img width="300" src="SfnStopTx.png" alt="Stop Transmission graph">
 </p>
 This state machine handles the deletion of the Amazon Elemental resources:
 
@@ -100,6 +103,9 @@ This handler calls the `deleteLiveInput` use case which deletes both MediaLive i
 
 #### 4. Delete MediaPackage channel
 This handler calls the `deletePackageInput` use case which deletes the MediaPackage channel and both its endpoints.
+
+#### 5. Set error status
+This handler calls the `setErrorStatus` use case which updates some values in the database if an error occurred.
 
 ## Infrastructure
 
