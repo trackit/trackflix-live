@@ -15,7 +15,7 @@ import { SortingState } from '@tanstack/react-table';
 import { useDebounceValue } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
 import { PageTitle } from '@trackflix-live/ui';
-export function ListAssetView() {
+export function ListEventsView() {
   const navigate = useNavigate();
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 500);
   const [nextToken, setNextToken] = useState<string | undefined>(undefined);
@@ -125,4 +125,4 @@ export function ListAssetView() {
   );
 }
 
-export default ListAssetView;
+export default ListEventsView;

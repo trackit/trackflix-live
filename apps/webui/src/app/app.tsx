@@ -4,12 +4,11 @@ import { SnackbarProvider } from 'notistack';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
-import { ListAssetView } from '@trackflix-live/list-asset-view';
+import { ListEventsView } from '@trackflix-live/list-events-view';
 import { StatusView } from '@trackflix-live/status-view';
 import { postIot } from '@trackflix-live/api-client';
 
 import Topbar from './topbar';
-
 
 export function App() {
   useEffect(() => {
@@ -32,7 +31,7 @@ export function App() {
         <Topbar />
         <div className="flex flex-col flex-grow dark:bg-base-300 bg-base-200 ">
           <Routes>
-            <Route index element={<ListAssetView />} />
+            <Route index element={<ListEventsView />} />
             <Route path={'/create'} element={<SingleAssetFlow />}></Route>
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>

@@ -20,8 +20,8 @@
       "@trackflix-live/di": ["libs/shared/di/src/index.ts"],
       "@trackflix-live/formatting": ["libs/shared/formatting/src/index.ts"],
       "@trackflix-live/forms": ["libs/webui/forms/src/index.ts"],
-      "@trackflix-live/list-asset-view": [
-        "libs/webui/list-asset-view/src/index.ts"
+      "@trackflix-live/list-events-view": [
+        "libs/webui/list-events-view/src/index.ts"
       ],
       "@trackflix-live/single-asset-flow": [
         "libs/webui/single-asset-flow/src/index.ts"
