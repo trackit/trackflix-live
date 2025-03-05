@@ -36,9 +36,11 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
 
     const currentDate = Date.now();
     const onAirStartTime = new Date(event.onAirStartTime);
+    onAirStartTime.setMinutes(onAirStartTime.getMinutes() - 6);
     const onAirEndTime = new Date(event.onAirEndTime);
+
     if (
-      currentDate >= onAirStartTime.setMinutes(-6) &&
+      currentDate >= onAirStartTime.getTime() &&
       currentDate <= onAirEndTime.getTime()
     ) {
       throw new EventCannotBeDeletedWhileOnAirError();
