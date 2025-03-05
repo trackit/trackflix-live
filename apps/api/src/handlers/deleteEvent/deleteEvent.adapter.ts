@@ -13,6 +13,11 @@ import {
 } from '../HttpErrors';
 import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { inject } from '@trackflix-live/di';
+import {
+  DeleteEventRequest,
+  DeleteEventResponse,
+  GetEventRequest,
+} from '@trackflix-live/types';
 
 export class DeleteEventAdapter {
   private readonly useCase: DeleteEventUseCase = inject(
@@ -29,14 +34,14 @@ export class DeleteEventAdapter {
   }
 
   public async processRequest(event: APIGatewayProxyEventV2) {
-    const { eventId } = event.pathParameters || {};
-
-    if (!eventId) {
+    const pathParameters =
+      event.pathParameters as DeleteEventRequest['pathParameters'];
+    if (pathParameters?.eventId === undefined) {
       throw new BadRequestError();
     }
 
     try {
-      await this.useCase.deleteEvent(eventId);
+      await this.useCase.deleteEvent(pathParameters.eventId);
     } catch (error) {
       switch (true) {
         case error instanceof EventDoesNotExistError:
@@ -49,5 +54,9 @@ export class DeleteEventAdapter {
           throw error;
       }
     }
+
+    return {
+      status: 'Ok',
+    } satisfies DeleteEventResponse['body'];
   }
 }
