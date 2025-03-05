@@ -34,7 +34,7 @@ describe('Delete Event adapter', () => {
     useCase.deleteEvent.mockResolvedValueOnce(undefined);
 
     expect(response.statusCode).toEqual(200);
-    expect(response.body).toBeUndefined();
+    expect(JSON.parse(response.body || '').status).toEqual('Ok');
   });
 
   it('should return 404 if the event does not exist', async () => {

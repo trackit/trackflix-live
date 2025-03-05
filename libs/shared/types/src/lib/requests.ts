@@ -39,3 +39,14 @@ export type AttachIotPolicyResponse = {
     status: 'Ok';
   };
 };
+
+export interface DeleteEventRequest {
+  pathParameters: {
+    eventId: string;
+  };
+}
+export interface DeleteEventResponse {
+  body: {
+    status: 'Ok';
+  };
+}
