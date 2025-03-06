@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Videotape, CaseSensitive, PencilLine, Clock } from 'lucide-react';
+import {
+  Videotape,
+  CaseSensitive,
+  PencilLine,
+  Clock,
+  Rocket,
+} from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 
@@ -172,7 +178,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             {...register('onAirStartTime')}
             onChange={handleStartTimeChange}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 5 })
+              .set({ minute: DateTime.now().minute + 6 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
           />
         </label>
@@ -184,7 +190,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             className={'input input-bordered'}
             type={'datetime-local'}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 5 })
+              .set({ minute: DateTime.now().minute + 7 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
             {...register('onAirEndTime')}
             onChange={handleEndTimeChange}
@@ -198,6 +204,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       </div>
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>
+          <Rocket className="w-4 h-4" />
           Submit
         </button>
       </div>

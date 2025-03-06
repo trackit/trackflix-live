@@ -1,21 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Link, SquarePlay, X } from 'lucide-react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { deleteEvent, getEvent, pubsub } from '@trackflix-live/api-client';
+import { Event, GetEventResponse, LogType } from '@trackflix-live/types';
 import {
+  CopyText,
   Panel,
-  Timeline,
-  TxTimeline,
-  TimelineStep,
-  Step,
-  VideoPlayer,
   StatusBadge,
+  Step,
+  Timeline,
+  TimelineStep,
+  TxTimeline,
+  VideoPlayer,
 } from '@trackflix-live/ui';
-import { useParams, useNavigate } from 'react-router';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { Link, SquarePlay, X } from 'lucide-react';
 import { DateTime } from 'luxon';
-import { deleteEvent, getEvent } from '@trackflix-live/api-client';
-import { GetEventResponse, LogType, Event } from '@trackflix-live/types';
-import { pubsub } from '@trackflix-live/api-client';
-import { CopyText } from '@trackflix-live/ui';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 
 const PRE_TX_TIME = 5;
 const PLAYER_DELAY = 0;
@@ -263,7 +262,7 @@ export function StatusView() {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <span className="loading loading-ring loading-lg"></span>
-        <p>Loading event data...</p>
+        <p className="mt-4 font-bold">Loading event data...</p>
       </div>
     );
   }
