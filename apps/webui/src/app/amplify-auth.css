@@ -1,0 +1,20 @@
+.amplify-button[type='submit'] {
+  background-color: #047aff !important;
+  color: white !important;
+  font-weight: bold !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  transition: background-color 0.2s !important;
+}
+
+.amplify-button--link {
+  color: #047aff !important;
+}
+
+.amplify-button[type='submit']:hover {
+  background-color: #0366d6 !important;
+}
+
+div[data-amplify-router] {
+  border-radius: 16px !important;
+}

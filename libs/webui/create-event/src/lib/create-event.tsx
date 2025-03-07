@@ -21,7 +21,9 @@ export function CreateEvent() {
 
   return (
     <div
-      className={'flex justify-center items-center w-screen h-full relative'}
+      className={
+        'flex justify-center  w-screen h-full relative md:p-8 md:pt-16 p-2 pt-8'
+      }
     >
       <div className={'w-full container max-w-[1000px]'}>
         <Panel>
