@@ -1010,3 +1010,15 @@ Resources:
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+  IdentityPoolId:
+    Value: !Ref IdentityPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  ApiEndpoint:
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  IotTopic:
+    Value: !Sub "${AWS::StackName}"
