@@ -42,7 +42,7 @@ describe('Set error status use case', () => {
         logs: [
           {
             timestamp: expect.any(Number),
-            type: LogType.EVENT_ERROR_OCCURED,
+            type: LogType.ERROR_OCCURRED,
           },
         ],
       },

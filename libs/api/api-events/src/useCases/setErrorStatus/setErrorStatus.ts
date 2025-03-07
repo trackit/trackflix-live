@@ -17,7 +17,7 @@ export class SetErrorStatusUseCaseImpl implements SetErrorStatusUseCase {
     const event = await this.eventsRepository.appendLogsToEvent(eventId, [
       {
         timestamp: Date.now(),
-        type: LogType.EVENT_ERROR_OCCURED,
+        type: LogType.ERROR_OCCURRED,
       },
     ]);
 
