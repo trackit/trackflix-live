@@ -1,5 +1,5 @@
 import { EventStatus } from '@trackflix-live/types';
-import { CloudCog, Play, Check, CheckCheck } from 'lucide-react';
+import { CloudCog, Play, Check, CheckCheck, X } from 'lucide-react';
 
 type StatusBadgeProps = {
   status: EventStatus;
@@ -11,6 +11,7 @@ export function StatusBadge({ status, size = 'default' }: StatusBadgeProps) {
     switch (status) {
       case 'PRE-TX':
         return 'border-info text-info';
+      case 'ERROR':
       case 'TX':
         return 'border-error text-error';
       case 'POST-TX':
@@ -31,6 +32,8 @@ export function StatusBadge({ status, size = 'default' }: StatusBadgeProps) {
         return <Check className="w-4 h-4" />;
       case 'ENDED':
         return <CheckCheck className="w-4 h-4" />;
+      case 'ERROR':
+        return <X className="w-4 h-4" />;
     }
   };
 
