@@ -168,10 +168,16 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </label>
-      <div className={'flex items-center mb-2'}>
-        <label className={'align-middle mr-2 flex items-center gap-2'}>
-          <Clock />
-          <span className="mr-2">Start On Air</span>
+      <div className={'flex  mb-2 flex-col md:flex-row gap-2 items-start'}>
+        <label
+          className={
+            'align-middle flex gap-2 md:flex-row flex-col my-2 items-start md:items-center'
+          }
+        >
+          <div className="flex items-center gap-2">
+            <Clock />
+            <span className="mr-2">Start On Air</span>
+          </div>
           <input
             className={'input input-bordered'}
             type={'datetime-local'}
@@ -182,10 +188,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
               .toFormat("yyyy-MM-dd'T'HH:mm")}
           />
         </label>
-        <label className={'align-middle mr-2 ml-2 flex items-center gap-2'}>
-          <Clock />
-
-          <span className="mr-2">End On Air</span>
+        <label
+          className={
+            'align-middle flex  gap-2 md:flex-row flex-col my-2 items-start md:items-center'
+          }
+        >
+          <div className="flex items-center gap-2">
+            <Clock />
+            <span className="mr-2">End On Air</span>
+          </div>
           <input
             className={'input input-bordered'}
             type={'datetime-local'}

@@ -260,7 +260,7 @@ export function StatusView() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center h-full w-screen">
         <span className="loading loading-ring loading-lg"></span>
         <p className="mt-4 font-bold">Loading event data...</p>
       </div>
@@ -268,7 +268,7 @@ export function StatusView() {
   }
 
   return (
-    <div className={' flex flex-col w-full justify-center items-center'}>
+    <div className={' flex flex-col w-screen h-full  items-center'}>
       <div className={'container px-4'}>
         <div className="w-full flex-grow mt-10 md:flex justify-between items-center">
           <div className={'flex flex-col gap-1 prose mb-4 md:mb-0'}>
