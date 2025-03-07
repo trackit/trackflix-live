@@ -15,3 +15,4 @@ export * from './deleteLiveInput';
 export * from './deletePackageChannel';
 export * from './attachIotPolicy';
 export * from './updateStatus';
+export * from './setErrorStatus';
