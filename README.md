@@ -2,6 +2,8 @@
 
 ![CI status badge](https://github.com/trackit/trackflix-live/actions/workflows/nx.yaml/badge.svg)
 
+![Trackflix Live Status view](assets/trackflix-live.png)
+
 This project utilizes AWS Elemental MediaLive and MediaPackage to transform MP4 files into live streams,
 all running on AWS using serverless services.
 MediaLive ingests the MP4 files, processes them in real time, and converts them into live stream formats.
@@ -14,6 +16,7 @@ This project is a mono-repo using [Nx](https://nx.dev/) as its build system.
 # Code quality and Unit tests
 
 You can run Prettier, ESLint, type checks and unit tests using the following commands:
+
 ```shell
 $ nx run-many -t lint # Runs ESLint on all Nx projects
 $ nx run-many -t prettier # Runs Prettier on all Nx projects
