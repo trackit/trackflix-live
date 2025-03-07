@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 const PRE_TX_TIME = 5;
-const PLAYER_DELAY = 0;
+const PLAYER_DELAY = 5000;
 
 type TimelineStepWithLog = TimelineStep & { id: LogType };
 
