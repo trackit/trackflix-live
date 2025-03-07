@@ -12,12 +12,15 @@ This Nx app contains all the code tied to infrastructure and implementation deta
 ## Deploy the solution
 In order to deploy the solution, you must have valid AWS credentials. This will vary depending on your AWS environment configuration.
 
+Node must be installed: [Install Node](https://nodejs.org/en/download)  
+AWS SAM must be installed: [Install the AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+
 You must install the project's dependencies.
 ```shell
 $ npm i
 ```
 
-You must create a `.env` file in the apps/api folder.  
+You must create a `.env` file in the root folder of the application.  
 The content will be the following:
 ```dotenv
 STAGE=<your_stage_name>
@@ -50,7 +53,7 @@ The handlers for Lambda functions used in state machines can be found in the `sr
 ### Start transmission
 
 <p align="center">
-  <img width="250" height="503" src="SfnStartTx.png" alt="Start Transmission graph">
+  <img width="300" src="SfnStartTx.png" alt="Start Transmission graph">
 </p>
 This state machine handles the creation of the Amazon Elemental resources:
 
@@ -77,10 +80,13 @@ This is a Wait task which waits for the transmission's on air start time.
 #### 6. Update status
 This handler calls the `updateStatus` use case which updates some values in the database.
 
+#### 7. Set error status
+This handler calls the `setErrorStatus` use case which updates some values in the database if an error occurred.
+
 ### Stop transmission
 
 <p align="center">
-  <img width="250" height="380" src="SfnStopTx.png" alt="Stop Transmission graph">
+  <img width="300" src="SfnStopTx.png" alt="Stop Transmission graph">
 </p>
 This state machine handles the deletion of the Amazon Elemental resources:
 
@@ -97,6 +103,9 @@ This handler calls the `deleteLiveInput` use case which deletes both MediaLive i
 
 #### 4. Delete MediaPackage channel
 This handler calls the `deletePackageInput` use case which deletes the MediaPackage channel and both its endpoints.
+
+#### 5. Set error status
+This handler calls the `setErrorStatus` use case which updates some values in the database if an error occurred.
 
 ## Infrastructure
 

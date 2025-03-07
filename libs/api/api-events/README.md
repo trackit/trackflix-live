@@ -89,6 +89,12 @@ This use case:
 - appends to the event's logs
 - sends a live update informing about the updated event
 
+### SetErrorStatus
+This use case:
+- update the event's status to ERROR
+- appends to the event's logs
+- sends a live update informing about the updated event
+
 ### StartLiveChannel
 This use case:
 - appends to the event's logs

@@ -34,6 +34,7 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
         Id: `TrackflixLiveMPOE-HLS-${eventId}`,
         HlsPackage: {
           PlaylistType: 'EVENT',
+          SegmentDurationSeconds: 3,
         },
       })
     );
