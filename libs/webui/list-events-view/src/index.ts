@@ -1,1 +1,1 @@
-export * from './lib/list-asset-view';
+export * from './lib/list-events-view';

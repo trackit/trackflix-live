@@ -124,7 +124,10 @@ export function Table<T extends { id: string }>({
             <tbody>
               <tr>
                 <td colSpan={columns.length} className="h-full w-full">
-                  <div className="flex justify-center items-center h-full w-full">
+                  <div
+                    className="flex justify-center items-center h-full w-full"
+                    data-testid="loader"
+                  >
                     <span className="loading loading-ring loading-lg"></span>
                   </div>
                 </td>
