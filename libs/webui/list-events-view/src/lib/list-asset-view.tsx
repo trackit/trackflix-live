@@ -51,6 +51,7 @@ export function ListEventsView() {
         cell: (info) => (
           <span className="font-bold">{info.getValue() as string}</span>
         ),
+        size: 200,
       },
       {
         id: 'onAirStartTime',
@@ -59,6 +60,7 @@ export function ListEventsView() {
           DateTime.fromISO(originalRow.onAirStartTime).toLocaleString(
             DateTime.DATETIME_MED
           ),
+        size: 200,
       },
       {
         id: 'onAirEndTime',
@@ -67,6 +69,7 @@ export function ListEventsView() {
           DateTime.fromISO(originalRow.onAirEndTime).toLocaleString(
             DateTime.DATETIME_MED
           ),
+        size: 200,
       },
       {
         id: 'status',

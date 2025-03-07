@@ -98,6 +98,7 @@ export function Table<T extends { id: string }>({
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
                     className="cursor-pointer"
+                    style={{ minWidth: header.column.columnDef.size }}
                   >
                     <div className="flex items-center gap-2">
                       {header.isPlaceholder

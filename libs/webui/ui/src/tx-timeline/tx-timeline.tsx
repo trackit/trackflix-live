@@ -14,7 +14,7 @@ interface TxTimelineProps {
 function formatDateTime(datetime?: string): string {
   if (!datetime) return '--';
   const dt = DateTime.fromISO(datetime);
-  return dt.isValid ? dt.toFormat('hh:mm:ss a\nMM/dd/yyyy') : '--';
+  return dt.isValid ? dt.toFormat('hh:mm:ss a') : '--';
 }
 
 function TxTimelineStep({
@@ -48,7 +48,7 @@ function TxTimelineStep({
       ></div>
 
       {/* Datetime below the line */}
-      <div className="text-xs mt-1 text-center whitespace-pre text-base-content">
+      <div className="max-[430px]:text-[10px] text-xs mt-1 text-center whitespace-pre text-base-content">
         {formatDateTime(step.datetime)}
       </div>
     </div>

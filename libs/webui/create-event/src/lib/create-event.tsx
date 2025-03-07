@@ -14,6 +14,7 @@ export function CreateEvent() {
       const res = await postEvent(data);
       navigate(`/status/${res.event.id}`);
     } catch (err) {
+      setIsSubmitting(false);
       console.error(err);
     }
   };

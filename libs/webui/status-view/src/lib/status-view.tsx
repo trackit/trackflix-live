@@ -270,9 +270,9 @@ export function StatusView() {
   return (
     <div className={' flex flex-col w-full justify-center items-center'}>
       <div className={'container px-4'}>
-        <div className="w-full flex-grow mt-10 flex justify-between items-center">
-          <div className={'flex flex-col gap-1 prose'}>
-            <h1 className={'mb-0'}>{event?.name}</h1>
+        <div className="w-full flex-grow mt-10 md:flex justify-between items-center">
+          <div className={'flex flex-col gap-1 prose mb-4 md:mb-0'}>
+            <h1 className={'mb-0 md:text-4xl text-3xl'}>{event?.name}</h1>
             <p className={'m-0'}>{event?.description}</p>
           </div>
           <div className="flex gap-2">
@@ -296,7 +296,7 @@ export function StatusView() {
         <div className={'flex flex-col items-center'}>
           <div
             className={
-              'flex justify-center items-center w-full mt-20 mb-20 px-8'
+              'flex justify-center items-center w-full mt-16 mb-16 px-8'
             }
           >
             <div className={'w-full'}>
@@ -307,7 +307,7 @@ export function StatusView() {
             </div>
           </div>
 
-          <Panel className={'w-full min-w-[80dvw]'}>
+          <Panel className={'w-full min-w-[80dvw] mb-14 !p-4'}>
             {displayLinks ? (
               <>
                 {event?.endpoints.map((endpoint) => (
@@ -326,11 +326,11 @@ export function StatusView() {
                 <hr className={'my-6'} />
               </>
             ) : null}
-            <div className={'flex'}>
-              <div className={'w-1/3 p-4'}>
+            <div className={'flex flex-col md:flex-row'}>
+              <div className={'w-full md:w-1/2 lg:w-1/3 px-4 pb-4 md:pb-0'}>
                 <Timeline steps={timelineSteps} />
               </div>
-              <div className={'flex-grow w-1/2'}>
+              <div className={'flex-grow w-full md:w-1/2 lg:w-2/3 '}>
                 {displayPlayer ? (
                   <VideoPlayer
                     src={
@@ -342,7 +342,7 @@ export function StatusView() {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-lg p-4 shadow-inner text-base-content/40">
                     <SquarePlay className="w-12 h-12" />
-                    <p>Player is not available</p>
+                    <p className="mt-3">Player is not available</p>
                   </div>
                 )}
               </div>

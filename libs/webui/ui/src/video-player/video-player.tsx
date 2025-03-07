@@ -97,31 +97,27 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-row gap-4 items-center w-full justify-between">
-        <div className="flex flex-row gap-3">
-          <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2  items-center h-full">
+      <div className="md:flex flex-row gap-4 items-center w-full">
+        <div className="flex flex-row flex-wrap w-full md:w-auto  ">
+          <div className="flex items-center gap-2 md:w-auto lg:w-auto my-2 px-2 sm:w-1/2">
             <span className="text-xs">Current:</span>
-            <div className="badge badge-ghost font-mono">
+            <div className="text-sm font-mono lg:w-auto w-full badge badge-ghost w-fit">
               {formatBitrate(stats.currentBitrate)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs">Min:</span>
-            <div className="badge badge-ghost font-mono">
-              {formatBitrate(stats.minBitrate)}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs">Max:</span>
-            <div className="badge badge-ghost font-mono">
+
+          <div className="flex items-center gap-2 md:w-auto lg:w-auto my-2 px-2">
+            <span className="text-xs">Min/Max:</span>
+            <div className="text-sm font-mono lg:w-auto w-full">
+              {formatBitrate(stats.minBitrate)} /{' '}
               {formatBitrate(stats.maxBitrate)}
             </div>
           </div>
         </div>
         {qualities.length > 0 && (
           <select
-            className="select select-ghost select-bordered select-xs font-bold"
+            className="select select-ghost select-bordered select-xs font-bold my-2 md:w-auto w-full"
             value={currentQuality}
             onChange={handleQualityChange}
           >
