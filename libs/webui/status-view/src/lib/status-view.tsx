@@ -189,7 +189,7 @@ export function StatusView() {
   // Display player when TX is started and there are endpoints
   useEffect(() => {
     if (
-      event?.status === 'TX' &&
+      (event?.status === 'TX' || event?.status === 'PRE-TX') &&
       event?.endpoints.length > 0 &&
       event?.logs.some((log) => log.type === LogType.LIVE_CHANNEL_STARTED)
     ) {
