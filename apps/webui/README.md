@@ -27,7 +27,7 @@ The following environment variables are required for the web UI to function prop
 
 These variables are automatically generated during deployment using the backend stack outputs if you follow the process below.
 
-## Run the developlment server
+## Run the development server
 
 With a valid environment run:
 
