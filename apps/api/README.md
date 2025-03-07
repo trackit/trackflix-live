@@ -12,12 +12,15 @@ This Nx app contains all the code tied to infrastructure and implementation deta
 ## Deploy the solution
 In order to deploy the solution, you must have valid AWS credentials. This will vary depending on your AWS environment configuration.
 
+Node must be installed: [Install Node](https://nodejs.org/en/download)  
+AWS SAM must be installed: [Install the AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+
 You must install the project's dependencies.
 ```shell
 $ npm i
 ```
 
-You must create a `.env` file in the apps/api folder.  
+You must create a `.env` file in the root folder of the application.  
 The content will be the following:
 ```dotenv
 STAGE=<your_stage_name>
