@@ -702,6 +702,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
           {
             InputId: input.Input.Id,
             InputAttachmentName: inputName,
+            InputSettings: {
+              SourceEndBehavior: 'LOOP',
+            },
           },
         ],
       })
