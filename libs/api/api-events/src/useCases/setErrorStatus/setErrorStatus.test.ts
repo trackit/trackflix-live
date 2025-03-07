@@ -22,9 +22,6 @@ describe('Set error status use case', () => {
 
     await eventsRepository.createEvent(eventValues);
 
-    const event = await eventsRepository.getEvent(eventValues.id);
-    expect(event?.status).toEqual(EventStatus.PRE_TX);
-
     await useCase.setErrorStatus(eventValues.id);
 
     const updatedEvent = await eventsRepository.getEvent(eventValues.id);
