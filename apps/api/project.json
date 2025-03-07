@@ -31,7 +31,7 @@
       }
     },
     "deploy": {
-      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\" --parameter-overrides WaitingSource=\"$WAITING_SOURCE\"",
+      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\" --parameter-overrides WaitingSource=\"$WAITING_SOURCE\" --no-fail-on-empty-changeset",
       "options": {
         "cwd": "apps/api"
       },
