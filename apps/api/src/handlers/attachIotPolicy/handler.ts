@@ -1,24 +1,10 @@
-import { IoTClient } from '@aws-sdk/client-iot';
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { EventsIotUpdateSender } from '../../infrastructure/EventsIotUpdateSender';
-import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
-import { AttachIotPolicyUseCaseImpl } from '@trackflix-live/api-events';
 import { AttachIotPolicyAdapter } from './attachIotPolicy.adapter';
+import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
-const eventUpdateSender = new EventsIotUpdateSender({
-  dataPlaneClient: new IoTDataPlaneClient({}),
-  client: new IoTClient(),
-  iotTopicName: process.env.IOT_TOPIC || '',
-  iotPolicy: process.env.IOT_POLICY || '',
-});
+registerProductionInfrastructure();
 
-const useCase = new AttachIotPolicyUseCaseImpl({
-  eventUpdateSender,
-});
-
-const adapter = new AttachIotPolicyAdapter({
-  useCase,
-});
+const adapter = new AttachIotPolicyAdapter();
 
 export const main = async (
   event: APIGatewayProxyEventV2

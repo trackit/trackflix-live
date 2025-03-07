@@ -1,5 +1,9 @@
 import { AttachIotPolicyUseCaseImpl } from './attachIotPolicy';
-import { EventUpdateSenderFake } from '../../infrastructure';
+import {
+  tokenEventUpdateSenderFake,
+  registerTestInfrastructure,
+} from '../../infrastructure';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Attach Iot policy use case', () => {
   it('should attach policy', async () => {
@@ -13,11 +17,11 @@ describe('Attach Iot policy use case', () => {
 });
 
 const setup = () => {
-  const eventUpdateSender = new EventUpdateSenderFake();
+  reset();
+  registerTestInfrastructure();
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new AttachIotPolicyUseCaseImpl({
-    eventUpdateSender,
-  });
+  const useCase = new AttachIotPolicyUseCaseImpl();
 
   return {
     eventUpdateSender,

@@ -1,42 +1,39 @@
 import { randomUUID } from 'node:crypto';
-import { EventScheduler, EventsRepository } from '../../ports';
+import {
+  tokenAssetsService,
+  tokenEventSchedulerStart,
+  tokenEventSchedulerStop,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+} from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
-import { EventUpdateSender } from '../../ports/EventUpdateSender';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export type CreateEventArgs = Pick<
   Event,
   'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
 >;
 
+export class AssetNotFoundError extends Error {
+  constructor() {
+    super('Asset not found');
+  }
+}
+
 export interface CreateEventUseCase {
   createEvent(args: CreateEventArgs): Promise<Event>;
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
-  private readonly eventSchedulerStart: EventScheduler;
+  private readonly eventSchedulerStart = inject(tokenEventSchedulerStart);
 
-  private readonly eventSchedulerStop: EventScheduler;
+  private readonly eventSchedulerStop = inject(tokenEventSchedulerStop);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  public constructor({
-    eventSchedulerStart,
-    eventSchedulerStop,
-    eventsRepository,
-    eventUpdateSender,
-  }: {
-    eventSchedulerStart: EventScheduler;
-    eventSchedulerStop: EventScheduler;
-    eventsRepository: EventsRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.eventSchedulerStart = eventSchedulerStart;
-    this.eventSchedulerStop = eventSchedulerStop;
-    this.eventsRepository = eventsRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly assetsService = inject(tokenAssetsService);
 
   public async createEvent(args: CreateEventArgs): Promise<Event> {
     const id = randomUUID();
@@ -50,10 +47,14 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       status: EventStatus.PRE_TX,
     } satisfies Event;
 
+    if (!(await this.assetsService.assetExists(event.source))) {
+      throw new AssetNotFoundError();
+    }
+
     await this.eventsRepository.createEvent(event);
 
     const preTxTime = new Date(event.onAirStartTime);
-    preTxTime.setMinutes(preTxTime.getMinutes() - 15);
+    preTxTime.setMinutes(preTxTime.getMinutes() - 5);
 
     await this.eventSchedulerStart.scheduleEvent({
       id,
@@ -75,3 +76,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     return event;
   }
 }
+
+export const tokenCreateEventUseCase = createInjectionToken<CreateEventUseCase>(
+  'CreateEventUseCase',
+  {
+    useClass: CreateEventUseCaseImpl,
+  }
+);

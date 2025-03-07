@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Template for the TrackFlix Live application
 
+Parameters:
+  WaitingSource:
+    Type: String
+
 Globals:
   Function:
     Timeout: 60
@@ -37,8 +41,11 @@ Resources:
                   - "dynamodb:PutItem"
                   - "dynamodb:Scan"
                   - "dynamodb:GetItem"
+                  - "dynamodb:Query"
+                  - "dynamodb:DeleteItem"
                 Resource:
                   - !GetAtt EventsTable.Arn
+                  - !Sub "${EventsTable.Arn}/index/*"
               - Effect: Allow
                 Action:
                   - "dynamodb:GetItem"
@@ -51,11 +58,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "events:PutRule"
-                  - "events:PutTargets"
+                  - "scheduler:CreateSchedule"
+                  - "scheduler:DeleteSchedule"
                 Resource:
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
-                  - !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*"
+                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*"
         - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -78,20 +85,27 @@ Resources:
               - Effect: Allow
                 Action: "iot:AttachPolicy"
                 Resource: "*"
-  PermissionForEventBridgeToInvokeStartLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref StartTransmission
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStartTx-*"
-  PermissionForEventBridgeToInvokeStopLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref StopTransmission
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/TrackflixLiveStopTx-*"
+        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*"
+        - PolicyName: !Sub "${AWS::StackName}-S3-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:GetObjectAttributes
+                Resource:
+                  - "arn:aws:s3:::*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -114,10 +128,12 @@ Resources:
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
                   - !GetAtt SaveResults.Arn
+                  - !GetAtt UpdateStatus.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
                   - !GetAtt DeleteMediaPackageChannel.Arn
+                  - !GetAtt SetErrorStatus.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
@@ -287,6 +303,7 @@ Resources:
                   - "medialive:StartChannel"
                   - "medialive:StopChannel"
                   - "medialive:DeleteChannel"
+                  - "medialive:BatchUpdateSchedule"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
@@ -321,6 +338,27 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+  SchedulerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-Scheduler-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt StartTransmission.Arn
+                  - !GetAtt StopTransmission.Arn
   ###########
   # COGNITO #
   ###########
@@ -397,9 +435,58 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: "S"
+        - AttributeName: GSI-name-PK
+          AttributeType: "S"
+        - AttributeName: name
+          AttributeType: "S"
+        - AttributeName: GSI-onAirStartTime-PK
+          AttributeType: "S"
+        - AttributeName: onAirStartTime
+          AttributeType: "S"
+        - AttributeName: GSI-onAirEndTime-PK
+          AttributeType: "S"
+        - AttributeName: onAirEndTime
+          AttributeType: "S"
+        - AttributeName: GSI-status-PK
+          AttributeType: "S"
+        - AttributeName: status
+          AttributeType: "S"
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: GSI-name
+          KeySchema:
+            - AttributeName: GSI-name-PK
+              KeyType: HASH
+            - AttributeName: name
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirStartTime
+          KeySchema:
+            - AttributeName: GSI-onAirStartTime-PK
+              KeyType: HASH
+            - AttributeName: onAirStartTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-onAirEndTime
+          KeySchema:
+            - AttributeName: GSI-onAirEndTime-PK
+              KeyType: HASH
+            - AttributeName: onAirEndTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-status
+          KeySchema:
+            - AttributeName: GSI-status-PK
+              KeyType: HASH
+            - AttributeName: status
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
   TaskTokensTable:
     Type: AWS::DynamoDB::Table
@@ -427,6 +514,7 @@ Resources:
           EVENTS_TABLE: !Ref EventsTable
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
           STOP_TX_LAMBDA: !GetAtt StopTransmission.Arn
+          ROLE_ARN: !GetAtt SchedulerExecutionRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
       Events:
         CreateEvent:
@@ -546,6 +634,31 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  DeleteEvent:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/deleteEvent/
+      Handler: handler.main
+      Role: !GetAtt ProjectLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+      Events:
+        DeleteEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /event/{eventId}
+            Method: delete
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   StartTransmission:
     Type: AWS::Serverless::Function
     Properties:
@@ -613,6 +726,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
+          WAITING_SOURCE: !Ref WaitingSource
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -661,6 +775,44 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  UpdateStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/updateStatus/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  SetErrorStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/setErrorStatus/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   StopMediaLiveChannel:
     Type: AWS::Serverless::Function
     Properties:
@@ -671,6 +823,7 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -690,6 +843,7 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -708,6 +862,7 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -723,6 +878,10 @@ Resources:
       CodeUri: ./src/stateMachines/deleteMediaPackageChannel/
       Handler: handler.main
       Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -767,11 +926,25 @@ Resources:
             "Create MediaPackage channel": {
               "Type": "Task",
               "Resource": "${CreateMediaPackageChannel}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Next": "Create MediaLive channel"
             },
             "Create MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${CreateMediaLiveChannel}",
                 "Payload": {
@@ -784,6 +957,13 @@ Resources:
             "Start MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${StartMediaLiveChannel}",
                 "Payload": {
@@ -796,6 +976,38 @@ Resources:
             "Save results": {
               "Type": "Task",
               "Resource": "${SaveResults}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "Next": "Wait for air time"
+            },
+            "Wait for air time": {
+              "Type": "Wait",
+              "TimestampPath": "$.onAirStartTime",
+              "Next": "Update status"
+            },
+            "Update status": {
+              "Type": "Task",
+              "Resource": "${UpdateStatus}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "End": true
+            },
+            "Set error status": {
+              "Type": "Task",
+              "Resource": "${SetErrorStatus}",
+              "Parameters": {
+                "eventId.$": "$.eventId"
+              },
               "End": true
             }
           }
@@ -805,6 +1017,8 @@ Resources:
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
+        UpdateStatus: !GetAtt UpdateStatus.Arn
+        SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
   StopTransmissionStateMachine:
     Type: AWS::StepFunctions::StateMachine
@@ -818,6 +1032,13 @@ Resources:
             "Stop MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${StopMediaLiveChannel}",
                 "Payload": {
@@ -830,6 +1051,13 @@ Resources:
             "Delete MediaLive channel": {
               "Type": "Task",
               "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Parameters": {
                 "FunctionName": "${DeleteMediaLiveChannel}",
                 "Payload": {
@@ -842,11 +1070,33 @@ Resources:
             "Delete MediaLive input": {
               "Type": "Task",
               "Resource": "${DeleteMediaLiveInput}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
               "Next": "Delete MediaPackage channel"
             },
             "Delete MediaPackage channel": {
               "Type": "Task",
               "Resource": "${DeleteMediaPackageChannel}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "End": true
+            },
+            "Set error status": {
+              "Type": "Task",
+              "Resource": "${SetErrorStatus}",
+              "Parameters": {
+                "eventId.$": "$.eventId"
+              },
               "End": true
             }
           }
@@ -859,4 +1109,17 @@ Resources:
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
+        SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+  IdentityPoolId:
+    Value: !Ref IdentityPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  ApiEndpoint:
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  IotTopic:
+    Value: !Sub "${AWS::StackName}"

@@ -1,10 +1,17 @@
 import {
-  EventsRepositoryInMemory,
-  LiveChannelsManagerFake,
-  TaskTokensRepositoryInMemory,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenLiveChannelsManagerFake,
+  tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { StopLiveChannelUseCaseImpl } from './stopLiveChannel';
-import { EventMother } from '@trackflix-live/types';
+import {
+  EventMother,
+  EventStatus,
+  EventUpdateAction,
+} from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Stop live channel use case', () => {
   it('should stop live channel', async () => {
@@ -112,23 +119,75 @@ describe('Stop live channel use case', () => {
       })
     ).rejects.toThrow('Missing live channel ID or live channel ARN.');
   });
+
+  it('should emit update', async () => {
+    const { eventUpdateSender, eventsRepository, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+    const liveChannelArn =
+      'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+    const liveChannelId = '8626488';
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveChannelArn(liveChannelArn)
+      .withLiveChannelId(liveChannelId)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.stopLiveChannel({
+      eventId,
+      taskToken: 'sample_task_token',
+    });
+
+    expect(eventUpdateSender.eventUpdates).toEqual([
+      {
+        action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+        value: eventsRepository.events[0],
+      },
+    ]);
+  });
+
+  it('should update status to POST_TX', async () => {
+    const { eventsRepository, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+    const liveChannelArn =
+      'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+    const liveChannelId = '8626488';
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveChannelArn(liveChannelArn)
+      .withLiveChannelId(liveChannelId)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.stopLiveChannel({
+      eventId,
+      taskToken: 'sample_task_token',
+    });
+
+    expect(eventsRepository.events).toMatchObject([
+      {
+        id: eventId,
+        status: EventStatus.POST_TX,
+      },
+    ]);
+  });
 });
 
 const setup = () => {
-  const liveChannelsManager = new LiveChannelsManagerFake();
-  const taskTokensRepository = new TaskTokensRepositoryInMemory();
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
+  const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new StopLiveChannelUseCaseImpl({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventsRepository,
-  });
+  const useCase = new StopLiveChannelUseCaseImpl();
 
   return {
     liveChannelsManager,
     taskTokensRepository,
     eventsRepository,
     useCase,
+    eventUpdateSender,
   };
 };

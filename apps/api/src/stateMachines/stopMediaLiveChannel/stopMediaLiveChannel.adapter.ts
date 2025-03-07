@@ -1,11 +1,8 @@
-import { StopLiveChannelUseCase } from '@trackflix-live/api-events';
+import { tokenStopLiveChannelUseCase } from '@trackflix-live/api-events';
+import { inject } from '@trackflix-live/di';
 
 export class StopMediaLiveChannelAdapter {
-  private readonly useCase: StopLiveChannelUseCase;
-
-  public constructor({ useCase }: { useCase: StopLiveChannelUseCase }) {
-    this.useCase = useCase;
-  }
+  private readonly useCase = inject(tokenStopLiveChannelUseCase);
 
   public async handle(params: {
     input: {

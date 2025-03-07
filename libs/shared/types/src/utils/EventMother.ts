@@ -42,6 +42,28 @@ export class EventMother {
     return this;
   }
 
+  public withLiveWaitingInputId(
+    liveWaitingInputId: string | undefined
+  ): EventMother {
+    this.data.liveWaitingInputId = liveWaitingInputId;
+    return this;
+  }
+
+  public withName(name: string): EventMother {
+    this.data.name = name;
+    return this;
+  }
+
+  public withOnAirStartTime(onAirStartTime: string): EventMother {
+    this.data.onAirStartTime = onAirStartTime;
+    return this;
+  }
+
+  public withOnAirEndTime(onAirEndTime: string): EventMother {
+    this.data.onAirEndTime = onAirEndTime;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
@@ -51,7 +73,6 @@ export class EventMother {
       onAirStartTime: '2025-01-22T10:00:00.000Z',
       onAirEndTime: '2025-01-22T20:00:00.000Z',
       createdTime: '2025-01-20T09:00:00.000Z',
-      destroyedTime: undefined,
       source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
       status: EventStatus.PRE_TX,
       endpoints: [],

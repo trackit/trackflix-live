@@ -1,24 +1,35 @@
-import { EventsRepository, ListEventsResponse } from '../../ports';
+import {
+  ListEventsParams,
+  ListEventsResponse,
+  tokenEventsRepository,
+} from '../../ports';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface ListEventsUseCase {
-  listEvents(limit: number, nextToken?: string): Promise<ListEventsResponse>;
+  listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
 }
 
 export class ListEventsUseCaseImpl implements ListEventsUseCase {
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  public constructor({
-    eventsRepository,
-  }: {
-    eventsRepository: EventsRepository;
-  }) {
-    this.eventsRepository = eventsRepository;
-  }
-
-  public async listEvents(
-    limit: number,
-    nextToken?: string
-  ): Promise<ListEventsResponse> {
-    return await this.eventsRepository.listEvents(limit, nextToken);
+  public async listEvents({
+    limit,
+    sortBy,
+    sortOrder = 'asc',
+    nextToken,
+    name,
+  }: ListEventsParams): Promise<ListEventsResponse> {
+    return await this.eventsRepository.listEvents({
+      limit,
+      sortBy,
+      sortOrder,
+      nextToken,
+      name,
+    });
   }
 }
+
+export const tokenListEventsUseCase = createInjectionToken<ListEventsUseCase>(
+  'ListEventsUseCase',
+  { useClass: ListEventsUseCaseImpl }
+);

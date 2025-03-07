@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useDarkMode } from 'usehooks-ts';
 
 export const THEME_KEYS = {
-  DARK: 'night',
   LIGHT: 'light',
+  DARK: 'night',
 };
 
 export function ThemeSwitcher() {

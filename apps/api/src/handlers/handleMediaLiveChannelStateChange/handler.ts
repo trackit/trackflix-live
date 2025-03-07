@@ -1,33 +1,10 @@
 import { EventBridgeEvent } from 'aws-lambda';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { SFNClient } from '@aws-sdk/client-sfn';
-import { HandleLiveChannelStateChangeUseCaseImpl } from '@trackflix-live/api-events';
-import { TaskTokensDynamoDBRepository } from '../../infrastructure/TaskTokensDynamoDBRepository';
-import { TransmissionsManagerSfn } from '../../infrastructure/TransmissionsManagerSfn';
 import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChannelStateChange.adapter';
+import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
 
-const dynamoDbClient = new DynamoDBClient();
-const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
+registerProductionInfrastructure();
 
-const taskTokensRepository = new TaskTokensDynamoDBRepository({
-  client: documentClient,
-  tableName: process.env.TASK_TOKENS_TABLE!,
-});
-
-const transmissionsManager = new TransmissionsManagerSfn({
-  client: new SFNClient(),
-  stateMachineArn: process.env['START_TX_STATE_MACHINE']!,
-});
-
-const useCase = new HandleLiveChannelStateChangeUseCaseImpl({
-  taskTokensRepository,
-  transmissionsManager,
-});
-
-const adapter = new HandleMediaLiveChannelStateChangeAdapter({
-  useCase,
-});
+const adapter = new HandleMediaLiveChannelStateChangeAdapter();
 
 export const main = async (
   event: EventBridgeEvent<

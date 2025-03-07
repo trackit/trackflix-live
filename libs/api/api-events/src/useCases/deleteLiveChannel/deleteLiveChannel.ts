@@ -1,8 +1,12 @@
 import {
-  EventsRepository,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
+import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export interface DeleteLiveChannelParameters {
   eventId: string;
@@ -14,25 +18,13 @@ export interface DeleteLiveChannelUseCase {
 }
 
 export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  public constructor({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventsRepository,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventsRepository: EventsRepository;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async deleteLiveChannel({
     eventId,
@@ -40,7 +32,7 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
   }: DeleteLiveChannelParameters): Promise<void> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
-      throw new Error('Event not found.');
+      throw new EventDoesNotExistError();
     }
     if (
       event.liveChannelId === undefined ||
@@ -48,6 +40,21 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     ) {
       throw new Error('Missing live channel ID or live channel ARN.');
     }
+
+    const currentTimestamp = Date.now();
+    const eventAfterUpdate = await this.eventsRepository.appendLogsToEvent(
+      eventId,
+      [
+        {
+          timestamp: currentTimestamp,
+          type: LogType.LIVE_CHANNEL_STOPPED,
+        },
+      ]
+    );
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: eventAfterUpdate,
+    });
 
     const { liveChannelArn, liveChannelId } = event;
 
@@ -63,3 +70,8 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     });
   }
 }
+
+export const tokenDeleteLiveChannelUseCase =
+  createInjectionToken<DeleteLiveChannelUseCase>('DeleteLiveChannelUseCase', {
+    useClass: DeleteLiveChannelUseCaseImpl,
+  });

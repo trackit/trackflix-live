@@ -1,6 +1,11 @@
 import { GetEventUseCaseImpl } from './getEvent';
-import { EventsRepositoryInMemory } from '../../infrastructure/EventsRepositoryInMemory';
+import {
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+} from '../../infrastructure';
 import { EventMother } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Get event use case', () => {
   it('should return the event requested', async () => {
@@ -14,21 +19,21 @@ describe('Get event use case', () => {
     expect(result).toEqual(event);
   });
 
-  it('should return an undefined event if it does not exist', async () => {
+  it('should throw an error if the event does not exist', async () => {
     const { useCase } = setup();
 
-    const result = await useCase.getEvent('non-existing-id');
-
-    expect(result).toBeUndefined();
+    await expect(useCase.getEvent('non-existing-id')).rejects.toThrow(
+      EventDoesNotExistError
+    );
   });
 });
 
 const setup = () => {
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
 
-  const useCase = new GetEventUseCaseImpl({
-    eventsRepository,
-  });
+  const useCase = new GetEventUseCaseImpl();
 
   return {
     eventsRepository,

@@ -1,8 +1,12 @@
 import {
-  EventsRepository,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
+import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
+import { StopTransmissionUseCaseImpl } from '../stopTransmission';
 
 export interface StopLiveChannelParameters {
   eventId: string;
@@ -14,25 +18,13 @@ export interface StopLiveChannelUseCase {
 }
 
 export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  public constructor({
-    liveChannelsManager,
-    taskTokensRepository,
-    eventsRepository,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventsRepository: EventsRepository;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async stopLiveChannel({
     eventId,
@@ -49,6 +41,15 @@ export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
       throw new Error('Missing live channel ID or live channel ARN.');
     }
 
+    const eventAfterUpdate = await this.eventsRepository.updateEventStatus(
+      eventId,
+      EventStatus.POST_TX
+    );
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: eventAfterUpdate,
+    });
+
     const { liveChannelArn, liveChannelId } = event;
 
     await this.liveChannelsManager.stopChannel(liveChannelId);
@@ -63,3 +64,8 @@ export class StopLiveChannelUseCaseImpl implements StopLiveChannelUseCase {
     });
   }
 }
+
+export const tokenStopLiveChannelUseCase =
+  createInjectionToken<StopLiveChannelUseCase>('StopLiveChannelUseCase', {
+    useClass: StopLiveChannelUseCaseImpl,
+  });

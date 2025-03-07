@@ -1,10 +1,12 @@
 import {
-  EventsRepository,
-  EventUpdateSender,
-  LiveChannelsManager,
-  TaskTokensRepository,
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
+import { EventDoesNotExistError } from '../../utils';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
@@ -24,30 +26,13 @@ export interface CreateLiveChannelUseCase {
 }
 
 export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly eventUpdateSender: EventUpdateSender;
-
-  public constructor({
-    eventsRepository,
-    liveChannelsManager,
-    taskTokensRepository,
-    eventUpdateSender,
-  }: {
-    eventsRepository: EventsRepository;
-    liveChannelsManager: LiveChannelsManager;
-    taskTokensRepository: TaskTokensRepository;
-    eventUpdateSender: EventUpdateSender;
-  }) {
-    this.eventsRepository = eventsRepository;
-    this.liveChannelsManager = liveChannelsManager;
-    this.taskTokensRepository = taskTokensRepository;
-    this.eventUpdateSender = eventUpdateSender;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async createLiveChannel({
     eventId,
@@ -56,7 +41,7 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
   }: CreateLiveChannelParameters): Promise<CreateLiveChannelResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
-      throw new Error('Event not found.');
+      throw new EventDoesNotExistError();
     }
 
     const liveChannel = await this.liveChannelsManager.createChannel({
@@ -81,10 +66,12 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId,
       liveChannel.channelId
     );
-    const eventAfterUpdate = await this.eventsRepository.updateLiveInputId(
-      eventId,
-      liveChannel.inputId
-    );
+    await this.eventsRepository.updateLiveInputId(eventId, liveChannel.inputId);
+    const eventAfterUpdate =
+      await this.eventsRepository.updateLiveWaitingInputId(
+        eventId,
+        liveChannel.waitingInputId
+      );
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
@@ -106,3 +93,8 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     return liveChannel;
   }
 }
+
+export const tokenCreateLiveChannelUseCase =
+  createInjectionToken<CreateLiveChannelUseCase>('CreateLiveChannelUseCase', {
+    useClass: CreateLiveChannelUseCaseImpl,
+  });

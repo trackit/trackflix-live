@@ -1,4 +1,8 @@
-import { TaskTokensRepository, TransmissionsManager } from '../../ports';
+import {
+  tokenTaskTokensRepository,
+  tokenTransmissionsManager,
+} from '../../ports';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface HandleLiveChannelStateChangeParameters {
   channelArn: string;
@@ -14,20 +18,9 @@ export interface HandleLiveChannelStateChangeUseCase {
 export class HandleLiveChannelStateChangeUseCaseImpl
   implements HandleLiveChannelStateChangeUseCase
 {
-  private readonly taskTokensRepository: TaskTokensRepository;
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
-  private readonly transmissionsManager: TransmissionsManager;
-
-  public constructor({
-    taskTokensRepository,
-    transmissionsManager,
-  }: {
-    taskTokensRepository: TaskTokensRepository;
-    transmissionsManager: TransmissionsManager;
-  }) {
-    this.taskTokensRepository = taskTokensRepository;
-    this.transmissionsManager = transmissionsManager;
-  }
+  private readonly transmissionsManager = inject(tokenTransmissionsManager);
 
   public async handleLiveChannelStateChange({
     channelArn,
@@ -44,3 +37,9 @@ export class HandleLiveChannelStateChangeUseCaseImpl
     await this.transmissionsManager.resumeStartTransmission(taskToken);
   }
 }
+
+export const tokenHandleLiveChannelStateChangeUseCase =
+  createInjectionToken<HandleLiveChannelStateChangeUseCase>(
+    'HandleLiveChannelStateChangeUseCase',
+    { useClass: HandleLiveChannelStateChangeUseCaseImpl }
+  );

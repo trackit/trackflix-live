@@ -1,35 +1,43 @@
-import { SingleAssetFlow } from '@trackflix-live/single-asset-flow';
-import { Amplify } from 'aws-amplify';
-import { AuthStyle } from './amplify-auth-theme';
-import '@aws-amplify/ui-react/styles.css';
-import { MaterialDesignContent, SnackbarProvider } from 'notistack';
+import { useEffect } from 'react';
+import { Route, Routes } from 'react-router';
+import { SnackbarProvider } from 'notistack';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
+import { CreateEvent } from '@trackflix-live/create-event';
+import { ListEventsView } from '@trackflix-live/list-events-view';
 import { StatusView } from '@trackflix-live/status-view';
+import { postIot } from '@trackflix-live/api-client';
+
 import Topbar from './topbar';
 
-import { amplifyConfig } from '../amplify.config';
-import { Route, Routes } from 'react-router';
-
-Amplify.configure(amplifyConfig);
-
 export function App() {
+  useEffect(() => {
+    const postIotWithCognitoIdentity = async () => {
+      try {
+        const session = await fetchAuthSession();
+        if (session.identityId)
+          await postIot({ identityId: session.identityId });
+      } catch (error) {
+        console.error('Error attaching IoT Core to cognito identity:', error);
+      }
+    };
+    postIotWithCognitoIdentity();
+  }, []);
+
   return (
-    <div className="flex flex-col h-screen">
-      <AuthStyle>
-        <SnackbarProvider />
+    <>
+      <SnackbarProvider />
+      <div className="flex flex-col h-screen">
         <Topbar />
-        <div
-          className={
-            'flex justify-center items-center w-screen h-full bg-base-200 relative'
-          }
-        >
+        <div className="flex flex-col flex-grow dark:bg-base-300 bg-base-200 ">
           <Routes>
-            <Route index element={<SingleAssetFlow />} />
+            <Route index element={<ListEventsView />} />
+            <Route path={'/create'} element={<CreateEvent />}></Route>
             <Route path={'/status/:id'} element={<StatusView />} />
           </Routes>
         </div>
-      </AuthStyle>
-    </div>
+      </div>
+    </>
   );
 }
 

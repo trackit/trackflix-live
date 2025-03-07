@@ -1,18 +1,23 @@
 import {
-  EventsRepositoryInMemory,
-  LiveChannelsManagerFake,
+  registerTestInfrastructure,
+  tokenEventsRepositoryInMemory,
+  tokenEventUpdateSenderFake,
+  tokenLiveChannelsManagerFake,
 } from '../../infrastructure';
 import { DeleteLiveInputUseCaseImpl } from './deleteLiveInput';
-import { EventMother } from '@trackflix-live/types';
+import { EventMother, LogType } from '@trackflix-live/types';
+import { inject, reset } from '@trackflix-live/di';
 
 describe('Delete live input use case', () => {
   it('should delete live input', async () => {
     const { liveChannelsManager, eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveInputId = '8626488';
+    const liveWaitingInputId = '1234567';
     const event = EventMother.basic()
       .withId(eventId)
       .withLiveInputId(liveInputId)
+      .withLiveWaitingInputId(liveWaitingInputId)
       .build();
     await eventsRepository.createEvent(event);
 
@@ -20,7 +25,10 @@ describe('Delete live input use case', () => {
       eventId,
     });
 
-    expect(liveChannelsManager.deletedInputs).toEqual([liveInputId]);
+    expect(liveChannelsManager.deletedInputs).toEqual([
+      liveInputId,
+      liveWaitingInputId,
+    ]);
   });
 
   it('should throw if event does not exist', async () => {
@@ -50,20 +58,122 @@ describe('Delete live input use case', () => {
       })
     ).rejects.toThrow('Missing live input ID.');
   });
+
+  it('should throw if event does not have live waiting input id', async () => {
+    const { eventsRepository, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+    const liveInputId = '8626488';
+
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveInputId(liveInputId)
+      .withLiveWaitingInputId(undefined)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await expect(
+      useCase.deleteLiveInput({
+        eventId,
+      })
+    ).rejects.toThrow('Missing live input ID.');
+  });
+
+  it('should add logs', async () => {
+    const { eventsRepository, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+    const liveInputId = '8626488';
+    const liveWaitingInputId = '1234567';
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveInputId(liveInputId)
+      .withLiveWaitingInputId(liveWaitingInputId)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.deleteLiveInput({
+      eventId,
+    });
+
+    expect(eventsRepository.events).toMatchObject([
+      {
+        id: eventId,
+        logs: [
+          {
+            timestamp: expect.any(Number),
+            type: LogType.LIVE_CHANNEL_DESTROYED,
+          },
+          {
+            timestamp: expect.any(Number),
+            type: LogType.LIVE_INPUT_DESTROYED,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should emit updates', async () => {
+    const { eventUpdateSender, eventsRepository, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+    const liveInputId = '8626488';
+    const liveWaitingInputId = '1234567';
+
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveInputId(liveInputId)
+      .withLiveWaitingInputId(liveWaitingInputId)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.deleteLiveInput({
+      eventId,
+    });
+
+    expect(eventUpdateSender.eventUpdates).toMatchObject([
+      {
+        action: 'EVENT_UPDATE_UPDATE',
+        value: {
+          id: eventId,
+          logs: [
+            {
+              timestamp: expect.any(Number),
+              type: LogType.LIVE_CHANNEL_DESTROYED,
+            },
+          ],
+        },
+      },
+      {
+        action: 'EVENT_UPDATE_UPDATE',
+        value: {
+          id: eventId,
+          logs: [
+            {
+              timestamp: expect.any(Number),
+              type: LogType.LIVE_CHANNEL_DESTROYED,
+            },
+            {
+              timestamp: expect.any(Number),
+              type: LogType.LIVE_INPUT_DESTROYED,
+            },
+          ],
+        },
+      },
+    ]);
+  });
 });
 
 const setup = () => {
-  const liveChannelsManager = new LiveChannelsManagerFake();
-  const eventsRepository = new EventsRepositoryInMemory();
+  reset();
+  registerTestInfrastructure();
+  const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
+  const eventsRepository = inject(tokenEventsRepositoryInMemory);
+  const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new DeleteLiveInputUseCaseImpl({
-    liveChannelsManager,
-    eventsRepository,
-  });
+  const useCase = new DeleteLiveInputUseCaseImpl();
 
   return {
     liveChannelsManager,
     eventsRepository,
+    eventUpdateSender,
     useCase,
   };
 };

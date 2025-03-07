@@ -7,19 +7,31 @@ export class HttpError extends Error {
 
   public readonly message: string;
 
-  public constructor({ code, message }: { code: number; message: string }) {
+  public readonly description?: string;
+
+  public constructor({
+    code,
+    message,
+    description,
+  }: {
+    code: number;
+    message: string;
+    description?: string;
+  }) {
     super();
 
     this.code = code;
     this.message = message;
+    this.description = description;
   }
 }
 
 export class BadRequestError extends HttpError {
-  public constructor() {
+  public constructor(description?: string) {
     super({
       code: 400,
       message: 'Bad Request',
+      description,
     });
   }
 }
@@ -51,7 +63,10 @@ export const handleHttpRequest = async ({
       return {
         statusCode: e.code,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: e.message }),
+        body: JSON.stringify({
+          message: e.message,
+          description: e.description,
+        }),
       };
     }
     console.error(e);

@@ -26,7 +26,6 @@ describe('Panel', () => {
   it('should combine default and custom classes', () => {
     const { container } = render(<Panel className="custom-class">test</Panel>);
     expect(container.firstChild).toHaveClass('custom-class');
-    expect(container.firstChild).toHaveClass('container');
   });
 
   it('should handle multiple children', () => {

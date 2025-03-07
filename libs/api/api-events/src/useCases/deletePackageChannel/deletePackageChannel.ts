@@ -1,4 +1,10 @@
-import { PackageChannelsManager } from '../../ports';
+import {
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenPackageChannelsManager,
+} from '../../ports';
+import { EventStatus, EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface DeletePackageChannelParameters {
   eventId: string;
@@ -11,19 +17,39 @@ export interface DeletePackageChannelUseCase {
 export class DeletePackageChannelUseCaseImpl
   implements DeletePackageChannelUseCase
 {
-  private readonly packageChannelsManager: PackageChannelsManager;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  public constructor({
-    packageChannelsManager,
-  }: {
-    packageChannelsManager: PackageChannelsManager;
-  }) {
-    this.packageChannelsManager = packageChannelsManager;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
+
+  private readonly packageChannelsManager = inject(tokenPackageChannelsManager);
 
   public async deletePackageChannel({
     eventId,
   }: DeletePackageChannelParameters): Promise<void> {
     await this.packageChannelsManager.deleteChannel(eventId);
+
+    await this.eventsRepository.updateEventStatus(eventId, EventStatus.ENDED);
+    await this.eventsRepository.updateEventDestroyedTime(
+      eventId,
+      new Date().toISOString()
+    );
+
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: await this.eventsRepository.appendLogsToEvent(eventId, [
+        {
+          timestamp: Date.now(),
+          type: LogType.PACKAGE_CHANNEL_DESTROYED,
+        },
+      ]),
+    });
   }
 }
+
+export const tokenDeletePackageChannelUseCase =
+  createInjectionToken<DeletePackageChannelUseCase>(
+    'DeletePackageChannelUseCase',
+    {
+      useClass: DeletePackageChannelUseCaseImpl,
+    }
+  );

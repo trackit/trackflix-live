@@ -5,5 +5,22 @@
   "projectType": "application",
   "tags": ["scope:webui", "type:app"],
   "// targets": "to see all targets run: nx show project webui --web",
-  "targets": {}
+  "targets": {
+    "generateEnvironment": {
+      "command": "sh scripts/generateWebUiEnvironment.sh"
+    },
+    "build": {
+      "dependsOn": ["generateEnvironment"]
+    },
+    "deploy": {
+      "command": "sam deploy --stack-name=\"trackflix-live-webui-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\" --no-fail-on-empty-changeset",
+      "options": {
+        "cwd": "apps/webui"
+      }
+    },
+    "upload": {
+      "command": "sh scripts/uploadWebUi.sh",
+      "dependsOn": ["deploy", "build"]
+    }
+  }
 }

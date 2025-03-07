@@ -81,6 +81,7 @@ describe('MediaPackage channels manager', () => {
         Id: `TrackflixLiveMPOE-HLS-${eventId}`,
         HlsPackage: {
           PlaylistType: 'EVENT',
+          SegmentDurationSeconds: 3,
         },
       });
       expect(commandCalls[1].args[0].input).toEqual({

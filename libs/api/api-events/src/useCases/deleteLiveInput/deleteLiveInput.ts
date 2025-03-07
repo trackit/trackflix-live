@@ -1,4 +1,10 @@
-import { EventsRepository, LiveChannelsManager } from '../../ports';
+import {
+  tokenEventsRepository,
+  tokenEventUpdateSender,
+  tokenLiveChannelsManager,
+} from '../../ports';
+import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface DeleteLiveInputParameters {
   eventId: string;
@@ -9,20 +15,11 @@ export interface DeleteLiveInputUseCase {
 }
 
 export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
-  private readonly liveChannelsManager: LiveChannelsManager;
+  private readonly liveChannelsManager = inject(tokenLiveChannelsManager);
 
-  private readonly eventsRepository: EventsRepository;
+  private readonly eventsRepository = inject(tokenEventsRepository);
 
-  public constructor({
-    liveChannelsManager,
-    eventsRepository,
-  }: {
-    liveChannelsManager: LiveChannelsManager;
-    eventsRepository: EventsRepository;
-  }) {
-    this.liveChannelsManager = liveChannelsManager;
-    this.eventsRepository = eventsRepository;
-  }
+  private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async deleteLiveInput({
     eventId,
@@ -31,12 +28,41 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
     if (event === undefined) {
       throw new Error('Event not found.');
     }
-    if (event.liveInputId === undefined) {
+    if (
+      event.liveInputId === undefined ||
+      event.liveWaitingInputId === undefined
+    ) {
       throw new Error('Missing live input ID.');
     }
 
-    const { liveInputId } = event;
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: await this.eventsRepository.appendLogsToEvent(eventId, [
+        {
+          timestamp: Date.now(),
+          type: LogType.LIVE_CHANNEL_DESTROYED,
+        },
+      ]),
+    });
+
+    const { liveInputId, liveWaitingInputId } = event;
 
     await this.liveChannelsManager.deleteInput(liveInputId);
+    await this.liveChannelsManager.deleteInput(liveWaitingInputId);
+
+    await this.eventUpdateSender.send({
+      action: EventUpdateAction.EVENT_UPDATE_UPDATE,
+      value: await this.eventsRepository.appendLogsToEvent(eventId, [
+        {
+          timestamp: Date.now(),
+          type: LogType.LIVE_INPUT_DESTROYED,
+        },
+      ]),
+    });
   }
 }
+
+export const tokenDeleteLiveInputUseCase =
+  createInjectionToken<DeleteLiveInputUseCase>('DeleteLiveInputUseCase', {
+    useClass: DeleteLiveInputUseCaseImpl,
+  });
