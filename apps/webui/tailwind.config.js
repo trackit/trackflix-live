@@ -4,7 +4,16 @@ const { join } = require('path');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   daisyui: {
-    themes: ['light', 'night'],
+    themes: [
+      {
+        light: {
+          ...require('daisyui/src/theming/themes')['light'],
+          primary: '#047AFF',
+          'primary-content': '#FFFFFF',
+        },
+      },
+      'night',
+    ],
     darkTheme: 'night',
   },
   darkMode: ['selector', '[data-theme="night"]'],

@@ -1,8 +1,15 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Videotape, CaseSensitive, PencilLine, Clock } from 'lucide-react';
+import {
+  Videotape,
+  CaseSensitive,
+  PencilLine,
+  Clock,
+  Rocket,
+} from 'lucide-react';
 import { DateTime } from 'luxon';
+import { useState } from 'react';
 
 export interface SingleAssetFormProps {
   onSubmit: (data: {
@@ -16,6 +23,8 @@ export interface SingleAssetFormProps {
 }
 
 export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
+  const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
+
   const formSchema = z
     .object({
       name: z.string().min(1),
@@ -39,6 +48,8 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
     register,
     formState: { errors },
     handleSubmit,
+    setValue,
+    watch,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,13 +57,39 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       description: '',
       source: '',
       onAirStartTime: DateTime.now()
-        .set({ hour: DateTime.now().minute + 30 })
+        .set({ minute: DateTime.now().minute + 30 })
         .toJSDate(),
       onAirEndTime: DateTime.now()
         .set({ hour: DateTime.now().hour + 2 })
         .toJSDate(),
     },
   });
+
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartTime = new Date(e.target.value);
+    register('onAirStartTime').onChange(e);
+
+    // Only update end time if it hasn't been manually set
+    if (!endTimeManuallySet) {
+      const endTime = DateTime.fromJSDate(newStartTime)
+        .plus({ hours: 1 })
+        .toFormat("yyyy-MM-dd'T'HH:mm");
+      const endTimeInput = document.querySelector(
+        'input[name="onAirEndTime"]'
+      ) as HTMLInputElement;
+      if (endTimeInput) {
+        endTimeInput.value = endTime;
+        register('onAirEndTime').onChange({
+          target: { value: endTime },
+        } as React.ChangeEvent<HTMLInputElement>);
+      }
+    }
+  };
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndTimeManuallySet(true);
+    register('onAirEndTime').onChange(e);
+  };
 
   return (
     <form
@@ -139,8 +176,9 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             className={'input input-bordered'}
             type={'datetime-local'}
             {...register('onAirStartTime')}
+            onChange={handleStartTimeChange}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 30 })
+              .set({ minute: DateTime.now().minute + 6 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
           />
         </label>
@@ -152,9 +190,10 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             className={'input input-bordered'}
             type={'datetime-local'}
             min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 30 })
+              .set({ minute: DateTime.now().minute + 7 })
               .toFormat("yyyy-MM-dd'T'HH:mm")}
             {...register('onAirEndTime')}
+            onChange={handleEndTimeChange}
           />
         </label>
         <div className="label">
@@ -165,6 +204,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       </div>
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>
+          <Rocket className="w-4 h-4" />
           Submit
         </button>
       </div>

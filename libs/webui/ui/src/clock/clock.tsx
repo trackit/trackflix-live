@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Clock as ClockIcon } from 'lucide-react';
-export function Clock() {
+
+export function Clock({ className }: { className?: string }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -12,7 +13,7 @@ export function Clock() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center">
+    <div className={`flex items-center justify-center ${className}`}>
       <div className="py-1 px-2 flex items-center gap-2">
         <ClockIcon className="w-4 h-4" />
         <div className="font-mono text-sm font-bold tabular-nums">

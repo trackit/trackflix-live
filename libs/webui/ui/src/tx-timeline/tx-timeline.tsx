@@ -1,19 +1,20 @@
 import { DateTime } from 'luxon';
 import { useState, useEffect } from 'react';
 
-type Step = {
+export type Step = {
   title: string;
   datetime?: string;
 };
 
 interface TxTimelineProps {
   steps: Step[];
+  completed?: boolean;
 }
 
 function formatDateTime(datetime?: string): string {
   if (!datetime) return '--';
   const dt = DateTime.fromISO(datetime);
-  return dt.isValid ? dt.toFormat('hh:mm:ss a\nMM/dd/yyyy') : '--';
+  return dt.isValid ? dt.toFormat('hh:mm:ss a') : '--';
 }
 
 function TxTimelineStep({
@@ -47,7 +48,7 @@ function TxTimelineStep({
       ></div>
 
       {/* Datetime below the line */}
-      <div className="text-xs mt-1 text-center whitespace-pre text-base-content">
+      <div className="max-[430px]:text-[10px] text-xs mt-1 text-center whitespace-pre text-base-content">
         {formatDateTime(step.datetime)}
       </div>
     </div>
@@ -95,7 +96,7 @@ function calculateProgress(steps: Step[]): number {
   return 100;
 }
 
-export function TxTimeline({ steps }: TxTimelineProps) {
+export function TxTimeline({ steps, completed }: TxTimelineProps) {
   const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export function TxTimeline({ steps }: TxTimelineProps) {
       {/* Progress bar */}
       <progress
         className="progress progress-primary w-full h-[12px] absolute top-0 left-0 m-0"
-        value={progress}
+        value={completed ? 100 : progress}
         max="100"
       />
 

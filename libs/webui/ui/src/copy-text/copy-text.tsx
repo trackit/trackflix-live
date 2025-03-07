@@ -3,9 +3,10 @@ import { Check, Copy } from 'lucide-react';
 type CopyTextProps = {
   text: string;
   icon?: React.ReactNode;
+  className?: string;
 };
 
-export function CopyText({ text, icon }: CopyTextProps) {
+export function CopyText({ text, icon, className }: CopyTextProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -17,14 +18,16 @@ export function CopyText({ text, icon }: CopyTextProps) {
   };
 
   return (
-    <div className="bg-base-200 p-4 rounded-lg flex items-center gap-2">
+    <div
+      className={`bg-base-200 p-2 rounded-lg flex items-center gap-2 ${className}`}
+    >
       {icon}
-      <pre className="flex-grow text-ellipsis overflow-hidden whitespace-nowrap ">
+      <pre className="flex-grow text-ellipsis overflow-hidden whitespace-nowrap text-sm">
         {text}
       </pre>
       <button
-        className={`btn btn-sm btn-outline ml-auto transition-all duration-300 ${
-          copied ? 'btn-success' : 'btn-outline'
+        className={`btn btn-xs btn-ghost ml-auto transition-all duration-300 ${
+          copied ? '!btn-success !btn-outline' : ''
         }`}
         onClick={handleCopy}
       >

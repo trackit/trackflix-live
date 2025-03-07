@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { CreateEventRequest } from '@trackflix-live/types';
 import { useNavigate } from 'react-router';
 
-export function SingleAssetFlow() {
+export function CreateEvent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const onSubmit = async (data: CreateEventRequest['body']) => {
@@ -14,6 +14,7 @@ export function SingleAssetFlow() {
       const res = await postEvent(data);
       navigate(`/status/${res.event.id}`);
     } catch (err) {
+      setIsSubmitting(false);
       console.error(err);
     }
   };
@@ -35,4 +36,4 @@ export function SingleAssetFlow() {
   );
 }
 
-export default SingleAssetFlow;
+export default CreateEvent;
