@@ -171,15 +171,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       <div className={'flex  mb-2 flex-col md:flex-row gap-2 items-start'}>
         <label
           className={
-            'align-middle flex gap-2 md:flex-row flex-col my-2 items-start md:items-center'
+            'align-middle flex gap-2 md:flex-row flex-col my-2 items-start md:items-center w-full md:w-1/2'
           }
         >
           <div className="flex items-center gap-2">
             <Clock />
-            <span className="mr-2">Start On Air</span>
+            <span className="mr-2 whitespace-pre">Start On-Air</span>
           </div>
           <input
-            className={'input input-bordered'}
+            className={'input input-bordered w-full md:w-1/2'}
             type={'datetime-local'}
             {...register('onAirStartTime')}
             onChange={handleStartTimeChange}
@@ -190,15 +190,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         </label>
         <label
           className={
-            'align-middle flex  gap-2 md:flex-row flex-col my-2 items-start md:items-center'
+            'align-middle flex  gap-2 md:flex-row flex-col my-2 items-start md:items-center w-full md:w-1/2'
           }
         >
           <div className="flex items-center gap-2">
             <Clock />
-            <span className="mr-2">End On Air</span>
+            <span className="mr-2 whitespace-pre">End On-Air</span>
           </div>
           <input
-            className={'input input-bordered'}
+            className={'input input-bordered w-full md:w-1/2'}
             type={'datetime-local'}
             min={DateTime.now()
               .set({ minute: DateTime.now().minute + 7 })
