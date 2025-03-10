@@ -30,8 +30,8 @@ describe('SingleAssetForm', () => {
     expect(screen.getByLabelText(/event name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/s3 media uri/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/start on air/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/end on air/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/start on-air/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/end on-air/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
   });
 
@@ -60,8 +60,8 @@ describe('SingleAssetForm', () => {
     );
 
     // Handle datetime inputs
-    const startInput = screen.getByLabelText(/start on air/i);
-    const endInput = screen.getByLabelText(/end on air/i);
+    const startInput = screen.getByLabelText(/start on-air/i);
+    const endInput = screen.getByLabelText(/end on-air/i);
 
     // Set dates relative to our fixed date
     const startTime = DateTime.fromJSDate(fixedDate)
@@ -137,8 +137,8 @@ describe('SingleAssetForm', () => {
       .plus({ hours: 1 })
       .toFormat("yyyy-MM-dd'T'HH:mm");
 
-    const startInput = screen.getByLabelText(/start on air/i);
-    const endInput = screen.getByLabelText(/end on air/i);
+    const startInput = screen.getByLabelText(/start on-air/i);
+    const endInput = screen.getByLabelText(/end on-air/i);
 
     await user.clear(startInput);
     await user.type(startInput, startTime);
