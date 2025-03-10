@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 const PRE_TX_TIME = 5;
-const PLAYER_DELAY = 5000;
+const PLAYER_DELAY = 10000;
 
 type TimelineStepWithLog = TimelineStep & { id: LogType };
 
@@ -240,16 +240,18 @@ export function StatusView() {
 
   // Subscribe to event updates
   useEffect(() => {
-    pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
-      next: (value) => {
-        const msg = value as { action: string; value: Event };
-        console.log(msg);
-        if (msg.value) {
-          setEvent(msg.value);
-        }
-      },
-    });
-  }, []);
+    if (event?.id) {
+      pubsub.subscribe({ topics: [import.meta.env.VITE_IOT_TOPIC] }).subscribe({
+        next: (value) => {
+          const msg = value as { action: string; value: Event };
+          console.log(msg);
+          if (msg.value && msg.value.id === event?.id) {
+            setEvent(msg.value);
+          }
+        },
+      });
+    }
+  }, [event]);
 
   // Delete event
   const handleDelete = async () => {
