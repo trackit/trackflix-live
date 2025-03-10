@@ -40,6 +40,7 @@ export function ListEventsView() {
         },
       });
     },
+    refetchInterval: 60000,
   });
 
   const columns: ColumnDef<Event>[] = useMemo(
