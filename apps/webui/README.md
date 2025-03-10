@@ -20,7 +20,7 @@ The following environment variables are required for the web UI to function prop
 - `VITE_AWS_REGION`: The AWS region where your resources are deployed (e.g., us-east-1)
 - `VITE_USER_POOL_ID`: The ID of the Cognito User Pool used for authentication
 - `VITE_IDENTITY_POOL_ID`: The ID of the Cognito Identity Pool used for AWS credentials
-- `VITE_APP_CLIENT_ID`: The API Gateway App client Id
+- `VITE_APP_CLIENT_ID`: The Cognito User pool App client Id
 - `VITE_API_URL`: The URL of the API Gateway endpoint
 - `VITE_IOT_DOMAIN_NAME`: The domain name of the IoT Core endpoint
 - `VITE_IOT_TOPIC`: The IoT topic name, which matches the environment stage name
