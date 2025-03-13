@@ -15,7 +15,7 @@ This project uses:
 
 ## Environment variables
 
-The following environment variables are required for the web UI to function properly:
+The following environment variables are required for the web UI to function properly :
 
 - `VITE_AWS_REGION`: The AWS region where your resources are deployed (e.g., us-east-1)
 - `VITE_USER_POOL_ID`: The ID of the Cognito User Pool used for authentication
