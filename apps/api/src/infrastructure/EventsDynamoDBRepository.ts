@@ -354,7 +354,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
       Key: {
         id: eventId,
       },
-      UpdateExpression: 'SET #cloudFrontDistributionId = :cloudFrontDistributionId',
+      UpdateExpression:
+        'SET #cloudFrontDistributionId = :cloudFrontDistributionId',
       ExpressionAttributeNames: {
         '#cdnDistributionId': 'cdnDistributionId',
       },

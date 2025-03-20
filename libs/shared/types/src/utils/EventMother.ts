@@ -42,12 +42,16 @@ export class EventMother {
     return this;
   }
 
-  public withPackageDomainName(packageDomainName: string | undefined): EventMother {
+  public withPackageDomainName(
+    packageDomainName: string | undefined
+  ): EventMother {
     this.data.packageDomainName = packageDomainName;
     return this;
   }
 
-  public withCDNDistributionId(cdnDistributionId: string | undefined): EventMother {
+  public withCDNDistributionId(
+    cdnDistributionId: string | undefined
+  ): EventMother {
     this.data.cdnDistributionId = cdnDistributionId;
     return this;
   }

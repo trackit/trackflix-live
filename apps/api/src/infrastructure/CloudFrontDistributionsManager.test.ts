@@ -20,7 +20,8 @@ describe('CloudFront distributions manager', () => {
       const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
       const cdnDistributionId = 'E2QWRUHAPOMQZL';
       const domainName = 'd111111abcdef8.cloudfront.net';
-      const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
+      const packageDomainName =
+        'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
 
       mock.on(CreateDistributionCommand).resolves({
         Distribution: {
@@ -30,11 +31,14 @@ describe('CloudFront distributions manager', () => {
           ARN: 'arn:aws:cloudfront::123456789012:distribution/E2QWRUHAPOMQZL',
           LastModifiedTime: new Date(),
           InProgressInvalidationBatches: 0,
-          DistributionConfig: undefined
+          DistributionConfig: undefined,
         },
       });
 
-      const result = await cloudFrontDistributionsManager.createDistribution(eventId, packageDomainName);
+      const result = await cloudFrontDistributionsManager.createDistribution(
+        eventId,
+        packageDomainName
+      );
 
       const commandCalls = mock.commandCalls(CreateDistributionCommand);
       expect(commandCalls).toHaveLength(1);
@@ -52,8 +56,8 @@ describe('CloudFront distributions manager', () => {
               CachedMethods: {
                 Items: ['GET', 'HEAD', 'OPTIONS'],
                 Quantity: 3,
-              }
-            }
+              },
+            },
           },
           Origins: {
             Quantity: 1,
@@ -111,11 +115,13 @@ describe('CloudFront distributions manager', () => {
           ARN: 'arn:aws:cloudfront::123456789012:distribution/E2QWRUHAPOMQZL',
           LastModifiedTime: new Date(),
           DomainName: 'test.cloudfront.net',
-          InProgressInvalidationBatches: 0
+          InProgressInvalidationBatches: 0,
         },
       });
 
-      await cloudFrontDistributionsManager.deleteDistribution(cdnDistributionId);
+      await cloudFrontDistributionsManager.deleteDistribution(
+        cdnDistributionId
+      );
 
       const commandCalls = mock.commandCalls(DeleteDistributionCommand);
       expect(commandCalls).toHaveLength(1);

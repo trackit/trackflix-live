@@ -9,14 +9,14 @@ describe('Create CloudFront distribution', () => {
     const cdnDistributionId = 'E2QWRUHXPO1PLV';
 
     useCase.createCDNDistribution.mockImplementation(() => ({
-      cdnDistributionId
+      cdnDistributionId,
     }));
 
     const result = await adapter.handle({
       input: {
         eventId,
         packageDomainName: 'sample.domain.com',
-      }
+      },
     });
 
     expect(result).toEqual({

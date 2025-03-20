@@ -17,7 +17,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
   public async createDistribution(
     eventId: string,
-    packageDomainName: string,
+    packageDomainName: string
   ): Promise<CreateCDNDistributionResponse> {
     const response = await this.client.send(
       new CreateDistributionCommand({
@@ -25,13 +25,15 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
           CallerReference: eventId,
           Origins: {
             Quantity: 1,
-            Items: [{
-              Id: 'mediapackage-origin',
-              DomainName: packageDomainName,
-              /// DomainName: ////, id from media package endpoints
-              /// from: https://ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com/out/v1/27616a12d47141028ca4a21e16ddd18b/index.mpd
-              /// need: ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com
-            }]
+            Items: [
+              {
+                Id: 'mediapackage-origin',
+                DomainName: packageDomainName,
+                /// DomainName: ////, id from media package endpoints
+                /// from: https://ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com/out/v1/27616a12d47141028ca4a21e16ddd18b/index.mpd
+                /// need: ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com
+              },
+            ],
           },
           DefaultCacheBehavior: {
             TargetOriginId: 'mediapackage-origin',
@@ -41,13 +43,13 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
               Items: ['GET', 'HEAD', 'OPTIONS'],
               CachedMethods: {
                 Quantity: 3,
-                Items: ['GET', 'HEAD', 'OPTIONS']
-              }
+                Items: ['GET', 'HEAD', 'OPTIONS'],
+              },
             },
           },
           Comment: `Distribution for event ${eventId}`,
-          Enabled: true
-        }
+          Enabled: true,
+        },
       })
     );
 
