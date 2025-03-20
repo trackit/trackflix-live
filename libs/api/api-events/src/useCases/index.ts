@@ -16,3 +16,5 @@ export * from './deletePackageChannel';
 export * from './attachIotPolicy';
 export * from './updateStatus';
 export * from './setErrorStatus';
+export * from './createCDNDistribution';
+export * from './deleteCDNDistribution';

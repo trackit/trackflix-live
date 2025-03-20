@@ -321,6 +321,54 @@ export class EventsDynamoDBRepository implements EventsRepository {
     return response.Attributes as Event;
   }
 
+  public async updatePackageDomainName(
+    eventId: string,
+    packageDomainName: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #packageDomainName = :packageDomainName',
+      ExpressionAttributeNames: {
+        '#packageDomainName': 'packageDomainName',
+      },
+      ExpressionAttributeValues: {
+        ':packageDomainName': packageDomainName,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
+  public async updateCDNDistributionId(
+    eventId: string,
+    cdnDistributionId: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression: 'SET #cloudFrontDistributionId = :cloudFrontDistributionId',
+      ExpressionAttributeNames: {
+        '#cdnDistributionId': 'cdnDistributionId',
+      },
+      ExpressionAttributeValues: {
+        ':cdnDistributionId': cdnDistributionId,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
   public async updateEventDestroyedTime(
     eventId: string,
     destroyedTime: string

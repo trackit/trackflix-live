@@ -9,9 +9,11 @@ import {
   tokenPackageChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
   tokenTransmissionsManagerFake,
+  tokenCDNDistributionsManagerFake,
 } from '.';
 import {
   tokenAssetsService,
+  tokenCDNDistributionsManager,
   tokenEventSchedulerDelete,
   tokenEventSchedulerStart,
   tokenEventSchedulerStop,
@@ -54,5 +56,8 @@ export const registerTestInfrastructure = () => {
   });
   register(tokenAssetsService, {
     useFactory: () => inject(tokenAssetsServiceFake),
+  });
+  register(tokenCDNDistributionsManager, {
+    useFactory: () => inject(tokenCDNDistributionsManagerFake),
   });
 };

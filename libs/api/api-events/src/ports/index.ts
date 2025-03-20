@@ -6,3 +6,4 @@ export * from './PackageChannelsManager';
 export * from './TaskTokensRepository';
 export * from './TransmissionsManager';
 export * from './EventUpdateSender';
+export * from './CDNDistributionsManager';

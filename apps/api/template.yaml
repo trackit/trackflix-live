@@ -952,6 +952,25 @@ Resources:
                   "taskToken.$": "$$.Task.Token"
                 }
               },
+              "Next": "Create CloudFront distribution"
+            },
+            "Create CloudFront distribution": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "Parameters": {
+                "FunctionName": "${CreateCloudFrontDistribution}",
+                "Payload": {
+                  "input.$": "$",
+                  "taskToken.$": "$$.Task.Token"
+                }
+              },
               "Next": "Start MediaLive channel"
             },
             "Start MediaLive channel": {
@@ -1015,6 +1034,7 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        CreateCloudFrontDistribution: !GetAtt CreateCloudFrontDistribution.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
         UpdateStatus: !GetAtt UpdateStatus.Arn
@@ -1077,7 +1097,19 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
-              "Next": "Delete MediaPackage channel"
+              "Next": "Delete CloudFront distribution"
+            },
+            "Delete CloudFront distribution": {
+              "Type": "Task",
+              "Resource": "${DeleteCloudFrontDistribution}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "End": true
             },
             "Delete MediaPackage channel": {
               "Type": "Task",
@@ -1104,10 +1136,12 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        CreateCloudFrontDistribution: !GetAtt CreateCloudFrontDistribution.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
+        DeleteCloudFrontDistribution: !GetAtt DeleteCloudFrontDistribution.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
         SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

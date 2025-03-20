@@ -6,3 +6,4 @@ export * from './LiveChannelsManagerFake';
 export * from './PackageChannelsManagerFake';
 export * from './TaskTokensRepositoryInMemory';
 export * from './registerTestInfrastructure';
+export * from './CDNDistributionsManagerFake';
