@@ -95,7 +95,23 @@ describe('Create CDN distribution use case', () => {
 
     expect(eventsRepository.events).toMatchObject([
       {
-        CDNDistributionId: cdnDistributionId
+        cdnDistributionId: cdnDistributionId,
+        createdTime: '2025-01-20T09:00:00.000Z',
+        description: 'Live broadcast of the Formula 1 Monaco Grand Prix, featuring the top drivers battling on the iconic street circuit.',
+        endpoints: [],
+        id: eventId,
+        logs: [
+          {
+            timestamp: expect.any(Number),
+            type: 'CDN_DISTRIBUTION_CREATED',
+          },
+        ],
+        name: 'Formula 1 Monaco Grand Prix',
+        onAirEndTime: '2025-01-22T20:00:00.000Z',
+        onAirStartTime: '2025-01-22T10:00:00.000Z',
+        packageDomainName: packageDomainName,
+        source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+        status: 'PRE-TX',
       },
     ]);
   });
