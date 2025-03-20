@@ -134,6 +134,7 @@ Resources:
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
                   - !GetAtt DeleteMediaPackageChannel.Arn
+                  - !GetAtt DeleteCloudFrontDistribution.Arn
                   - !GetAtt SetErrorStatus.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
@@ -911,6 +912,25 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  DeleteCloudFrontDistribution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteCloudFrontDistribution/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
 
   ####################
   #    API GATEWAY   #
@@ -987,7 +1007,7 @@ Resources:
               "Parameters": {
                 "FunctionName": "${CreateCloudFrontDistribution}",
                 "Payload": {
-                  "input.$": "$",
+                  "input.$": "$"
                 }
               },
               "Next": "Start MediaLive channel"
@@ -1128,7 +1148,7 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
-              "End": true
+              "Next": "Delete MediaPackage channel"
             },
             "Delete MediaPackage channel": {
               "Type": "Task",
