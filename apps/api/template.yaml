@@ -127,6 +127,7 @@ Resources:
                   - !GetAtt CreateMediaPackageChannel.Arn
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
+                  - !GetAtt CreateCloudFrontDistribution.Arn
                   - !GetAtt SaveResults.Arn
                   - !GetAtt UpdateStatus.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
@@ -756,6 +757,25 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  CreateCloudFrontDistribution:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/createCloudFrontDistribution/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   SaveResults:
     Type: AWS::Serverless::Function
     Properties:
@@ -956,7 +976,7 @@ Resources:
             },
             "Create CloudFront distribution": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+              "Resource": "${CreateCloudFrontDistribution}",
               "Catch": [
                 {
                   "ErrorEquals": ["States.ALL"],
@@ -968,7 +988,6 @@ Resources:
                 "FunctionName": "${CreateCloudFrontDistribution}",
                 "Payload": {
                   "input.$": "$",
-                  "taskToken.$": "$$.Task.Token"
                 }
               },
               "Next": "Start MediaLive channel"
