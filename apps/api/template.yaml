@@ -5,6 +5,9 @@ Description: Template for the TrackFlix Live application
 Parameters:
   WaitingSource:
     Type: String
+  # Should pass the CDN id here ?
+  # CDNId:
+  #   Type: String
 
 Globals:
   Function:
@@ -128,12 +131,14 @@ Resources:
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
                   - !GetAtt CreateCloudFrontDistribution.Arn
+                  - !GetAtt CreateCloudFrontOrigin.Arn
                   - !GetAtt SaveResults.Arn
                   - !GetAtt UpdateStatus.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
                   - !GetAtt DeleteMediaPackageChannel.Arn
+                  - !GetAtt DeleteCloudFrontOrigin.Arn
                   - !GetAtt DeleteCloudFrontDistribution.Arn
                   - !GetAtt SetErrorStatus.Arn
                 Effect: "Allow"
@@ -260,6 +265,42 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: "*"
+  CloudFrontOriginRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: CloudFrontOriginPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "cloudfront:CreateInvalidation"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetInvalidation"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetDistribution"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetOrigin"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetOriginRequestPolicy"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetCachePolicy"
+                Resource: "*"
+              - Effect: Allow
+                Action: "cloudfront:GetDistributionConfig"
+                Resource: "*"
   StateMachineLambdaRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -308,6 +349,28 @@ Resources:
                   - "medialive:BatchUpdateSchedule"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
+        - PolicyName: !Sub "${AWS::StackName}-CloudFront-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cloudfront:CreateDistribution"
+                  - "cloudfront:DeleteDistribution"
+                  - "cloudfront:GetDistribution"
+                  - "cloudfront:UpdateDistribution"
+                  - "cloudfront:CreateInvalidation"
+                  - "cloudfront:GetInvalidation"
+                  - "cloudfront:GetDistributionConfig"
+                  - "cloudfront:TagResource"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "cloudfront:CreateOriginRequestPolicy"
+                  - "cloudfront:GetOriginRequestPolicy"
+                  - "cloudfront:CreateCachePolicy" 
+                  - "cloudfront:GetCachePolicy"
+                Resource: "*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -766,6 +829,24 @@ Resources:
       Role: !GetAtt StateMachineLambdaRole.Arn
       Environment:
         Variables:
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  CreateCloudFrontOrigin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/createCloudFrontOrigin/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
@@ -920,6 +1001,24 @@ Resources:
       Role: !GetAtt StateMachineLambdaRole.Arn
       Environment:
         Variables:
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
+  DeleteCloudFrontOrigin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteCloudFrontOrigin/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
     Metadata:
@@ -992,11 +1091,11 @@ Resources:
                   "taskToken.$": "$$.Task.Token"
                 }
               },
-              "Next": "Create CloudFront distribution"
+              "Next": "Create CloudFront origin"
             },
-            "Create CloudFront distribution": {
+            "Create CloudFront origin": {
               "Type": "Task",
-              "Resource": "${CreateCloudFrontDistribution}",
+              "Resource": "${CreateCloudFrontOrigin}",
               "Catch": [
                 {
                   "ErrorEquals": ["States.ALL"],
@@ -1005,7 +1104,7 @@ Resources:
                 }
               ],
               "Parameters": {
-                "FunctionName": "${CreateCloudFrontDistribution}",
+                "FunctionName": "${CreateCloudFrontOrigin}",
                 "Payload": {
                   "input.$": "$"
                 }
@@ -1073,7 +1172,7 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
-        CreateCloudFrontDistribution: !GetAtt CreateCloudFrontDistribution.Arn
+        CreateCloudFrontOrigin: !GetAtt CreateCloudFrontOrigin.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
         UpdateStatus: !GetAtt UpdateStatus.Arn
@@ -1136,11 +1235,11 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
-              "Next": "Delete CloudFront distribution"
+              "Next": "Delete CloudFront origin"
             },
-            "Delete CloudFront distribution": {
+            "Delete CloudFront origin": {
               "Type": "Task",
-              "Resource": "${DeleteCloudFrontDistribution}",
+              "Resource": "${DeleteCloudFrontOrigin}",
               "Catch": [
                 {
                   "ErrorEquals": ["States.ALL"],
@@ -1175,12 +1274,12 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
-        CreateCloudFrontDistribution: !GetAtt CreateCloudFrontDistribution.Arn
+        CreateCloudFrontOrigin: !GetAtt CreateCloudFrontOrigin.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
-        DeleteCloudFrontDistribution: !GetAtt DeleteCloudFrontDistribution.Arn
+        DeleteCloudFrontOrigin: !GetAtt DeleteCloudFrontOrigin.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
         SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn

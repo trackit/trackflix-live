@@ -1,22 +1,13 @@
-import { tokencreateCDNDistributionUseCase } from '@trackflix-live/api-events';
+import { tokenCreateCDNDistributionUseCase } from '@trackflix-live/api-events';
 import { inject } from '@trackflix-live/di';
 
-export class createCloudFrontDistributionAdapter {
-  private readonly useCase = inject(tokencreateCDNDistributionUseCase);
+export class CreateCloudFrontDistributionAdapter {
+  private readonly useCase = inject(tokenCreateCDNDistributionUseCase);
 
-  public async handle(params: {
-    input: {
-      eventId: string;
-      packageDomainName: string;
-    };
-  }): Promise<{ eventId: string; cdnDistributionId: string }> {
-    const CDNDistribution = await this.useCase.createCDNDistribution({
-      eventId: params.input.eventId,
-      packageDomainName: params.input.packageDomainName,
-    });
+  public async handle(): Promise<{ cdnDistributionId: string }> {
+    const CDNDistribution = await this.useCase.createCDNDistribution();
 
     return {
-      eventId: params.input.eventId,
       cdnDistributionId: CDNDistribution.cdnDistributionId,
     };
   }

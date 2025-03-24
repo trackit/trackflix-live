@@ -18,3 +18,5 @@ export * from './updateStatus';
 export * from './setErrorStatus';
 export * from './createCDNDistribution';
 export * from './deleteCDNDistribution';
+export * from './createCDNOrigin';
+export * from './deleteCDNOrigin';

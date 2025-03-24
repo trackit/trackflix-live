@@ -6,19 +6,11 @@ export class DeleteCloudFrontDistributionAdapter {
 
   public async handle(params: {
     input: {
-      eventId: string;
       cdnDistributionId: string;
     };
-  }): Promise<{
-    eventId: string;
-  }> {
+  }): Promise<void> {
     await this.useCase.deleteCDNDistribution({
-      eventId: params.input.eventId,
       cdnDistributionId: params.input.cdnDistributionId,
     });
-
-    return {
-      eventId: params.input.eventId,
-    };
   }
 }

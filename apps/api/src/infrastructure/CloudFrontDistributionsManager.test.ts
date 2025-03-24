@@ -17,11 +17,9 @@ describe('CloudFront distributions manager', () => {
   describe('createDistribution', () => {
     it('should create distribution', async () => {
       const { cloudFrontDistributionsManager } = setup();
-      const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
       const cdnDistributionId = 'E2QWRUHAPOMQZL';
       const domainName = 'd111111abcdef8.cloudfront.net';
-      const packageDomainName =
-        'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
+      const dummyPackageDomainName = 'trackit.io';
 
       mock.on(CreateDistributionCommand).resolves({
         Distribution: {
@@ -35,20 +33,17 @@ describe('CloudFront distributions manager', () => {
         },
       });
 
-      const result = await cloudFrontDistributionsManager.createDistribution(
-        eventId,
-        packageDomainName
-      );
+      const result = await cloudFrontDistributionsManager.createDistribution();
 
       const commandCalls = mock.commandCalls(CreateDistributionCommand);
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         DistributionConfig: {
-          CallerReference: `${eventId}`,
-          Comment: `Distribution for event ${eventId}`,
+          CallerReference: 'Trackflix-live events',
+          Comment: 'Distribution for Trackflix-live events',
           Enabled: true,
           DefaultCacheBehavior: {
-            TargetOriginId: 'mediapackage-origin',
+            TargetOriginId: 'dummy-origin',
             ViewerProtocolPolicy: 'allow-all',
             AllowedMethods: {
               Items: ['GET', 'HEAD', 'OPTIONS'],
@@ -63,8 +58,8 @@ describe('CloudFront distributions manager', () => {
             Quantity: 1,
             Items: [
               {
-                Id: 'mediapackage-origin',
-                DomainName: packageDomainName,
+                Id: 'dummy-origin',
+                DomainName: dummyPackageDomainName,
               },
             ],
           },

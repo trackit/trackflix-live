@@ -5,8 +5,10 @@ export interface CreateCDNDistributionResponse {
 }
 
 export interface CDNDistributionsManager {
-  createDistribution(eventId: string, packageDomainName: string): Promise<CreateCDNDistributionResponse>;
+  createDistribution(): Promise<CreateCDNDistributionResponse>;
   deleteDistribution(cdnDistributionId: string): Promise<void>;
+  createOrigin(eventId: string, cdnDistributionId: string, packageDomainName: string): Promise<void>;
+  deleteOrigin(eventId: string, cdnDistributionId: string): Promise<void>;
 }
 export const tokenCDNDistributionsManager =
   createInjectionToken<CDNDistributionsManager>('CDNDistributionsManager');

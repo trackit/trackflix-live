@@ -5,21 +5,15 @@ import { tokenDeleteCDNDistributionUseCase } from '@trackflix-live/api-events';
 describe('Delete CloudFront distribution adapter', () => {
   it('should call use case', async () => {
     const { useCase, adapter } = setup();
-    const eventId = '9ce722b8-121f-4f9a-b2ee-3f94760abfd2';
     const cdnDistributionId = 'E2QWRUHXPO1PLV';
 
-    const result = await adapter.handle({
+    await adapter.handle({
       input: {
-        eventId,
         cdnDistributionId,
       },
     });
 
-    expect(result).toEqual({
-      eventId,
-    });
     expect(useCase.deleteCDNDistribution).toHaveBeenCalledWith({
-      eventId,
       cdnDistributionId,
     });
   });

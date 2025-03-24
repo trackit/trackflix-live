@@ -1,4 +1,4 @@
-import { createCDNDistributionUseCaseImpl } from './createCDNDistribution';
+import { CreateCDNDistributionUseCaseImpl } from './createCDNDistribution';
 import {
   registerTestInfrastructure,
   tokenCDNDistributionsManagerFake,
@@ -6,169 +6,56 @@ import {
   tokenEventUpdateSenderFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import { EventMother } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
-import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Create CDN distribution use case', () => {
   it('should create CDN distribution', async () => {
-    const { useCase, eventsRepository, CDNDistributionsManager } = setup();
-    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
+    const { useCase, CDNDistributionsManager } = setup();
     const cdnDistributionId = 'E2QWRUHAPVYC32'; 
 
-    await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .withPackageDomainName(packageDomainName)
-        .build()
-    );
     CDNDistributionsManager.setCreateDistributionResponse({
       cdnDistributionId
     });
 
-    const response = await useCase.createCDNDistribution({
-      eventId,
-      packageDomainName,
-    });
+    const response = await useCase.createCDNDistribution();
 
     expect(response).toEqual({
       cdnDistributionId
     });
     expect(CDNDistributionsManager.createdDistributions).toEqual([
-      {
-        eventId,
-        packageDomainName
-      },
-    ]);
-  });
-
-  it('should store logs after creating the CDN distribution', async () => {
-    const { useCase, eventsRepository, CDNDistributionsManager } = setup();
-    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
-
-    await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .withPackageDomainName(packageDomainName)
-        .build()
-    );
-    CDNDistributionsManager.setCreateDistributionResponse({
-      cdnDistributionId
-    });
-
-    await useCase.createCDNDistribution({
-      eventId,
-      packageDomainName,
-    });
-
-    expect(eventsRepository.events[0].logs).toEqual([
-      {
-        timestamp: expect.any(Number),
-        type: 'CDN_DISTRIBUTION_CREATED',
-      },
+      cdnDistributionId,
     ]);
   });
 
   it('should store distribution id after creating the CDN distribution', async () => {
     const { useCase, eventsRepository, CDNDistributionsManager } = setup();
-    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
     const cdnDistributionId = 'E2QWRUHAPVYC32';
 
     await eventsRepository.createEvent(
       EventMother.basic()
-        .withId(eventId)
-        .withPackageDomainName(packageDomainName)
         .build()
     );
     CDNDistributionsManager.setCreateDistributionResponse({
       cdnDistributionId
     });
 
-    await useCase.createCDNDistribution({
-      eventId,
-      packageDomainName,
-    });
+    await useCase.createCDNDistribution();
 
     expect(eventsRepository.events).toMatchObject([
       {
-        cdnDistributionId: cdnDistributionId,
         createdTime: '2025-01-20T09:00:00.000Z',
         description: 'Live broadcast of the Formula 1 Monaco Grand Prix, featuring the top drivers battling on the iconic street circuit.',
         endpoints: [],
-        id: eventId,
-        logs: [
-          {
-            timestamp: expect.any(Number),
-            type: 'CDN_DISTRIBUTION_CREATED',
-          },
-        ],
+        id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
+        logs: [],
         name: 'Formula 1 Monaco Grand Prix',
         onAirEndTime: '2025-01-22T20:00:00.000Z',
         onAirStartTime: '2025-01-22T10:00:00.000Z',
-        packageDomainName: packageDomainName,
         source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
         status: 'PRE-TX',
       },
     ]);
-  });
-
-  it('should emit logs after creating the CDN distribution', async () => {
-    const {
-      useCase,
-      eventsRepository,
-      CDNDistributionsManager,
-      eventUpdateSender,
-    } = setup();
-    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
-
-    await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .withPackageDomainName(packageDomainName)
-        .build()
-    );
-    CDNDistributionsManager.setCreateDistributionResponse({
-      cdnDistributionId
-    });
-
-    await useCase.createCDNDistribution({
-      eventId,
-      packageDomainName,
-    });
-
-    expect(eventUpdateSender.eventUpdates).toMatchObject([
-      {
-        action: EventUpdateAction.EVENT_UPDATE_UPDATE,
-        value: {
-          id: eventId,
-          logs: [
-            {
-              timestamp: expect.any(Number),
-              type: 'CDN_DISTRIBUTION_CREATED',
-            },
-          ],
-        },
-      },
-    ]);
-  });
-
-  it('should throw if event does not exist', async () => {
-    const { useCase } = setup();
-    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const packageDomainName = 'ef12a945743b4a46.mediapackage.us-west-2.amazonaws.com';
-
-    await expect(
-      useCase.createCDNDistribution({
-        eventId,
-        packageDomainName,
-      })
-    ).rejects.toThrow(EventDoesNotExistError);
   });
 });
 
@@ -180,7 +67,7 @@ const setup = () => {
   const CDNDistributionsManager = inject(tokenCDNDistributionsManagerFake);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
-  const useCase = new createCDNDistributionUseCaseImpl();
+  const useCase = new CreateCDNDistributionUseCaseImpl();
 
   return {
     eventsRepository,
