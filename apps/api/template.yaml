@@ -5,9 +5,6 @@ Description: Template for the TrackFlix Live application
 Parameters:
   WaitingSource:
     Type: String
-  # Should pass the CDN id here ?
-  # CDNId:
-  #   Type: String
 
 Globals:
   Function:
@@ -1284,6 +1281,27 @@ Resources:
         SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
 
+  #############################
+  #  CLOUDFRONT DISTRIBUTION  #
+  #############################
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: dummy-origin  # We need a default origin
+          ViewerProtocolPolicy: allow-all
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled policy
+        Origins:
+          - Id: dummy-origin
+            DomainName: trackit.io
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+        Comment: !Sub "${AWS::StackName} - Main Distribution"
+
 Outputs:
   UserPoolId:
     Value: !Ref UserPool
@@ -1295,3 +1313,5 @@ Outputs:
     Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
   IotTopic:
     Value: !Sub "${AWS::StackName}"
+  CloudFrontDistributionId:
+    Value: !Ref CloudFrontDistribution
