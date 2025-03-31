@@ -5,16 +5,30 @@ export class CreateCloudFrontOriginAdapter {
   private readonly useCase = inject(tokenCreateCDNOriginUseCase);
 
   public async handle(params: {
-    input: {
-      eventId: string;
-      cdnDistributionId: string;
-      packageDomainName: string;
-    };
-  }): Promise<void> {
+    eventId: string;
+    liveChannelArn: string;
+    liveChannelId: string;
+    packageChannelId: string;
+    packageDomainName: string;
+  }): Promise<{
+    eventId: string;
+    liveChannelArn: string;
+    liveChannelId: string;
+    packageChannelId: string;
+  }> {
+    console.log('params CreateCloudFrontOrigin', params);
     await this.useCase.createCDNOrigin({
-      eventId: params.input.eventId,
-      cdnDistributionId: params.input.cdnDistributionId,
-      packageDomainName: params.input.packageDomainName,
+      eventId: params.eventId,
+      liveChannelArn: params.liveChannelArn,
+      liveChannelId: params.liveChannelId,
+      packageChannelId: params.packageChannelId,
+      packageDomainName: params.packageDomainName,
     });
+    return {
+      eventId: params.eventId,
+      liveChannelArn: params.liveChannelArn,
+      liveChannelId: params.liveChannelId,
+      packageChannelId: params.packageChannelId,
+    };
   }
 }

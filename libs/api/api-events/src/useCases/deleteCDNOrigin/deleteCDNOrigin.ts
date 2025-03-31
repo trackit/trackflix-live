@@ -9,7 +9,6 @@ import { EventDoesNotExistError } from '../../utils';
 
 export interface DeleteCDNOriginParameters {
   eventId: string;
-  cdnDistributionId: string;
 }
 
 export interface DeleteCDNOriginUseCase {
@@ -27,7 +26,6 @@ export class DeleteCDNOriginUseCaseImpl implements DeleteCDNOriginUseCase {
 
   public async deleteCDNOrigin({
     eventId,
-    cdnDistributionId,
   }: DeleteCDNOriginParameters): Promise<void> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
@@ -36,7 +34,6 @@ export class DeleteCDNOriginUseCaseImpl implements DeleteCDNOriginUseCase {
 
     await this.cdnDistributionsManager.deleteOrigin(
       eventId,
-      cdnDistributionId
     );
 
     const currentTimestamp = Date.now();

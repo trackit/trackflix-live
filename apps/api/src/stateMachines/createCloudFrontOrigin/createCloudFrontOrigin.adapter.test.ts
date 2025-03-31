@@ -6,21 +6,26 @@ describe('Create CloudFront origin', () => {
   it('should call use case', async () => {
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
-    const cdnDistributionId = 'E2QWRUHXPO1PLV';
     const packageDomainName = 'test.cloudfront.net';
+    const liveChannelArn =
+      'arn:aws:medialive:us-east-1:123456789012:channel:1234';
+    const liveChannelId = '1234';
+    const packageChannelId = 'abcd';
 
     await adapter.handle({
-      input: {
-        eventId,
-        cdnDistributionId,
-        packageDomainName,
-      },
+      eventId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
+      packageDomainName,
     });
 
     expect(useCase.createCDNOrigin).toHaveBeenCalledWith({
       eventId,
-      cdnDistributionId,
       packageDomainName,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
     });
   });
 });

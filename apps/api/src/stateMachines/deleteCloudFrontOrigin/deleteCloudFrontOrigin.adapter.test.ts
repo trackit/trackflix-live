@@ -6,18 +6,13 @@ describe('Delete CloudFront origin', () => {
   it('should call use case', async () => {
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
-    const cdnDistributionId = 'E2QWRUHXPO1PLV';
 
     await adapter.handle({
-      input: {
-        eventId,
-        cdnDistributionId,
-      },
+      eventId,
     });
 
     expect(useCase.deleteCDNOrigin).toHaveBeenCalledWith({
       eventId,
-      cdnDistributionId,
     });
   });
 });

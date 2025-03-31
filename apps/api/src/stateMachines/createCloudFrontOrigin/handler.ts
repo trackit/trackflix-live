@@ -6,9 +6,13 @@ registerProductionInfrastructure();
 const adapter = new CreateCloudFrontOriginAdapter();
 
 export const main = async (params: {
-  input: {
-    eventId: string;
-    cdnDistributionId: string;
-    packageDomainName: string;
-  };
-}): Promise<void> => adapter.handle(params);
+  eventId: string;
+  liveChannelArn: string;
+  liveChannelId: string;
+  packageChannelId: string;
+  packageDomainName: string;
+}): Promise<{
+  eventId: string;
+}> => {
+  return adapter.handle(params);
+};

@@ -14,25 +14,29 @@ describe('Create CDN origin use case', () => {
   it('should create CDN origin', async () => {
     const { useCase, eventsRepository, CDNDistributionsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
+    const liveChannelArn = 'arn:aws:medialive:us-east-1:123456789012:channel:1234';
+    const liveChannelId = '1234';
+    const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
 
     await eventsRepository.createEvent(
       EventMother.basic()
         .withId(eventId)
+        .withPackageDomainName(packageDomainName)
         .build()
     );
 
     await useCase.createCDNOrigin({
       eventId,
-      cdnDistributionId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
       packageDomainName
     });
 
     expect(CDNDistributionsManager.createdOrigins).toEqual([
       {
         eventId,
-        cdnDistributionId,
         packageDomainName
       },
     ]);
@@ -41,7 +45,9 @@ describe('Create CDN origin use case', () => {
   it('should store logs after creating the CDN origin', async () => {
     const { useCase, eventsRepository } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
+    const liveChannelArn = 'arn:aws:medialive:us-east-1:123456789012:channel:1234';
+    const liveChannelId = '1234';
+    const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
 
     await eventsRepository.createEvent(
@@ -52,7 +58,9 @@ describe('Create CDN origin use case', () => {
 
     await useCase.createCDNOrigin({
       eventId,
-      cdnDistributionId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
       packageDomainName
     });
 
@@ -71,7 +79,9 @@ describe('Create CDN origin use case', () => {
       eventUpdateSender,
     } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
+    const liveChannelArn = 'arn:aws:medialive:us-east-1:123456789012:channel:1234';
+    const liveChannelId = '1234';
+    const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
 
     await eventsRepository.createEvent(
@@ -82,7 +92,9 @@ describe('Create CDN origin use case', () => {
 
     await useCase.createCDNOrigin({
       eventId,
-      cdnDistributionId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
       packageDomainName
     });
 
@@ -105,13 +117,17 @@ describe('Create CDN origin use case', () => {
   it('should throw if event does not exist', async () => {
     const { useCase } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'E2QWRUHAPVYC32';
+    const liveChannelArn = 'arn:aws:medialive:us-east-1:123456789012:channel:1234';
+    const liveChannelId = '1234';
+    const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
 
     await expect(
       useCase.createCDNOrigin({
         eventId,
-        cdnDistributionId,
+        liveChannelArn,
+        liveChannelId,
+        packageChannelId,
         packageDomainName
       })
     ).rejects.toThrow(EventDoesNotExistError);

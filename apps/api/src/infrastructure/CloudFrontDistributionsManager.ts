@@ -1,11 +1,10 @@
 import {
   CDNDistributionsManager,
-  CreateCDNDistributionResponse,
+  CreateCDNOriginParameters,
+  CreateCDNOriginResponse,
 } from '@trackflix-live/api-events';
 import {
   CloudFrontClient,
-  CreateDistributionCommand,
-  DeleteDistributionCommand,
   Distribution,
   GetDistributionCommand,
   UpdateDistributionCommand,
@@ -18,149 +17,152 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     this.client = client;
   }
 
-  public async createDistribution(): Promise<CreateCDNDistributionResponse> {
-    const response = await this.client.send(
-      new CreateDistributionCommand({
-        DistributionConfig: {
-          CallerReference: 'Trackflix-live events',
-          Origins: {
-            Quantity: 1,
-            Items: [
-              {
-                Id: 'dummy-origin',
-                DomainName: 'trackit.io',
-              },
-            ],
-          },
-          DefaultCacheBehavior: {
-            TargetOriginId: 'dummy-origin',
-            ViewerProtocolPolicy: 'allow-all',
-            AllowedMethods: {
-              Quantity: 3,
-              Items: ['GET', 'HEAD', 'OPTIONS'],
-              CachedMethods: {
-                Quantity: 3,
-                Items: ['GET', 'HEAD', 'OPTIONS'],
-              },
-            },
-          },
-          Comment: `Distribution for Trackflix-live events`,
-          Enabled: true,
-        },
-      })
-    );
-
-    if (!response.Distribution?.Id) {
-      throw new Error('Failed to create CloudFront distribution');
-    }
-
-    return {
-      cdnDistributionId: response.Distribution?.Id,
-    };
-  }
-
-  public async deleteDistribution(cdnDistributionId: string): Promise<void> {
-    await this.client.send(
-      new DeleteDistributionCommand({
-        Id: cdnDistributionId,
-      })
-    );
-  }
-
   public async getDistribution(
     cdnDistributionId: string
-  ): Promise<Distribution> {
+  ): Promise<{ distribution: Distribution; eTag: string }> {
     const response = await this.client.send(
       new GetDistributionCommand({
         Id: cdnDistributionId,
       })
     );
-
     if (!response.Distribution) {
       throw new Error('Failed to get CloudFront distribution');
     }
 
-    return response.Distribution;
+    return { distribution: response.Distribution, eTag: response.ETag ?? '' };
   }
 
-  public async createOrigin(
-    eventId: string,
-    cdnDistributionId: string,
-    packageDomainName: string
-  ): Promise<void> {
-    const distribution = await this.getDistribution(cdnDistributionId);
+  public async createOrigin({
+    eventId,
+    liveChannelArn,
+    liveChannelId,
+    packageChannelId,
+    packageDomainName,
+  }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
+    const distributionId = process.env.DISTRIBUTION_ID;
+    if (!distributionId) {
+      throw new Error('DISTRIBUTION_ID environment variable is not set');
+    }
+    const distributionData = await this.getDistribution(distributionId);
 
-    if (!distribution.DistributionConfig) {
+    if (!distributionData.distribution.DistributionConfig) {
       throw new Error('Distribution has no config');
     }
 
-    if (!distribution.DistributionConfig.Origins) {
-      distribution.DistributionConfig.Origins = {
+    if (!distributionData.distribution.DistributionConfig.Origins) {
+      distributionData.distribution.DistributionConfig.Origins = {
         Quantity: 0,
         Items: [],
       };
     }
-    distribution.DistributionConfig.Origins.Items?.push({
+
+    distributionData.distribution.DistributionConfig.Origins.Items?.push({
       Id: eventId,
       DomainName: packageDomainName,
+      CustomHeaders: { Quantity: 0 },
+      OriginPath: '',
+      CustomOriginConfig: {
+        HTTPPort: 80,
+        HTTPSPort: 443,
+        OriginProtocolPolicy: 'match-viewer',
+        OriginSslProtocols: { Quantity: 2, Items: ['SSLv3', 'TLSv1'] },
+        OriginReadTimeout: 30,
+        OriginKeepaliveTimeout: 5,
+      },
+      ConnectionAttempts: 3,
+      ConnectionTimeout: 10,
+      OriginShield: { Enabled: false },
+      OriginAccessControlId: '',
     });
-    distribution.DistributionConfig.Origins.Quantity =
-      distribution.DistributionConfig.Origins.Items?.length ?? 0;
+    distributionData.distribution.DistributionConfig.Origins.Quantity =
+      distributionData.distribution.DistributionConfig.Origins.Items?.length ??
+      0;
 
-    if (!distribution.DistributionConfig.CacheBehaviors) {
-      distribution.DistributionConfig.CacheBehaviors = {
+    if (
+      !distributionData.distribution.DistributionConfig.CacheBehaviors ||
+      !distributionData.distribution.DistributionConfig.CacheBehaviors.Items
+    ) {
+      distributionData.distribution.DistributionConfig.CacheBehaviors = {
         Quantity: 0,
         Items: [],
       };
     }
-    distribution.DistributionConfig.CacheBehaviors.Items?.push({
-      TargetOriginId: eventId,
-      PathPattern: '/out/v1/*',
-      ViewerProtocolPolicy: 'allow-all',
-    });
-    distribution.DistributionConfig.CacheBehaviors.Quantity =
-      distribution.DistributionConfig.CacheBehaviors.Items?.length ?? 0;
+    distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
+      {
+        TargetOriginId: eventId,
+        PathPattern: '/out/v1/*',
+        ViewerProtocolPolicy: 'allow-all',
+        SmoothStreaming: false,
+        Compress: false,
+        CachePolicyId: '08627262-05a9-4f76-9ded-b50ca2e3a84f', // Elemental-MediaPackage Cache Policy
+        FieldLevelEncryptionId: '',
+        AllowedMethods: {
+          Quantity: 3,
+          Items: ['GET', 'HEAD', 'OPTIONS'],
+          CachedMethods: {
+            Quantity: 3,
+            Items: ['GET', 'HEAD', 'OPTIONS'],
+          },
+        },
+        LambdaFunctionAssociations: { Quantity: 0 },
+      }
+    );
+    distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
+      distributionData.distribution.DistributionConfig.CacheBehaviors.Items
+        ?.length ?? 0;
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: cdnDistributionId,
-        DistributionConfig: distribution.DistributionConfig,
+        Id: distributionId,
+        DistributionConfig: distributionData.distribution.DistributionConfig,
+        IfMatch: distributionData.eTag,
       })
     );
+
+    return {
+      eventId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
+    };
   }
 
-  public async deleteOrigin(
-    cdnDistributionId: string,
-    eventId: string
-  ): Promise<void> {
-    const distribution = await this.getDistribution(cdnDistributionId);
+  public async deleteOrigin(eventId: string): Promise<void> {
+    const distributionId = process.env.DISTRIBUTION_ID;
+    if (!distributionId) {
+      throw new Error('DISTRIBUTION_ID environment variable is not set');
+    }
+    const distributionData = await this.getDistribution(distributionId);
 
-    if (!distribution.DistributionConfig?.Origins?.Items) {
+    if (!distributionData.distribution.DistributionConfig?.Origins?.Items) {
       throw new Error('Distribution has no origins');
     }
 
-    const items = distribution.DistributionConfig.Origins.Items;
-    distribution.DistributionConfig.Origins.Items = items.filter(
-      (origin) => origin.Id !== eventId
-    );
-    distribution.DistributionConfig.Origins.Quantity =
-      distribution.DistributionConfig.Origins.Items.length;
+    const items =
+      distributionData.distribution.DistributionConfig.Origins.Items;
+    distributionData.distribution.DistributionConfig.Origins.Items =
+      items.filter((origin) => origin.Id !== eventId);
+    distributionData.distribution.DistributionConfig.Origins.Quantity =
+      distributionData.distribution.DistributionConfig.Origins.Items.length;
 
-    if (!distribution.DistributionConfig.CacheBehaviors?.Items) {
+    if (
+      !distributionData.distribution.DistributionConfig.CacheBehaviors?.Items
+    ) {
       throw new Error('Distribution has no cache behaviors');
     }
 
-    distribution.DistributionConfig.CacheBehaviors.Items =
-      distribution.DistributionConfig.CacheBehaviors.Items.filter(
+    distributionData.distribution.DistributionConfig.CacheBehaviors.Items =
+      distributionData.distribution.DistributionConfig.CacheBehaviors.Items.filter(
         (behavior) => behavior.TargetOriginId !== eventId
       );
-    distribution.DistributionConfig.CacheBehaviors.Quantity =
-      distribution.DistributionConfig.CacheBehaviors.Items.length;
+    distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
+      distributionData.distribution.DistributionConfig.CacheBehaviors.Items.length;
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: cdnDistributionId,
-        DistributionConfig: distribution.DistributionConfig,
+        Id: distributionId,
+        DistributionConfig: distributionData.distribution.DistributionConfig,
+        IfMatch: distributionData.eTag,
       })
     );
   }

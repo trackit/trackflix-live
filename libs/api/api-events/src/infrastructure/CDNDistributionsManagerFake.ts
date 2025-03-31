@@ -1,45 +1,37 @@
 import {
   CDNDistributionsManager,
-  CreateCDNDistributionResponse,
+  CreateCDNOriginParameters,
+  CreateCDNOriginResponse,
 } from '../ports/CDNDistributionsManager';
 import { createInjectionToken } from '@trackflix-live/di';
 
 export class CDNDistributionsManagerFake implements CDNDistributionsManager {
-  private cdnDistributionId = 'E2QWRUHAPVYC32';
 
-  public readonly createdDistributions: string[] = [];
+  public readonly createdOrigins: {
+    eventId: string;
+    packageDomainName: string;
+  }[] = [];
 
-  public readonly deletedDistributions: string[] = [];
+  public readonly deletedOrigins: { eventId: string }[] = [];
 
-  public readonly createdOrigins: { eventId: string; cdnDistributionId: string; packageDomainName: string }[] = [];
+  public async createOrigin(
+    parameters: CreateCDNOriginParameters
+  ): Promise<CreateCDNOriginResponse> {
+    this.createdOrigins.push({
+      eventId: parameters.eventId,
+      packageDomainName: parameters.packageDomainName,
+    });
 
-  public readonly deletedOrigins: { eventId: string; cdnDistributionId: string }[] = [];
-
-  public async createDistribution(): Promise<CreateCDNDistributionResponse> {
-    this.createdDistributions.push(this.cdnDistributionId);
     return {
-      cdnDistributionId: this.cdnDistributionId,
+      eventId: parameters.eventId,
+      liveChannelArn: 'arn:aws:medialive:us-east-1:123456789012:channel:1234',
+      liveChannelId: '1234',
+      packageChannelId: 'abcd',
     };
   }
 
-  public setCreateDistributionResponse(response: CreateCDNDistributionResponse) {
-    this.cdnDistributionId = response.cdnDistributionId;
-  }
-
-  public async deleteDistribution(cdnDistributionId: string): Promise<void> {
-    this.deletedDistributions.push(cdnDistributionId);
-  }
-
-  public async createOrigin(
-    eventId: string,
-    cdnDistributionId: string,
-    packageDomainName: string
-  ): Promise<void> {
-    this.createdOrigins.push({ eventId, cdnDistributionId, packageDomainName });
-  }
-
-  public async deleteOrigin(eventId: string, cdnDistributionId: string): Promise<void> {
-    this.deletedOrigins.push({eventId, cdnDistributionId});
+  public async deleteOrigin(eventId: string): Promise<void> {
+    this.deletedOrigins.push({eventId});
   }
 }
 

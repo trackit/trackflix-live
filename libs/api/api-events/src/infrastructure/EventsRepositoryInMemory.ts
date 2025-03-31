@@ -172,20 +172,6 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
-  public async updateCDNDistributionId(
-    eventId: string,
-    cdnDistributionId: string
-  ): Promise<Event> {
-    const event = this.events.find((event) => event.id === eventId);
-    if (!event) {
-      throw new EventDoesNotExistError();
-    }
-
-    event.cdnDistributionId = cdnDistributionId;
-
-    return event;
-  }
-
   public async updateLiveWaitingInputId(
     eventId: string,
     liveWaitingInputId: string

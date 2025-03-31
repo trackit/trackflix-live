@@ -6,8 +6,7 @@ registerProductionInfrastructure();
 const adapter = new DeleteCloudFrontOriginAdapter();
 
 export const main = async (params: {
-  input: {
-    eventId: string;
-    cdnDistributionId: string;
-  };
-}): Promise<void> => adapter.handle(params);
+  eventId: string;
+}): Promise<{
+  eventId: string;
+}> => adapter.handle(params);

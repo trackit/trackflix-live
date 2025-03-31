@@ -1,22 +1,19 @@
 import {
+  CreateCDNOriginParameters,
+  CreateCDNOriginResponse,
   tokenCDNDistributionsManager,
   tokenEventsRepository,
   tokenEventUpdateSender,
+  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
 
-export interface CreateCDNOriginParameters {
-  eventId: string;
-  cdnDistributionId: string;
-  packageDomainName: string;
-}
-
 export interface CreateCDNOriginUseCase {
   createCDNOrigin(
     params: CreateCDNOriginParameters
-  ): Promise<void>;
+  ): Promise<CreateCDNOriginResponse>;
 }
 
 export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
@@ -26,21 +23,26 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
+  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
+
   public async createCDNOrigin({
     eventId,
-    cdnDistributionId,
-    packageDomainName,
-  }: CreateCDNOriginParameters): Promise<void> {
+    liveChannelArn,
+    liveChannelId,
+    packageChannelId,
+  }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
       throw new EventDoesNotExistError();
     }
 
-    await this.cdnDistributionsManager.createOrigin(
+    await this.cdnDistributionsManager.createOrigin({
       eventId,
-      cdnDistributionId,
-      packageDomainName
-    );
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
+      packageDomainName: event.packageDomainName ?? '',
+    });
 
     const currentTimestamp = Date.now();
     const logEvent = await this.eventsRepository.appendLogsToEvent(eventId, [
@@ -54,6 +56,13 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
       value: logEvent,
     });
+
+    return {
+      eventId,
+      liveChannelArn,
+      liveChannelId,
+      packageChannelId,
+    };
   }
 }
 

@@ -1,14 +1,25 @@
 import { createInjectionToken } from '@trackflix-live/di';
 
-export interface CreateCDNDistributionResponse {
-  cdnDistributionId: string;
+export interface CreateCDNOriginParameters {
+  eventId: string;
+  liveChannelArn: string;
+  liveChannelId: string;
+  packageChannelId: string;
+  packageDomainName: string;
+}
+
+export interface CreateCDNOriginResponse {
+  eventId: string;
+  liveChannelArn: string;
+  liveChannelId: string;
+  packageChannelId: string;
 }
 
 export interface CDNDistributionsManager {
-  createDistribution(): Promise<CreateCDNDistributionResponse>;
-  deleteDistribution(cdnDistributionId: string): Promise<void>;
-  createOrigin(eventId: string, cdnDistributionId: string, packageDomainName: string): Promise<void>;
-  deleteOrigin(eventId: string, cdnDistributionId: string): Promise<void>;
+  createOrigin(
+    parameters: CreateCDNOriginParameters
+  ): Promise<CreateCDNOriginResponse>;
+  deleteOrigin(eventId: string): Promise<void>;
 }
 export const tokenCDNDistributionsManager =
   createInjectionToken<CDNDistributionsManager>('CDNDistributionsManager');
