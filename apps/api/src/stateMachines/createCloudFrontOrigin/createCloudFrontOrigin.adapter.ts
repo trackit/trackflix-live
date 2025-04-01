@@ -1,5 +1,6 @@
 import { tokenCreateCDNOriginUseCase } from '@trackflix-live/api-events';
 import { inject } from '@trackflix-live/di';
+import { EventEndpoint } from '@trackflix-live/types';
 
 export class CreateCloudFrontOriginAdapter {
   private readonly useCase = inject(tokenCreateCDNOriginUseCase);
@@ -10,6 +11,7 @@ export class CreateCloudFrontOriginAdapter {
     liveChannelId: string;
     packageChannelId: string;
     packageDomainName: string;
+    endpoints: EventEndpoint[];
   }): Promise<{
     eventId: string;
     liveChannelArn: string;
@@ -23,6 +25,7 @@ export class CreateCloudFrontOriginAdapter {
       liveChannelId: params.liveChannelId,
       packageChannelId: params.packageChannelId,
       packageDomainName: params.packageDomainName,
+      endpoints: params.endpoints,
     });
     return {
       eventId: params.eventId,

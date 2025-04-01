@@ -36,13 +36,16 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
       throw new EventDoesNotExistError();
     }
 
-    await this.cdnDistributionsManager.createOrigin({
+    const { endpoints } =await this.cdnDistributionsManager.createOrigin({
       eventId,
       liveChannelArn,
       liveChannelId,
       packageChannelId,
       packageDomainName: event.packageDomainName ?? '',
+      endpoints: event.endpoints ?? [],
     });
+
+    await this.eventsRepository.updateEndpoints(eventId, endpoints);
 
     const currentTimestamp = Date.now();
     const logEvent = await this.eventsRepository.appendLogsToEvent(eventId, [
@@ -62,6 +65,7 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
+      endpoints,
     };
   }
 }

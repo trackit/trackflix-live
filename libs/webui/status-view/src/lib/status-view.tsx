@@ -41,13 +41,23 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         LogType.PACKAGE_CHANNEL_CREATED,
     },
     {
+      id: LogType.CDN_ORIGIN_CREATED,
+      text: 'Create CloudFront Origin',
+      completed: event.logs.some(
+        (log) => log.type === LogType.CDN_ORIGIN_CREATED
+      ),
+      loading:
+        event.logs[event.logs.length - 1]?.type ===
+        LogType.LIVE_INPUT_CREATED,
+    },
+    {
       id: LogType.LIVE_CHANNEL_CREATED,
       text: 'Create MediaLive Channel',
       completed: event.logs.some(
         (log) => log.type === LogType.LIVE_CHANNEL_CREATED
       ),
       loading:
-        event.logs[event.logs.length - 1]?.type === LogType.LIVE_INPUT_CREATED,
+        event.logs[event.logs.length - 1]?.type === LogType.CDN_ORIGIN_CREATED,
     },
     {
       id: LogType.LIVE_CHANNEL_STARTED,
@@ -87,6 +97,16 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         LogType.LIVE_CHANNEL_DESTROYED,
     },
     {
+      id: LogType.CDN_ORIGIN_DESTROYED,
+      text: 'Delete CloudFront Origin',
+      completed: event.logs.some(
+        (log) => log.type === LogType.CDN_ORIGIN_DESTROYED
+      ),
+      loading:
+        event.logs[event.logs.length - 1]?.type ===
+        LogType.LIVE_INPUT_DESTROYED,
+    },
+    {
       id: LogType.PACKAGE_CHANNEL_DESTROYED,
       text: 'Delete MediaPackage Channel',
       completed: event.logs.some(
@@ -94,7 +114,7 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
       ),
       loading:
         event.logs[event.logs.length - 1]?.type ===
-        LogType.LIVE_INPUT_DESTROYED,
+        LogType.CDN_ORIGIN_DESTROYED,
     },
   ];
   for (const log of event.logs) {

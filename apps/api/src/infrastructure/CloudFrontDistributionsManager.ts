@@ -9,6 +9,7 @@ import {
   GetDistributionCommand,
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
+import { EndpointType } from '@trackflix-live/types';
 
 export class CloudFrontDistributionsManager implements CDNDistributionsManager {
   private readonly client: CloudFrontClient;
@@ -38,6 +39,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     liveChannelId,
     packageChannelId,
     packageDomainName,
+    endpoints,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const distributionId = process.env.DISTRIBUTION_ID;
     if (!distributionId) {
@@ -119,11 +121,25 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       })
     );
 
+    const hlsEndpoint = endpoints.find((endpoint) => endpoint.type === EndpointType.HLS);
+    if (hlsEndpoint) {
+      hlsEndpoint.url = "https://" + distributionData.distribution.DomainName + hlsEndpoint.url.split("amazonaws.com")[1];
+    }
+    const dashEndpoint = endpoints.find((endpoint) => endpoint.type === EndpointType.DASH);
+    if (dashEndpoint) {
+      dashEndpoint.url = "https://" + distributionData.distribution.DomainName + dashEndpoint.url.split("amazonaws.com")[1];
+    }
+
+    if (!hlsEndpoint || !dashEndpoint) {
+      throw new Error('Failed to create CloudFront endpoints');
+    }
+
     return {
       eventId,
       liveChannelArn,
       liveChannelId,
       packageChannelId,
+      endpoints: [hlsEndpoint, dashEndpoint],
     };
   }
 

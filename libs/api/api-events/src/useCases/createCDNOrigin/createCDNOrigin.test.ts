@@ -6,7 +6,7 @@ import {
   tokenEventUpdateSenderFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import { EventMother, EventUpdateAction, EventEndpoint, EndpointType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
 
@@ -18,11 +18,17 @@ describe('Create CDN origin use case', () => {
     const liveChannelId = '1234';
     const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
+    const endpoints: EventEndpoint[] = [
+      { url: 'https://example.com/hls', type: EndpointType.HLS },
+      { url: 'https://example.com/dash', type: EndpointType.DASH }
+    ];
 
     await eventsRepository.createEvent(
       EventMother.basic()
         .withId(eventId)
         .withPackageDomainName(packageDomainName)
+        .withPackageDomainName('trackit.io')
+        .withEndpoints(endpoints)
         .build()
     );
 
@@ -31,13 +37,18 @@ describe('Create CDN origin use case', () => {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
-      packageDomainName
+      packageDomainName,
+      endpoints
     });
 
     expect(CDNDistributionsManager.createdOrigins).toEqual([
       {
         eventId,
-        packageDomainName
+        liveChannelArn,
+        liveChannelId,
+        packageChannelId,
+        packageDomainName,
+        endpoints
       },
     ]);
   });
@@ -49,6 +60,10 @@ describe('Create CDN origin use case', () => {
     const liveChannelId = '1234';
     const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
+    const endpoints: EventEndpoint[] = [
+      { url: 'https://example.com/hls', type: EndpointType.HLS },
+      { url: 'https://example.com/dash', type: EndpointType.DASH }
+    ];
 
     await eventsRepository.createEvent(
       EventMother.basic()
@@ -61,7 +76,8 @@ describe('Create CDN origin use case', () => {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
-      packageDomainName
+      packageDomainName,
+      endpoints
     });
 
     expect(eventsRepository.events[0].logs).toEqual([
@@ -83,6 +99,10 @@ describe('Create CDN origin use case', () => {
     const liveChannelId = '1234';
     const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
+    const endpoints: EventEndpoint[] = [
+      { url: 'https://example.com/hls', type: EndpointType.HLS },
+      { url: 'https://example.com/dash', type: EndpointType.DASH }
+    ];
 
     await eventsRepository.createEvent(
       EventMother.basic()
@@ -95,7 +115,8 @@ describe('Create CDN origin use case', () => {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
-      packageDomainName
+      packageDomainName,
+      endpoints
     });
 
     expect(eventUpdateSender.eventUpdates).toMatchObject([
@@ -121,6 +142,10 @@ describe('Create CDN origin use case', () => {
     const liveChannelId = '1234';
     const packageChannelId = 'abcd';
     const packageDomainName = 'trackit.io';
+    const endpoints: EventEndpoint[] = [
+      { url: 'https://example.com/hls', type: EndpointType.HLS },
+      { url: 'https://example.com/dash', type: EndpointType.DASH }
+    ];
 
     await expect(
       useCase.createCDNOrigin({
@@ -128,7 +153,8 @@ describe('Create CDN origin use case', () => {
         liveChannelArn,
         liveChannelId,
         packageChannelId,
-        packageDomainName
+        packageDomainName,
+        endpoints
       })
     ).rejects.toThrow(EventDoesNotExistError);
   });

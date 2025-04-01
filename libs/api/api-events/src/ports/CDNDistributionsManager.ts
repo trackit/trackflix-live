@@ -1,4 +1,5 @@
 import { createInjectionToken } from '@trackflix-live/di';
+import { EventEndpoint } from '@trackflix-live/types';
 
 export interface CreateCDNOriginParameters {
   eventId: string;
@@ -6,6 +7,7 @@ export interface CreateCDNOriginParameters {
   liveChannelId: string;
   packageChannelId: string;
   packageDomainName: string;
+  endpoints: EventEndpoint[];
 }
 
 export interface CreateCDNOriginResponse {
@@ -13,6 +15,7 @@ export interface CreateCDNOriginResponse {
   liveChannelArn: string;
   liveChannelId: string;
   packageChannelId: string;
+  endpoints: EventEndpoint[];
 }
 
 export interface CDNDistributionsManager {

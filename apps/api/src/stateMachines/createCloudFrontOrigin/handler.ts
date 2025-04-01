@@ -1,5 +1,6 @@
 import { CreateCloudFrontOriginAdapter } from './createCloudFrontOrigin.adapter';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
+import { EventEndpoint } from '@trackflix-live/types';
 
 registerProductionInfrastructure();
 
@@ -11,6 +12,7 @@ export const main = async (params: {
   liveChannelId: string;
   packageChannelId: string;
   packageDomainName: string;
+  endpoints: EventEndpoint[];
 }): Promise<{
   eventId: string;
 }> => {
