@@ -1,6 +1,7 @@
 import { register, reset } from '@trackflix-live/di';
 import { tokenCreateCDNOriginUseCase } from '@trackflix-live/api-events';
 import { CreateCloudFrontOriginAdapter } from './createCloudFrontOrigin.adapter';
+import { EndpointType, EventEndpoint } from '@trackflix-live/types';
 
 describe('Create CloudFront origin', () => {
   it('should call use case', async () => {
@@ -11,6 +12,10 @@ describe('Create CloudFront origin', () => {
       'arn:aws:medialive:us-east-1:123456789012:channel:1234';
     const liveChannelId = '1234';
     const packageChannelId = 'abcd';
+    const endpoints: EventEndpoint[] = [
+      { url: 'https://example.com/hls', type: EndpointType.HLS },
+      { url: 'https://example.com/dash', type: EndpointType.DASH },
+    ];
 
     await adapter.handle({
       eventId,
@@ -18,6 +23,7 @@ describe('Create CloudFront origin', () => {
       liveChannelId,
       packageChannelId,
       packageDomainName,
+      endpoints,
     });
 
     expect(useCase.createCDNOrigin).toHaveBeenCalledWith({
@@ -26,6 +32,7 @@ describe('Create CloudFront origin', () => {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
+      endpoints,
     });
   });
 });

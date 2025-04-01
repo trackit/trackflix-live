@@ -44,11 +44,7 @@ describe('Create CDN origin use case', () => {
     expect(CDNDistributionsManager.createdOrigins).toEqual([
       {
         eventId,
-        liveChannelArn,
-        liveChannelId,
-        packageChannelId,
         packageDomainName,
-        endpoints
       },
     ]);
   });

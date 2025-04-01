@@ -4,6 +4,7 @@ import {
   CreateCDNOriginResponse,
 } from '../ports/CDNDistributionsManager';
 import { createInjectionToken } from '@trackflix-live/di';
+import { EndpointType } from '@trackflix-live/types';
 
 export class CDNDistributionsManagerFake implements CDNDistributionsManager {
 
@@ -22,11 +23,27 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
       packageDomainName: parameters.packageDomainName,
     });
 
+    const mockEndpoints = [...parameters.endpoints];
+    const hlsEndpoint = mockEndpoints.find(
+      (endpoint) => endpoint.type === EndpointType.HLS
+    );
+    if (hlsEndpoint) {
+      hlsEndpoint.url = `https://fake-distribution.cloudfront.net${hlsEndpoint.url.split('amazonaws.com')[1] || '/hls/index.m3u8'}`;
+    }
+    
+    const dashEndpoint = mockEndpoints.find(
+      (endpoint) => endpoint.type === EndpointType.DASH
+    );
+    if (dashEndpoint) {
+      dashEndpoint.url = `https://fake-distribution.cloudfront.net${dashEndpoint.url.split('amazonaws.com')[1] || '/dash/index.mpd'}`;
+    }
+
     return {
       eventId: parameters.eventId,
       liveChannelArn: 'arn:aws:medialive:us-east-1:123456789012:channel:1234',
       liveChannelId: '1234',
       packageChannelId: 'abcd',
+      endpoints: mockEndpoints,
     };
   }
 

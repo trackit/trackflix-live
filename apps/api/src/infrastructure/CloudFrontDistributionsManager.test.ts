@@ -6,6 +6,7 @@ import {
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
 import { CloudFrontDistributionsManager } from './CloudFrontDistributionsManager';
+import { EndpointType } from '@trackflix-live/types';
 
 describe('CloudFront distributions manager', () => {
   const mock = mockClient(CloudFrontClient);
@@ -105,6 +106,10 @@ describe('CloudFront distributions manager', () => {
       process.env.DISTRIBUTION_ID = 'test-distribution-id';
       const eventId = 'test-event-id';
       const packageDomainName = 'test-domain-name';
+      const endpoints = [
+        { url: 'https://example.com/hls', type: EndpointType.HLS },
+        { url: 'https://example.com/dash', type: EndpointType.DASH },
+      ];
 
       mock.on(GetDistributionCommand).resolves(mockDistribution);
       mock.on(UpdateDistributionCommand).resolves({});
@@ -115,6 +120,7 @@ describe('CloudFront distributions manager', () => {
         liveChannelId: 'test-live-channel-id',
         packageChannelId: 'test-package-channel-id',
         packageDomainName,
+        endpoints,
       });
 
       expect(mock.calls()).toHaveLength(2);
@@ -123,6 +129,10 @@ describe('CloudFront distributions manager', () => {
     it('should throw if DISTRIBUTION_ID not set', async () => {
       const { cloudFrontDistributionsManager } = setup();
       process.env.DISTRIBUTION_ID = '';
+      const endpoints = [
+        { url: 'https://example.com/hls', type: EndpointType.HLS },
+        { url: 'https://example.com/dash', type: EndpointType.DASH },
+      ];
 
       await expect(
         cloudFrontDistributionsManager.createOrigin({
@@ -131,6 +141,7 @@ describe('CloudFront distributions manager', () => {
           liveChannelId: 'test-live-channel-id',
           packageChannelId: 'test-package-channel-id',
           packageDomainName: 'domain',
+          endpoints,
         })
       ).rejects.toThrow('DISTRIBUTION_ID environment variable is not set');
     });

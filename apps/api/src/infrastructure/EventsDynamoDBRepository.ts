@@ -205,7 +205,10 @@ export class EventsDynamoDBRepository implements EventsRepository {
     return response.Attributes as Event;
   }
 
-  async updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event> {
+  async updateEndpoints(
+    eventId: string,
+    endpoints: EventEndpoint[]
+  ): Promise<Event> {
     const params: UpdateCommandInput = {
       TableName: this.tableName,
       Key: {

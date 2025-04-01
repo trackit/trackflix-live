@@ -121,13 +121,23 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       })
     );
 
-    const hlsEndpoint = endpoints.find((endpoint) => endpoint.type === EndpointType.HLS);
+    const hlsEndpoint = endpoints.find(
+      (endpoint) => endpoint.type === EndpointType.HLS
+    );
     if (hlsEndpoint) {
-      hlsEndpoint.url = "https://" + distributionData.distribution.DomainName + hlsEndpoint.url.split("amazonaws.com")[1];
+      hlsEndpoint.url =
+        'https://' +
+        distributionData.distribution.DomainName +
+        hlsEndpoint.url.split('amazonaws.com')[1];
     }
-    const dashEndpoint = endpoints.find((endpoint) => endpoint.type === EndpointType.DASH);
+    const dashEndpoint = endpoints.find(
+      (endpoint) => endpoint.type === EndpointType.DASH
+    );
     if (dashEndpoint) {
-      dashEndpoint.url = "https://" + distributionData.distribution.DomainName + dashEndpoint.url.split("amazonaws.com")[1];
+      dashEndpoint.url =
+        'https://' +
+        distributionData.distribution.DomainName +
+        dashEndpoint.url.split('amazonaws.com')[1];
     }
 
     if (!hlsEndpoint || !dashEndpoint) {
