@@ -319,7 +319,8 @@ Resources:
                   - "cloudfront:UpdateDistribution"
                   - "cloudfront:GetDistributionConfig"
                   - "cloudfront:TagResource"
-                Resource: "*"
+                Resource:
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
               - Effect: Allow
                 Action:
                   - "cloudfront:CreateOriginRequestPolicy"
