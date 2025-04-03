@@ -5,7 +5,13 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
-import { EventMother, EventStatus, LogType } from '@trackflix-live/types';
+import {
+  EndpointType,
+  EventEndpoint,
+  EventMother,
+  EventStatus,
+  LogType,
+} from '@trackflix-live/types';
 import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
@@ -420,6 +426,68 @@ describe('EventsDynamoDBRepository', () => {
       expect(responseFromDB.Item).toMatchObject({
         ...sampleEvent,
         destroyedTime,
+      });
+    });
+  });
+
+  describe('updatePackageDomainName', () => {
+    it('should update event package domain name', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const packageDomainName = 'example-domain.cloudfront.net';
+      await repository.createEvent(sampleEvent);
+
+      await repository.updatePackageDomainName(
+        sampleEvent.id,
+        packageDomainName
+      );
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        packageDomainName,
+      });
+    });
+  });
+
+  describe('updateEventEndpoints', () => {
+    it('should update event endpoints', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const endpoints: EventEndpoint[] = [
+        {
+          type: EndpointType.HLS,
+          url: 'https://example.com/hls/stream.m3u8',
+        },
+        {
+          type: EndpointType.DASH,
+          url: 'https://example.com/dash/manifest.mpd',
+        },
+      ];
+      await repository.createEvent(sampleEvent);
+
+      await repository.updateEndpoints(sampleEvent.id, endpoints);
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        endpoints,
       });
     });
   });

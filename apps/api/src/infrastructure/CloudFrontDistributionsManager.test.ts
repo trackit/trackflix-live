@@ -1,7 +1,9 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import {
   CloudFrontClient,
+  Distribution,
   GetDistributionCommand,
+  GetDistributionCommandOutput,
   GetDistributionResult,
   UpdateDistributionCommand,
   UpdateDistributionCommandInput,
@@ -28,6 +30,21 @@ describe('CloudFront distributions manager', () => {
         CallerReference: 'test-ref',
         Comment: 'test-comment',
         Enabled: true,
+        DefaultCacheBehavior: {
+          TargetOriginId: 'default-origin',
+          ViewerProtocolPolicy: 'redirect-to-https',
+          CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+          SmoothStreaming: false,
+          Compress: true,
+          AllowedMethods: {
+            Quantity: 2,
+            Items: ['GET', 'HEAD'],
+            CachedMethods: {
+              Quantity: 2,
+              Items: ['GET', 'HEAD'],
+            },
+          },
+        },
         Origins: {
           Items: [
             {
@@ -51,21 +68,6 @@ describe('CloudFront distributions manager', () => {
         CacheBehaviors: {
           Items: [],
           Quantity: 0,
-        },
-        DefaultCacheBehavior: {
-          TargetOriginId: 'default-origin',
-          ViewerProtocolPolicy: 'redirect-to-https',
-          CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
-          SmoothStreaming: false,
-          Compress: true,
-          AllowedMethods: {
-            Quantity: 2,
-            Items: ['GET', 'HEAD'],
-            CachedMethods: {
-              Quantity: 2,
-              Items: ['GET', 'HEAD'],
-            },
-          },
         },
       },
     },
@@ -169,6 +171,193 @@ describe('CloudFront distributions manager', () => {
           },
         ],
       });
+    });
+  });
+
+  describe('deleteOrigin', () => {
+    it('should delete origin and associated cache behaviors', async () => {
+      const { cloudFrontDistributionsManager } = setup();
+      const eventId = 'test-event-id';
+      const cdnDistributionId = 'test-distribution-id';
+
+      const distributionUpdated: Distribution = {
+        ...mockDistribution.Distribution,
+        Id: cdnDistributionId,
+        ARN: 'test-arn',
+        Status: 'Deployed',
+        LastModifiedTime: new Date(),
+        InProgressInvalidationBatches: 0,
+        DomainName: 'test.cloudfront.net',
+        DistributionConfig: {
+          CallerReference: 'test-ref',
+          Comment: 'test-comment',
+          Enabled: true,
+          DefaultCacheBehavior: mockDistribution.Distribution
+            ?.DistributionConfig?.DefaultCacheBehavior ?? {
+            TargetOriginId: 'default-origin',
+            ViewerProtocolPolicy: 'redirect-to-https',
+            CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+            SmoothStreaming: false,
+            Compress: true,
+            AllowedMethods: {
+              Quantity: 2,
+              Items: ['GET', 'HEAD'],
+              CachedMethods: {
+                Quantity: 2,
+                Items: ['GET', 'HEAD'],
+              },
+            },
+          },
+          Origins: {
+            Items: [
+              {
+                Id: 'existing-origin',
+                DomainName: 'existing-domain.com',
+                CustomHeaders: { Items: [], Quantity: 0 },
+                CustomOriginConfig: {
+                  OriginProtocolPolicy: 'https-only' as const,
+                  HTTPPort: 80,
+                  HTTPSPort: 443,
+                  OriginSslProtocols: {
+                    Items: ['TLSv1.2' as const],
+                    Quantity: 1,
+                  },
+                },
+                ConnectionAttempts: 3,
+                ConnectionTimeout: 10,
+                OriginShield: { Enabled: false },
+                OriginAccessControlId: 'access-control-id',
+              },
+              {
+                Id: eventId,
+                DomainName: 'event-domain.com',
+                CustomHeaders: { Items: [], Quantity: 0 },
+                CustomOriginConfig: {
+                  OriginProtocolPolicy: 'https-only' as const,
+                  HTTPPort: 80,
+                  HTTPSPort: 443,
+                  OriginSslProtocols: {
+                    Items: ['TLSv1.2' as const],
+                    Quantity: 1,
+                  },
+                },
+              },
+            ],
+            Quantity: 2,
+          },
+          CacheBehaviors: {
+            Items: [
+              {
+                PathPattern: '/hls/*',
+                TargetOriginId: eventId,
+                ViewerProtocolPolicy: 'redirect-to-https' as const,
+                CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+                SmoothStreaming: false,
+                Compress: true,
+                AllowedMethods: {
+                  Quantity: 2,
+                  Items: ['GET', 'HEAD'],
+                  CachedMethods: {
+                    Quantity: 2,
+                    Items: ['GET', 'HEAD'],
+                  },
+                },
+              },
+              {
+                PathPattern: '/dash/*',
+                TargetOriginId: eventId,
+                ViewerProtocolPolicy: 'redirect-to-https' as const,
+                CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+                SmoothStreaming: false,
+                Compress: true,
+                AllowedMethods: {
+                  Quantity: 2,
+                  Items: ['GET', 'HEAD'],
+                  CachedMethods: {
+                    Quantity: 2,
+                    Items: ['GET', 'HEAD'],
+                  },
+                },
+              },
+            ],
+            Quantity: 2,
+          },
+        },
+      };
+      const distributionOutputUpdated: GetDistributionCommandOutput = {
+        Distribution: distributionUpdated,
+        ETag: 'test-etag',
+        $metadata: {},
+      };
+
+      mock.on(GetDistributionCommand).resolves(distributionOutputUpdated);
+      mock.on(UpdateDistributionCommand).resolves({});
+
+      await cloudFrontDistributionsManager.deleteOrigin({
+        eventId,
+        cdnDistributionId,
+      });
+
+      const getDistributionCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof GetDistributionCommand);
+      expect(getDistributionCall).toBeDefined();
+      expect(getDistributionCall?.args[0].input).toEqual({
+        Id: cdnDistributionId,
+      });
+
+      const updateCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof UpdateDistributionCommand);
+      expect(updateCall).toBeDefined();
+      const updateInput = updateCall?.args[0]
+        .input as UpdateDistributionCommandInput;
+      expect(updateInput.Id).toBe(cdnDistributionId);
+      expect(updateInput.IfMatch).toBe('test-etag');
+
+      const config = updateInput.DistributionConfig;
+
+      const origin = config?.Origins?.Items?.find((o) => o.Id === eventId);
+      expect(origin).toBeUndefined();
+      expect(config?.Origins?.Items?.length).toBe(1);
+      expect(config?.Origins?.Quantity).toBe(1);
+
+      const cacheBehaviors = config?.CacheBehaviors?.Items?.filter(
+        (b) => b.TargetOriginId === eventId
+      );
+      expect(cacheBehaviors).toHaveLength(0);
+      expect(config?.CacheBehaviors?.Items?.length).toBe(0);
+      expect(config?.CacheBehaviors?.Quantity).toBe(0);
+    });
+
+    it('should not fail if origin does not exist', async () => {
+      const { cloudFrontDistributionsManager } = setup();
+      const eventId = 'non-existent-event-id';
+      const cdnDistributionId = 'test-distribution-id';
+
+      mock.on(GetDistributionCommand).resolves(mockDistribution);
+      mock.on(UpdateDistributionCommand).resolves({});
+
+      await cloudFrontDistributionsManager.deleteOrigin({
+        eventId,
+        cdnDistributionId,
+      });
+
+      const getDistributionCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof GetDistributionCommand);
+      expect(getDistributionCall).toBeDefined();
+
+      const updateCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof UpdateDistributionCommand);
+      expect(updateCall).toBeDefined();
+
+      const updateInput = updateCall?.args[0]
+        .input as UpdateDistributionCommandInput;
+      expect(updateInput.DistributionConfig).toEqual(
+        mockDistribution.Distribution?.DistributionConfig
+      );
     });
   });
 });

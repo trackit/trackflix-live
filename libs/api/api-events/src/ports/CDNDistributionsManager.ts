@@ -13,11 +13,18 @@ export interface CreateCDNOriginResponse {
   endpoints: EventEndpoint[];
 }
 
+export interface DeleteCDNOriginParameters {
+  eventId: string;
+  cdnDistributionId: string;
+}
+
 export interface CDNDistributionsManager {
   createOrigin(
     parameters: CreateCDNOriginParameters
   ): Promise<CreateCDNOriginResponse>;
-  deleteOrigin(eventId: string): Promise<void>;
+  deleteOrigin(
+    parameters: DeleteCDNOriginParameters
+  ): Promise<void>;
 }
 export const tokenCDNDistributionsManager =
   createInjectionToken<CDNDistributionsManager>('CDNDistributionsManager');

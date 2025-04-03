@@ -315,12 +315,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "cloudfront:CreateDistribution"
-                  - "cloudfront:DeleteDistribution"
                   - "cloudfront:GetDistribution"
                   - "cloudfront:UpdateDistribution"
-                  - "cloudfront:CreateInvalidation"
-                  - "cloudfront:GetInvalidation"
                   - "cloudfront:GetDistributionConfig"
                   - "cloudfront:TagResource"
                 Resource: "*"

@@ -2,6 +2,7 @@ import {
   CDNDistributionsManager,
   CreateCDNOriginParameters,
   CreateCDNOriginResponse,
+  DeleteCDNOriginParameters,
 } from '@trackflix-live/api-events';
 import {
   CacheBehavior,
@@ -165,12 +166,11 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     };
   }
 
-  public async deleteOrigin(eventId: string): Promise<void> {
-    const distributionId = process.env.DISTRIBUTION_ID;
-    if (!distributionId) {
-      throw new Error('DISTRIBUTION_ID environment variable is not set');
-    }
-    const distributionData = await this.getDistribution(distributionId);
+  public async deleteOrigin({
+    eventId,
+    cdnDistributionId,
+  }: DeleteCDNOriginParameters): Promise<void> {
+    const distributionData = await this.getDistribution(cdnDistributionId);
 
     if (!distributionData.distribution.DistributionConfig?.Origins?.Items) {
       throw new Error('Distribution has no origins');
@@ -198,7 +198,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: distributionId,
+        Id: cdnDistributionId,
         DistributionConfig: distributionData.distribution.DistributionConfig,
         IfMatch: distributionData.eTag,
       })

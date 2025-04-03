@@ -2,6 +2,7 @@ import {
   CDNDistributionsManager,
   CreateCDNOriginParameters,
   CreateCDNOriginResponse,
+  DeleteCDNOriginParameters,
 } from '../ports/CDNDistributionsManager';
 import { createInjectionToken } from '@trackflix-live/di';
 import { EndpointType } from '@trackflix-live/types';
@@ -46,8 +47,10 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
     };
   }
 
-  public async deleteOrigin(eventId: string): Promise<void> {
-    this.deletedOrigins.push({eventId});
+  public async deleteOrigin(
+    parameters: DeleteCDNOriginParameters
+  ): Promise<void> {
+    this.deletedOrigins.push({eventId: parameters.eventId});
   }
 }
 

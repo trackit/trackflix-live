@@ -1,4 +1,5 @@
 import {
+  DeleteCDNOriginParameters,
   tokenCDNDistributionsManager,
   tokenEventsRepository,
   tokenEventUpdateSender,
@@ -6,10 +7,6 @@ import {
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
-
-export interface DeleteCDNOriginParameters {
-  eventId: string;
-}
 
 export interface DeleteCDNOriginUseCase {
   deleteCDNOrigin(
@@ -26,15 +23,17 @@ export class DeleteCDNOriginUseCaseImpl implements DeleteCDNOriginUseCase {
 
   public async deleteCDNOrigin({
     eventId,
+    cdnDistributionId,
   }: DeleteCDNOriginParameters): Promise<void> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
       throw new EventDoesNotExistError();
     }
 
-    await this.cdnDistributionsManager.deleteOrigin(
+    await this.cdnDistributionsManager.deleteOrigin({
       eventId,
-    );
+      cdnDistributionId,
+    });
 
     const currentTimestamp = Date.now();
     const logEvent = await this.eventsRepository.appendLogsToEvent(eventId, [
