@@ -15,6 +15,19 @@ export const main = async (params: {
   endpoints: EventEndpoint[];
 }): Promise<{
   eventId: string;
+  liveChannelArn: string;
+  liveChannelId: string;
+  packageChannelId: string;
 }> => {
-  return adapter.handle(params);
+  const cdnDistributionId = process.env.DISTRIBUTION_ID;
+  if (!cdnDistributionId) {
+    throw new Error('DISTRIBUTION_ID environment variable is not set');
+  }
+  await adapter.handle({ ...params, cdnDistributionId });
+  return {
+    eventId: params.eventId,
+    liveChannelArn: params.liveChannelArn,
+    liveChannelId: params.liveChannelId,
+    packageChannelId: params.packageChannelId,
+  };
 };

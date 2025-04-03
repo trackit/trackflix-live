@@ -5,13 +5,7 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
-import {
-  EndpointType,
-  EventEndpoint,
-  EventMother,
-  EventStatus,
-  LogType,
-} from '@trackflix-live/types';
+import { EventMother, EventStatus, LogType } from '@trackflix-live/types';
 import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
@@ -271,41 +265,6 @@ describe('EventsDynamoDBRepository', () => {
       expect(responseFromDB.Item).toMatchObject({
         ...sampleEvent,
         logs: [log],
-      });
-    });
-  });
-
-  describe('appendEndpointsToEvent', () => {
-    it('should append endpoints to an event', async () => {
-      const { ddbClient, repository } = setup();
-
-      const firstEndpoint = {
-        url: 'https://formula-1.com/live/dash/monaco-gp-2025.m3u8',
-        type: EndpointType.HLS,
-      };
-      const sampleEvent = EventMother.basic()
-        .withEndpoints([firstEndpoint])
-        .build();
-      await repository.createEvent(sampleEvent);
-
-      const newEndpoint: EventEndpoint = {
-        url: 'https://formula-1.com/live/dash/monaco-gp-2025.dash',
-        type: EndpointType.DASH,
-      };
-
-      await repository.appendEndpointsToEvent(sampleEvent.id, [newEndpoint]);
-
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        endpoints: [firstEndpoint, newEndpoint],
       });
     });
   });

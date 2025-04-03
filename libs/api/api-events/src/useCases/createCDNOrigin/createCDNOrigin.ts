@@ -27,22 +27,18 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
 
   public async createCDNOrigin({
     eventId,
-    liveChannelArn,
-    liveChannelId,
-    packageChannelId,
+    cdnDistributionId,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
       throw new EventDoesNotExistError();
     }
 
-    const { endpoints } =await this.cdnDistributionsManager.createOrigin({
+    const { endpoints } = await this.cdnDistributionsManager.createOrigin({
       eventId,
-      liveChannelArn,
-      liveChannelId,
-      packageChannelId,
       packageDomainName: event.packageDomainName ?? '',
       endpoints: event.endpoints ?? [],
+      cdnDistributionId,
     });
 
     await this.eventsRepository.updateEndpoints(eventId, endpoints);
@@ -62,9 +58,6 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
 
     return {
       eventId,
-      liveChannelArn,
-      liveChannelId,
-      packageChannelId,
       endpoints,
     };
   }

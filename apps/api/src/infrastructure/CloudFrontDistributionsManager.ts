@@ -4,6 +4,7 @@ import {
   CreateCDNOriginResponse,
 } from '@trackflix-live/api-events';
 import {
+  CacheBehavior,
   CloudFrontClient,
   Distribution,
   GetDistributionCommand,
@@ -33,19 +34,37 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     return { distribution: response.Distribution, eTag: response.ETag ?? '' };
   }
 
+  private getCacheBehaviorsConfig(
+    eventId: string,
+    pathPattern: string
+  ): CacheBehavior {
+    return {
+      TargetOriginId: eventId,
+      PathPattern: pathPattern,
+      ViewerProtocolPolicy: 'allow-all',
+      SmoothStreaming: false,
+      Compress: false,
+      CachePolicyId: '08627262-05a9-4f76-9ded-b50ca2e3a84f', // Elemental-MediaPackage Cache Policy
+      FieldLevelEncryptionId: '',
+      AllowedMethods: {
+        Quantity: 3,
+        Items: ['GET', 'HEAD', 'OPTIONS'],
+        CachedMethods: {
+          Quantity: 3,
+          Items: ['GET', 'HEAD', 'OPTIONS'],
+        },
+      },
+      LambdaFunctionAssociations: { Quantity: 0 },
+    };
+  }
+
   public async createOrigin({
     eventId,
-    liveChannelArn,
-    liveChannelId,
-    packageChannelId,
     packageDomainName,
     endpoints,
+    cdnDistributionId,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
-    const distributionId = process.env.DISTRIBUTION_ID;
-    if (!distributionId) {
-      throw new Error('DISTRIBUTION_ID environment variable is not set');
-    }
-    const distributionData = await this.getDistribution(distributionId);
+    const distributionData = await this.getDistribution(cdnDistributionId);
 
     if (!distributionData.distribution.DistributionConfig) {
       throw new Error('Distribution has no config');
@@ -89,25 +108,31 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
         Items: [],
       };
     }
+
+    const hlsEndpoint = endpoints.find(
+      (endpoint) => endpoint.type === EndpointType.HLS
+    );
+    if (!hlsEndpoint) {
+      throw new Error('HLS endpoint not found');
+    }
+    const hlsPathPattern = hlsEndpoint.url.split('amazonaws.com')[1];
+    const hlsPathPatternWithoutLastSlash =
+      hlsPathPattern.split('/').slice(0, -1).join('/') + '/*';
     distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
-      {
-        TargetOriginId: eventId,
-        PathPattern: '/out/v1/*',
-        ViewerProtocolPolicy: 'allow-all',
-        SmoothStreaming: false,
-        Compress: false,
-        CachePolicyId: '08627262-05a9-4f76-9ded-b50ca2e3a84f', // Elemental-MediaPackage Cache Policy
-        FieldLevelEncryptionId: '',
-        AllowedMethods: {
-          Quantity: 3,
-          Items: ['GET', 'HEAD', 'OPTIONS'],
-          CachedMethods: {
-            Quantity: 3,
-            Items: ['GET', 'HEAD', 'OPTIONS'],
-          },
-        },
-        LambdaFunctionAssociations: { Quantity: 0 },
-      }
+      this.getCacheBehaviorsConfig(eventId, hlsPathPatternWithoutLastSlash)
+    );
+
+    const dashEndpoint = endpoints.find(
+      (endpoint) => endpoint.type === EndpointType.DASH
+    );
+    if (!dashEndpoint) {
+      throw new Error('Dash endpoint not found');
+    }
+    const dashPathPattern = dashEndpoint.url.split('amazonaws.com')[1];
+    const dashPathPatternWithoutLastSlash =
+      dashPathPattern.split('/').slice(0, -1).join('/') + '/*';
+    distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
+      this.getCacheBehaviorsConfig(eventId, dashPathPatternWithoutLastSlash)
     );
     distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items
@@ -115,29 +140,19 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: distributionId,
+        Id: cdnDistributionId,
         DistributionConfig: distributionData.distribution.DistributionConfig,
         IfMatch: distributionData.eTag,
       })
     );
 
-    const hlsEndpoint = endpoints.find(
-      (endpoint) => endpoint.type === EndpointType.HLS
-    );
     if (hlsEndpoint) {
       hlsEndpoint.url =
-        'https://' +
-        distributionData.distribution.DomainName +
-        hlsEndpoint.url.split('amazonaws.com')[1];
+        'https://' + distributionData.distribution.DomainName + hlsPathPattern;
     }
-    const dashEndpoint = endpoints.find(
-      (endpoint) => endpoint.type === EndpointType.DASH
-    );
     if (dashEndpoint) {
       dashEndpoint.url =
-        'https://' +
-        distributionData.distribution.DomainName +
-        dashEndpoint.url.split('amazonaws.com')[1];
+        'https://' + distributionData.distribution.DomainName + dashPathPattern;
     }
 
     if (!hlsEndpoint || !dashEndpoint) {
@@ -146,9 +161,6 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     return {
       eventId,
-      liveChannelArn,
-      liveChannelId,
-      packageChannelId,
       endpoints: [hlsEndpoint, dashEndpoint],
     };
   }

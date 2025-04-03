@@ -181,30 +181,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
     return response.Attributes as Event;
   }
 
-  async appendEndpointsToEvent(
-    eventId: string,
-    endpoints: EventEndpoint[]
-  ): Promise<Event> {
-    const params: UpdateCommandInput = {
-      TableName: this.tableName,
-      Key: {
-        id: eventId,
-      },
-      UpdateExpression: 'SET #endpoints = list_append(#endpoints, :endpoints)',
-      ExpressionAttributeNames: {
-        '#endpoints': 'endpoints',
-      },
-      ExpressionAttributeValues: {
-        ':endpoints': endpoints,
-      },
-      ReturnValues: 'ALL_NEW',
-    };
-
-    const response = await this.client.send(new UpdateCommand(params));
-
-    return response.Attributes as Event;
-  }
-
   async updateEndpoints(
     eventId: string,
     endpoints: EventEndpoint[]
@@ -361,31 +337,6 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
       ExpressionAttributeValues: {
         ':packageDomainName': packageDomainName,
-      },
-      ReturnValues: 'ALL_NEW',
-    };
-
-    const response = await this.client.send(new UpdateCommand(params));
-
-    return response.Attributes as Event;
-  }
-
-  public async updateCDNDistributionId(
-    eventId: string,
-    cdnDistributionId: string
-  ): Promise<Event> {
-    const params: UpdateCommandInput = {
-      TableName: this.tableName,
-      Key: {
-        id: eventId,
-      },
-      UpdateExpression:
-        'SET #cloudFrontDistributionId = :cloudFrontDistributionId',
-      ExpressionAttributeNames: {
-        '#cdnDistributionId': 'cdnDistributionId',
-      },
-      ExpressionAttributeValues: {
-        ':cdnDistributionId': cdnDistributionId,
       },
       ReturnValues: 'ALL_NEW',
     };

@@ -23,7 +23,7 @@ export class CreatePackageChannelUseCaseImpl
     const { channelId, endpoints } =
       await this.packageChannelsManager.createChannel(eventId);
 
-    await this.eventsRepository.appendEndpointsToEvent(eventId, endpoints);
+    await this.eventsRepository.updateEndpoints(eventId, endpoints);
 
     const packageDomainName = endpoints.at(0)?.url.replace('https://', '').split('/')[0] ?? '';
     await this.eventsRepository.updatePackageDomainName(eventId, packageDomainName);

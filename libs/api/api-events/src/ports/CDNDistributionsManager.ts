@@ -3,18 +3,13 @@ import { EventEndpoint } from '@trackflix-live/types';
 
 export interface CreateCDNOriginParameters {
   eventId: string;
-  liveChannelArn: string;
-  liveChannelId: string;
-  packageChannelId: string;
   packageDomainName: string;
   endpoints: EventEndpoint[];
+  cdnDistributionId: string;
 }
 
 export interface CreateCDNOriginResponse {
   eventId: string;
-  liveChannelArn: string;
-  liveChannelId: string;
-  packageChannelId: string;
   endpoints: EventEndpoint[];
 }
 

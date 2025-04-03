@@ -8,10 +8,7 @@ describe('Create CloudFront origin', () => {
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
     const packageDomainName = 'test.cloudfront.net';
-    const liveChannelArn =
-      'arn:aws:medialive:us-east-1:123456789012:channel:1234';
-    const liveChannelId = '1234';
-    const packageChannelId = 'abcd';
+    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH },
@@ -19,20 +16,16 @@ describe('Create CloudFront origin', () => {
 
     await adapter.handle({
       eventId,
-      liveChannelArn,
-      liveChannelId,
-      packageChannelId,
       packageDomainName,
       endpoints,
+      cdnDistributionId,
     });
 
     expect(useCase.createCDNOrigin).toHaveBeenCalledWith({
       eventId,
       packageDomainName,
-      liveChannelArn,
-      liveChannelId,
-      packageChannelId,
       endpoints,
+      cdnDistributionId,
     });
   });
 });

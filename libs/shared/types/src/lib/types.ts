@@ -57,7 +57,6 @@ export interface Event {
   liveInputId?: string;
   liveWaitingInputId?: string;
   packageDomainName?: string;
-  cdnDistributionId?: string;
 }
 
 export enum EventUpdateAction {

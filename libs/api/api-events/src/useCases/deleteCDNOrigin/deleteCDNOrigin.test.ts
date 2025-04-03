@@ -12,7 +12,7 @@ import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Delete CDN origin use case', () => {
   it('should delete CDN origin', async () => {
-    const { useCase, eventsRepository, CDNDistributionsManager } = setup();
+    const { useCase, eventsRepository, cdnDistributionsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
@@ -25,7 +25,7 @@ describe('Delete CDN origin use case', () => {
       eventId,
     });
 
-    expect(CDNDistributionsManager.deletedOrigins).toEqual([
+    expect(cdnDistributionsManager.deletedOrigins).toEqual([
       {
         eventId,
       },
@@ -105,7 +105,7 @@ const setup = () => {
   registerTestInfrastructure();
   const eventsRepository = inject(tokenEventsRepositoryInMemory);
   const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
-  const CDNDistributionsManager = inject(tokenCDNDistributionsManagerFake);
+  const cdnDistributionsManager = inject(tokenCDNDistributionsManagerFake);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
   const useCase = new DeleteCDNOriginUseCaseImpl();
@@ -113,7 +113,7 @@ const setup = () => {
   return {
     eventsRepository,
     taskTokensRepository,
-    CDNDistributionsManager,
+    cdnDistributionsManager,
     useCase,
     eventUpdateSender,
   };

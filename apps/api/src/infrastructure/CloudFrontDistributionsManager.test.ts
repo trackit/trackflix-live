@@ -4,9 +4,10 @@ import {
   GetDistributionCommand,
   GetDistributionResult,
   UpdateDistributionCommand,
+  UpdateDistributionCommandInput,
 } from '@aws-sdk/client-cloudfront';
 import { CloudFrontDistributionsManager } from './CloudFrontDistributionsManager';
-import { EndpointType } from '@trackflix-live/types';
+import { EndpointType, EventEndpoint } from '@trackflix-live/types';
 
 describe('CloudFront distributions manager', () => {
   const mock = mockClient(CloudFrontClient);
@@ -106,44 +107,68 @@ describe('CloudFront distributions manager', () => {
       process.env.DISTRIBUTION_ID = 'test-distribution-id';
       const eventId = 'test-event-id';
       const packageDomainName = 'test-domain-name';
-      const endpoints = [
-        { url: 'https://example.com/hls', type: EndpointType.HLS },
-        { url: 'https://example.com/dash', type: EndpointType.DASH },
+      const cdnDistributionId = 'test-distribution-id';
+      const endpoints: EventEndpoint[] = [
+        { url: 'https://amazonaws.com/hls/index.m3u8', type: EndpointType.HLS },
+        {
+          url: 'https://amazonaws.com/dash/index.mpd',
+          type: EndpointType.DASH,
+        },
       ];
 
       mock.on(GetDistributionCommand).resolves(mockDistribution);
       mock.on(UpdateDistributionCommand).resolves({});
 
-      await cloudFrontDistributionsManager.createOrigin({
+      const result = await cloudFrontDistributionsManager.createOrigin({
         eventId,
-        liveChannelArn: 'test-live-channel-arn',
-        liveChannelId: 'test-live-channel-id',
-        packageChannelId: 'test-package-channel-id',
         packageDomainName,
         endpoints,
+        cdnDistributionId,
       });
 
-      expect(mock.calls()).toHaveLength(2);
-    });
+      const getDistributionCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof GetDistributionCommand);
+      expect(getDistributionCall).toBeDefined();
+      expect(getDistributionCall?.args[0].input).toEqual({
+        Id: cdnDistributionId,
+      });
 
-    it('should throw if DISTRIBUTION_ID not set', async () => {
-      const { cloudFrontDistributionsManager } = setup();
-      process.env.DISTRIBUTION_ID = '';
-      const endpoints = [
-        { url: 'https://example.com/hls', type: EndpointType.HLS },
-        { url: 'https://example.com/dash', type: EndpointType.DASH },
-      ];
+      const updateCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof UpdateDistributionCommand);
+      expect(updateCall).toBeDefined();
+      const updateInput = updateCall?.args[0]
+        .input as UpdateDistributionCommandInput;
+      expect(updateInput.Id).toBe(cdnDistributionId);
+      expect(updateInput.IfMatch).toBe('test-etag');
 
-      await expect(
-        cloudFrontDistributionsManager.createOrigin({
-          eventId: 'id',
-          liveChannelArn: 'test-live-channel-arn',
-          liveChannelId: 'test-live-channel-id',
-          packageChannelId: 'test-package-channel-id',
-          packageDomainName: 'domain',
-          endpoints,
-        })
-      ).rejects.toThrow('DISTRIBUTION_ID environment variable is not set');
+      const config = updateInput.DistributionConfig;
+
+      const origin = config?.Origins?.Items?.find((o) => o.Id === eventId);
+      expect(origin).toBeDefined();
+      expect(origin?.DomainName).toBe(packageDomainName);
+
+      const cacheBehaviors = config?.CacheBehaviors?.Items?.filter(
+        (b) => b.TargetOriginId === eventId
+      );
+      expect(cacheBehaviors).toHaveLength(2);
+      expect(cacheBehaviors?.[0]?.PathPattern).toContain('/hls/*');
+      expect(cacheBehaviors?.[1]?.PathPattern).toContain('/dash/*');
+
+      expect(result).toEqual({
+        eventId,
+        endpoints: [
+          {
+            url: `https://${mockDistribution.Distribution?.DomainName}/hls/index.m3u8`,
+            type: EndpointType.HLS,
+          },
+          {
+            url: `https://${mockDistribution.Distribution?.DomainName}/dash/index.mpd`,
+            type: EndpointType.DASH,
+          },
+        ],
+      });
     });
   });
 });

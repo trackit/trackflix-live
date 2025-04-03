@@ -49,13 +49,6 @@ export class EventMother {
     return this;
   }
 
-  public withCDNDistributionId(
-    cdnDistributionId: string | undefined
-  ): EventMother {
-    this.data.cdnDistributionId = cdnDistributionId;
-    return this;
-  }
-
   public withLiveWaitingInputId(
     liveWaitingInputId: string | undefined
   ): EventMother {

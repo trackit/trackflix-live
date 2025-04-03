@@ -9,6 +9,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 60
+    MemorySize: 256
     Architectures:
       - x86_64
     Runtime: nodejs20.x
@@ -329,7 +330,9 @@ Resources:
                   - "cloudfront:GetOriginRequestPolicy"
                   - "cloudfront:CreateCachePolicy" 
                   - "cloudfront:GetCachePolicy"
-                Resource: "*"
+                Resource: 
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:origin-request-policy/*"
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:cache-policy/*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
           PolicyDocument:
             Version: "2012-10-17"

@@ -11,6 +11,7 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
   public readonly createdOrigins: {
     eventId: string;
     packageDomainName: string;
+    cdnDistributionId: string;
   }[] = [];
 
   public readonly deletedOrigins: { eventId: string }[] = [];
@@ -21,6 +22,7 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
     this.createdOrigins.push({
       eventId: parameters.eventId,
       packageDomainName: parameters.packageDomainName,
+      cdnDistributionId: parameters.cdnDistributionId,
     });
 
     const mockEndpoints = [...parameters.endpoints];
@@ -40,9 +42,6 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
 
     return {
       eventId: parameters.eventId,
-      liveChannelArn: 'arn:aws:medialive:us-east-1:123456789012:channel:1234',
-      liveChannelId: '1234',
-      packageChannelId: 'abcd',
       endpoints: mockEndpoints,
     };
   }
