@@ -18,73 +18,79 @@ describe('CloudFront distributions manager', () => {
     mock.reset();
   });
 
-  const mockDistribution: GetDistributionResult = {
-    Distribution: {
-      Id: process.env.DISTRIBUTION_ID,
-      ARN: 'test-arn',
-      Status: 'Deployed',
-      LastModifiedTime: new Date(),
-      InProgressInvalidationBatches: 0,
-      DomainName: 'test.cloudfront.net',
-      DistributionConfig: {
-        CallerReference: 'test-ref',
-        Comment: 'test-comment',
-        Enabled: true,
-        DefaultCacheBehavior: {
-          TargetOriginId: 'default-origin',
-          ViewerProtocolPolicy: 'redirect-to-https',
-          CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
-          SmoothStreaming: false,
-          Compress: true,
-          AllowedMethods: {
-            Quantity: 2,
-            Items: ['GET', 'HEAD'],
-            CachedMethods: {
+  const getMockDistribution = (
+    distributionId: string
+  ): GetDistributionResult => {
+    return {
+      Distribution: {
+        Id: distributionId,
+        ARN: 'test-arn',
+        Status: 'Deployed',
+        LastModifiedTime: new Date('2023-01-01T00:00:00Z'),
+        InProgressInvalidationBatches: 0,
+        DomainName: 'test.cloudfront.net',
+        DistributionConfig: {
+          CallerReference: 'test-ref',
+          Comment: 'test-comment',
+          Enabled: true,
+          DefaultCacheBehavior: {
+            TargetOriginId: 'default-origin',
+            ViewerProtocolPolicy: 'redirect-to-https',
+            CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad',
+            SmoothStreaming: false,
+            Compress: true,
+            AllowedMethods: {
               Quantity: 2,
               Items: ['GET', 'HEAD'],
+              CachedMethods: {
+                Quantity: 2,
+                Items: ['GET', 'HEAD'],
+              },
             },
           },
-        },
-        Origins: {
-          Items: [
-            {
-              Id: 'existing-origin',
-              DomainName: 'existing-domain.com',
-              CustomHeaders: { Items: [], Quantity: 0 },
-              CustomOriginConfig: {
-                OriginProtocolPolicy: 'https-only',
-                HTTPPort: 80,
-                HTTPSPort: 443,
-                OriginSslProtocols: { Items: ['TLSv1.2'], Quantity: 1 },
+          Origins: {
+            Items: [
+              {
+                Id: 'existing-origin',
+                DomainName: 'existing-domain.com',
+                CustomHeaders: { Items: [], Quantity: 0 },
+                CustomOriginConfig: {
+                  OriginProtocolPolicy: 'https-only',
+                  HTTPPort: 80,
+                  HTTPSPort: 443,
+                  OriginSslProtocols: { Items: ['TLSv1.2'], Quantity: 1 },
+                },
+                ConnectionAttempts: 3,
+                ConnectionTimeout: 10,
+                OriginShield: { Enabled: false },
+                OriginAccessControlId: 'access-control-id',
               },
-              ConnectionAttempts: 3,
-              ConnectionTimeout: 10,
-              OriginShield: { Enabled: false },
-              OriginAccessControlId: 'access-control-id',
-            },
-          ],
-          Quantity: 1,
-        },
-        CacheBehaviors: {
-          Items: [],
-          Quantity: 0,
+            ],
+            Quantity: 1,
+          },
+          CacheBehaviors: {
+            Items: [],
+            Quantity: 0,
+          },
         },
       },
-    },
-    ETag: 'test-etag',
+      ETag: 'test-etag',
+    };
   };
 
   describe('getDistribution', () => {
     it('should get distribution', async () => {
-      const { cloudFrontDistributionsManager } = setup();
+      const { cloudFrontDistributionsManager, distributionId } = setup();
 
-      mock.on(GetDistributionCommand).resolves(mockDistribution);
+      mock
+        .on(GetDistributionCommand)
+        .resolves(getMockDistribution(distributionId));
 
       const result = await cloudFrontDistributionsManager.getDistribution();
 
       expect(result).toEqual({
-        distribution: mockDistribution.Distribution,
-        eTag: mockDistribution.ETag,
+        distribution: getMockDistribution(distributionId).Distribution,
+        eTag: getMockDistribution(distributionId).ETag,
       });
     });
 
@@ -101,8 +107,7 @@ describe('CloudFront distributions manager', () => {
 
   describe('createOrigin', () => {
     it('should create origin', async () => {
-      const { cloudFrontDistributionsManager } = setup();
-      process.env.DISTRIBUTION_ID = 'test-distribution-id';
+      const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'test-event-id';
       const packageDomainName = 'test-domain-name';
       const endpoints: EventEndpoint[] = [
@@ -113,7 +118,9 @@ describe('CloudFront distributions manager', () => {
         },
       ];
 
-      mock.on(GetDistributionCommand).resolves(mockDistribution);
+      mock
+        .on(GetDistributionCommand)
+        .resolves(getMockDistribution(distributionId));
       mock.on(UpdateDistributionCommand).resolves({});
 
       const result = await cloudFrontDistributionsManager.createOrigin({
@@ -127,7 +134,7 @@ describe('CloudFront distributions manager', () => {
         .find((call) => call.args[0] instanceof GetDistributionCommand);
       expect(getDistributionCall).toBeDefined();
       expect(getDistributionCall?.args[0].input).toEqual({
-        Id: process.env.DISTRIBUTION_ID,
+        Id: distributionId,
       });
 
       const updateCall = mock
@@ -136,7 +143,7 @@ describe('CloudFront distributions manager', () => {
       expect(updateCall).toBeDefined();
       const updateInput = updateCall?.args[0]
         .input as UpdateDistributionCommandInput;
-      expect(updateInput.Id).toBe(process.env.DISTRIBUTION_ID);
+      expect(updateInput.Id).toBe(distributionId);
       expect(updateInput.IfMatch).toBe('test-etag');
 
       const config = updateInput.DistributionConfig;
@@ -152,15 +159,17 @@ describe('CloudFront distributions manager', () => {
       expect(cacheBehaviors?.[0]?.PathPattern).toContain('/hls/*');
       expect(cacheBehaviors?.[1]?.PathPattern).toContain('/dash/*');
 
+      const distributionDomainName =
+        getMockDistribution(distributionId).Distribution?.DomainName;
       expect(result).toEqual({
         eventId,
         endpoints: [
           {
-            url: `https://${mockDistribution.Distribution?.DomainName}/hls/index.m3u8`,
+            url: `https://${distributionDomainName}/hls/index.m3u8`,
             type: EndpointType.HLS,
           },
           {
-            url: `https://${mockDistribution.Distribution?.DomainName}/dash/index.mpd`,
+            url: `https://${distributionDomainName}/dash/index.mpd`,
             type: EndpointType.DASH,
           },
         ],
@@ -170,22 +179,22 @@ describe('CloudFront distributions manager', () => {
 
   describe('deleteOrigin', () => {
     it('should delete origin and associated cache behaviors', async () => {
-      const { cloudFrontDistributionsManager } = setup();
+      const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'test-event-id';
 
       const distributionUpdated: Distribution = {
-        ...mockDistribution.Distribution,
-        Id: process.env.DISTRIBUTION_ID,
+        ...getMockDistribution(distributionId).Distribution,
+        Id: distributionId,
         ARN: 'test-arn',
         Status: 'Deployed',
-        LastModifiedTime: new Date(),
+        LastModifiedTime: new Date('2023-01-01T00:00:00Z'),
         InProgressInvalidationBatches: 0,
         DomainName: 'test.cloudfront.net',
         DistributionConfig: {
           CallerReference: 'test-ref',
           Comment: 'test-comment',
           Enabled: true,
-          DefaultCacheBehavior: mockDistribution.Distribution
+          DefaultCacheBehavior: getMockDistribution(distributionId).Distribution
             ?.DistributionConfig?.DefaultCacheBehavior ?? {
             TargetOriginId: 'default-origin',
             ViewerProtocolPolicy: 'redirect-to-https',
@@ -295,7 +304,7 @@ describe('CloudFront distributions manager', () => {
         .find((call) => call.args[0] instanceof GetDistributionCommand);
       expect(getDistributionCall).toBeDefined();
       expect(getDistributionCall?.args[0].input).toEqual({
-        Id: process.env.DISTRIBUTION_ID,
+        Id: distributionId,
       });
 
       const updateCall = mock
@@ -304,7 +313,7 @@ describe('CloudFront distributions manager', () => {
       expect(updateCall).toBeDefined();
       const updateInput = updateCall?.args[0]
         .input as UpdateDistributionCommandInput;
-      expect(updateInput.Id).toBe(process.env.DISTRIBUTION_ID);
+      expect(updateInput.Id).toBe(distributionId);
       expect(updateInput.IfMatch).toBe('test-etag');
 
       const config = updateInput.DistributionConfig;
@@ -323,10 +332,12 @@ describe('CloudFront distributions manager', () => {
     });
 
     it('should not fail if origin does not exist', async () => {
-      const { cloudFrontDistributionsManager } = setup();
+      const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'non-existent-event-id';
 
-      mock.on(GetDistributionCommand).resolves(mockDistribution);
+      mock
+        .on(GetDistributionCommand)
+        .resolves(getMockDistribution(distributionId));
       mock.on(UpdateDistributionCommand).resolves({});
 
       await cloudFrontDistributionsManager.deleteOrigin({
@@ -346,7 +357,7 @@ describe('CloudFront distributions manager', () => {
       const updateInput = updateCall?.args[0]
         .input as UpdateDistributionCommandInput;
       expect(updateInput.DistributionConfig).toEqual(
-        mockDistribution.Distribution?.DistributionConfig
+        getMockDistribution(distributionId).Distribution?.DistributionConfig
       );
     });
   });
@@ -359,10 +370,11 @@ const setup = () => {
       secretAccessKey: 'fakeSecretAccessKey',
     },
   });
+  const distributionId = 'test-distribution-id';
   const cloudFrontDistributionsManager = new CloudFrontDistributionsManager({
     client,
-    cdnDistributionId: process.env.DISTRIBUTION_ID || 'test-distribution-id',
+    cdnDistributionId: distributionId,
   });
 
-  return { client, cloudFrontDistributionsManager };
+  return { client, cloudFrontDistributionsManager, distributionId };
 };
