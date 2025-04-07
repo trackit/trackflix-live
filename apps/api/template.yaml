@@ -17,6 +17,27 @@ Globals:
       LogFormat: JSON
 
 Resources:
+  #############################
+  #  CLOUDFRONT DISTRIBUTION  #
+  #############################
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: dummy-origin  # We need a default origin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled policy
+        Origins:
+          - Id: dummy-origin
+            DomainName: trackit.io
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: match-viewer
+        Comment: !Sub "${AWS::StackName} - Main Distribution"
+
   #############
   # IAM ROLES #
   #############
@@ -320,7 +341,7 @@ Resources:
                   - "cloudfront:GetDistributionConfig"
                   - "cloudfront:TagResource"
                 Resource:
-                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
               - Effect: Allow
                 Action:
                   - "cloudfront:CreateOriginRequestPolicy"
@@ -1211,27 +1232,6 @@ Resources:
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
         SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
-
-  #############################
-  #  CLOUDFRONT DISTRIBUTION  #
-  #############################
-  CloudFrontDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Enabled: true
-        DefaultCacheBehavior:
-          TargetOriginId: dummy-origin  # We need a default origin
-          ViewerProtocolPolicy: redirect-to-https
-          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled policy
-        Origins:
-          - Id: dummy-origin
-            DomainName: trackit.io
-            CustomOriginConfig:
-              HTTPPort: 80
-              HTTPSPort: 443
-              OriginProtocolPolicy: match-viewer
-        Comment: !Sub "${AWS::StackName} - Main Distribution"
 
 Outputs:
   UserPoolId:

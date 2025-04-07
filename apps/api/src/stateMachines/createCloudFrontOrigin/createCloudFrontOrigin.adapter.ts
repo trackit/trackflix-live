@@ -9,7 +9,6 @@ export class CreateCloudFrontOriginAdapter {
     eventId: string;
     packageDomainName: string;
     endpoints: EventEndpoint[];
-    cdnDistributionId: string;
   }): Promise<{
     eventId: string;
   }> {
@@ -17,7 +16,6 @@ export class CreateCloudFrontOriginAdapter {
       eventId: params.eventId,
       packageDomainName: params.packageDomainName,
       endpoints: params.endpoints,
-      cdnDistributionId: params.cdnDistributionId,
     });
     return {
       eventId: params.eventId,

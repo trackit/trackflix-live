@@ -14,7 +14,6 @@ describe('Delete CDN origin use case', () => {
   it('should delete CDN origin', async () => {
     const { useCase, eventsRepository, cdnDistributionsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'cdn-distribution-id';
 
     await eventsRepository.createEvent(
       EventMother.basic()
@@ -24,7 +23,6 @@ describe('Delete CDN origin use case', () => {
 
     await useCase.deleteCDNOrigin({
       eventId,
-      cdnDistributionId,
     });
 
     expect(cdnDistributionsManager.deletedOrigins).toEqual([
@@ -37,7 +35,6 @@ describe('Delete CDN origin use case', () => {
   it('should store logs after deleting the CDN origin', async () => {
     const { useCase, eventsRepository } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'cdn-distribution-id';
 
     await eventsRepository.createEvent(
       EventMother.basic()
@@ -47,7 +44,6 @@ describe('Delete CDN origin use case', () => {
 
     await useCase.deleteCDNOrigin({
       eventId,
-      cdnDistributionId,
     });
 
     expect(eventsRepository.events[0].logs).toEqual([
@@ -65,7 +61,6 @@ describe('Delete CDN origin use case', () => {
       eventUpdateSender,
     } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'cdn-distribution-id';
 
     await eventsRepository.createEvent(
       EventMother.basic()
@@ -75,7 +70,6 @@ describe('Delete CDN origin use case', () => {
 
     await useCase.deleteCDNOrigin({
       eventId,
-      cdnDistributionId,
     });
 
     expect(eventUpdateSender.eventUpdates).toMatchObject([
@@ -97,12 +91,10 @@ describe('Delete CDN origin use case', () => {
   it('should throw if event does not exist', async () => {
     const { useCase } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
-    const cdnDistributionId = 'cdn-distribution-id';
 
     await expect(
       useCase.deleteCDNOrigin({
         eventId,
-        cdnDistributionId,
       })
     ).rejects.toThrow(EventDoesNotExistError);
   });

@@ -6,13 +6,11 @@ export class DeleteCloudFrontOriginAdapter {
 
   public async handle(params: {
     eventId: string;
-    cdnDistributionId: string;
   }): Promise<{
     eventId: string;
   }> {
     await this.useCase.deleteCDNOrigin({
       eventId: params.eventId,
-      cdnDistributionId: params.cdnDistributionId,
     });
 
     return {

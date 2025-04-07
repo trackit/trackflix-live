@@ -112,6 +112,7 @@ export const registerProductionInfrastructure = () => {
     useFactory: () => {
       return new CloudFrontDistributionsManager({
         client: cloudFrontClient,
+        cdnDistributionId: process.env.DISTRIBUTION_ID || '',
       });
     },
   });

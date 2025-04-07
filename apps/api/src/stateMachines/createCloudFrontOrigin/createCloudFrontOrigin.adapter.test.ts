@@ -8,7 +8,6 @@ describe('Create CloudFront origin', () => {
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
     const packageDomainName = 'test.cloudfront.net';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH },
@@ -18,14 +17,12 @@ describe('Create CloudFront origin', () => {
       eventId,
       packageDomainName,
       endpoints,
-      cdnDistributionId,
     });
 
     expect(useCase.createCDNOrigin).toHaveBeenCalledWith({
       eventId,
       packageDomainName,
       endpoints,
-      cdnDistributionId,
     });
   });
 });

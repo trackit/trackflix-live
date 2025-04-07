@@ -12,7 +12,6 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
   public readonly createdOrigins: {
     eventId: string;
     packageDomainName: string;
-    cdnDistributionId: string;
   }[] = [];
 
   public readonly deletedOrigins: { eventId: string }[] = [];
@@ -23,7 +22,6 @@ export class CDNDistributionsManagerFake implements CDNDistributionsManager {
     this.createdOrigins.push({
       eventId: parameters.eventId,
       packageDomainName: parameters.packageDomainName,
-      cdnDistributionId: parameters.cdnDistributionId,
     });
 
     const mockEndpoints = [...parameters.endpoints];

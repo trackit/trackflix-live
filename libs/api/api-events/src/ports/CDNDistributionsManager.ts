@@ -5,7 +5,6 @@ export interface CreateCDNOriginParameters {
   eventId: string;
   packageDomainName: string;
   endpoints: EventEndpoint[];
-  cdnDistributionId: string;
 }
 
 export interface CreateCDNOriginResponse {
@@ -15,7 +14,6 @@ export interface CreateCDNOriginResponse {
 
 export interface DeleteCDNOriginParameters {
   eventId: string;
-  cdnDistributionId: string;
 }
 
 export interface CDNDistributionsManager {

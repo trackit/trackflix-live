@@ -15,17 +15,26 @@ import { EndpointType } from '@trackflix-live/types';
 
 export class CloudFrontDistributionsManager implements CDNDistributionsManager {
   private readonly client: CloudFrontClient;
+  private readonly cdnDistributionId: string;
 
-  public constructor({ client }: { client: CloudFrontClient }) {
+  public constructor({
+    client,
+    cdnDistributionId,
+  }: {
+    client: CloudFrontClient;
+    cdnDistributionId: string;
+  }) {
+    this.cdnDistributionId = cdnDistributionId;
     this.client = client;
   }
 
-  public async getDistribution(
-    cdnDistributionId: string
-  ): Promise<{ distribution: Distribution; eTag: string }> {
+  public async getDistribution(): Promise<{
+    distribution: Distribution;
+    eTag: string;
+  }> {
     const response = await this.client.send(
       new GetDistributionCommand({
-        Id: cdnDistributionId,
+        Id: this.cdnDistributionId,
       })
     );
     if (!response.Distribution) {
@@ -63,9 +72,8 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     eventId,
     packageDomainName,
     endpoints,
-    cdnDistributionId,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
-    const distributionData = await this.getDistribution(cdnDistributionId);
+    const distributionData = await this.getDistribution();
 
     if (!distributionData.distribution.DistributionConfig) {
       throw new Error('Distribution has no config');
@@ -141,7 +149,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: cdnDistributionId,
+        Id: this.cdnDistributionId,
         DistributionConfig: distributionData.distribution.DistributionConfig,
         IfMatch: distributionData.eTag,
       })
@@ -168,9 +176,8 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
   public async deleteOrigin({
     eventId,
-    cdnDistributionId,
   }: DeleteCDNOriginParameters): Promise<void> {
-    const distributionData = await this.getDistribution(cdnDistributionId);
+    const distributionData = await this.getDistribution();
 
     if (!distributionData.distribution.DistributionConfig?.Origins?.Items) {
       throw new Error('Distribution has no origins');
@@ -198,7 +205,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     await this.client.send(
       new UpdateDistributionCommand({
-        Id: cdnDistributionId,
+        Id: this.cdnDistributionId,
         DistributionConfig: distributionData.distribution.DistributionConfig,
         IfMatch: distributionData.eTag,
       })

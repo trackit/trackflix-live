@@ -27,7 +27,6 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
 
   public async createCDNOrigin({
     eventId,
-    cdnDistributionId,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
@@ -38,7 +37,6 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
       eventId,
       packageDomainName: event.packageDomainName ?? '',
       endpoints: event.endpoints ?? [],
-      cdnDistributionId,
     });
 
     await this.eventsRepository.updateEndpoints(eventId, endpoints);

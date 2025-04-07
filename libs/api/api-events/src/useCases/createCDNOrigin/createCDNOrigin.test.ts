@@ -15,7 +15,6 @@ describe('Create CDN origin use case', () => {
     const { useCase, eventsRepository, cdnDistributionsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const packageDomainName = 'trackit.io';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH }
@@ -32,15 +31,13 @@ describe('Create CDN origin use case', () => {
     await useCase.createCDNOrigin({
       eventId,
       packageDomainName,
-      endpoints,
-      cdnDistributionId
+      endpoints
     });
 
     expect(cdnDistributionsManager.createdOrigins).toEqual([
       {
         eventId,
-        packageDomainName,
-        cdnDistributionId
+        packageDomainName
       },
     ]);
   });
@@ -49,7 +46,6 @@ describe('Create CDN origin use case', () => {
     const { useCase, eventsRepository } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const packageDomainName = 'trackit.io';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const originalEndpoints: EventEndpoint[] = [
       { url: 'https://example.amazonaws.com/hls/index.m3u8', type: EndpointType.HLS },
       { url: 'https://example.amazonaws.com/dash/index.mpd', type: EndpointType.DASH }
@@ -65,9 +61,8 @@ describe('Create CDN origin use case', () => {
 
     const result = await useCase.createCDNOrigin({
       eventId,
-      cdnDistributionId,
       packageDomainName,
-      endpoints: originalEndpoints,
+      endpoints: originalEndpoints
     });
 
     const updatedEvent = await eventsRepository.getEvent(eventId);
@@ -86,7 +81,6 @@ describe('Create CDN origin use case', () => {
     const { useCase, eventsRepository } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const packageDomainName = 'trackit.io';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH }
@@ -101,8 +95,7 @@ describe('Create CDN origin use case', () => {
     await useCase.createCDNOrigin({
       eventId,
       packageDomainName,
-      endpoints,
-      cdnDistributionId
+      endpoints
     });
 
     expect(eventsRepository.events[0].logs).toEqual([
@@ -121,7 +114,6 @@ describe('Create CDN origin use case', () => {
     } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const packageDomainName = 'trackit.io';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH }
@@ -136,8 +128,7 @@ describe('Create CDN origin use case', () => {
     await useCase.createCDNOrigin({
       eventId,
       packageDomainName,
-      endpoints,
-      cdnDistributionId
+      endpoints
     });
 
     expect(eventUpdateSender.eventUpdates).toMatchObject([
@@ -160,7 +151,6 @@ describe('Create CDN origin use case', () => {
     const { useCase } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const packageDomainName = 'trackit.io';
-    const cdnDistributionId = 'E1ABCDEFGHIJKL';
     const endpoints: EventEndpoint[] = [
       { url: 'https://example.com/hls', type: EndpointType.HLS },
       { url: 'https://example.com/dash', type: EndpointType.DASH }
@@ -170,8 +160,7 @@ describe('Create CDN origin use case', () => {
       useCase.createCDNOrigin({
         eventId,
         packageDomainName,
-        endpoints,
-        cdnDistributionId
+        endpoints
       })
     ).rejects.toThrow(EventDoesNotExistError);
   });

@@ -10,11 +10,7 @@ export const main = async (params: {
 }): Promise<{
   eventId: string;
 }> => {
-  const cdnDistributionId = process.env.DISTRIBUTION_ID;
-  if (!cdnDistributionId) {
-    throw new Error('DISTRIBUTION_ID environment variable is not set');
-  }
-  await adapter.handle({ ...params, cdnDistributionId });
+  await adapter.handle(params);
   return {
     eventId: params.eventId,
   };

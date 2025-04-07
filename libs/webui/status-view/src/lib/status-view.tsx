@@ -29,6 +29,8 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
       completed: event.logs.some(
         (log) => log.type === LogType.PACKAGE_CHANNEL_CREATED
       ),
+      loading: event.logs.length === 0 && 
+        DateTime.now().toMillis() > DateTime.fromISO(event.onAirStartTime).minus({ minutes: PRE_TX_TIME }).toMillis(),
     },
     {
       id: LogType.LIVE_INPUT_CREATED,

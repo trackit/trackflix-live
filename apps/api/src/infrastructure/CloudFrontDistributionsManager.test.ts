@@ -77,13 +77,10 @@ describe('CloudFront distributions manager', () => {
   describe('getDistribution', () => {
     it('should get distribution', async () => {
       const { cloudFrontDistributionsManager } = setup();
-      const distributionId = 'test-distribution-id';
 
       mock.on(GetDistributionCommand).resolves(mockDistribution);
 
-      const result = await cloudFrontDistributionsManager.getDistribution(
-        distributionId
-      );
+      const result = await cloudFrontDistributionsManager.getDistribution();
 
       expect(result).toEqual({
         distribution: mockDistribution.Distribution,
@@ -93,12 +90,11 @@ describe('CloudFront distributions manager', () => {
 
     it('should throw if distribution not found', async () => {
       const { cloudFrontDistributionsManager } = setup();
-      const distributionId = 'test-distribution-id';
 
       mock.on(GetDistributionCommand).resolves({});
 
       await expect(
-        cloudFrontDistributionsManager.getDistribution(distributionId)
+        cloudFrontDistributionsManager.getDistribution()
       ).rejects.toThrow('Failed to get CloudFront distribution');
     });
   });
@@ -109,7 +105,6 @@ describe('CloudFront distributions manager', () => {
       process.env.DISTRIBUTION_ID = 'test-distribution-id';
       const eventId = 'test-event-id';
       const packageDomainName = 'test-domain-name';
-      const cdnDistributionId = 'test-distribution-id';
       const endpoints: EventEndpoint[] = [
         { url: 'https://amazonaws.com/hls/index.m3u8', type: EndpointType.HLS },
         {
@@ -125,7 +120,6 @@ describe('CloudFront distributions manager', () => {
         eventId,
         packageDomainName,
         endpoints,
-        cdnDistributionId,
       });
 
       const getDistributionCall = mock
@@ -133,7 +127,7 @@ describe('CloudFront distributions manager', () => {
         .find((call) => call.args[0] instanceof GetDistributionCommand);
       expect(getDistributionCall).toBeDefined();
       expect(getDistributionCall?.args[0].input).toEqual({
-        Id: cdnDistributionId,
+        Id: process.env.DISTRIBUTION_ID,
       });
 
       const updateCall = mock
@@ -142,7 +136,7 @@ describe('CloudFront distributions manager', () => {
       expect(updateCall).toBeDefined();
       const updateInput = updateCall?.args[0]
         .input as UpdateDistributionCommandInput;
-      expect(updateInput.Id).toBe(cdnDistributionId);
+      expect(updateInput.Id).toBe(process.env.DISTRIBUTION_ID);
       expect(updateInput.IfMatch).toBe('test-etag');
 
       const config = updateInput.DistributionConfig;
@@ -178,11 +172,10 @@ describe('CloudFront distributions manager', () => {
     it('should delete origin and associated cache behaviors', async () => {
       const { cloudFrontDistributionsManager } = setup();
       const eventId = 'test-event-id';
-      const cdnDistributionId = 'test-distribution-id';
 
       const distributionUpdated: Distribution = {
         ...mockDistribution.Distribution,
-        Id: cdnDistributionId,
+        Id: process.env.DISTRIBUTION_ID,
         ARN: 'test-arn',
         Status: 'Deployed',
         LastModifiedTime: new Date(),
@@ -295,7 +288,6 @@ describe('CloudFront distributions manager', () => {
 
       await cloudFrontDistributionsManager.deleteOrigin({
         eventId,
-        cdnDistributionId,
       });
 
       const getDistributionCall = mock
@@ -303,7 +295,7 @@ describe('CloudFront distributions manager', () => {
         .find((call) => call.args[0] instanceof GetDistributionCommand);
       expect(getDistributionCall).toBeDefined();
       expect(getDistributionCall?.args[0].input).toEqual({
-        Id: cdnDistributionId,
+        Id: process.env.DISTRIBUTION_ID,
       });
 
       const updateCall = mock
@@ -312,7 +304,7 @@ describe('CloudFront distributions manager', () => {
       expect(updateCall).toBeDefined();
       const updateInput = updateCall?.args[0]
         .input as UpdateDistributionCommandInput;
-      expect(updateInput.Id).toBe(cdnDistributionId);
+      expect(updateInput.Id).toBe(process.env.DISTRIBUTION_ID);
       expect(updateInput.IfMatch).toBe('test-etag');
 
       const config = updateInput.DistributionConfig;
@@ -333,14 +325,12 @@ describe('CloudFront distributions manager', () => {
     it('should not fail if origin does not exist', async () => {
       const { cloudFrontDistributionsManager } = setup();
       const eventId = 'non-existent-event-id';
-      const cdnDistributionId = 'test-distribution-id';
 
       mock.on(GetDistributionCommand).resolves(mockDistribution);
       mock.on(UpdateDistributionCommand).resolves({});
 
       await cloudFrontDistributionsManager.deleteOrigin({
         eventId,
-        cdnDistributionId,
       });
 
       const getDistributionCall = mock
@@ -371,6 +361,7 @@ const setup = () => {
   });
   const cloudFrontDistributionsManager = new CloudFrontDistributionsManager({
     client,
+    cdnDistributionId: process.env.DISTRIBUTION_ID || 'test-distribution-id',
   });
 
   return { client, cloudFrontDistributionsManager };
