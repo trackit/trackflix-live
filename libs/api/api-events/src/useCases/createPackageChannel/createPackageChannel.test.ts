@@ -81,6 +81,26 @@ describe('Create Package channel use case', () => {
     ]);
   });
 
+  it('should update package domain name', async () => {
+    const { useCase, packageChannelsManager, eventsRepository } = setup();
+    const packageChannelId = '8123456';
+
+    const event = EventMother.basic().withEndpoints([]).build();
+    await eventsRepository.createEvent(event);
+
+    packageChannelsManager.setPackageChannelId(packageChannelId);
+    packageChannelsManager.setPackageChannelEndpoints([
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+      },
+    ]);
+
+    await useCase.createPackageChannel(event.id);
+
+    expect(eventsRepository.events[0].packageDomainName).toEqual('trackflix-live.mediapackage.com');
+  });
+
   it('should emit events', async () => {
     const {
       useCase,

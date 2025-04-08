@@ -1,4 +1,4 @@
-import { EndpointType, Event, EventEndpoint, EventStatus } from '../lib/types';
+import { Event, EventEndpoint, EventStatus } from '../lib/types';
 
 export class EventMother {
   private readonly data: Event;
@@ -39,6 +39,13 @@ export class EventMother {
 
   public withLiveInputId(liveInputId: string | undefined): EventMother {
     this.data.liveInputId = liveInputId;
+    return this;
+  }
+
+  public withPackageDomainName(
+    packageDomainName: string | undefined
+  ): EventMother {
+    this.data.packageDomainName = packageDomainName;
     return this;
   }
 

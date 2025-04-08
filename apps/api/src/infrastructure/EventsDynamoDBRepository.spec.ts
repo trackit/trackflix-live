@@ -275,41 +275,6 @@ describe('EventsDynamoDBRepository', () => {
     });
   });
 
-  describe('appendEndpointsToEvent', () => {
-    it('should append endpoints to an event', async () => {
-      const { ddbClient, repository } = setup();
-
-      const firstEndpoint = {
-        url: 'https://formula-1.com/live/dash/monaco-gp-2025.m3u8',
-        type: EndpointType.HLS,
-      };
-      const sampleEvent = EventMother.basic()
-        .withEndpoints([firstEndpoint])
-        .build();
-      await repository.createEvent(sampleEvent);
-
-      const newEndpoint: EventEndpoint = {
-        url: 'https://formula-1.com/live/dash/monaco-gp-2025.dash',
-        type: EndpointType.DASH,
-      };
-
-      await repository.appendEndpointsToEvent(sampleEvent.id, [newEndpoint]);
-
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        endpoints: [firstEndpoint, newEndpoint],
-      });
-    });
-  });
-
   describe('updateEventStatus', () => {
     it('should update event status', async () => {
       const { ddbClient, repository } = setup();
@@ -461,6 +426,68 @@ describe('EventsDynamoDBRepository', () => {
       expect(responseFromDB.Item).toMatchObject({
         ...sampleEvent,
         destroyedTime,
+      });
+    });
+  });
+
+  describe('updatePackageDomainName', () => {
+    it('should update event package domain name', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const packageDomainName = 'example-domain.cloudfront.net';
+      await repository.createEvent(sampleEvent);
+
+      await repository.updatePackageDomainName(
+        sampleEvent.id,
+        packageDomainName
+      );
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        packageDomainName,
+      });
+    });
+  });
+
+  describe('updateEventEndpoints', () => {
+    it('should update event endpoints', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const endpoints: EventEndpoint[] = [
+        {
+          type: EndpointType.HLS,
+          url: 'https://example.com/hls/stream.m3u8',
+        },
+        {
+          type: EndpointType.DASH,
+          url: 'https://example.com/dash/manifest.mpd',
+        },
+      ];
+      await repository.createEvent(sampleEvent);
+
+      await repository.updateEndpoints(sampleEvent.id, endpoints);
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        endpoints,
       });
     });
   });

@@ -88,16 +88,13 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
-  async appendEndpointsToEvent(
-    eventId: string,
-    endpoints: EventEndpoint[]
-  ): Promise<Event> {
+  async updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
       throw new EventDoesNotExistError();
     }
 
-    event.endpoints.push(...endpoints);
+    event.endpoints = endpoints;
 
     return event;
   }
@@ -154,6 +151,20 @@ export class EventsRepositoryInMemory implements EventsRepository {
     }
 
     event.liveInputId = liveInputId;
+
+    return event;
+  }
+
+  public async updatePackageDomainName(
+    eventId: string,
+    packageDomainName: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new EventDoesNotExistError();
+    }
+
+    event.packageDomainName = packageDomainName;
 
     return event;
   }

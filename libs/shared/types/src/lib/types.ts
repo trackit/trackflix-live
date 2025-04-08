@@ -19,6 +19,8 @@ export enum LogType {
   LIVE_CHANNEL_DESTROYED = 'LIVE_CHANNEL_DESTROYED',
   LIVE_INPUT_DESTROYED = 'LIVE_INPUT_DESTROYED',
   PACKAGE_CHANNEL_DESTROYED = 'PACKAGE_CHANNEL_DESTROYED',
+  CDN_ORIGIN_CREATED = 'CDN_ORIGIN_CREATED',
+  CDN_ORIGIN_DESTROYED = 'CDN_ORIGIN_DESTROYED',
   ERROR_OCCURRED = 'ERROR_OCCURRED',
 }
 
@@ -54,6 +56,7 @@ export interface Event {
   liveChannelArn?: string;
   liveInputId?: string;
   liveWaitingInputId?: string;
+  packageDomainName?: string;
 }
 
 export enum EventUpdateAction {

@@ -24,10 +24,7 @@ export interface EventsRepository {
   listEvents(params: ListEventsParams): Promise<ListEventsResponse>;
   getEvent(eventId: string): Promise<Event | undefined>;
   appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event>;
-  appendEndpointsToEvent(
-    eventId: string,
-    endpoints: EventEndpoint[]
-  ): Promise<Event>;
+  updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event>;
   updateEventStatus(eventId: string, status: EventStatus): Promise<Event>;
   updateLiveChannelId(eventId: string, liveChannelId: string): Promise<Event>;
   updateLiveChannelArn(eventId: string, liveChannelArn: string): Promise<Event>;
@@ -36,6 +33,7 @@ export interface EventsRepository {
     eventId: string,
     liveWaitingInputId: string
   ): Promise<Event>;
+  updatePackageDomainName(eventId: string, packageDomainName: string): Promise<Event>;
   updateEventDestroyedTime(
     eventId: string,
     destroyedTime: string

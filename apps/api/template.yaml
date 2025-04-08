@@ -9,6 +9,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 60
+    MemorySize: 256
     Architectures:
       - x86_64
     Runtime: nodejs20.x
@@ -16,6 +17,27 @@ Globals:
       LogFormat: JSON
 
 Resources:
+  #############################
+  #  CLOUDFRONT DISTRIBUTION  #
+  #############################
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: dummy-origin  # We need a default origin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled policy
+        Origins:
+          - Id: dummy-origin
+            DomainName: trackit.io
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: match-viewer
+        Comment: !Sub "${AWS::StackName} - Main Distribution"
+
   #############
   # IAM ROLES #
   #############
@@ -127,12 +149,14 @@ Resources:
                   - !GetAtt CreateMediaPackageChannel.Arn
                   - !GetAtt CreateMediaLiveChannel.Arn
                   - !GetAtt StartMediaLiveChannel.Arn
+                  - !GetAtt CreateCloudFrontOrigin.Arn
                   - !GetAtt SaveResults.Arn
                   - !GetAtt UpdateStatus.Arn
                   - !GetAtt StopMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveChannel.Arn
                   - !GetAtt DeleteMediaLiveInput.Arn
                   - !GetAtt DeleteMediaPackageChannel.Arn
+                  - !GetAtt DeleteCloudFrontOrigin.Arn
                   - !GetAtt SetErrorStatus.Arn
                 Effect: "Allow"
   IoTCoreAccessRole:
@@ -306,6 +330,27 @@ Resources:
                   - "medialive:BatchUpdateSchedule"
                 Resource:
                   - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
+        - PolicyName: !Sub "${AWS::StackName}-CloudFront-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cloudfront:GetDistribution"
+                  - "cloudfront:UpdateDistribution"
+                  - "cloudfront:GetDistributionConfig"
+                  - "cloudfront:TagResource"
+                Resource:
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+              - Effect: Allow
+                Action:
+                  - "cloudfront:CreateOriginRequestPolicy"
+                  - "cloudfront:GetOriginRequestPolicy"
+                  - "cloudfront:CreateCachePolicy" 
+                  - "cloudfront:GetCachePolicy"
+                Resource: 
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:origin-request-policy/*"
+                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:cache-policy/*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
           PolicyDocument:
             Version: "2012-10-17"
@@ -756,6 +801,26 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  CreateCloudFrontOrigin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/createCloudFrontOrigin/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+          DISTRIBUTION_ID: !Ref CloudFrontDistribution
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   SaveResults:
     Type: AWS::Serverless::Function
     Properties:
@@ -891,6 +956,26 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  DeleteCloudFrontOrigin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/stateMachines/deleteCloudFrontOrigin/
+      Handler: handler.main
+      Role: !GetAtt StateMachineLambdaRole.Arn
+      Environment:
+        Variables:
+          EVENTS_TABLE: !Ref EventsTable
+          IOT_TOPIC: !Sub "${AWS::StackName}"
+          DISTRIBUTION_ID: !Ref CloudFrontDistribution
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
 
   ####################
   #    API GATEWAY   #
@@ -951,6 +1036,24 @@ Resources:
                   "input.$": "$",
                   "taskToken.$": "$$.Task.Token"
                 }
+              },
+              "Next": "Create CloudFront origin"
+            },
+            "Create CloudFront origin": {
+              "Type": "Task",
+              "Resource": "${CreateCloudFrontOrigin}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "Parameters": {
+                "eventId.$": "$.eventId",
+                "liveChannelArn.$": "$.liveChannelArn",
+                "liveChannelId.$": "$.liveChannelId",
+                "packageChannelId.$": "$.packageChannelId"
               },
               "Next": "Start MediaLive channel"
             },
@@ -1015,6 +1118,7 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        CreateCloudFrontOrigin: !GetAtt CreateCloudFrontOrigin.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         SaveResults: !GetAtt SaveResults.Arn
         UpdateStatus: !GetAtt UpdateStatus.Arn
@@ -1077,6 +1181,21 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
+              "Next": "Delete CloudFront origin"
+            },
+            "Delete CloudFront origin": {
+              "Type": "Task",
+              "Resource": "${DeleteCloudFrontOrigin}",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "Set error status"
+                }
+              ],
+              "Parameters": {
+                "eventId.$": "$.eventId"
+              },
               "Next": "Delete MediaPackage channel"
             },
             "Delete MediaPackage channel": {
@@ -1104,10 +1223,12 @@ Resources:
       DefinitionSubstitutions:
         CreateMediaPackageChannel: !GetAtt CreateMediaPackageChannel.Arn
         CreateMediaLiveChannel: !GetAtt CreateMediaLiveChannel.Arn
+        CreateCloudFrontOrigin: !GetAtt CreateCloudFrontOrigin.Arn
         StartMediaLiveChannel: !GetAtt StartMediaLiveChannel.Arn
         StopMediaLiveChannel: !GetAtt StopMediaLiveChannel.Arn
         DeleteMediaLiveChannel: !GetAtt DeleteMediaLiveChannel.Arn
         DeleteMediaLiveInput: !GetAtt DeleteMediaLiveInput.Arn
+        DeleteCloudFrontOrigin: !GetAtt DeleteCloudFrontOrigin.Arn
         DeleteMediaPackageChannel: !GetAtt DeleteMediaPackageChannel.Arn
         SetErrorStatus: !GetAtt SetErrorStatus.Arn
       RoleArn: !GetAtt StepFunctionsRole.Arn
@@ -1123,3 +1244,5 @@ Outputs:
     Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
   IotTopic:
     Value: !Sub "${AWS::StackName}"
+  CloudFrontDistributionId:
+    Value: !Ref CloudFrontDistribution

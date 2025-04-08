@@ -10,6 +10,7 @@ import {
   tokenTransmissionsManager,
   tokenEventSchedulerDelete,
   tokenAssetsService,
+  tokenCDNDistributionsManager,
 } from '@trackflix-live/api-events';
 import { EventsIotUpdateSender } from './EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
@@ -28,6 +29,8 @@ import { TransmissionsManagerSfn } from './TransmissionsManagerSfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
 import { S3Client } from '@aws-sdk/client-s3';
 import { S3AssetsService } from './S3AssetsService';
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
+import { CloudFrontDistributionsManager } from './CloudFrontDistributionsManager';
 
 export const registerProductionInfrastructure = () => {
   const schedulerClient = new SchedulerClient();
@@ -37,6 +40,7 @@ export const registerProductionInfrastructure = () => {
   const dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
   const mediaLiveClient = new MediaLiveClient();
   const mediaPackageClient = new MediaPackageClient();
+  const cloudFrontClient = new CloudFrontClient();
   const sfnClient = new SFNClient();
   const s3Client = new S3Client();
 
@@ -102,6 +106,14 @@ export const registerProductionInfrastructure = () => {
   register(tokenPackageChannelsManager, {
     useFactory: () => {
       return new MediaPackageChannelsManager({ client: mediaPackageClient });
+    },
+  });
+  register(tokenCDNDistributionsManager, {
+    useFactory: () => {
+      return new CloudFrontDistributionsManager({
+        client: cloudFrontClient,
+        cdnDistributionId: process.env.DISTRIBUTION_ID || '',
+      });
     },
   });
   register(tokenTaskTokensRepository, {
