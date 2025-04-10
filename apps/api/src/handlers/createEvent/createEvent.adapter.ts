@@ -3,10 +3,17 @@ import {
   AssetNotFoundError,
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
-import { BadRequestError, ForbiddenError, handleHttpRequest } from '../HttpErrors';
+import {
+  BadRequestError,
+  ForbiddenError,
+  handleHttpRequest,
+} from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
-import { APIGatewayEventRequestContextV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayEventRequestContextV2,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 
@@ -52,7 +59,10 @@ export class CreateEventAdapter {
     const customContext = event.requestContext as CustomRequestContext;
     const groups = customContext.authorizer?.claims['cognito:groups'] || [];
 
-    if (!(groups === 'Creators') && !(Array.isArray(groups) && groups.includes('Creators'))) {
+    if (
+      !(groups === 'Creators') &&
+      !(Array.isArray(groups) && groups.includes('Creators'))
+    ) {
       throw new ForbiddenError('Viewers are not authorized to create events');
     }
 
