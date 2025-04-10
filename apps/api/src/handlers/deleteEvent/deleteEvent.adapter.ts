@@ -8,6 +8,7 @@ import {
 } from '@trackflix-live/api-events';
 import {
   BadRequestError,
+  ForbiddenError,
   handleHttpRequest,
   NotFoundError,
 } from '../HttpErrors';
@@ -16,8 +17,8 @@ import { inject } from '@trackflix-live/di';
 import {
   DeleteEventRequest,
   DeleteEventResponse,
-  GetEventRequest,
 } from '@trackflix-live/types';
+import { CustomRequestContext } from '../createEvent/createEvent.adapter';
 
 export class DeleteEventAdapter {
   private readonly useCase: DeleteEventUseCase = inject(
@@ -34,6 +35,13 @@ export class DeleteEventAdapter {
   }
 
   public async processRequest(event: APIGatewayProxyEventV2) {
+    const customContext = event.requestContext as CustomRequestContext;
+    const groups = customContext.authorizer?.claims['cognito:groups'] || [];
+
+    if (!(groups === 'Creators') && !(Array.isArray(groups) && groups.includes('Creators'))) {
+      throw new ForbiddenError('Viewers are not authorized to delete events');
+    }
+
     const pathParameters =
       event.pathParameters as DeleteEventRequest['pathParameters'];
     if (pathParameters?.eventId === undefined) {

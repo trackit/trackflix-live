@@ -4,7 +4,6 @@ import {
   tokenCDNDistributionsManager,
   tokenEventsRepository,
   tokenEventUpdateSender,
-  tokenTaskTokensRepository,
 } from '../../ports';
 import { EventUpdateAction, LogType } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
@@ -22,8 +21,6 @@ export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
   private readonly cdnDistributionsManager = inject(tokenCDNDistributionsManager);
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
-
-  private readonly taskTokensRepository = inject(tokenTaskTokensRepository);
 
   public async createCDNOrigin({
     eventId,

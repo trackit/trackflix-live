@@ -45,6 +45,16 @@ export class NotFoundError extends HttpError {
   }
 }
 
+export class ForbiddenError extends HttpError {
+  public constructor(description?: string) {
+    super({
+      code: 403,
+      message: 'Forbidden',
+      description,
+    });
+  }
+}
+
 export const handleHttpRequest = async ({
   event,
   func,
