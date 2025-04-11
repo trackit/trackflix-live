@@ -170,6 +170,27 @@ describe('Delete Event adapter', () => {
       description: 'Viewers are not authorized to delete events',
     });
   });
+
+  it('should return 403 response if cognito:groups does not exist', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+      requestContext: {
+        authorizer: {
+          claims: {},
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to delete events',
+    });
+  });
 });
 
 const setup = () => {

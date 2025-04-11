@@ -313,6 +313,28 @@ describe('Create event adapter', () => {
       description: 'Viewers are not authorized to create events',
     });
   });
+
+  it('should return 403 response if cognito:groups does not exist', async () => {
+    const { adapter } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify(createEventReq),
+      requestContext: {
+        authorizer: {
+          claims: {},
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to create events',
+    });
+  });
 });
 
 const setup = () => {
