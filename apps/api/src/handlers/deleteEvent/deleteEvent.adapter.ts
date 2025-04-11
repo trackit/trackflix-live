@@ -1,4 +1,3 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   DeleteEventUseCase,
   EventCannotBeDeletedWhileOnAirError,
@@ -8,16 +7,17 @@ import {
 } from '@trackflix-live/api-events';
 import {
   BadRequestError,
+  ForbiddenError,
   handleHttpRequest,
   NotFoundError,
 } from '../HttpErrors';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
-import { inject } from '@trackflix-live/di';
 import {
-  DeleteEventRequest,
-  DeleteEventResponse,
-  GetEventRequest,
-} from '@trackflix-live/types';
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
+import { inject } from '@trackflix-live/di';
+import { DeleteEventRequest, DeleteEventResponse } from '@trackflix-live/types';
+import { CustomRequestContext } from '../types';
 
 export class DeleteEventAdapter {
   private readonly useCase: DeleteEventUseCase = inject(
@@ -25,7 +25,7 @@ export class DeleteEventAdapter {
   );
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -33,7 +33,19 @@ export class DeleteEventAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
+    const groups =
+      event.requestContext.authorizer?.claims['cognito:groups'] || [];
+
+    if (
+      !(groups === 'Creators') &&
+      !(Array.isArray(groups) && groups.includes('Creators'))
+    ) {
+      throw new ForbiddenError('Viewers are not authorized to delete events');
+    }
+
     const pathParameters =
       event.pathParameters as DeleteEventRequest['pathParameters'];
     if (pathParameters?.eventId === undefined) {

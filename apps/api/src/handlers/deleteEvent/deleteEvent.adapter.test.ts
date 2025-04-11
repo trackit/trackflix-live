@@ -1,5 +1,5 @@
 import { DeleteEventAdapter } from './deleteEvent.adapter';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
 import { NotFoundError } from '../HttpErrors';
 import { register, reset } from '@trackflix-live/di';
 import {
@@ -7,6 +7,7 @@ import {
   EventCannotBeDeletedWhileOnAirError,
   tokenDeleteEventUseCase,
 } from '@trackflix-live/api-events';
+import { CustomRequestContext } from '../types';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
@@ -16,7 +17,14 @@ describe('Delete Event adapter', () => {
       pathParameters: {
         eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
       } as unknown,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.deleteEvent).toHaveBeenCalledWith(
       'e5b30161-9206-4f4c-a3cc-0dd8cd284aad'
@@ -29,7 +37,14 @@ describe('Delete Event adapter', () => {
       pathParameters: {
         eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
       } as unknown,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     useCase.deleteEvent.mockResolvedValueOnce(undefined);
 
@@ -45,7 +60,14 @@ describe('Delete Event adapter', () => {
       pathParameters: {
         eventId: 'invalid-id',
       } as unknown,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(404);
     expect(JSON.parse(response.body || '').message).toEqual('Not Found');
@@ -61,7 +83,14 @@ describe('Delete Event adapter', () => {
       pathParameters: {
         eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
       } as unknown,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
@@ -80,12 +109,86 @@ describe('Delete Event adapter', () => {
       pathParameters: {
         eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
       } as unknown,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
       message: 'Bad Request',
       description: 'Event cannot be deleted while on air',
+    });
+  });
+
+  it('should return 403 response if user is not in Creators group', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Viewers'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to delete events',
+    });
+  });
+
+  it('should return 403 response if cognito:groups is a string and not Creators', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': 'Viewers',
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to delete events',
+    });
+  });
+
+  it('should return 403 response if cognito:groups does not exist', async () => {
+    const { adapter } = setup();
+
+    const response = await adapter.handle({
+      pathParameters: {
+        eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      } as unknown,
+      requestContext: {
+        authorizer: {
+          claims: {},
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to delete events',
     });
   });
 });

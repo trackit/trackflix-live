@@ -1,5 +1,5 @@
 import { CreateEventAdapter } from './createEvent.adapter';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
@@ -7,6 +7,7 @@ import {
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
 import { register, reset } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 describe('Create event adapter', () => {
   jest.useFakeTimers();
@@ -20,7 +21,14 @@ describe('Create event adapter', () => {
 
     await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
@@ -35,7 +43,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({ event });
@@ -45,7 +60,14 @@ describe('Create event adapter', () => {
     const { adapter } = setup();
     const response = await adapter.handle({
       body: undefined,
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -58,7 +80,14 @@ describe('Create event adapter', () => {
     const { adapter } = setup();
     const response = await adapter.handle({
       body: 'invalid json',
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -73,7 +102,14 @@ describe('Create event adapter', () => {
       body: JSON.stringify({
         unknownField: 'unknownValue',
       }),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -91,7 +127,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -108,7 +151,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -125,7 +175,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -142,7 +199,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -161,7 +225,14 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -179,12 +250,89 @@ describe('Create event adapter', () => {
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
-    } as APIGatewayProxyEventV2);
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Bad Request',
       description: 'Asset not found.',
+    });
+  });
+
+  it('should return 403 response if user is not in Creators group', async () => {
+    const { adapter } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify(createEventReq),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Viewers'],
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to create events',
+    });
+  });
+
+  it('should return 403 response if cognito:groups is a string and not Creators', async () => {
+    const { adapter } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify(createEventReq),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': 'Viewers',
+          },
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to create events',
+    });
+  });
+
+  it('should return 403 response if cognito:groups does not exist', async () => {
+    const { adapter } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify(createEventReq),
+      requestContext: {
+        authorizer: {
+          claims: {},
+        },
+      } as any,
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(403);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Forbidden',
+      description: 'Viewers are not authorized to create events',
     });
   });
 });
