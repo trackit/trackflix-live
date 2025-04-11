@@ -1,10 +1,13 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import { tokenListEventsUseCase } from '@trackflix-live/api-events';
 import Ajv, { JSONSchemaType } from 'ajv';
 import { ListEventsRequest, ListEventsResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 const ajv = new Ajv();
 
@@ -63,7 +66,7 @@ export class ListEventsAdapter {
   private readonly useCase = inject(tokenListEventsUseCase);
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -71,7 +74,9 @@ export class ListEventsAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
     const queryParams = event.queryStringParameters || {};
     const { limit, nextToken, sortBy, sortOrder, name } =
       queryParams as ListEventsRequest['queryStringParameters'];

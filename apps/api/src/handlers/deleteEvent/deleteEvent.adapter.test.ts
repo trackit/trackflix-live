@@ -1,5 +1,5 @@
 import { DeleteEventAdapter } from './deleteEvent.adapter';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
 import { NotFoundError } from '../HttpErrors';
 import { register, reset } from '@trackflix-live/di';
 import {
@@ -7,6 +7,7 @@ import {
   EventCannotBeDeletedWhileOnAirError,
   tokenDeleteEventUseCase,
 } from '@trackflix-live/api-events';
+import { CustomRequestContext } from '../types';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
@@ -23,7 +24,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.deleteEvent).toHaveBeenCalledWith(
       'e5b30161-9206-4f4c-a3cc-0dd8cd284aad'
@@ -43,7 +44,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     useCase.deleteEvent.mockResolvedValueOnce(undefined);
 
@@ -66,7 +67,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(404);
     expect(JSON.parse(response.body || '').message).toEqual('Not Found');
@@ -89,7 +90,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
@@ -115,7 +116,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
@@ -138,7 +139,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -161,7 +162,7 @@ describe('Delete Event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({

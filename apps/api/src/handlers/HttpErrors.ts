@@ -1,6 +1,9 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import { CORS_HEADERS } from './constants';
+import { CustomRequestContext } from './types';
 
 export class HttpError extends Error {
   public readonly code: number;
@@ -59,8 +62,10 @@ export const handleHttpRequest = async ({
   event,
   func,
 }: {
-  event: APIGatewayProxyEventV2;
-  func: (event: APIGatewayProxyEventV2) => Promise<unknown>;
+  event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>;
+  func: (
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) => Promise<unknown>;
 }): Promise<APIGatewayProxyStructuredResultV2> => {
   try {
     return {

@@ -1,4 +1,3 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   AssetNotFoundError,
   tokenCreateEventUseCase,
@@ -11,11 +10,12 @@ import {
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import {
-  APIGatewayEventRequestContextV2,
+  APIGatewayProxyEventV2WithRequestContext,
   APIGatewayProxyStructuredResultV2,
 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -35,19 +35,11 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
 
 const validate = ajv.compile(schema);
 
-export interface CustomRequestContext extends APIGatewayEventRequestContextV2 {
-  authorizer?: {
-    claims: {
-      [key: string]: string | string[];
-    };
-  };
-}
-
 export class CreateEventAdapter {
   private readonly useCase = inject(tokenCreateEventUseCase);
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -55,9 +47,11 @@ export class CreateEventAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
-    const customContext = event.requestContext as CustomRequestContext;
-    const groups = customContext.authorizer?.claims['cognito:groups'] || [];
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
+    const groups =
+      event.requestContext.authorizer?.claims['cognito:groups'] || [];
 
     if (
       !(groups === 'Creators') &&

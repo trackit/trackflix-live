@@ -1,4 +1,3 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   tokenGetEventUseCase,
   EventDoesNotExistError,
@@ -8,15 +7,19 @@ import {
   handleHttpRequest,
   NotFoundError,
 } from '../HttpErrors';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import { GetEventRequest, GetEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 export class GetEventAdapter {
   private readonly useCase = inject(tokenGetEventUseCase);
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -24,7 +27,9 @@ export class GetEventAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
     const pathParameters =
       event.pathParameters as GetEventRequest['pathParameters'];
     if (pathParameters?.eventId === undefined) {

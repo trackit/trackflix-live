@@ -1,8 +1,5 @@
-import {
-  CreateEventAdapter,
-  CustomRequestContext,
-} from './createEvent.adapter';
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { CreateEventAdapter } from './createEvent.adapter';
+import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
@@ -10,6 +7,7 @@ import {
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
 import { register, reset } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 describe('Create event adapter', () => {
   jest.useFakeTimers();
@@ -30,7 +28,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
@@ -52,7 +50,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({ event });
@@ -69,7 +67,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -89,7 +87,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -111,7 +109,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -136,7 +134,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -160,7 +158,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -184,7 +182,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -208,7 +206,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -234,7 +232,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -259,7 +257,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -283,7 +281,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -307,7 +305,7 @@ describe('Create event adapter', () => {
           },
         },
       } as any,
-    } as APIGatewayProxyEventV2);
+    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
