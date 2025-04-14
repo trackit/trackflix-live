@@ -13,7 +13,7 @@ import { AuthorizationError } from '../../utils';
 export type CreateEventArgs = Pick<
   Event,
   'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
->;
+> & { userGroups: string[] };
 
 export class AssetNotFoundError extends Error {
   constructor() {
@@ -22,7 +22,7 @@ export class AssetNotFoundError extends Error {
 }
 
 export interface CreateEventUseCase {
-  createEvent(args: CreateEventArgs, userGroups: string[]): Promise<Event>;
+  createEvent(args: CreateEventArgs): Promise<Event>;
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
@@ -36,8 +36,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
 
   private readonly assetsService = inject(tokenAssetsService);
 
-  public async createEvent(args: CreateEventArgs, userGroups: string[]): Promise<Event> {
-    if (!userGroups.includes('Creators')) {
+  public async createEvent(args: CreateEventArgs): Promise<Event> {
+    if (!args.userGroups.includes('Creators')) {
       throw new AuthorizationError();
     }
 

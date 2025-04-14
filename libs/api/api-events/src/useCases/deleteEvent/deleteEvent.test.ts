@@ -15,14 +15,14 @@ describe('DeleteEvent use case', () => {
     await eventsRepository.createEvent(event);
     expect(eventsRepository.events).toEqual([event]);
 
-    await useCase.deleteEvent(event.id, ['Creators']);
+    await useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] });
     expect(eventsRepository.events).toEqual([]);
   });
 
   it('should throw an error if the event does not exist', async () => {
     const { useCase } = setup();
 
-    await expect(useCase.deleteEvent('non-existing-id', ['Creators'])).rejects.toThrow(
+    await expect(useCase.deleteEvent({ eventId: 'non-existing-id', userGroups: ['Creators'] })).rejects.toThrow(
       EventDoesNotExistError
     );
   });
@@ -33,7 +33,7 @@ describe('DeleteEvent use case', () => {
     const event = EventMother.basic().withStatus(EventStatus.POST_TX).build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent(event.id, ['Creators'])).rejects.toThrow(
+    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
       'Event cannot be deleted'
     );
   });
@@ -49,7 +49,7 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent(event.id, ['Creators'])).rejects.toThrow(
+    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
       'Cannot delete event while it is on air'
     );
   });
@@ -62,7 +62,7 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await useCase.deleteEvent(event.id, ['Creators']);
+    await useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] });
     expect(eventSchedulerDelete.deletedScheduledEvents).toEqual([
       'TrackflixLiveStartTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
       'TrackflixLiveStopTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
@@ -76,7 +76,7 @@ describe('DeleteEvent use case', () => {
     await eventsRepository.createEvent(event);
 
     await expect(
-      useCase.deleteEvent(event.id, ['Viewers'])
+      useCase.deleteEvent({ eventId: event.id, userGroups: ['Viewers'] })
     ).rejects.toThrow(AuthorizationError);
   });
 });

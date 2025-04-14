@@ -22,8 +22,8 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withName('Test event')
         .withSource(source)
-        .build(),
-      ['Creators']
+        .withUserGroups(['Creators'])
+        .build()
     );
 
     expect(eventsRepository.events).toMatchObject([
@@ -46,8 +46,8 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withName('Test event')
         .withSource(source)
-        .build(),
-      ['Creators']
+        .withUserGroups(['Creators'])
+        .build()
     );
 
     expect(eventUpdateSender.eventUpdates).toHaveLength(1);
@@ -66,8 +66,8 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withOnAirStartTime('2025-01-22T09:45:07.202Z')
         .withSource(source)
-        .build(),
-      ['Creators']
+        .withUserGroups(['Creators'])
+        .build()
     );
 
     expect(eventSchedulerStart.scheduledEvents).toMatchObject([
@@ -86,8 +86,8 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withOnAirEndTime('2025-01-22T09:45:07.202Z')
         .withSource(source)
-        .build(),
-      ['Creators']
+        .withUserGroups(['Creators'])
+        .build()
     );
 
     expect(eventSchedulerStop.scheduledEvents).toMatchObject([
@@ -104,8 +104,8 @@ describe('CreateEvent use case', () => {
       useCase.createEvent(
         CreateEventMother.basic()
           .withSource('s3://unknown-bucket/my_video.mp4')
-          .build(),
-        ['Creators']
+          .withUserGroups(['Creators'])
+          .build()
       )
     ).rejects.toThrow(AssetNotFoundError);
   });
@@ -119,8 +119,8 @@ describe('CreateEvent use case', () => {
       useCase.createEvent(
         CreateEventMother.basic()
           .withSource(source)
-          .build(),
-        ['Viewers']
+          .withUserGroups(['Viewers'])
+          .build()
       )
     ).rejects.toThrow(AuthorizationError);
   });

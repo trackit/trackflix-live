@@ -50,7 +50,10 @@ export class DeleteEventAdapter {
     }
 
     try {
-      await this.useCase.deleteEvent(pathParameters.eventId, userGroups);
+      await this.useCase.deleteEvent({
+        eventId: pathParameters.eventId,
+        userGroups,
+      });
     } catch (error) {
       switch (true) {
         case error instanceof EventDoesNotExistError:

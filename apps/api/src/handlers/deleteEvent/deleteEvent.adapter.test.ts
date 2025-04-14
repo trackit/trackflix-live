@@ -27,10 +27,10 @@ describe('Delete Event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.deleteEvent).toHaveBeenCalledWith(
-      'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
-      ['Creators']
-    );
+    expect(useCase.deleteEvent).toHaveBeenCalledWith({
+      eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      userGroups: ['Creators'],
+    });
   });
 
   it('should return successful response', async () => {
@@ -168,10 +168,10 @@ describe('Delete Event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.deleteEvent).toHaveBeenCalledWith(
-      'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
-      ['Creators']
-    );
+    expect(useCase.deleteEvent).toHaveBeenCalledWith({
+      eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      userGroups: ['Creators'],
+    });
   });
 
   it('should handle empty cognito:groups', async () => {
@@ -194,10 +194,10 @@ describe('Delete Event adapter', () => {
       message: 'Forbidden',
       description: 'You are not authorized to perform this action.',
     });
-    expect(useCase.deleteEvent).toHaveBeenCalledWith(
-      'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
-      []
-    );
+    expect(useCase.deleteEvent).toHaveBeenCalledWith({
+      eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
+      userGroups: [],
+    });
   });
 });
 

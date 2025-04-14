@@ -73,7 +73,10 @@ export class CreateEventAdapter {
     this.validateInput(body);
 
     try {
-      const result = await this.useCase.createEvent(body, userGroups);
+      const result = await this.useCase.createEvent({
+        ...body,
+        userGroups,
+      });
 
       return {
         event: result,

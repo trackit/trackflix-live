@@ -15,6 +15,7 @@ export class CreateEventMother {
       onAirStartTime: '2030-01-22T10:00:00.000Z',
       onAirEndTime: '2030-01-22T11:00:00.000Z',
       source: 's3://sample-bucket/sample-asset.mp4',
+      userGroups: ['Creators'],
     });
   }
 
@@ -35,6 +36,11 @@ export class CreateEventMother {
 
   public withSource(source: Source) {
     this.data.source = source;
+    return this;
+  }
+
+  public withUserGroups(userGroups: string[]) {
+    this.data.userGroups = userGroups;
     return this;
   }
 

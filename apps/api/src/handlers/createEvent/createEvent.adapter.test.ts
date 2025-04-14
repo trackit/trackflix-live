@@ -21,7 +21,13 @@ describe('Create event adapter', () => {
       .build();
 
     await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -31,9 +37,7 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, [
-      'Creators',
-    ]);
+    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
 
   it('should return successful response', async () => {
@@ -45,7 +49,13 @@ describe('Create event adapter', () => {
     useCase.createEvent.mockImplementationOnce(() => event);
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -129,7 +139,13 @@ describe('Create event adapter', () => {
       .build();
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -153,7 +169,13 @@ describe('Create event adapter', () => {
       .build();
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -177,7 +199,13 @@ describe('Create event adapter', () => {
       .build();
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -201,7 +229,13 @@ describe('Create event adapter', () => {
       .build();
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -227,7 +261,13 @@ describe('Create event adapter', () => {
       .build();
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -252,7 +292,13 @@ describe('Create event adapter', () => {
     useCase.createEvent.mockRejectedValue(new AssetNotFoundError());
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -277,7 +323,13 @@ describe('Create event adapter', () => {
     useCase.createEvent.mockRejectedValue(new AuthorizationError());
 
     const response = await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -298,11 +350,18 @@ describe('Create event adapter', () => {
     const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withUserGroups(['Viewers'])
       .build();
     useCase.createEvent.mockResolvedValue({});
 
     await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {
@@ -312,9 +371,7 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, [
-      'Viewers',
-    ]);
+    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
 
   it('should handle empty cognito:groups', async () => {
@@ -325,7 +382,13 @@ describe('Create event adapter', () => {
     useCase.createEvent.mockRejectedValue(new AuthorizationError());
 
     await adapter.handle({
-      body: JSON.stringify(createEventReq),
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
       requestContext: {
         authorizer: {
           claims: {},
@@ -333,7 +396,10 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, []);
+    expect(useCase.createEvent).toHaveBeenCalledWith({
+      ...createEventReq,
+      userGroups: [],
+    });
   });
 });
 
