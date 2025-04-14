@@ -34,8 +34,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
@@ -62,8 +62,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body || '')).toEqual({ event });
@@ -79,8 +79,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -99,8 +99,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -121,8 +121,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -152,8 +152,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -182,8 +182,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -212,8 +212,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -242,8 +242,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -274,8 +274,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -305,8 +305,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -336,8 +336,8 @@ describe('Create event adapter', () => {
             'cognito:groups': ['Viewers'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -368,8 +368,8 @@ describe('Create event adapter', () => {
             'cognito:groups': 'Viewers',
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
@@ -393,8 +393,8 @@ describe('Create event adapter', () => {
         authorizer: {
           claims: {},
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.createEvent).toHaveBeenCalledWith({
       ...createEventReq,

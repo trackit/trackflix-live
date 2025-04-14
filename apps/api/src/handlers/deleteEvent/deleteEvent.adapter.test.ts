@@ -24,8 +24,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.deleteEvent).toHaveBeenCalledWith({
       eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
@@ -45,8 +45,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     useCase.deleteEvent.mockResolvedValueOnce(undefined);
 
@@ -68,8 +68,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(404);
     expect(JSON.parse(response.body || '').message).toEqual('Not Found');
@@ -91,8 +91,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
@@ -117,8 +117,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Creators'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body || '')).toMatchObject({
@@ -141,8 +141,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': ['Viewers'],
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
@@ -165,8 +165,8 @@ describe('Delete Event adapter', () => {
             'cognito:groups': 'Creators',
           },
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(useCase.deleteEvent).toHaveBeenCalledWith({
       eventId: 'e5b30161-9206-4f4c-a3cc-0dd8cd284aad',
@@ -186,8 +186,8 @@ describe('Delete Event adapter', () => {
         authorizer: {
           claims: {},
         },
-      } as any,
-    } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
