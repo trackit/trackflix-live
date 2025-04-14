@@ -64,7 +64,7 @@ export class CreateEventAdapter {
     let body: undefined | CreateEventRequest['body'] = undefined;
     try {
       body = JSON.parse(event.body);
-    } catch (err) {
+    } catch {
       throw new BadRequestError('Body is not valid JSON.');
     }
     if (!validate(body)) {

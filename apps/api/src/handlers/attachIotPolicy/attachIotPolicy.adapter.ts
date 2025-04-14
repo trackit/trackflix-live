@@ -47,7 +47,7 @@ export class AttachIotPolicyAdapter {
     let body: undefined | AttachIotPolicyRequest['body'] = undefined;
     try {
       body = JSON.parse(event.body);
-    } catch (err) {
+    } catch {
       throw new BadRequestError();
     }
     if (!validate(body)) {
