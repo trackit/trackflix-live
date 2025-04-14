@@ -1,5 +1,6 @@
 import {
   AssetNotFoundError,
+  AuthorizationError,
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
 import {
@@ -50,15 +51,11 @@ export class CreateEventAdapter {
   public async processRequest(
     event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ) {
-    const groups =
+    const cognitoGroups =
       event.requestContext.authorizer?.claims['cognito:groups'] || [];
-
-    if (
-      !(groups === 'Creators') &&
-      !(Array.isArray(groups) && groups.includes('Creators'))
-    ) {
-      throw new ForbiddenError('Viewers are not authorized to create events');
-    }
+    const userGroups = Array.isArray(cognitoGroups)
+      ? cognitoGroups
+      : [cognitoGroups];
 
     if (event.body === undefined) {
       throw new BadRequestError('No body received.');
@@ -76,16 +73,22 @@ export class CreateEventAdapter {
     this.validateInput(body);
 
     try {
-      const result = await this.useCase.createEvent(body);
+      const result = await this.useCase.createEvent(body, userGroups);
 
       return {
         event: result,
       } satisfies CreateEventResponse['body'];
     } catch (err: unknown) {
-      if (err instanceof AssetNotFoundError) {
-        throw new BadRequestError('Asset not found.');
+      switch (true) {
+        case err instanceof AssetNotFoundError:
+          throw new BadRequestError('Asset not found.');
+        case err instanceof AuthorizationError:
+          throw new ForbiddenError(
+            'You are not authorized to perform this action.'
+          );
+        default:
+          throw err;
       }
-      throw err;
     }
   }
 

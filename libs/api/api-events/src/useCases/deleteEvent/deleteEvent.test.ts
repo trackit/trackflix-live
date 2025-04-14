@@ -5,6 +5,7 @@ import { inject, reset } from '@trackflix-live/di';
 import { tokenEventSchedulerDeleteFake } from '../../infrastructure/EventSchedulerFake';
 import { registerTestInfrastructure } from '../../infrastructure';
 import { EventDoesNotExistError } from '../../utils/errors';
+import { AuthorizationError } from '../../utils';
 
 describe('DeleteEvent use case', () => {
   it('should delete event', async () => {
@@ -14,14 +15,14 @@ describe('DeleteEvent use case', () => {
     await eventsRepository.createEvent(event);
     expect(eventsRepository.events).toEqual([event]);
 
-    await useCase.deleteEvent(event.id);
+    await useCase.deleteEvent(event.id, ['Creators']);
     expect(eventsRepository.events).toEqual([]);
   });
 
   it('should throw an error if the event does not exist', async () => {
     const { useCase } = setup();
 
-    await expect(useCase.deleteEvent('non-existing-id')).rejects.toThrow(
+    await expect(useCase.deleteEvent('non-existing-id', ['Creators'])).rejects.toThrow(
       EventDoesNotExistError
     );
   });
@@ -32,7 +33,7 @@ describe('DeleteEvent use case', () => {
     const event = EventMother.basic().withStatus(EventStatus.POST_TX).build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent(event.id)).rejects.toThrow(
+    await expect(useCase.deleteEvent(event.id, ['Creators'])).rejects.toThrow(
       'Event cannot be deleted'
     );
   });
@@ -48,7 +49,7 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent(event.id)).rejects.toThrow(
+    await expect(useCase.deleteEvent(event.id, ['Creators'])).rejects.toThrow(
       'Cannot delete event while it is on air'
     );
   });
@@ -61,11 +62,22 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await useCase.deleteEvent(event.id);
+    await useCase.deleteEvent(event.id, ['Creators']);
     expect(eventSchedulerDelete.deletedScheduledEvents).toEqual([
       'TrackflixLiveStartTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
       'TrackflixLiveStopTx-5e9019f4-b937-465c-ab7c-baeb74eb26a2',
     ]);
+  });
+
+  it('should throw if user is not in Creators group', async () => {
+    const { eventsRepository, useCase } = setup();
+
+    const event = EventMother.basic().build();
+    await eventsRepository.createEvent(event);
+
+    await expect(
+      useCase.deleteEvent(event.id, ['Viewers'])
+    ).rejects.toThrow(AuthorizationError);
   });
 });
 

@@ -1,7 +1,7 @@
 import { tokenEventSchedulerDelete, tokenEventsRepository } from '../../ports';
 import { EventStatus } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
-import { EventDoesNotExistError } from '../../utils';
+import { AuthorizationError, EventDoesNotExistError } from '../../utils';
 
 export class EventCannotBeDeletedIfNotOnPreTxError extends Error {
   constructor() {
@@ -16,7 +16,7 @@ export class EventCannotBeDeletedWhileOnAirError extends Error {
 }
 
 export interface DeleteEventUseCase {
-  deleteEvent(eventId: string): Promise<void>;
+  deleteEvent(eventId: string, userGroups: string[]): Promise<void>;
 }
 
 export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
@@ -24,7 +24,11 @@ export class DeleteEventUseCaseImpl implements DeleteEventUseCase {
 
   private readonly eventSchedulerDelete = inject(tokenEventSchedulerDelete);
 
-  public async deleteEvent(eventId: string): Promise<void> {
+  public async deleteEvent(eventId: string, userGroups: string[]): Promise<void> {
+    if (!userGroups.includes('Creators')) {
+      throw new AuthorizationError();
+    }
+
     const event = await this.eventsRepository.getEvent(eventId);
 
     if (!event) {

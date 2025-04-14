@@ -3,6 +3,7 @@ import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
+  AuthorizationError,
   CreateEventMother,
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
@@ -30,7 +31,9 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
+    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, [
+      'Creators',
+    ]);
   });
 
   it('should return successful response', async () => {
@@ -266,11 +269,12 @@ describe('Create event adapter', () => {
     });
   });
 
-  it('should return 403 response if user is not in Creators group', async () => {
-    const { adapter } = setup();
+  it('should return 403 response if use case throws an AuthorizationError', async () => {
+    const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .build();
+    useCase.createEvent.mockRejectedValue(new AuthorizationError());
 
     const response = await adapter.handle({
       body: JSON.stringify(createEventReq),
@@ -286,17 +290,18 @@ describe('Create event adapter', () => {
     expect(response.statusCode).toEqual(403);
     expect(JSON.parse(response.body || '')).toEqual({
       message: 'Forbidden',
-      description: 'Viewers are not authorized to create events',
+      description: 'You are not authorized to perform this action.',
     });
   });
 
-  it('should return 403 response if cognito:groups is a string and not Creators', async () => {
-    const { adapter } = setup();
+  it('should handle cognito:groups as a string', async () => {
+    const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .build();
+    useCase.createEvent.mockResolvedValue({});
 
-    const response = await adapter.handle({
+    await adapter.handle({
       body: JSON.stringify(createEventReq),
       requestContext: {
         authorizer: {
@@ -307,20 +312,19 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(response.statusCode).toEqual(403);
-    expect(JSON.parse(response.body || '')).toEqual({
-      message: 'Forbidden',
-      description: 'Viewers are not authorized to create events',
-    });
+    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, [
+      'Viewers',
+    ]);
   });
 
-  it('should return 403 response if cognito:groups does not exist', async () => {
-    const { adapter } = setup();
+  it('should handle empty cognito:groups', async () => {
+    const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .build();
+    useCase.createEvent.mockRejectedValue(new AuthorizationError());
 
-    const response = await adapter.handle({
+    await adapter.handle({
       body: JSON.stringify(createEventReq),
       requestContext: {
         authorizer: {
@@ -329,11 +333,7 @@ describe('Create event adapter', () => {
       } as any,
     } as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
 
-    expect(response.statusCode).toEqual(403);
-    expect(JSON.parse(response.body || '')).toEqual({
-      message: 'Forbidden',
-      description: 'Viewers are not authorized to create events',
-    });
+    expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq, []);
   });
 });
 

@@ -8,6 +8,7 @@ import {
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { AuthorizationError } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
@@ -21,7 +22,7 @@ export class AssetNotFoundError extends Error {
 }
 
 export interface CreateEventUseCase {
-  createEvent(args: CreateEventArgs): Promise<Event>;
+  createEvent(args: CreateEventArgs, userGroups: string[]): Promise<Event>;
 }
 
 export class CreateEventUseCaseImpl implements CreateEventUseCase {
@@ -35,7 +36,11 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
 
   private readonly assetsService = inject(tokenAssetsService);
 
-  public async createEvent(args: CreateEventArgs): Promise<Event> {
+  public async createEvent(args: CreateEventArgs, userGroups: string[]): Promise<Event> {
+    if (!userGroups.includes('Creators')) {
+      throw new AuthorizationError();
+    }
+
     const id = randomUUID();
 
     const event = {

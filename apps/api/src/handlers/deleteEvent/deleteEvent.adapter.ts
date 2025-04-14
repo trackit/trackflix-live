@@ -4,6 +4,7 @@ import {
   tokenDeleteEventUseCase,
   EventDoesNotExistError,
   EventCannotBeDeletedIfNotOnPreTxError,
+  AuthorizationError,
 } from '@trackflix-live/api-events';
 import {
   BadRequestError,
@@ -36,15 +37,11 @@ export class DeleteEventAdapter {
   public async processRequest(
     event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ) {
-    const groups =
+    const cognitoGroups =
       event.requestContext.authorizer?.claims['cognito:groups'] || [];
-
-    if (
-      !(groups === 'Creators') &&
-      !(Array.isArray(groups) && groups.includes('Creators'))
-    ) {
-      throw new ForbiddenError('Viewers are not authorized to delete events');
-    }
+    const userGroups = Array.isArray(cognitoGroups)
+      ? cognitoGroups
+      : [cognitoGroups];
 
     const pathParameters =
       event.pathParameters as DeleteEventRequest['pathParameters'];
@@ -53,7 +50,7 @@ export class DeleteEventAdapter {
     }
 
     try {
-      await this.useCase.deleteEvent(pathParameters.eventId);
+      await this.useCase.deleteEvent(pathParameters.eventId, userGroups);
     } catch (error) {
       switch (true) {
         case error instanceof EventDoesNotExistError:
@@ -62,6 +59,10 @@ export class DeleteEventAdapter {
           throw new BadRequestError('Event cannot be deleted if not on pre tx');
         case error instanceof EventCannotBeDeletedWhileOnAirError:
           throw new BadRequestError('Event cannot be deleted while on air');
+        case error instanceof AuthorizationError:
+          throw new ForbiddenError(
+            'You are not authorized to perform this action.'
+          );
         default:
           throw error;
       }
