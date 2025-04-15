@@ -1,4 +1,3 @@
-import { EventsDynamoDBRepository } from './EventsDynamoDBRepository';
 import {
   CreateTableCommand,
   DeleteTableCommand,

@@ -8,11 +8,12 @@ import {
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
+import { AuthorizationError } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
   'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
->;
+> & { userGroups: string[] };
 
 export class AssetNotFoundError extends Error {
   constructor() {
@@ -36,6 +37,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
   private readonly assetsService = inject(tokenAssetsService);
 
   public async createEvent(args: CreateEventArgs): Promise<Event> {
+    if (!args.userGroups.includes('Creators')) {
+      throw new AuthorizationError();
+    }
+
     const id = randomUUID();
 
     const event = {

@@ -3,3 +3,9 @@ export class EventDoesNotExistError extends Error {
     super('Event does not exist');
   }
 }
+
+export class AuthorizationError extends Error {
+  constructor() {
+    super('Action forbidden');
+  }
+}

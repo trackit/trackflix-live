@@ -1,14 +1,22 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   AssetNotFoundError,
+  AuthorizationError,
   tokenCreateEventUseCase,
 } from '@trackflix-live/api-events';
-import { BadRequestError, handleHttpRequest } from '../HttpErrors';
+import {
+  BadRequestError,
+  ForbiddenError,
+  handleHttpRequest,
+} from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -32,7 +40,7 @@ export class CreateEventAdapter {
   private readonly useCase = inject(tokenCreateEventUseCase);
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -40,7 +48,15 @@ export class CreateEventAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
+    const cognitoGroups =
+      event.requestContext.authorizer?.claims['cognito:groups'] || [];
+    const userGroups = Array.isArray(cognitoGroups)
+      ? cognitoGroups
+      : [cognitoGroups];
+
     if (event.body === undefined) {
       throw new BadRequestError('No body received.');
     }
@@ -48,7 +64,7 @@ export class CreateEventAdapter {
     let body: undefined | CreateEventRequest['body'] = undefined;
     try {
       body = JSON.parse(event.body);
-    } catch (err) {
+    } catch {
       throw new BadRequestError('Body is not valid JSON.');
     }
     if (!validate(body)) {
@@ -57,16 +73,25 @@ export class CreateEventAdapter {
     this.validateInput(body);
 
     try {
-      const result = await this.useCase.createEvent(body);
+      const result = await this.useCase.createEvent({
+        ...body,
+        userGroups,
+      });
 
       return {
         event: result,
       } satisfies CreateEventResponse['body'];
     } catch (err: unknown) {
-      if (err instanceof AssetNotFoundError) {
-        throw new BadRequestError('Asset not found.');
+      switch (true) {
+        case err instanceof AssetNotFoundError:
+          throw new BadRequestError('Asset not found.');
+        case err instanceof AuthorizationError:
+          throw new ForbiddenError(
+            'You are not authorized to perform this action.'
+          );
+        default:
+          throw err;
       }
-      throw err;
     }
   }
 

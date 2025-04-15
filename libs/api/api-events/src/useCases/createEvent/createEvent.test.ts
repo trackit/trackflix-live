@@ -10,6 +10,7 @@ import { tokenEventUpdateSenderFake } from '../../infrastructure';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenAssetsServiceFake } from '../../infrastructure/AssetsServiceFake';
+import { AuthorizationError } from '../../utils';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
@@ -21,6 +22,7 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withName('Test event')
         .withSource(source)
+        .withUserGroups(['Creators'])
         .build()
     );
 
@@ -44,6 +46,7 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withName('Test event')
         .withSource(source)
+        .withUserGroups(['Creators'])
         .build()
     );
 
@@ -63,6 +66,7 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withOnAirStartTime('2025-01-22T09:45:07.202Z')
         .withSource(source)
+        .withUserGroups(['Creators'])
         .build()
     );
 
@@ -82,6 +86,7 @@ describe('CreateEvent use case', () => {
       CreateEventMother.basic()
         .withOnAirEndTime('2025-01-22T09:45:07.202Z')
         .withSource(source)
+        .withUserGroups(['Creators'])
         .build()
     );
 
@@ -99,9 +104,25 @@ describe('CreateEvent use case', () => {
       useCase.createEvent(
         CreateEventMother.basic()
           .withSource('s3://unknown-bucket/my_video.mp4')
+          .withUserGroups(['Creators'])
           .build()
       )
     ).rejects.toThrow(AssetNotFoundError);
+  });
+
+  it('should throw if user is not in Creators group', async () => {
+    const { useCase, assetsService } = setup();
+    const source = 's3://videos/hello.mp4';
+    assetsService.addAsset(source);
+
+    await expect(
+      useCase.createEvent(
+        CreateEventMother.basic()
+          .withSource(source)
+          .withUserGroups(['Viewers'])
+          .build()
+      )
+    ).rejects.toThrow(AuthorizationError);
   });
 });
 

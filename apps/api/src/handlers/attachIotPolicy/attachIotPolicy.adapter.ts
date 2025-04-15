@@ -1,13 +1,16 @@
-import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { tokenAttachIotPolicyUseCase } from '@trackflix-live/api-events';
 import { BadRequestError, handleHttpRequest } from '../HttpErrors';
 import Ajv, { JSONSchemaType } from 'ajv';
-import { APIGatewayProxyStructuredResultV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyStructuredResultV2,
+} from 'aws-lambda/trigger/api-gateway-proxy';
 import {
   AttachIotPolicyRequest,
   AttachIotPolicyResponse,
 } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import { CustomRequestContext } from '../types';
 
 const ajv = new Ajv();
 
@@ -26,7 +29,7 @@ export class AttachIotPolicyAdapter {
   private readonly useCase = inject(tokenAttachIotPolicyUseCase);
 
   public async handle(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
   ): Promise<APIGatewayProxyStructuredResultV2> {
     return handleHttpRequest({
       event,
@@ -34,7 +37,9 @@ export class AttachIotPolicyAdapter {
     });
   }
 
-  public async processRequest(event: APIGatewayProxyEventV2) {
+  public async processRequest(
+    event: APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>
+  ) {
     if (event.body === undefined) {
       throw new BadRequestError();
     }
@@ -42,7 +47,7 @@ export class AttachIotPolicyAdapter {
     let body: undefined | AttachIotPolicyRequest['body'] = undefined;
     try {
       body = JSON.parse(event.body);
-    } catch (err) {
+    } catch {
       throw new BadRequestError();
     }
     if (!validate(body)) {

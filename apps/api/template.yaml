@@ -428,6 +428,13 @@ Resources:
             MaxLength: 320
             MinLength: 3
 
+  CreatorsGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: Creators
+      UserPoolId: !Ref UserPool
+      Description: Group for content creators
+
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
