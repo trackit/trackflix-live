@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 import { Panel, Table, StatusBadge } from '@trackflix-live/ui';
 import { listEvents } from '@trackflix-live/api-client';
 import { ColumnDef } from '@tanstack/react-table';
@@ -104,17 +105,27 @@ export function ListEventsView() {
               onChange={(e) => setDebouncedSearch(e.target.value)}
             />
           </label>
-          {isCreator && (
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={() => {
+          <button
+            className={`btn btn-sm btn-primary ${
+              !isCreator ? 'cursor-not-allowed opacity-30' : ''
+            }`}
+            onClick={() => {
+              if (isCreator) {
                 navigate('/create');
-              }}
-            >
-              <Plus className="w-4 h-4" />
-              New Event
-            </button>
-          )}
+              } else {
+                enqueueSnackbar(
+                  'You have viewing access only. To see how live creation works, contact TrackIT at info@trackit.io',
+                  {
+                    autoHideDuration: 9000,
+                    variant: 'warning',
+                  }
+                );
+              }
+            }}
+          >
+            <Plus className="w-4 h-4" />
+            New Event
+          </button>
         </div>
         <Panel className={'max-h-[90%] !p-0'}>
           <Table
