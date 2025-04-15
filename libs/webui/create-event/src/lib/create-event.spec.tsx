@@ -10,6 +10,13 @@ vi.mock('@trackflix-live/api-client', () => ({
   postEvent: vi.fn(),
 }));
 
+// Mock the user store
+vi.mock('@trackflix-live/webui-stores', () => ({
+  useUserStore: vi.fn(() => ({
+    isCreator: true,
+  })),
+}));
+
 // Mock the SingleAssetForm component
 vi.mock('@trackflix-live/forms', () => ({
   SingleAssetForm: ({ onSubmit, disabled }: any) => (

@@ -15,8 +15,11 @@ import { SortingState } from '@tanstack/react-table';
 import { useDebounceValue } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
 import { PageTitle } from '@trackflix-live/ui';
+import { useUserStore } from '@trackflix-live/webui-stores';
+
 export function ListEventsView() {
   const navigate = useNavigate();
+  const { isCreator } = useUserStore();
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 500);
   const [nextToken, setNextToken] = useState<string | undefined>(undefined);
   const [perPage, setPerPage] = useState<number>(10);
@@ -101,15 +104,17 @@ export function ListEventsView() {
               onChange={(e) => setDebouncedSearch(e.target.value)}
             />
           </label>
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => {
-              navigate('/create');
-            }}
-          >
-            <Plus className="w-4 h-4" />
-            New Event
-          </button>
+          {isCreator && (
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => {
+                navigate('/create');
+              }}
+            >
+              <Plus className="w-4 h-4" />
+              New Event
+            </button>
+          )}
         </div>
         <Panel className={'max-h-[90%] !p-0'}>
           <Table

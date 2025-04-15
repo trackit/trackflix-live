@@ -15,7 +15,7 @@ import { Link, SquarePlay, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
+import { useUserStore } from '@trackflix-live/webui-stores';
 const PRE_TX_TIME = 5;
 const PLAYER_DELAY = 10000;
 
@@ -29,8 +29,12 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
       completed: event.logs.some(
         (log) => log.type === LogType.PACKAGE_CHANNEL_CREATED
       ),
-      loading: event.logs.length === 0 && 
-        DateTime.now().toMillis() > DateTime.fromISO(event.onAirStartTime).minus({ minutes: PRE_TX_TIME }).toMillis(),
+      loading:
+        event.logs.length === 0 &&
+        DateTime.now().toMillis() >
+          DateTime.fromISO(event.onAirStartTime)
+            .minus({ minutes: PRE_TX_TIME })
+            .toMillis(),
     },
     {
       id: LogType.LIVE_INPUT_CREATED,
@@ -49,8 +53,7 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
         (log) => log.type === LogType.CDN_ORIGIN_CREATED
       ),
       loading:
-        event.logs[event.logs.length - 1]?.type ===
-        LogType.LIVE_INPUT_CREATED,
+        event.logs[event.logs.length - 1]?.type === LogType.LIVE_INPUT_CREATED,
     },
     {
       id: LogType.LIVE_CHANNEL_CREATED,
@@ -160,6 +163,7 @@ const getTxSteps = (event: Event): Step[] => {
 };
 
 export function StatusView() {
+  const { isCreator } = useUserStore();
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading } = useQuery<GetEventResponse['body'] | null>({
@@ -301,7 +305,7 @@ export function StatusView() {
           </div>
           <div className="flex gap-2">
             {event?.status && <StatusBadge status={event.status} />}
-            {canDelete && (
+            {canDelete && isCreator ? (
               <button
                 className="btn  btn-outline btn-error"
                 onClick={handleDelete}
@@ -314,7 +318,7 @@ export function StatusView() {
                 )}
                 Delete Event
               </button>
-            )}
+            ) : null}
           </div>
         </div>
         <div className={'flex flex-col items-center'}>
