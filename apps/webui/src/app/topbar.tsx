@@ -1,23 +1,16 @@
-import { ThemeSwitcher, Clock } from '@trackflix-live/ui';
-import { signOut, getCurrentUser } from 'aws-amplify/auth';
-import { User } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { Link } from 'react-router';
+import { useDarkMode } from 'usehooks-ts';
+import { signOut } from 'aws-amplify/auth';
+import { User } from 'lucide-react';
+import { ThemeSwitcher, Clock } from '@trackflix-live/ui';
 import logoWhite from '../assets/TrackFlix_Live_White.svg';
 import logoDark from '../assets/TrackFlix_Live_Black_Red.svg';
-import { useDarkMode } from 'usehooks-ts';
+import { useUserStore } from '@trackflix-live/webui-stores';
 
 const Topbar = () => {
-  const [username, setUsername] = useState<string>('');
   const { isDarkMode } = useDarkMode();
-
-  useEffect(() => {
-    getCurrentUser()
-      .then((user) => {
-        setUsername(user.signInDetails?.loginId || '');
-      })
-      .catch(console.error);
-  }, []);
+  const { user } = useUserStore();
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -52,7 +45,9 @@ const Topbar = () => {
         <div className="dropdown dropdown-end">
           <button className="btn btn-link btn-sm text-black dark:text-white">
             <User className="w-4 h-4" />
-            <span className="hidden md:block">{username}</span>
+            <span className="hidden md:block">
+              {user?.signInDetails?.loginId || ''}
+            </span>
           </button>
           <ul
             tabIndex={0}

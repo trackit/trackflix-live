@@ -1,0 +1,9 @@
+{
+  "name": "webui-stores",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/webui/stores/src",
+  "projectType": "library",
+  "tags": ["scope:webui", "type:infra"],
+  "// targets": "to see all targets run: nx show project stores --web",
+  "targets": {}
+}
