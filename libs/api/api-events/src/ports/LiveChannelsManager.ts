@@ -1,9 +1,11 @@
 import { createInjectionToken } from '@trackflix-live/di';
+import { InputType, Source } from '@trackflix-live/types';
 
 export interface CreateChannelParameters {
   eventId: string;
-  source: string;
+  source: Source;
   packageChannelId: string;
+  type: InputType;
 }
 
 export interface CreateChannelResponse {

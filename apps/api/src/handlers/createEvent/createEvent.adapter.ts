@@ -16,6 +16,18 @@ import {
 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
+import {
+  CdiSchema,
+  HlsSchema,
+  MediaConnectSchema,
+  MulticastSchema,
+  RtmpPullSchema,
+  RtmpPushSchema,
+  RtpPushSchema,
+  s3SourceSchema,
+  SrtCallerSchema,
+  TsSourceSchema,
+} from './validateEvent';
 import { CustomRequestContext } from '../types';
 
 const ajv = new Ajv();
@@ -23,15 +35,18 @@ addFormats(ajv);
 
 const schema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
-  properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
-    source: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
-  },
-  required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
-  additionalProperties: false,
+  oneOf: [
+    s3SourceSchema,
+    RtpPushSchema,
+    RtmpPushSchema,
+    RtmpPullSchema,
+    TsSourceSchema,
+    MediaConnectSchema,
+    MulticastSchema,
+    CdiSchema,
+    SrtCallerSchema,
+    HlsSchema,
+  ],
 };
 
 const validate = ajv.compile(schema);

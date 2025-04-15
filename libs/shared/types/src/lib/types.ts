@@ -1,3 +1,5 @@
+import { InputType } from '@aws-sdk/client-medialive';
+
 export enum EventStatus {
   TX = 'TX',
   PRE_TX = 'PRE-TX',
@@ -8,7 +10,89 @@ export enum EventStatus {
 
 export type S3Source = string;
 
-export type Source = S3Source;
+export type TsFile = string;
+
+export type Hls = string;
+
+export enum InputNetworkLocation {
+  AWS = 'AWS',
+  ON_PREMISES = 'ON_PREMISES',
+}
+
+export type Rtp = {
+  inputNetworkLocation: InputNetworkLocation;
+  inputSecurityGroups?: string;
+  vpcSettings: {
+    subnetIds: string;
+    securityGroupId: string;
+  };
+  roleArn: string;
+  networkArn?: string;
+};
+
+export type RtmpPush = {
+  inputNetworkLocation: InputNetworkLocation;
+  inputSecurityGroups?: string;
+  vpcSettings: {
+    subnetIds: string;
+    securityGroupId: string;
+  };
+  streamName: string;
+  roleArn: string;
+};
+
+export type RtmpPull = {
+  url: string;
+  username?: string;
+  password?: string;
+};
+
+export type MediaConnect = {
+  flowArn: string;
+  roleArn: string;
+};
+
+export type Multicast = {
+  url: string;
+  sourceIp: string;
+};
+
+export type Cdi = {
+  roleArn: string;
+  vpcSettings: {
+    subnetIds: string;
+    securityGroupId: string;
+  };
+};
+
+export enum SrtDecryptionAlgorithm {
+  AES_128 = 'AES128',
+  AES_192 = 'AES192',
+  AES_256 = 'AES256',
+}
+
+export type SrtCaller = {
+  decryption: {
+    Algorithm: SrtDecryptionAlgorithm;
+    passphraseSecretArn: string;
+  };
+  srtListenerAddress: string;
+  srtListenerPort: string;
+  streamId: string;
+  minimumLatency: number;
+};
+
+export type Source =
+  | S3Source
+  | Rtp
+  | RtmpPush
+  | RtmpPull
+  | TsFile
+  | Hls
+  | MediaConnect
+  | Multicast
+  | Cdi
+  | SrtCaller;
 
 export enum LogType {
   PACKAGE_CHANNEL_CREATED = 'PACKAGE_CHANNEL_CREATED',
@@ -51,6 +135,7 @@ export interface Event {
   status: EventStatus;
   endpoints: EventEndpoint[];
   logs: EventLog[];
+  inputType: InputType;
 
   liveChannelId?: string;
   liveChannelArn?: string;

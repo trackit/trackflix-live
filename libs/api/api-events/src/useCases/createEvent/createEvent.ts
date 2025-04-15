@@ -9,11 +9,18 @@ import {
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { AuthorizationError } from '../../utils';
+import { InputType } from '@aws-sdk/client-medialive';
+import { isString } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
-  'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
-> & { userGroups: string[] };
+  | 'name'
+  | 'description'
+  | 'onAirStartTime'
+  | 'onAirEndTime'
+  | 'source'
+  | 'inputType'
+>;
 
 export class AssetNotFoundError extends Error {
   constructor() {
@@ -52,7 +59,11 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       status: EventStatus.PRE_TX,
     } satisfies Event;
 
-    if (!(await this.assetsService.assetExists(event.source))) {
+    if (
+      event.inputType === InputType.MP4_FILE &&
+      isString(event.source) &&
+      !(await this.assetsService.assetExists(event.source))
+    ) {
       throw new AssetNotFoundError();
     }
 
