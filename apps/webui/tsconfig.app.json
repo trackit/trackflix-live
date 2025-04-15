@@ -28,6 +28,5 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "../../libs/webui/stores/src/lib/user-store.ts"
   ]
 }
