@@ -20,7 +20,7 @@ export type CreateEventArgs = Pick<
   | 'onAirEndTime'
   | 'source'
   | 'inputType'
->;
+> & { userGroups: string[] };
 
 export class AssetNotFoundError extends Error {
   constructor() {

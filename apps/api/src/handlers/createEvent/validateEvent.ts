@@ -109,7 +109,7 @@ export const RtpPushSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.RTMP_PULL],
+      enum: [InputType.RTP_PUSH],
     },
     source: {
       type: 'object',
@@ -200,7 +200,7 @@ export const RtmpPullSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.RTMP_PUSH],
+      enum: [InputType.RTMP_PULL],
     },
     source: {
       type: 'object',
@@ -246,7 +246,7 @@ export const MediaConnectSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MULTICAST],
+      enum: [InputType.MEDIACONNECT],
     },
     source: {
       type: 'object',
@@ -254,6 +254,7 @@ export const MediaConnectSchema = {
         url: { type: 'string' },
         sourceIp: { type: 'string' },
       },
+      required: ['url', 'sourceIp'],
     },
   },
   required: [
@@ -276,7 +277,7 @@ export const MulticastSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MEDIACONNECT],
+      enum: [InputType.MULTICAST],
     },
     source: {
       type: 'object',
@@ -284,6 +285,7 @@ export const MulticastSchema = {
         flowArn: { type: 'string' },
         roleArn: { type: 'string' },
       },
+      required: ['flowArn', 'roleArn'],
     },
   },
   required: [
@@ -306,7 +308,7 @@ export const CdiSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MEDIACONNECT],
+      enum: [InputType.AWS_CDI],
     },
     source: {
       type: 'object',
@@ -325,6 +327,7 @@ export const CdiSchema = {
         },
         roleArn: { type: 'string' },
       },
+      required: ['vpcSettings', 'roleArn'],
     },
   },
   required: [
@@ -347,11 +350,9 @@ export const SrtCallerSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MEDIACONNECT],
+      enum: [InputType.SRT_CALLER],
     },
     source: {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      title: 'SrtCaller',
       type: 'object',
       properties: {
         decryption: {

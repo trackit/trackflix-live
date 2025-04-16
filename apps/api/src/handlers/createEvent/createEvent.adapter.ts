@@ -33,7 +33,7 @@ import { CustomRequestContext } from '../types';
 const ajv = new Ajv();
 addFormats(ajv);
 
-const schema: JSONSchemaType<CreateEventRequest['body']> = {
+const schema = {
   type: 'object',
   oneOf: [
     s3SourceSchema,
