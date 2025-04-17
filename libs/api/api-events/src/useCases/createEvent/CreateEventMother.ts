@@ -1,5 +1,6 @@
 import { CreateEventArgs } from './createEvent';
 import { Source } from '@trackflix-live/types';
+import { InputType } from '@aws-sdk/client-medialive';
 
 export class CreateEventMother {
   private readonly data: CreateEventArgs;
@@ -16,6 +17,7 @@ export class CreateEventMother {
       onAirEndTime: '2030-01-22T11:00:00.000Z',
       source: 's3://sample-bucket/sample-asset.mp4',
       userGroups: ['Creators'],
+      inputType: InputType.MP4_FILE,
     });
   }
 

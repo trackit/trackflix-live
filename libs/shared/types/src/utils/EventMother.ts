@@ -1,4 +1,5 @@
-import { Event, EventEndpoint, EventStatus } from '../lib/types';
+import { Event, EventEndpoint, EventStatus, Source } from '../lib/types';
+import { InputType } from '@aws-sdk/client-medialive';
 
 export class EventMother {
   private readonly data: Event;
@@ -12,7 +13,7 @@ export class EventMother {
     return this;
   }
 
-  public withSource(source: string): EventMother {
+  public withSource(source: Source): EventMother {
     this.data.source = source;
     return this;
   }
@@ -71,6 +72,11 @@ export class EventMother {
     return this;
   }
 
+  public withInputType(typeInput: InputType): EventMother {
+    this.data.inputType = typeInput;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
@@ -82,6 +88,7 @@ export class EventMother {
       createdTime: '2025-01-20T09:00:00.000Z',
       source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
       status: EventStatus.PRE_TX,
+      inputType: InputType.MP4_FILE,
       endpoints: [],
       logs: [],
     });

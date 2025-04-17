@@ -237,7 +237,7 @@ export const RtmpPullSchema = {
   additionalProperties: false,
 };
 
-export const MediaConnectSchema = {
+export const MulticastSchema = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -246,7 +246,7 @@ export const MediaConnectSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MEDIACONNECT],
+      enum: [InputType.MULTICAST],
     },
     source: {
       type: 'object',
@@ -268,7 +268,7 @@ export const MediaConnectSchema = {
   additionalProperties: false,
 };
 
-export const MulticastSchema = {
+export const MediaConnectSchema = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -277,7 +277,7 @@ export const MulticastSchema = {
     onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
-      enum: [InputType.MULTICAST],
+      enum: [InputType.MEDIACONNECT],
     },
     source: {
       type: 'object',
@@ -374,11 +374,9 @@ export const SrtCallerSchema = {
         },
         srtListenerAddress: {
           type: 'string',
-          format: 'ipv4',
         },
         srtListenerPort: {
           type: 'string',
-          pattern: '^[0-9]+$',
         },
         streamId: {
           type: 'string',
@@ -389,7 +387,6 @@ export const SrtCallerSchema = {
         },
       },
       required: [
-        'decryption',
         'srtListenerAddress',
         'srtListenerPort',
         'streamId',

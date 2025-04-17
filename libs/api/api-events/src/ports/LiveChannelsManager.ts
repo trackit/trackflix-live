@@ -1,5 +1,6 @@
 import { createInjectionToken } from '@trackflix-live/di';
-import { InputType, Source } from '@trackflix-live/types';
+import { Source } from '@trackflix-live/types';
+import { InputType } from '@aws-sdk/client-medialive';
 
 export interface CreateChannelParameters {
   eventId: string;

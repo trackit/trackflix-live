@@ -8,7 +8,7 @@ import {
   ForbiddenError,
   handleHttpRequest,
 } from '../HttpErrors';
-import Ajv, { JSONSchemaType } from 'ajv';
+import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import {
   APIGatewayProxyEventV2WithRequestContext,
