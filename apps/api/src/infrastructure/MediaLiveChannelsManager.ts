@@ -88,6 +88,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     }
 
     const inputName = `TrackflixLiveMLI-${eventId}`;
+    console.log(type);
     const input = await this.client.send(
       new CreateInputCommand(this.createInputCommand(type, source, inputName))
     );
@@ -815,7 +816,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       isString(source) &&
       (type === InputType.TS_FILE ||
         type === InputType.MP4_FILE ||
-        type === InputType.MEDIACONNECT ||
         type === InputType.URL_PULL)
     ) {
       return {
@@ -919,6 +919,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   ): CreateInputCommandInput {
     return {
       Name: inputName,
+      Type: InputType.MEDIACONNECT,
       RoleArn: source.roleArn,
       MediaConnectFlows: [
         {
@@ -934,6 +935,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   ): CreateInputCommandInput {
     return {
       Name: inputName,
+      Type: InputType.MULTICAST,
       MulticastSettings: {
         Sources: [
           {
