@@ -4,15 +4,16 @@ import { vi } from 'vitest';
 import SingleAssetForm from './single-asset-form';
 import '@testing-library/jest-dom';
 import { DateTime } from 'luxon';
+import { InputType } from '@aws-sdk/client-medialive';
 
 describe('SingleAssetForm', () => {
   const mockOnSubmit = vi.fn();
-  const fixedDate = new Date('2024-01-01T10:00:00.000Z');
+  const fixedDate = new Date('2024-01-01T11:00:00.000Z');
 
   beforeEach(() => {
-    mockOnSubmit.mockClear();
-    // Use a fake timer with a fixed date
+    vi.useFakeTimers();
     vi.setSystemTime(fixedDate);
+    mockOnSubmit.mockReset();
   });
 
   afterEach(() => {
@@ -29,7 +30,7 @@ describe('SingleAssetForm', () => {
 
     expect(screen.getByLabelText(/event name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/s3 media uri/i)).toBeInTheDocument();
+    expect(screen.getByText(/input type/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/start on-air/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/end on-air/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
@@ -54,10 +55,11 @@ describe('SingleAssetForm', () => {
     // Fill in text inputs
     await user.type(screen.getByLabelText(/event name/i), 'Test Event');
     await user.type(screen.getByLabelText(/description/i), 'Test Description');
-    await user.type(
-      screen.getByLabelText(/s3 media uri/i),
-      's3://test-bucket/test-key'
-    );
+    
+    // Select MP4_FILE input type and fill in URL
+    const inputTypeSelect = screen.getByRole('combobox');
+    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
+    await user.type(screen.getByLabelText(/s3 media uri/i), 's3://test-bucket/test-key');
 
     // Handle datetime inputs
     const startInput = screen.getByLabelText(/start on-air/i);
@@ -90,6 +92,7 @@ describe('SingleAssetForm', () => {
     expect(submitData).toEqual({
       name: 'Test Event',
       description: 'Test Description',
+      inputType: InputType.MP4_FILE,
       source: 's3://test-bucket/test-key',
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
@@ -109,6 +112,9 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/event name/i), 'Test Event');
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
     await user.type(screen.getByLabelText(/s3 media uri/i), 'invalid-uri');
 
     const submitButton = screen.getByRole('button', { name: /submit/i });
@@ -125,10 +131,11 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
 
     await user.type(screen.getByLabelText(/event name/i), 'Test Event');
-    await user.type(
-      screen.getByLabelText(/s3 media uri/i),
-      's3://test-bucket/test-key'
-    );
+    
+    // Select MP4_FILE input type and fill in URL
+    const inputTypeSelect = screen.getByRole('combobox');
+    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
+    await user.type(screen.getByLabelText(/s3 media uri/i), 's3://test-bucket/test-key');
 
     const startTime = DateTime.fromJSDate(fixedDate)
       .plus({ hours: 2 })
@@ -163,5 +170,27 @@ describe('SingleAssetForm', () => {
   it('should be disabled when disabled prop is true', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} disabled={true} />);
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
+  });
+  
+  it('should render different input fields based on input type selection', async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    
+    // Test MP4_FILE input type
+    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
+    expect(screen.getByLabelText(/s3 media uri/i)).toBeInTheDocument();
+    
+    // Test RTP_PUSH input type
+    await user.selectOptions(inputTypeSelect, InputType.RTP_PUSH);
+    expect(screen.getByLabelText(/network location/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/security group/i)).toBeInTheDocument();
+    
+    // Test SRT_CALLER input type
+    await user.selectOptions(inputTypeSelect, InputType.SRT_CALLER);
+    expect(screen.getByRole('textbox', { name: /stream id/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /srt listener address/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /decryption algorithm/i })).toBeInTheDocument();
   });
 });
