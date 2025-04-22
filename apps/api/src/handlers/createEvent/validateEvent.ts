@@ -76,30 +76,6 @@ export const HlsSchema = {
   additionalProperties: false,
 };
 
-export const TsMediaConnectSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
-    inputType: {
-      type: 'string',
-      enum: [InputType.MEDIACONNECT],
-    },
-    source: { type: 'string' },
-  },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
-  additionalProperties: false,
-};
-
 export const RtpPushSchema = {
   type: 'object',
   properties: {
@@ -114,11 +90,15 @@ export const RtpPushSchema = {
     source: {
       type: 'object',
       properties: {
-        url: { type: 'string' },
-        password: { type: 'string' },
-        username: { type: 'string' },
+        inputNetworkLocation: {
+          type: 'string',
+          enum: [InputNetworkLocation.AWS, InputNetworkLocation.ON_PREMISES],
+        },
+        inputSecurityGroups: {
+          type: 'string',
+        },
       },
-      required: ['url'],
+      required: ['inputNetworkLocation'],
     },
   },
   required: [
@@ -168,16 +148,8 @@ export const RtmpPushSchema = {
         streamName: {
           type: 'string',
         },
-        roleArn: {
-          type: 'string',
-        },
       },
-      required: [
-        'inputNetworkLocation',
-        'vpcSettings',
-        'streamName',
-        'roleArn',
-      ],
+      required: ['inputNetworkLocation', 'streamName'],
     },
   },
   required: [

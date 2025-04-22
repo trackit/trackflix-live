@@ -863,17 +863,11 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   private buildRtp(source: Rtp, inputName: string): CreateInputCommandInput {
     return {
       Name: inputName,
-      Type: 'RTP_PUSH',
+      Type: InputType.RTP_PUSH,
       InputNetworkLocation: source.inputNetworkLocation,
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
         : undefined,
-      Vpc: {
-        SubnetIds: [source.vpcSettings.subnetIds],
-        SecurityGroupIds: [source.vpcSettings.securityGroupId],
-      },
-      RoleArn: source.roleArn,
-      Destinations: [{ Network: source.networkArn }],
     };
   }
 
@@ -888,11 +882,17 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
         : undefined,
-      Vpc: {
-        SubnetIds: [source.vpcSettings.subnetIds],
-        SecurityGroupIds: [source.vpcSettings.securityGroupId],
-      },
-      RoleArn: source.roleArn,
+      Vpc: source.vpcSettings
+        ? {
+            SubnetIds: [source.vpcSettings.subnetIds],
+            SecurityGroupIds: [source.vpcSettings.securityGroupId],
+          }
+        : undefined,
+      Destinations: [
+        {
+          StreamName: source.streamName,
+        },
+      ],
     };
   }
 

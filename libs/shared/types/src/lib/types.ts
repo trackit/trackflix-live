@@ -22,23 +22,17 @@ export enum InputNetworkLocation {
 export type Rtp = {
   inputNetworkLocation: InputNetworkLocation;
   inputSecurityGroups?: string;
-  vpcSettings: {
-    subnetIds: string;
-    securityGroupId: string;
-  };
-  roleArn: string;
   networkArn?: string;
 };
 
 export type RtmpPush = {
   inputNetworkLocation: InputNetworkLocation;
   inputSecurityGroups?: string;
-  vpcSettings: {
+  vpcSettings?: {
     subnetIds: string;
     securityGroupId: string;
   };
   streamName: string;
-  roleArn: string;
 };
 
 export type RtmpPull = {
