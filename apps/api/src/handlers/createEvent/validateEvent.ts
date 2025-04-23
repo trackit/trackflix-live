@@ -15,7 +15,7 @@ export const s3SourceSchema = {
       type: 'string',
       enum: ['MP4_FILE'],
     },
-    source: { type: 'string' },
+    source: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
   },
   required: [
     'name',
