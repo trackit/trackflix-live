@@ -285,21 +285,17 @@ export const CdiSchema = {
     source: {
       type: 'object',
       properties: {
-        vpcSettings: {
-          type: 'object',
-          properties: {
-            subnetIds: {
-              type: 'string',
-            },
-            securityGroupId: {
-              type: 'string',
-            },
-          },
-          required: ['subnetIds', 'securityGroupId'],
-        },
-        roleArn: { type: 'string' },
+        streamId: { type: 'string' },
+        srtListenerPort: { type: 'string' },
+        srtListenerAddress: { type: 'string' },
+        minimumLatency: { type: 'number' },
       },
-      required: ['vpcSettings', 'roleArn'],
+      required: [
+        'streamId',
+        'srtListenerPort',
+        'srtListenerAddress',
+        'minimumLatency',
+      ],
     },
   },
   required: [

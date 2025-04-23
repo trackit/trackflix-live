@@ -964,6 +964,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   ): CreateInputCommandInput {
     return {
       Name: inputName,
+      Type: InputType.SRT_CALLER,
       SrtSettings: {
         SrtCallerSources: [
           {
