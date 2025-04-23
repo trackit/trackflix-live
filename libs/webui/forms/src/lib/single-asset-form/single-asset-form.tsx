@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+import { InputType } from '@aws-sdk/client-medialive';
 
 export interface SingleAssetFormProps {
   onSubmit: (data: {
@@ -18,6 +19,7 @@ export interface SingleAssetFormProps {
     source: string;
     onAirStartTime: string;
     onAirEndTime: string;
+    inputType: InputType;
   }) => void;
   disabled?: boolean;
 }
@@ -98,6 +100,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           ...data,
           onAirStartTime: data.onAirStartTime.toISOString(),
           onAirEndTime: data.onAirEndTime.toISOString(),
+          inputType: InputType.MP4_FILE,
         });
       })}
     >

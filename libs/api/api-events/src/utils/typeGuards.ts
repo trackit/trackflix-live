@@ -1,7 +1,6 @@
 import {
   Cdi,
   MediaConnect,
-  Multicast,
   RtmpPull,
   RtmpPush,
   Rtp,
@@ -30,13 +29,6 @@ export function isMediaConnect(
   type: string
 ): source is MediaConnect {
   return type === InputType.MEDIACONNECT && typeof source === 'object';
-}
-
-export function isMulticast(
-  source: unknown,
-  type: string
-): source is Multicast {
-  return type === InputType.MULTICAST && typeof source === 'object';
 }
 
 export function isCdi(source: unknown, type: string): source is Cdi {

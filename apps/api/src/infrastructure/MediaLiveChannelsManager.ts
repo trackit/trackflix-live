@@ -3,7 +3,6 @@ import {
   CreateChannelResponse,
   isCdi,
   isMediaConnect,
-  isMulticast,
   isRtmpPull,
   isRtmpPush,
   isRtp,
@@ -32,7 +31,6 @@ import {
 import {
   Cdi,
   MediaConnect,
-  Multicast,
   RtmpPull,
   RtmpPush,
   Rtp,
@@ -836,9 +834,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     if (isMediaConnect(source, type)) {
       return this.buildMediaConnect(source, inputName);
     }
-    if (isMulticast(source, type)) {
-      return this.buildMulticast(source, inputName);
-    }
     if (isCdi(source, type)) {
       return this.buildCdi(source, inputName);
     }
@@ -902,7 +897,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   ): CreateInputCommandInput {
     return {
       Name: inputName,
-      Type: 'RTMP_PUSH',
+      Type: InputType.RTMP_PULL,
       Sources: [
         {
           Url: source.url,
@@ -926,24 +921,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
           FlowArn: source.flowArn,
         },
       ],
-    };
-  }
-
-  private buildMulticast(
-    source: Multicast,
-    inputName: string
-  ): CreateInputCommandInput {
-    return {
-      Name: inputName,
-      Type: InputType.MULTICAST,
-      MulticastSettings: {
-        Sources: [
-          {
-            Url: source.url,
-            SourceIp: source.sourceIp,
-          },
-        ],
-      },
     };
   }
 

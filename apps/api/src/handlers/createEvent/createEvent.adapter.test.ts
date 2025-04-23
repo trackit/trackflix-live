@@ -27,6 +27,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -55,6 +56,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -145,6 +147,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -175,6 +178,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -205,6 +209,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -235,6 +240,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -267,6 +273,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -298,6 +305,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -329,6 +337,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -361,6 +370,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -388,6 +398,7 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
+        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {

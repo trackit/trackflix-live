@@ -46,11 +46,6 @@ export type MediaConnect = {
   roleArn: string;
 };
 
-export type Multicast = {
-  url: string;
-  sourceIp: string;
-};
-
 export type Cdi = {
   roleArn: string;
   vpcSettings: {
@@ -84,7 +79,6 @@ export type Source =
   | TsFile
   | Hls
   | MediaConnect
-  | Multicast
   | Cdi
   | SrtCaller;
 

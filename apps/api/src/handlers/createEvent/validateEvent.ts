@@ -177,56 +177,14 @@ export const RtmpPullSchema = {
     source: {
       type: 'object',
       properties: {
-        inputNetworkLocation: {
-          type: 'string',
-          enum: [InputNetworkLocation.AWS, InputNetworkLocation.ON_PREMISES],
-        },
-        inputSecurityGroups: {
-          type: 'string',
-        },
-        streamName: {
-          type: 'string',
-        },
-        roleArn: {
-          type: 'string',
-        },
         url: {
           type: 'string',
           format: 'uri',
         },
+        password: { type: 'string' },
+        username: { type: 'string' },
       },
-      required: ['inputNetworkLocation', 'streamName', 'roleArn', 'url'],
-    },
-  },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
-  additionalProperties: false,
-};
-
-export const MulticastSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
-    inputType: {
-      type: 'string',
-      enum: [InputType.MULTICAST],
-    },
-    source: {
-      type: 'object',
-      properties: {
-        url: { type: 'string' },
-        sourceIp: { type: 'string' },
-      },
-      required: ['url', 'sourceIp'],
+      required: ['url'],
     },
   },
   required: [

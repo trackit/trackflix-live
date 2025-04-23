@@ -9,6 +9,7 @@ import {
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
+import { InputType } from '@aws-sdk/client-medialive';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {
@@ -22,6 +23,7 @@ describe('Create live channel use case', () => {
     const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
+    const inputType = InputType.MP4_FILE;
 
     await eventsRepository.createEvent(
       EventMother.basic().withId(eventId).withSource(source).build()
@@ -50,6 +52,7 @@ describe('Create live channel use case', () => {
         eventId,
         packageChannelId,
         source,
+        inputType,
       },
     ]);
   });
