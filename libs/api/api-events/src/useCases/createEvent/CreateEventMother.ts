@@ -46,6 +46,11 @@ export class CreateEventMother {
     return this;
   }
 
+  public withInputType(inputType: InputType) {
+    this.data.inputType = inputType;
+    return this;
+  }
+
   public build() {
     return this.data;
   }

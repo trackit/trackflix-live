@@ -63,7 +63,7 @@ export const HlsSchema = {
       type: 'string',
       enum: [InputType.URL_PULL],
     },
-    source: { type: 'string', pattern: '^http*:\\/\\/.+\\.m3u8$' },
+    source: { type: 'string', pattern: '^https?:\\/\\/.+\\.m3u8$' },
   },
   required: [
     'name',
@@ -169,7 +169,7 @@ export const RtmpPullSchema = {
       properties: {
         url: {
           type: 'string',
-          format: 'uri',
+          pattern: '^rtmp:\\/\\/',
         },
         password: { type: 'string' },
         username: { type: 'string' },
@@ -202,8 +202,14 @@ export const MediaConnectSchema = {
     source: {
       type: 'object',
       properties: {
-        flowArn: { type: 'string' },
-        roleArn: { type: 'string' },
+        flowArn: {
+          type: 'string',
+          pattern: '^arn:aws:mediaconnect:[a-z0-9-]+:\\d{12}:flow:[^:]+:[^:]+$',
+        },
+        roleArn: {
+          type: 'string',
+          pattern: '^arn:aws:iam::\\d{12}:role/[^/]+$',
+        },
       },
       required: ['flowArn', 'roleArn'],
     },
@@ -252,7 +258,6 @@ export const SrtCallerSchema = {
         },
         srtListenerAddress: {
           type: 'string',
-          format: 'uri',
         },
         srtListenerPort: {
           type: 'string',

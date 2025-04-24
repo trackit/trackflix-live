@@ -53,7 +53,7 @@ export enum SrtDecryptionAlgorithm {
 }
 
 export type SrtCaller = {
-  decryption: {
+  decryption?: {
     Algorithm: SrtDecryptionAlgorithm;
     passphraseSecretArn: string;
   };
