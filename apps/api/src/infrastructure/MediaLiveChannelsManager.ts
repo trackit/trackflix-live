@@ -86,7 +86,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     }
 
     const inputName = `TrackflixLiveMLI-${eventId}`;
-    console.log(type);
     const input = await this.client.send(
       new CreateInputCommand(this.createInputCommand(type, source, inputName))
     );

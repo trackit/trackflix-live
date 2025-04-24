@@ -620,6 +620,7 @@ exports[`MediaLive channels manager createChannel should create channel 1`] = `
     {
       "InputAttachmentName": "TrackflixLiveMLI-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d",
       "InputId": "9876543",
+      "InputSettings": undefined,
     },
   ],
   "InputSpecification": {

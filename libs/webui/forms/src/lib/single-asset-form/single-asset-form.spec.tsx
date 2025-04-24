@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 import SingleAssetForm from './single-asset-form';
 import '@testing-library/jest-dom';
 import { DateTime } from 'luxon';
+import { InputType } from '@aws-sdk/client-medialive';
 
 describe('SingleAssetForm', () => {
   const mockOnSubmit = vi.fn();
@@ -91,6 +92,7 @@ describe('SingleAssetForm', () => {
       name: 'Test Event',
       description: 'Test Description',
       source: 's3://test-bucket/test-key',
+      inputType: InputType.MP4_FILE,
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
         .startOf('minute')
