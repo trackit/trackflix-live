@@ -63,7 +63,7 @@ export const HlsSchema = {
       type: 'string',
       enum: [InputType.URL_PULL],
     },
-    source: { type: 'string' },
+    source: { type: 'string', pattern: '^http*:\\/\\/.+\\.m3u8$' },
   },
   required: [
     'name',
@@ -92,13 +92,14 @@ export const RtpPushSchema = {
       properties: {
         inputNetworkLocation: {
           type: 'string',
-          enum: [InputNetworkLocation.AWS, InputNetworkLocation.ON_PREMISES],
+          enum: [InputNetworkLocation.AWS],
         },
         inputSecurityGroups: {
           type: 'string',
+          pattern: '^[0-9]+$',
         },
       },
-      required: ['inputNetworkLocation'],
+      required: ['inputNetworkLocation', 'inputSecurityGroups'],
     },
   },
   required: [
@@ -128,28 +129,17 @@ export const RtmpPushSchema = {
       properties: {
         inputNetworkLocation: {
           type: 'string',
-          enum: [InputNetworkLocation.AWS, InputNetworkLocation.ON_PREMISES],
+          enum: [InputNetworkLocation.AWS],
         },
         inputSecurityGroups: {
           type: 'string',
-        },
-        vpcSettings: {
-          type: 'object',
-          properties: {
-            subnetIds: {
-              type: 'string',
-            },
-            securityGroupId: {
-              type: 'string',
-            },
-          },
-          required: ['subnetIds', 'securityGroupId'],
+          pattern: '^[0-9]+$',
         },
         streamName: {
           type: 'string',
         },
       },
-      required: ['inputNetworkLocation', 'streamName'],
+      required: ['inputNetworkLocation', 'inputSecurityGroups'],
     },
   },
   required: [
@@ -229,44 +219,6 @@ export const MediaConnectSchema = {
   additionalProperties: false,
 };
 
-export const CdiSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
-    inputType: {
-      type: 'string',
-      enum: [InputType.AWS_CDI],
-    },
-    source: {
-      type: 'object',
-      properties: {
-        streamId: { type: 'string' },
-        srtListenerPort: { type: 'string' },
-        srtListenerAddress: { type: 'string' },
-        minimumLatency: { type: 'number' },
-      },
-      required: [
-        'streamId',
-        'srtListenerPort',
-        'srtListenerAddress',
-        'minimumLatency',
-      ],
-    },
-  },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
-  additionalProperties: false,
-};
-
 export const SrtCallerSchema = {
   type: 'object',
   properties: {
@@ -300,6 +252,7 @@ export const SrtCallerSchema = {
         },
         srtListenerAddress: {
           type: 'string',
+          format: 'uri',
         },
         srtListenerPort: {
           type: 'string',
@@ -312,12 +265,7 @@ export const SrtCallerSchema = {
           minimum: 0,
         },
       },
-      required: [
-        'srtListenerAddress',
-        'srtListenerPort',
-        'streamId',
-        'minimumLatency',
-      ],
+      required: ['srtListenerAddress', 'srtListenerPort', 'minimumLatency'],
     },
   },
   required: [

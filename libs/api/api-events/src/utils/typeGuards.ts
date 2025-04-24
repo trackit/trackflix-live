@@ -1,5 +1,4 @@
 import {
-  Cdi,
   MediaConnect,
   RtmpPull,
   RtmpPush,
@@ -29,10 +28,6 @@ export function isMediaConnect(
   type: string
 ): source is MediaConnect {
   return type === InputType.MEDIACONNECT && typeof source === 'object';
-}
-
-export function isCdi(source: unknown, type: string): source is Cdi {
-  return type === InputType.AWS_CDI && typeof source === 'object';
 }
 
 export function isSrtCaller(

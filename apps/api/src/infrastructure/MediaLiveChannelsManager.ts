@@ -1,7 +1,6 @@
 import {
   CreateChannelParameters,
   CreateChannelResponse,
-  isCdi,
   isMediaConnect,
   isRtmpPull,
   isRtmpPush,
@@ -29,7 +28,6 @@ import {
   InputType,
 } from '@aws-sdk/client-medialive';
 import {
-  Cdi,
   MediaConnect,
   RtmpPull,
   RtmpPush,
@@ -833,9 +831,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     if (isMediaConnect(source, type)) {
       return this.buildMediaConnect(source, inputName);
     }
-    if (isCdi(source, type)) {
-      return this.buildCdi(source, inputName);
-    }
     if (isSrtCaller(source, type)) {
       return this.buildSrtCaller(source, inputName);
     }
@@ -920,17 +915,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
           FlowArn: source.flowArn,
         },
       ],
-    };
-  }
-
-  private buildCdi(source: Cdi, inputName: string): CreateInputCommandInput {
-    return {
-      Name: inputName,
-      Vpc: {
-        SubnetIds: [source.vpcSettings.subnetIds],
-        SecurityGroupIds: [source.vpcSettings.securityGroupId],
-      },
-      RoleArn: source.roleArn,
     };
   }
 

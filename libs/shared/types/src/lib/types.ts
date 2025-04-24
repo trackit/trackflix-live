@@ -46,14 +46,6 @@ export type MediaConnect = {
   roleArn: string;
 };
 
-export type Cdi = {
-  roleArn: string;
-  vpcSettings: {
-    subnetIds: string;
-    securityGroupId: string;
-  };
-};
-
 export enum SrtDecryptionAlgorithm {
   AES_128 = 'AES128',
   AES_192 = 'AES192',
@@ -79,7 +71,6 @@ export type Source =
   | TsFile
   | Hls
   | MediaConnect
-  | Cdi
   | SrtCaller;
 
 export enum LogType {

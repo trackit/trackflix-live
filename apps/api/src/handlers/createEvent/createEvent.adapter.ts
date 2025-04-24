@@ -17,7 +17,6 @@ import {
 import { CreateEventRequest, CreateEventResponse } from '@trackflix-live/types';
 import { inject } from '@trackflix-live/di';
 import {
-  CdiSchema,
   HlsSchema,
   MediaConnectSchema,
   RtmpPullSchema,
@@ -41,7 +40,6 @@ const schema = {
     RtmpPullSchema,
     TsSourceSchema,
     MediaConnectSchema,
-    CdiSchema,
     SrtCallerSchema,
     HlsSchema,
   ],
