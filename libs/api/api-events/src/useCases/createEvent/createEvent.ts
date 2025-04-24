@@ -60,7 +60,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     } satisfies Event;
 
     if (
-      event.inputType === InputType.MP4_FILE &&
+      (event.inputType === InputType.MP4_FILE ||
+        event.inputType === InputType.TS_FILE) &&
       isString(event.source) &&
       !(await this.assetsService.assetExists(event.source))
     ) {
