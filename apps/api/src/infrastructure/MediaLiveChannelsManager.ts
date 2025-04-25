@@ -932,7 +932,12 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
             SrtListenerPort: source.srtListenerPort,
             SrtListenerAddress: source.srtListenerAddress,
             MinimumLatency: source.minimumLatency,
-            Decryption: source.decryption,
+            Decryption: source.decryption
+              ? {
+                  Algorithm: source.decryption.algorithm,
+                  PassphraseSecretArn: source.decryption.passphraseSecretArn,
+                }
+              : undefined,
           },
         ],
       },
