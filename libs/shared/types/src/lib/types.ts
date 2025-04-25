@@ -21,8 +21,7 @@ export enum InputNetworkLocation {
 
 export type Rtp = {
   inputNetworkLocation: InputNetworkLocation;
-  inputSecurityGroups?: string;
-  networkArn?: string;
+  inputSecurityGroups: string;
 };
 
 export type RtmpPush = {
@@ -54,7 +53,7 @@ export enum SrtDecryptionAlgorithm {
 
 export type SrtCaller = {
   decryption?: {
-    Algorithm: SrtDecryptionAlgorithm;
+    algorithm: SrtDecryptionAlgorithm;
     passphraseSecretArn: string;
   };
   srtListenerAddress: string;

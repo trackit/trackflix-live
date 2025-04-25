@@ -8,7 +8,7 @@ import {
   ForbiddenError,
   handleHttpRequest,
 } from '../HttpErrors';
-import Ajv from 'ajv';
+import Ajv, { Schema } from 'ajv';
 import addFormats from 'ajv-formats';
 import {
   APIGatewayProxyEventV2WithRequestContext,
@@ -28,10 +28,10 @@ import {
 } from './validateEvent';
 import { CustomRequestContext } from '../types';
 
-const ajv = new Ajv();
+const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
-const schema = {
+const schema: Schema = {
   type: 'object',
   oneOf: [
     s3SourceSchema,
@@ -80,6 +80,9 @@ export class CreateEventAdapter {
     }
     if (!validate(body)) {
       throw new BadRequestError('Body does not match schema.');
+    }
+    if (!body) {
+      throw new BadRequestError('Body must be an object.');
     }
     this.validateInput(body);
 

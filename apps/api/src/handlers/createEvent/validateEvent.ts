@@ -1,10 +1,12 @@
 import { InputType } from '@aws-sdk/client-medialive';
 import {
+  CreateEventRequest,
   InputNetworkLocation,
   SrtDecryptionAlgorithm,
 } from '@trackflix-live/types';
+import { JSONSchemaType } from 'ajv';
 
-export const s3SourceSchema = {
+export const s3SourceSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -28,7 +30,7 @@ export const s3SourceSchema = {
   additionalProperties: false,
 };
 
-export const TsSourceSchema = {
+export const TsSourceSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -52,7 +54,7 @@ export const TsSourceSchema = {
   additionalProperties: false,
 };
 
-export const HlsSchema = {
+export const HlsSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -76,7 +78,7 @@ export const HlsSchema = {
   additionalProperties: false,
 };
 
-export const RtpPushSchema = {
+export const RtpPushSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -113,7 +115,7 @@ export const RtpPushSchema = {
   additionalProperties: false,
 };
 
-export const RtmpPushSchema = {
+export const RtmpPushSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -153,7 +155,7 @@ export const RtmpPushSchema = {
   additionalProperties: false,
 };
 
-export const RtmpPullSchema = {
+export const RtmpPullSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -171,8 +173,8 @@ export const RtmpPullSchema = {
           type: 'string',
           pattern: '^rtmp:\\/\\/',
         },
-        password: { type: 'string' },
-        username: { type: 'string' },
+        password: { type: 'string', nullable: true },
+        username: { type: 'string', nullable: true },
       },
       required: ['url'],
     },
@@ -188,7 +190,7 @@ export const RtmpPullSchema = {
   additionalProperties: false,
 };
 
-export const MediaConnectSchema = {
+export const MediaConnectSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -225,7 +227,7 @@ export const MediaConnectSchema = {
   additionalProperties: false,
 };
 
-export const SrtCallerSchema = {
+export const SrtCallerSchema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
   properties: {
     name: { type: 'string' },
@@ -241,8 +243,9 @@ export const SrtCallerSchema = {
       properties: {
         decryption: {
           type: 'object',
+          nullable: true,
           properties: {
-            Algorithm: {
+            algorithm: {
               type: 'string',
               enum: [
                 SrtDecryptionAlgorithm.AES_128,
@@ -254,7 +257,7 @@ export const SrtCallerSchema = {
               type: 'string',
             },
           },
-          required: ['Algorithm', 'passphraseSecretArn'],
+          required: ['algorithm', 'passphraseSecretArn'],
         },
         srtListenerAddress: {
           type: 'string',
