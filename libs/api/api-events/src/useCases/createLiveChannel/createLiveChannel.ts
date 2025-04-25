@@ -48,6 +48,7 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId: eventId,
       source: event.source,
       packageChannelId,
+      type: event.inputType,
     });
 
     const currentTimestamp = Date.now();

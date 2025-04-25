@@ -5,6 +5,7 @@ import {
   CreateInputCommand,
   DeleteChannelCommand,
   DeleteInputCommand,
+  InputType,
   MediaLiveClient,
   StartChannelCommand,
   StopChannelCommand,
@@ -28,6 +29,7 @@ describe('MediaLive channels manager', () => {
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
+      const type = InputType.MP4_FILE;
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -45,6 +47,7 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
+        type,
       });
 
       const commandCalls = mock.commandCalls(CreateInputCommand);
@@ -78,6 +81,7 @@ describe('MediaLive channels manager', () => {
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
+      const type = InputType.MP4_FILE;
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -95,6 +99,7 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
+        type,
       });
 
       const commandCalls = mock.commandCalls(CreateChannelCommand);

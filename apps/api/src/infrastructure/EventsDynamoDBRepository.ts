@@ -47,6 +47,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     '#liveWaitingInputId': 'liveWaitingInputId',
     '#logs': 'logs',
     '#endpoints': 'endpoints',
+    '#inputType': 'inputType',
   };
   private readonly projectionExpression = Object.keys(
     this.expressionAttributeNames
