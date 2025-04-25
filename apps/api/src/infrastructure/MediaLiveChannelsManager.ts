@@ -866,7 +866,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   ): CreateInputCommandInput {
     return {
       Name: inputName,
-      Type: 'RTMP_PUSH',
+      Type: InputType.RTMP_PUSH,
       InputNetworkLocation: source.inputNetworkLocation,
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
