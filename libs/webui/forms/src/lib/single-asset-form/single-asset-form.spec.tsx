@@ -26,7 +26,7 @@ describe('SingleAssetForm', () => {
   it('shows S3 URL field when MP4_FILE input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.MP4_FILE } });
     
     expect(screen.getByText('S3 Media URI')).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('SingleAssetForm', () => {
   it('shows RTP push fields when RTP_PUSH input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.RTP_PUSH } });
     
     expect(screen.getByText('Network Location')).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('SingleAssetForm', () => {
   it('shows RTMP push fields when RTMP_PUSH input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.RTMP_PUSH } });
     
     expect(screen.getByText('Network Location')).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('SingleAssetForm', () => {
   it('shows RTMP pull fields when RTMP_PULL input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.RTMP_PULL } });
     
     expect(screen.getByText('URL')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('SingleAssetForm', () => {
   it('shows MediaConnect fields when MEDIA_CONNECT input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.MEDIACONNECT } });
     
     expect(screen.getByText('Flow ARN')).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('SingleAssetForm', () => {
   it('shows SRT caller fields when SRT_CALLER input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
     
     expect(screen.getByText('Stream ID')).toBeInTheDocument();
@@ -89,8 +89,8 @@ describe('SingleAssetForm', () => {
   it('updates end time automatically when start time changes', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
-    const endTimeInput = screen.getByLabelText(/end on-air/i);
+    const startTimeInput = screen.getByLabelText('Start On-Air');
+    const endTimeInput = screen.getByLabelText('End On-Air');
     
     const newStartTime = DateTime.now().plus({ days: 1 }).toFormat("yyyy-MM-dd'T'HH:mm");
     fireEvent.change(startTimeInput, { target: { value: newStartTime } });
@@ -106,8 +106,8 @@ describe('SingleAssetForm', () => {
   it('does not update end time when it has been manually set', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
-    const endTimeInput = screen.getByLabelText(/End On-Air/i);
+    const startTimeInput = screen.getByLabelText('Start On-Air');
+    const endTimeInput = screen.getByLabelText('End On-Air');
     
     // First manually set the end time
     const manualEndTime = DateTime.now().plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm");
@@ -125,10 +125,10 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Fill in required fields
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
     
-    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    const s3UrlInput = screen.getByLabelText('S3 Media URI');
     fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.mp4' } });
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
@@ -142,7 +142,7 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Leave name empty
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: '' } });
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
@@ -157,11 +157,11 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Fill in name
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
     
     // Enter invalid S3 URL
-    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    const s3UrlInput = screen.getByLabelText('S3 Media URI');
     fireEvent.change(s3UrlInput, { target: { value: 'invalid-url' } });
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
@@ -190,8 +190,8 @@ describe('SingleAssetForm', () => {
   it('shows error message for invalid date range', async () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
-    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
-    const endTimeInput = screen.getByLabelText(/End On-Air/i);
+    const startTimeInput = screen.getByLabelText('Start On-Air');
+    const endTimeInput = screen.getByLabelText('End On-Air');
     
     // Set end time before start time
     const startTime = DateTime.now().plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm");
@@ -211,15 +211,15 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Fill in name
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
 
     // Select MP4 file input type
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.MP4_FILE } });
     
     // Enter invalid S3 URL
-    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    const s3UrlInput = screen.getByLabelText('S3 Media URI');
     fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.notMp4' } });
     
     // Submit the form
@@ -235,15 +235,15 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Fill in name
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
 
     // Select TS file input type
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.TS_FILE } });
     
     // Enter invalid S3 URL
-    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    const s3UrlInput = screen.getByLabelText('S3 Media URI');
     fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.notTs' } });
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
@@ -258,15 +258,15 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Fill in name
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
 
     // Select HLS file input type
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.URL_PULL } });
     
     // Enter invalid S3 URL
-    const urlInput = screen.getByRole('textbox', { name: /URL/i });
+    const urlInput = screen.getByLabelText('URL');
     fireEvent.change(urlInput, { target: { value: 'https://test-bucket/video.notM3u8' } });
 
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
@@ -281,15 +281,15 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Select SRT caller input type
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
     
     // Fill required fields
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
     
     // Enable decryption
-    const decryptionToggle = screen.getByLabelText(/Enable SRT Decryption/i) as HTMLInputElement;
+    const decryptionToggle = screen.getByLabelText('Enable SRT Decryption');
     fireEvent.click(decryptionToggle);
     
     // Submit form
@@ -309,11 +309,11 @@ describe('SingleAssetForm', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
     // Select SRT caller input type
-    const inputTypeSelect = screen.getByRole('combobox');
+    const inputTypeSelect = screen.getByLabelText('Input Type');
     fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
     
     // Fill required fields
-    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    const nameInput = screen.getByLabelText('Event Name');
     fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
     
     // Submit form

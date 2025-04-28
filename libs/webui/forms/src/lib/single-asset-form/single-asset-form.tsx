@@ -172,7 +172,6 @@ const parseWithSchema = (
   data: z.infer<typeof sourceSchema>,
   schema: z.ZodSchema,
   ctx: z.RefinementCtx,
-  path?: string[]
 ) => {
   const result = schema.safeParse(data);
   if (!result.success) {
@@ -180,11 +179,10 @@ const parseWithSchema = (
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: err.message,
-        path: path ? ['source', ...path] : ['source', err.path.join('.')],
+        path: ['source', err.path.join('.')],
       });
     });
   }
-  console.log("RESULT", result);
   return result;
 };
 
@@ -206,10 +204,10 @@ export const formSchema = z
     // Validate source based on input type
     switch (data.inputType) {
       case InputType.MP4_FILE:
-        parseWithSchema(data.source, mp4SourceSchema, ctx, ['s3url']);
+        parseWithSchema(data.source, mp4SourceSchema, ctx);
         break;
       case InputType.TS_FILE:
-        parseWithSchema(data.source, tsSourceSchema, ctx, ['s3url']);
+        parseWithSchema(data.source, tsSourceSchema, ctx);
         break;
       case InputType.URL_PULL:
         parseWithSchema(data.source, hlsSourceSchema, ctx);
@@ -227,7 +225,6 @@ export const formSchema = z
         parseWithSchema(data.source, rtmpPullSourceSchema, ctx);
         break;
       case InputType.SRT_CALLER:
-        console.log("SRT CALLER", data.source);
         parseWithSchema(data.source, srtCallerSourceSchema, ctx);
         break;
     }
@@ -576,25 +573,24 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         />
       </div>
       <div className="form-control w-full mb-2">
-        <div className={'align-middle flex gap-2 my-2 items-center'}>
-          <div className="flex items-center gap-2">
-            <Videotape />
-            <span>Input Type</span>
-          </div>
-          <select 
-            className={`select select-bordered`}
-            value={selectedInputType}
-            onChange={(e) => {
-              setSelectedInputType(e.target.value as keyof typeof InputType);
-              setValue('inputType', e.target.value);
-            }}
-          >
-            {Array.from(InputTypeDisplay.entries()).map(([type, display]) => (
-              <option key={type} value={type}>
-                {display}
-              </option>
-            ))}
-          </select>
+        <div className="mb-2">
+          <FormField
+            label="Input Type"
+            register={register}
+            error={errors.inputType}
+            type="select"
+            icon={Videotape}
+            options={Array.from(InputTypeDisplay.entries()).map(([type, display]) => ({
+              value: type,
+              label: display
+            }))}
+            {...register('inputType', {
+              onChange: (e) => {
+                setSelectedInputType(e.target.value as keyof typeof InputType);
+                setValue('inputType', e.target.value);
+              }
+            })}
+          />
         </div>
         
         {renderSourceInputs()}
@@ -605,50 +601,29 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </span>
         </div>
       </div>
-      <div className={'flex  mb-2 flex-col md:flex-row gap-2 items-start'}>
-        <label
-          className={
-            'align-middle flex gap-2 md:flex-row flex-col my-2 items-start md:items-center w-full md:w-1/2'
-          }
-        >
-          <div className="flex items-center gap-2">
-            <Clock />
-            <span className="mr-2 whitespace-pre">Start On-Air</span>
-          </div>
-          <input
-            className={'input input-bordered w-full md:w-1/2'}
-            type={'datetime-local'}
-            {...register('onAirStartTime')}
-            onChange={handleStartTimeChange}
-            min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 6 })
-              .toFormat("yyyy-MM-dd'T'HH:mm")}
-          />
-        </label>
-        <label
-          className={
-            'align-middle flex  gap-2 md:flex-row flex-col my-2 items-start md:items-center w-full md:w-1/2'
-          }
-        >
-          <div className="flex items-center gap-2">
-            <Clock />
-            <span className="mr-2 whitespace-pre">End On-Air</span>
-          </div>
-          <input
-            className={'input input-bordered w-full md:w-1/2'}
-            type={'datetime-local'}
-            min={DateTime.now()
-              .set({ minute: DateTime.now().minute + 7 })
-              .toFormat("yyyy-MM-dd'T'HH:mm")}
-            {...register('onAirEndTime')}
-            onChange={handleEndTimeChange}
-          />
-        </label>
-        <div className="label">
-          <span className="label-text-alt text-error">
-            {errors.onAirStartTime?.message}
-          </span>
-        </div>
+      <div className={'flex mb-2 flex-col md:flex-row gap-4 items-start'}>
+        <FormField
+          label="Start On-Air"
+          register={register}
+          error={errors.onAirStartTime}
+          type="datetime-local"
+          icon={Clock}
+          placeholder=""
+          {...register('onAirStartTime', {
+            onChange: handleStartTimeChange
+          })}
+        />
+        <FormField
+          label="End On-Air"
+          register={register}
+          error={errors.onAirEndTime}
+          type="datetime-local"
+          icon={Clock}
+          placeholder=""
+          {...register('onAirEndTime', {
+            onChange: handleEndTimeChange
+          })}
+        />
       </div>
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>
