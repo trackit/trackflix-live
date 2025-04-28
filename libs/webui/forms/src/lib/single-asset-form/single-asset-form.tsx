@@ -42,7 +42,7 @@ const mp4SourceSchema = z.object({
   s3url: z.string()
     .refine(
       (val) => /^s3:\/\/.+\.mp4$/.test(val),
-      { message: 'Must be a valid S3 URI pointing to an MP4 file (e.g., s3://bucket-name/video.mp4)' }
+      { message: 'Must be a valid S3 URI pointing to a MP4 file (e.g., s3://bucket-name/video.mp4)' }
     ),
 });
 
@@ -55,10 +55,10 @@ const tsSourceSchema = z.object({
 });
 
 const hlsSourceSchema = z.object({
-  s3url: z.string()
+  url: z.string()
     .refine(
       (val) => /^https?:\/\/.+\.m3u8$/.test(val),
-      { message: 'Must be a valid HTTP/HTTPS URL pointing to an M3U8 file (e.g., https://example.com/stream.m3u8)' }
+      { message: 'Must be a valid HTTP/HTTPS URL pointing to a M3U8 file (e.g., https://example.com/stream.m3u8)' }
     ),
 });
 
@@ -132,13 +132,13 @@ const srtCallerSourceSchema = z.object({
       message: 'Decryption algorithm must be provided if decryption is enabled',
       path: ['decryption', 'Algorithm'],
     });
-    if (data.decryptionEnabled && !data.decryption?.passphraseSecretArn) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Passphrase Secret ARN must be provided if decryption is enabled',
-        path: ['decryption', 'passphraseSecretArn'],
-      });
-    }
+  }
+  if (data.decryptionEnabled && !data.decryption?.passphraseSecretArn) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Passphrase Secret ARN must be provided if decryption is enabled',
+      path: ['decryption', 'passphraseSecretArn'],
+    });
   }
 });
 
@@ -204,7 +204,6 @@ export const formSchema = z
   })
   .superRefine((data, ctx) => {
     // Validate source based on input type
-    console.log("DATA", data);
     switch (data.inputType) {
       case InputType.MP4_FILE:
         parseWithSchema(data.source, mp4SourceSchema, ctx, ['s3url']);
@@ -213,7 +212,7 @@ export const formSchema = z
         parseWithSchema(data.source, tsSourceSchema, ctx, ['s3url']);
         break;
       case InputType.URL_PULL:
-        parseWithSchema(data.source, hlsSourceSchema, ctx, ['s3url']);
+        parseWithSchema(data.source, hlsSourceSchema, ctx);
         break;
       case InputType.MEDIACONNECT:
         parseWithSchema(data.source, mediaConnectSourceSchema, ctx);
@@ -228,6 +227,7 @@ export const formSchema = z
         parseWithSchema(data.source, rtmpPullSourceSchema, ctx);
         break;
       case InputType.SRT_CALLER:
+        console.log("SRT CALLER", data.source);
         parseWithSchema(data.source, srtCallerSourceSchema, ctx);
         break;
     }
@@ -455,10 +455,16 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
     switch (selectedInputType) {
       case InputType.MP4_FILE:
       case InputType.TS_FILE:
-      case InputType.URL_PULL:
         return (
           <div className="space-y-2">
             {formFields.s3url}
+          </div>
+        );
+
+      case InputType.URL_PULL:
+        return (
+          <div className="space-y-2">
+            {formFields.url}
           </div>
         );
 
@@ -525,8 +531,10 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         switch (data.inputType) {
           case InputType.MP4_FILE:
           case InputType.TS_FILE:
-          case InputType.URL_PULL:
             sourceData = data.source.s3url as S3Source;
+            break;
+          case InputType.URL_PULL:
+            sourceData = data.source.url as Source;
             break;
           case InputType.SRT_CALLER:
             if (!data.source.decryptionEnabled) {
@@ -549,51 +557,23 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         });
       })}
     >
-      <div className={'flex items-center'}>
-        <label className="form-control w-full mb-2">
-          <label
-            className={`input input-bordered flex items-center gap-2 ${
-              errors.name ? 'input-error' : ''
-            }`}
-          >
-            <CaseSensitive />
-            Event Name
-            <input
-              type="text"
-              className="grow "
-              placeholder=""
-              {...register('name')}
-            />
-          </label>
-          <div className="label">
-            <span className="label-text-alt text-error">
-              {errors.name?.message}
-            </span>
-          </div>
-        </label>
+      <div className={'flex items-center mb-2'}>
+        <FormField
+          label="Event Name"
+          register={register}
+          name="name"
+          error={errors.name}
+          icon={CaseSensitive}
+        />
       </div>
-      <div className={'flex items-center'}>
-        <label className="form-control w-full mb-2">
-          <label
-            className={`input input-bordered flex items-center gap-2 ${
-              errors.description ? 'input-error' : ''
-            }`}
-          >
-            <PencilLine />
-            Description
-            <input
-              type="text"
-              className="grow"
-              placeholder=""
-              {...register('description')}
-            />
-          </label>
-          <div className="label">
-            <span className="label-text-alt text-error">
-              {errors.description?.message}
-            </span>
-          </div>
-        </label>
+      <div className={'flex items-center mb-2'}>
+        <FormField
+          label="Description"
+          register={register}
+          name="description"
+          error={errors.description}
+          icon={PencilLine}
+        />
       </div>
       <div className="form-control w-full mb-2">
         <div className={'align-middle flex gap-2 my-2 items-center'}>

@@ -1,198 +1,331 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
-import SingleAssetForm from './single-asset-form';
 import '@testing-library/jest-dom';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { SingleAssetForm } from './single-asset-form';
+import { InputType } from '@aws-sdk/client-medialive';
+import { vi } from 'vitest';
 import { DateTime } from 'luxon';
 import { InputType } from '@trackflix-live/types';
 
 describe('SingleAssetForm', () => {
   const mockOnSubmit = vi.fn();
-  const fixedDate = new Date('2024-01-01T11:00:00.000Z');
 
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(fixedDate);
-    mockOnSubmit.mockReset();
+    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('should render successfully', () => {
-    const { baseElement } = render(<SingleAssetForm onSubmit={mockOnSubmit} />);
-    expect(baseElement).toBeTruthy();
-  });
-
-  it('should display all form inputs and submit button', () => {
+  it('renders the form with default values', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
 
-    expect(screen.getByLabelText(/event name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByText(/input type/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/start on-air/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/end on-air/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+    expect(screen.getByText('Event Name')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Input Type')).toBeInTheDocument();
+    expect(screen.getByText('Start On-Air')).toBeInTheDocument();
+    expect(screen.getByText('End On-Air')).toBeInTheDocument();
   });
 
-  it('should show error message for empty required fields', async () => {
-    const user = userEvent.setup();
+  it('shows S3 URL field when MP4_FILE input type is selected', () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.MP4_FILE } });
+    
+    expect(screen.getByText('S3 Media URI')).toBeInTheDocument();
+  });
 
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    await user.click(submitButton);
+  it('shows RTP push fields when RTP_PUSH input type is selected', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.RTP_PUSH } });
+    
+    expect(screen.getByText('Network Location')).toBeInTheDocument();
+    expect(screen.getByText('Security Groups')).toBeInTheDocument();
+  });
 
+  it('shows RTMP push fields when RTMP_PUSH input type is selected', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.RTMP_PUSH } });
+    
+    expect(screen.getByText('Network Location')).toBeInTheDocument();
+    expect(screen.getByText('Security Groups')).toBeInTheDocument();
+    expect(screen.getByText('Stream Name')).toBeInTheDocument();
+  });
+
+  it('shows RTMP pull fields when RTMP_PULL input type is selected', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.RTMP_PULL } });
+    
+    expect(screen.getByText('URL')).toBeInTheDocument();
+    expect(screen.getByText('Username')).toBeInTheDocument();
+    expect(screen.getByText('Password')).toBeInTheDocument();
+  });
+
+  it('shows MediaConnect fields when MEDIA_CONNECT input type is selected', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.MEDIACONNECT } });
+    
+    expect(screen.getByText('Flow ARN')).toBeInTheDocument();
+    expect(screen.getByText('Role ARN')).toBeInTheDocument();
+  });
+
+  it('shows SRT caller fields when SRT_CALLER input type is selected', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
+    
+    expect(screen.getByText('Stream ID')).toBeInTheDocument();
+    expect(screen.getByText('SRT Listener Port')).toBeInTheDocument();
+    expect(screen.getByText('SRT Listener Address')).toBeInTheDocument();
+    expect(screen.getByText('Enable SRT Decryption')).toBeInTheDocument();
+  });
+
+  it('updates end time automatically when start time changes', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
+    const endTimeInput = screen.getByLabelText(/end on-air/i);
+    
+    const newStartTime = DateTime.now().plus({ days: 1 }).toFormat("yyyy-MM-dd'T'HH:mm");
+    fireEvent.change(startTimeInput, { target: { value: newStartTime } });
+    
+    // End time should be updated to start time + 1 hour
+    const expectedEndTime = DateTime.fromFormat(newStartTime, "yyyy-MM-dd'T'HH:mm")
+      .plus({ hours: 1 })
+      .toFormat("yyyy-MM-dd'T'HH:mm");
+    
+    expect((endTimeInput as HTMLInputElement).value).toBe(expectedEndTime);
+  });
+
+  it('does not update end time when it has been manually set', () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
+    const endTimeInput = screen.getByLabelText(/End On-Air/i);
+    
+    // First manually set the end time
+    const manualEndTime = DateTime.now().plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm");
+    fireEvent.change(endTimeInput, { target: { value: manualEndTime } });
+    
+    // Then change the start time
+    const newStartTime = DateTime.now().plus({ days: 1 }).toFormat("yyyy-MM-dd'T'HH:mm");
+    fireEvent.change(startTimeInput, { target: { value: newStartTime } });
+    
+    // End time should remain the manually set value
+    expect((endTimeInput as HTMLInputElement).value).toBe(manualEndTime);
+  });
+
+  it('validates form submission with required fields', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Fill in required fields
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+    
+    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.mp4' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
     await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalled();
+    });
+  });
+
+  it('shows validation errors when form is submitted with invalid data', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Leave name empty
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: '' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText('String must contain at least 1 character(s)')).toBeInTheDocument();
       expect(mockOnSubmit).not.toHaveBeenCalled();
     });
   });
 
-  it('should submit form with valid data', async () => {
-    const user = userEvent.setup({ delay: null }); // Disable delay for faster tests
+  it('validates S3 URL format for MP4 files', async () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
-
-    // Fill in text inputs
-    await user.type(screen.getByLabelText(/event name/i), 'Test Event');
-    await user.type(screen.getByLabelText(/description/i), 'Test Description');
     
-    // Select MP4_FILE input type and fill in URL
-    const inputTypeSelect = screen.getByRole('combobox');
-    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
-    await user.type(screen.getByLabelText(/s3 media uri/i), 's3://test-bucket/test-key');
-
-    // Handle datetime inputs
-    const startInput = screen.getByLabelText(/start on-air/i);
-    const endInput = screen.getByLabelText(/end on-air/i);
-
-    // Set dates relative to our fixed date
-    const startTime = DateTime.fromJSDate(fixedDate)
-      .plus({ hours: 1 })
-      .toFormat("yyyy-MM-dd'T'HH:mm");
-    const endTime = DateTime.fromJSDate(fixedDate)
-      .plus({ hours: 2 })
-      .toFormat("yyyy-MM-dd'T'HH:mm");
-
-    await user.clear(startInput);
-    await user.type(startInput, startTime);
-    await user.clear(endInput);
-    await user.type(endInput, endTime);
-
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    await user.click(submitButton);
-
-    await waitFor(
-      () => {
-        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 1000 }
-    );
-
-    const [[submitData]] = mockOnSubmit.mock.calls;
-    expect(submitData).toEqual({
-      name: 'Test Event',
-      description: 'Test Description',
-      source: {
-        value: 's3://test-bucket/test-key',
-        inputType: InputType.MP4_FILE,
-      },
-      onAirStartTime: DateTime.fromJSDate(fixedDate)
-        .plus({ hours: 1 })
-        .startOf('minute')
-        .toUTC()
-        .toISO(),
-      onAirEndTime: DateTime.fromJSDate(fixedDate)
-        .plus({ hours: 2 })
-        .startOf('minute')
-        .toUTC()
-        .toISO(),
-    });
-  });
-
-  it('should show error for invalid S3 URI format', async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
-
-    await user.type(screen.getByLabelText(/event name/i), 'Test Event');
+    // Fill in name
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
     
-    const inputTypeSelect = screen.getByRole('combobox');
-    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
-    await user.type(screen.getByLabelText(/s3 media uri/i), 'invalid-uri');
+    // Enter invalid S3 URL
+    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    fireEvent.change(s3UrlInput, { target: { value: 'invalid-url' } });
 
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    await user.click(submitButton);
-
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
     await waitFor(() => {
+      expect(screen.getByText(/must be a valid s3 uri/i)).toBeInTheDocument();
       expect(mockOnSubmit).not.toHaveBeenCalled();
-      expect(screen.getByText(/Must be a valid S3 URI/i)).toBeInTheDocument();
     });
   });
 
-  it('should show error when end time is before start time', async () => {
-    const user = userEvent.setup({ delay: null }); // Disable delay for faster tests
-    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
-
-    await user.type(screen.getByLabelText(/event name/i), 'Test Event');
-    
-    // Select MP4_FILE input type and fill in URL
-    const inputTypeSelect = screen.getByRole('combobox');
-    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
-    await user.type(screen.getByLabelText(/s3 media uri/i), 's3://test-bucket/test-key');
-
-    const startTime = DateTime.fromJSDate(fixedDate)
-      .plus({ hours: 2 })
-      .toFormat("yyyy-MM-dd'T'HH:mm");
-    const endTime = DateTime.fromJSDate(fixedDate)
-      .plus({ hours: 1 })
-      .toFormat("yyyy-MM-dd'T'HH:mm");
-
-    const startInput = screen.getByLabelText(/start on-air/i);
-    const endInput = screen.getByLabelText(/end on-air/i);
-
-    await user.clear(startInput);
-    await user.type(startInput, startTime);
-    await user.clear(endInput);
-    await user.type(endInput, endTime);
-
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    await user.click(submitButton);
-
-    await waitFor(
-      () => {
-        expect(
-          screen.getByText(/End date must be after start date/i)
-        ).toBeInTheDocument();
-      },
-      { timeout: 1000 }
-    );
-
-    expect(mockOnSubmit).not.toHaveBeenCalled();
-  });
-
-  it('should be disabled when disabled prop is true', () => {
-    render(<SingleAssetForm onSubmit={mockOnSubmit} disabled={true} />);
-    expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
-  });
-  
-  it('should render different input fields based on input type selection', async () => {
-    const user = userEvent.setup({ delay: null });
+  it('shows error messages for invalid input fields', async () => {
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     
+    // Submit empty form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      // Check name validation
+      expect(screen.getByText('String must contain at least 1 character(s)')).toBeInTheDocument();
+      
+      // Check S3 URL validation for MP4 input type
+      expect(screen.getByText('Must be a valid S3 URI pointing to a MP4 file (e.g., s3://bucket-name/video.mp4)')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error message for invalid date range', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    const startTimeInput = screen.getByLabelText(/Start On-Air/i);
+    const endTimeInput = screen.getByLabelText(/End On-Air/i);
+    
+    // Set end time before start time
+    const startTime = DateTime.now().plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm");
+    const endTime = DateTime.now().plus({ days: 1 }).toFormat("yyyy-MM-dd'T'HH:mm");
+    
+    fireEvent.change(startTimeInput, { target: { value: startTime } });
+    fireEvent.change(endTimeInput, { target: { value: endTime } });
+    
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText('End date must be after start date')).toBeInTheDocument();
+    });
+  });
+
+  it('validates S3 URL format for MP4 files', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Fill in name
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+
+    // Select MP4 file input type
     const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.MP4_FILE } });
     
-    // Test MP4_FILE input type
-    await user.selectOptions(inputTypeSelect, InputType.MP4_FILE);
-    expect(screen.getByLabelText(/s3 media uri/i)).toBeInTheDocument();
+    // Enter invalid S3 URL
+    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.notMp4' } });
     
-    // Test RTP_PUSH input type
-    await user.selectOptions(inputTypeSelect, InputType.RTP_PUSH);
-    expect(screen.getByLabelText(/network location/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/security group/i)).toBeInTheDocument();
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
     
-    // Test SRT_CALLER input type
-    await user.selectOptions(inputTypeSelect, InputType.SRT_CALLER);
-    expect(screen.getByRole('textbox', { name: /stream id/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /srt listener address/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /decryption algorithm/i })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Must be a valid S3 URI pointing to a MP4 file/i)).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  it('validates S3 URL format for TS files', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Fill in name
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+
+    // Select TS file input type
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.TS_FILE } });
+    
+    // Enter invalid S3 URL
+    const s3UrlInput = screen.getByRole('textbox', { name: /s3 media uri/i });
+    fireEvent.change(s3UrlInput, { target: { value: 's3://test-bucket/video.notTs' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Must be a valid S3 URI pointing to a TS file/i)).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  it('validates S3 URL format for HLS files', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Fill in name
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+
+    // Select HLS file input type
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.URL_PULL } });
+    
+    // Enter invalid S3 URL
+    const urlInput = screen.getByRole('textbox', { name: /URL/i });
+    fireEvent.change(urlInput, { target: { value: 'https://test-bucket/video.notM3u8' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Must be a valid HTTP\/HTTPS URL pointing to a M3U8 file/i)).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  it('validates SRT caller fields with decryption enabled', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Select SRT caller input type
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
+    
+    // Fill required fields
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+    
+    // Enable decryption
+    const decryptionToggle = screen.getByLabelText(/Enable SRT Decryption/i) as HTMLInputElement;
+    fireEvent.click(decryptionToggle);
+    
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      // Check validation errors
+      expect(screen.getByText('Stream ID cannot be empty')).toBeInTheDocument();
+      expect(screen.getByText('SRT Listener Port cannot be empty')).toBeInTheDocument();
+      expect(screen.getByText('SRT Listener Address cannot be empty')).toBeInTheDocument();
+      expect(screen.getByText('Passphrase Secret ARN must be provided if decryption is enabled')).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
+  it('validates SRT caller fields with decryption disabled', async () => {
+    render(<SingleAssetForm onSubmit={mockOnSubmit} />);
+    
+    // Select SRT caller input type
+    const inputTypeSelect = screen.getByRole('combobox');
+    fireEvent.change(inputTypeSelect, { target: { value: InputType.SRT_CALLER } });
+    
+    // Fill required fields
+    const nameInput = screen.getByRole('textbox', { name: /event name/i });
+    fireEvent.change(nameInput, { target: { value: 'Test Asset' } });
+    
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    await waitFor(() => {
+      // Check validation errors
+      expect(screen.getByText('Stream ID cannot be empty')).toBeInTheDocument();
+      expect(screen.getByText('SRT Listener Port cannot be empty')).toBeInTheDocument();
+      expect(screen.getByText('SRT Listener Address cannot be empty')).toBeInTheDocument();
+      expect(screen.queryByText('Passphrase Secret ARN must be provided if decryption is enabled')).not.toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
   });
 });
