@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Videotape } from "lucide-react";
+import { Videotape, LucideIcon } from "lucide-react";
 import { FieldError, Path } from "react-hook-form";
 import { formSchema } from "../single-asset-form/single-asset-form";
 import { UseFormRegister } from "react-hook-form";
@@ -12,6 +12,7 @@ interface FormFieldProps {
   type?: "text" | "number" | "select" | "checkbox" | "password";
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
+  icon?: LucideIcon;
 }
 
 export const FormField = ({
@@ -21,7 +22,8 @@ export const FormField = ({
   error, 
   type = "text", 
   placeholder = "",
-  options
+  options,
+  icon: Icon = Videotape
 }: FormFieldProps) => {
   return (
     <label className="form-control w-full">
@@ -30,7 +32,7 @@ export const FormField = ({
           error ? 'input-error' : ''
         }`}
       >
-        <Videotape />
+        <Icon />
         {label}
         {type === "checkbox" ? (
           <input
