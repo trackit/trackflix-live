@@ -9,7 +9,7 @@ interface FormFieldProps {
   register: UseFormRegister<z.infer<typeof formSchema>>;
   name: Path<z.infer<typeof formSchema>>;
   error?: FieldError;
-  type?: string;
+  type?: "text" | "number" | "select" | "checkbox" | "password";
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
 }
@@ -26,27 +26,32 @@ export const FormField = ({
   return (
     <label className="form-control w-full">
       <label
-        className={`flex items-center gap-2 input input-bordered ${type === "select" ? 'pr-0' : ''} ${
+        className={`flex items-center gap-2 ${type !== "checkbox" ? 'input input-bordered' : ''} ${type === "select" ? 'pr-0' : ''} ${
           error ? 'input-error' : ''
         }`}
       >
         <Videotape />
         {label}
-        {type === "select" && options ? (
+        {type === "checkbox" ? (
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...register(name)}
+          />
+        ) : type === "select" && options ? (
           <select className="select select-bordered grow" {...register(name)}>
-            <div>
-              </div>
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         ) : (
           <input
             type={type}
             className="grow"
             placeholder={placeholder}
+            defaultValue={type === "number" ? 0 : undefined}
             {...register(name, {
               valueAsNumber: type === "number"
             })}

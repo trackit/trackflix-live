@@ -29,59 +29,208 @@ export interface SingleAssetFormProps {
 const InputTypeDisplay: Map<keyof typeof InputType, string> = new Map([
   [InputType.MP4_FILE, 'MP4'],
   [InputType.TS_FILE, 'TS'],
+  [InputType.URL_PULL, 'HLS'],
   [InputType.RTP_PUSH, 'RTP'],
   [InputType.RTMP_PUSH, 'RTMP (push)'],
   [InputType.RTMP_PULL, 'RTMP (pull)'],
-  [InputType.URL_PULL, 'HLS'],
   [InputType.MEDIACONNECT, 'MediaConnect'],
-  [InputType.MULTICAST, 'Multicast'],
-  [InputType.AWS_CDI, 'AWS CDI'],
   [InputType.SRT_CALLER, 'SRT caller'],
 ]);
+
+// Define source schemas for different input types
+const mp4SourceSchema = z.object({
+  s3url: z.string()
+    .refine(
+      (val) => /^s3:\/\/.+\.mp4$/.test(val),
+      { message: 'Must be a valid S3 URI pointing to an MP4 file (e.g., s3://bucket-name/video.mp4)' }
+    ),
+});
+
+const tsSourceSchema = z.object({
+  s3url: z.string()
+    .refine(
+      (val) => /^s3:\/\/.+\.ts$/.test(val),
+      { message: 'Must be a valid S3 URI pointing to a TS file (e.g., s3://bucket-name/video.ts)' }
+    ),
+});
+
+const hlsSourceSchema = z.object({
+  s3url: z.string()
+    .refine(
+      (val) => /^https?:\/\/.+\.m3u8$/.test(val),
+      { message: 'Must be a valid HTTP/HTTPS URL pointing to an M3U8 file (e.g., https://example.com/stream.m3u8)' }
+    ),
+});
+
+const rtpPushSourceSchema = z.object({
+  inputNetworkLocation: z.enum([InputNetworkLocation.AWS] as [string, ...string[]]),
+  inputSecurityGroups: z.string(),
+}).superRefine((data, ctx) => {
+  if (data.inputNetworkLocation === InputNetworkLocation.AWS && !data.inputSecurityGroups) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Security Groups must be provided',
+      path: ['inputSecurityGroups'],
+    });
+  }
+});
+
+const rtmpPushSourceSchema = z.object({
+  inputNetworkLocation: z.enum([InputNetworkLocation.AWS] as [string, ...string[]]),
+  inputSecurityGroups: z.string().optional(),
+  streamName: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.inputNetworkLocation === InputNetworkLocation.AWS && !data.inputSecurityGroups) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Security Groups must be provided',
+      path: ['inputSecurityGroups'],
+    });
+  }
+});
+
+const rtmpPullSourceSchema = z.object({
+  url: z.string()
+    .min(1, { message: 'URL cannot be empty' })
+    .refine(
+      (val) => /^rtmp:\/\//.test(val),
+      { message: 'Must be a valid RTMP URL (e.g., rtmp://example.com/live)' }
+    ),
+  username: z.string().optional(),
+  password: z.string().optional(),
+});
+
+const mediaConnectSourceSchema = z.object({
+  flowArn: z.string()
+    .min(1, { message: 'Flow ARN cannot be empty' })
+    .refine(
+      (val) => /^arn:aws:mediaconnect:[a-z0-9-]+:\d{12}:flow:[^:]+:[^:]+$/.test(val),
+      { message: 'Must be a valid MediaConnect Flow ARN format' }
+    ),
+  roleArn: z.string()
+    .min(1, { message: 'Role ARN cannot be empty' })
+    .refine(
+      (val) => /^arn:aws:iam::\d{12}:role\/[^/]+$/.test(val),
+      { message: 'Must be a valid IAM Role ARN format' }
+    ),
+});
+
+const srtCallerSourceSchema = z.object({
+  streamId: z.string().min(1, { message: 'Stream ID cannot be empty' }),
+  srtListenerPort: z.string().min(1, { message: 'SRT Listener Port cannot be empty' }),
+  srtListenerAddress: z.string().min(1, { message: 'SRT Listener Address cannot be empty' }),
+  minimumLatency: z.number().min(0, { message: 'Minimum Latency cannot be empty' }),
+  decryptionEnabled: z.boolean().optional(),
+  decryption: z.object({
+    Algorithm: z.enum([...Object.values(SrtDecryptionAlgorithm)] as [string, ...string[]]).optional(),
+    passphraseSecretArn: z.string().optional(),
+  }).optional(),
+}).superRefine((data, ctx) => {
+  if (data.decryptionEnabled && !data.decryption?.Algorithm) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Decryption algorithm must be provided if decryption is enabled',
+      path: ['decryption', 'Algorithm'],
+    });
+    if (data.decryptionEnabled && !data.decryption?.passphraseSecretArn) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Passphrase Secret ARN must be provided if decryption is enabled',
+        path: ['decryption', 'passphraseSecretArn'],
+      });
+    }
+  }
+});
+
+// Generic source schema that can handle any input type
+const sourceSchema = z.object({
+  s3url: z.string().optional()
+    .refine(
+      (val) => !val || /^s3:\/\/[a-z0-9][a-z0-9.-]*[a-z0-9](\/.*)?$/.test(val),
+      { message: 'Must be a valid S3 URI (e.g., s3://bucket-name/key)' }
+    ),
+  url: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  streamName: z.string().optional(),
+  inputNetworkLocation: z.enum([...Object.values(InputNetworkLocation)] as [string, ...string[]]).optional(),
+  inputSecurityGroups: z.string().optional(),
+  roleArn: z.string().optional(),
+  flowArn: z.string().optional(),
+  streamId: z.string().optional(),
+  srtListenerPort: z.string().optional(),
+  srtListenerAddress: z.string().optional(),
+  minimumLatency: z.number().optional(),
+  decryptionEnabled: z.boolean().optional(),
+  decryption: z.object({
+    Algorithm: z.enum([...Object.values(SrtDecryptionAlgorithm)] as [string, ...string[]]).optional(),
+    passphraseSecretArn: z.string().optional(),
+  }).optional(),
+});
+
+const parseWithSchema = (
+  data: z.infer<typeof sourceSchema>,
+  schema: z.ZodSchema,
+  ctx: z.RefinementCtx,
+  path?: string[]
+) => {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    result.error.errors.forEach(err => {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: err.message,
+        path: path ? ['source', ...path] : ['source', err.path.join('.')],
+      });
+    });
+  }
+  console.log("RESULT", result);
+  return result;
+};
+
 
 export const formSchema = z
   .object({
     name: z.string().min(1),
     description: z.string(),
     inputType: z.enum([...Object.values(InputType)] as [string, ...string[]]),
-    source: 
-      z.object({
-        url: z.string()
-          .optional()
-          .refine(
-            (val) => !val || /^s3:\/\/[a-z0-9][a-z0-9.-]*[a-z0-9](\/.*)?$/.test(val),
-            { message: 'Must be a valid S3 URI (e.g., s3://bucket-name/key)' }
-          ),
-        username: z.string().optional(),
-        password: z.string().optional(),
-        streamName: z.string().optional(),
-        inputNetworkLocation: z.enum([...Object.values(InputNetworkLocation)] as [string, ...string[]]).optional(),
-        inputSecurityGroups: z.string().optional(),
-        vpcSettings: z
-          .object({
-            subnetIds: z.string(),
-            securityGroupId: z.string(),
-          })
-          .optional(),
-        roleArn: z.string().optional(),
-        flowArn: z.string().optional(),
-        sourceIp: z.string().optional(),
-        streamId: z.string().optional(),
-        srtListenerPort: z.string().optional(),
-        srtListenerAddress: z.string().optional(),
-        minimumLatency: z.number().optional(),
-        decryption: z.object({
-          Algorithm: z.enum([...Object.values(SrtDecryptionAlgorithm)] as [string, ...string[]]),
-          passphraseSecretArn: z.string().optional(),
-        }).optional(),
-        networkArn: z.string().optional(),
-      }),
+    source: sourceSchema,
     onAirStartTime: z.coerce.date(),
     onAirEndTime: z.coerce.date(),
   })
   .refine((data) => data.onAirEndTime > data.onAirStartTime, {
     message: 'End date must be after start date',
     path: ['onAirStartTime'],
+  })
+  .superRefine((data, ctx) => {
+    // Validate source based on input type
+    console.log("DATA", data);
+    switch (data.inputType) {
+      case InputType.MP4_FILE:
+        parseWithSchema(data.source, mp4SourceSchema, ctx, ['s3url']);
+        break;
+      case InputType.TS_FILE:
+        parseWithSchema(data.source, tsSourceSchema, ctx, ['s3url']);
+        break;
+      case InputType.URL_PULL:
+        parseWithSchema(data.source, hlsSourceSchema, ctx, ['s3url']);
+        break;
+      case InputType.MEDIACONNECT:
+        parseWithSchema(data.source, mediaConnectSourceSchema, ctx);
+        break;
+      case InputType.RTP_PUSH:
+        parseWithSchema(data.source, rtpPushSourceSchema, ctx);
+        break;
+      case InputType.RTMP_PUSH:
+        parseWithSchema(data.source, rtmpPushSourceSchema, ctx);
+        break;
+      case InputType.RTMP_PULL:
+        parseWithSchema(data.source, rtmpPullSourceSchema, ctx);
+        break;
+      case InputType.SRT_CALLER:
+        parseWithSchema(data.source, srtCallerSourceSchema, ctx);
+        break;
+    }
   });
 
 export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
@@ -155,75 +304,22 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
   };
 
   const formFields = {
-    url: (
+    s3url: (
       <FormField
         label="S3 Media URI"
         register={register}
-        name="source.url"
-        error={errors.source?.url}
+        name="source.s3url"
+        error={errors.source?.s3url}
         placeholder="s3://bucket-name/key"
       />
     ),
-    inputNetworkLocation: (
+    url: (
       <FormField
-        label="Network Location"
+        label="URL"
         register={register}
-        name="source.inputNetworkLocation"
-        error={errors.source?.inputNetworkLocation}
-        type="select"
-        options={Object.values(InputNetworkLocation).map(location => ({
-          value: location,
-          label: location
-        }))}
-      />
-    ),
-    inputSecurityGroups: (
-      <FormField
-        label="Security Groups"
-        register={register}
-        name="source.inputSecurityGroups"
-        error={errors.source?.inputSecurityGroups}
-      />
-    ),
-    securityGroupId: (
-      <FormField
-        label="Security Group ID"
-        register={register}
-        name="source.vpcSettings.securityGroupId"
-        error={errors.source?.vpcSettings?.securityGroupId}
-      />
-    ),
-    subnetIds: (
-      <FormField
-        label="Subnet ID"
-        register={register}
-        name="source.vpcSettings.subnetIds"
-        error={errors.source?.vpcSettings?.subnetIds}
-      />
-    ),
-    streamName: (
-      <FormField
-        label="Stream Name"
-        register={register}
-        name="source.streamName"
-        error={errors.source?.streamName}
-        placeholder="my-stream"
-      />
-    ),
-    roleArn: (
-      <FormField
-        label="Role ARN"
-        register={register}
-        name="source.roleArn"
-        error={errors.source?.roleArn}
-      />
-    ),
-    networkArn: (
-      <FormField
-        label="Network ARN"
-        register={register}
-        name="source.networkArn"
-        error={errors.source?.networkArn}
+        name="source.url"
+        error={errors.source?.url}
+        placeholder="https://example.com"
       />
     ),
     username: (
@@ -243,6 +339,44 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         type="password"
       />
     ),
+    inputNetworkLocationOnlyAWS: (
+      <FormField
+        label="Network Location"
+        register={register}
+        name="source.inputNetworkLocation"
+        error={errors.source?.inputNetworkLocation}
+        type="select"
+        options={[{
+          value: InputNetworkLocation.AWS,
+          label: InputNetworkLocation.AWS
+        }]}
+      />
+    ),
+    inputSecurityGroups: (
+      <FormField
+        label="Security Groups"
+        register={register}
+        name="source.inputSecurityGroups"
+        error={errors.source?.inputSecurityGroups}
+      />
+    ),
+    streamName: (
+      <FormField
+        label="Stream Name"
+        register={register}
+        name="source.streamName"
+        error={errors.source?.streamName}
+        placeholder="my-stream"
+      />
+    ),
+    roleArn: (
+      <FormField
+        label="Role ARN"
+        register={register}
+        name="source.roleArn"
+        error={errors.source?.roleArn}
+      />
+    ),
     flowArn: (
       <FormField
         label="Flow ARN"
@@ -250,14 +384,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         name="source.flowArn"
         error={errors.source?.flowArn}
         placeholder="arn:aws:mediaconnect:region:account:flow:name:version"
-      />
-    ),
-    sourceIp: (
-      <FormField
-        label="Source IP"
-        register={register}
-        name="source.sourceIp"
-        error={errors.source?.sourceIp}
       />
     ),
     streamId: (
@@ -293,6 +419,15 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         type="number"
       />
     ),
+    srtDecryptionEnabled: (
+      <FormField
+        label="Enable SRT Decryption"
+        type="checkbox"
+        register={register}
+        name="source.decryptionEnabled"
+        error={errors.source?.decryptionEnabled}
+      />
+    ),
     decryptionAlgorithm: (
       <FormField
         label="Decryption Algorithm"
@@ -323,31 +458,24 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       case InputType.URL_PULL:
         return (
           <div className="space-y-2">
-            {formFields.url}
+            {formFields.s3url}
           </div>
         );
 
       case InputType.RTP_PUSH:
         return (
           <div className="space-y-2">
-            {formFields.inputNetworkLocation}
+            {formFields.inputNetworkLocationOnlyAWS}
             {formFields.inputSecurityGroups}
-            {formFields.securityGroupId}
-            {formFields.subnetIds}
-            {formFields.roleArn}
-            {formFields.networkArn}
           </div>
         );
 
       case InputType.RTMP_PUSH:
         return (
           <div className="space-y-2">
-            {formFields.inputNetworkLocation}
+            {formFields.inputNetworkLocationOnlyAWS}
             {formFields.inputSecurityGroups}
-            {formFields.securityGroupId}
-            {formFields.subnetIds}
             {formFields.streamName}
-            {formFields.roleArn}
           </div>
         );
       
@@ -360,27 +488,10 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           </div>
         );
 
-      case InputType.MEDIACONNECT:
+       case InputType.MEDIACONNECT:
         return (
           <div className="space-y-2">
             {formFields.flowArn}
-            {formFields.roleArn}
-          </div>
-        );
-
-      case InputType.MULTICAST:
-        return (
-          <div className="space-y-2">
-            {formFields.url}
-            {formFields.sourceIp}
-          </div>
-        );
-
-      case InputType.AWS_CDI:
-        return (
-          <div className="space-y-2">
-            {formFields.securityGroupId}
-            {formFields.subnetIds}
             {formFields.roleArn}
           </div>
         );
@@ -392,8 +503,13 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             {formFields.srtListenerPort}
             {formFields.srtListenerAddress}
             {formFields.minimumLatency}
-            {formFields.decryptionAlgorithm}
-            {formFields.passphraseSecretArn}
+            {formFields.srtDecryptionEnabled}
+            {watch('source.decryptionEnabled') && (
+              <>
+                {formFields.decryptionAlgorithm}
+                {formFields.passphraseSecretArn}
+              </>
+            )}
           </div>
         );
 
@@ -410,7 +526,13 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           case InputType.MP4_FILE:
           case InputType.TS_FILE:
           case InputType.URL_PULL:
-            sourceData = data.source.url as S3Source;
+            sourceData = data.source.s3url as S3Source;
+            break;
+          case InputType.SRT_CALLER:
+            if (!data.source.decryptionEnabled) {
+              data.source.decryption = undefined;
+            }
+            sourceData = data.source as Source;
             break;
           default:
             sourceData = data.source as Source;
@@ -419,8 +541,8 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         onSubmit({
           name: data.name,
           description: data.description,
-          source: sourceData,
           inputType: selectedInputType,
+          source: sourceData,
           onAirStartTime: data.onAirStartTime.toISOString(),
           onAirEndTime: data.onAirEndTime.toISOString(),
           inputType: InputType.MP4_FILE,
