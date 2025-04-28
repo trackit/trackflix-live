@@ -9,6 +9,5 @@ export const postEvent = async (event: CreateEventRequest['body']) => {
     onAirEndTime: event.onAirEndTime,
     inputType: event.inputType,
     source: event.source,
-    inputType: event.inputType,
   });
 };
