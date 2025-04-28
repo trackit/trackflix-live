@@ -3,13 +3,14 @@ import { Videotape, LucideIcon } from "lucide-react";
 import { FieldError, Path } from "react-hook-form";
 import { formSchema } from "../single-asset-form/single-asset-form";
 import { UseFormRegister } from "react-hook-form";
+import { DateTime } from "luxon";
 
 interface FormFieldProps {
   label: string;
   register: UseFormRegister<z.infer<typeof formSchema>>;
   name: Path<z.infer<typeof formSchema>>;
   error?: FieldError;
-  type?: "text" | "number" | "select" | "checkbox" | "password";
+  type?: "text" | "number" | "select" | "checkbox" | "password" | "datetime-local";
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
   icon?: LucideIcon;
@@ -48,6 +49,15 @@ export const FormField = ({
               </option>
             ))}
           </select>
+        ) : type === "datetime-local" ? (
+          <input
+            type="datetime-local"
+            className="grow"
+            min={DateTime.now()
+              .set({ minute: DateTime.now().minute + 6 })
+              .toFormat("yyyy-MM-dd'T'HH:mm")}
+            {...register(name)}
+          />
         ) : (
           <input
             type={type}

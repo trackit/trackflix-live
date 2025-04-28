@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { UseFormRegister } from 'react-hook-form';
 import { formSchema } from '../single-asset-form/single-asset-form';
 import { InputType } from '@aws-sdk/client-medialive';
+import { DateTime } from 'luxon';
 
 describe('FormField', () => {
   const mockRegister = vi.fn() as unknown as UseFormRegister<z.infer<typeof formSchema>>;
@@ -126,5 +127,46 @@ describe('FormField', () => {
 
     expect(screen.getByRole('combobox')).toBeTruthy();
     expect(screen.getAllByRole('option').length).toBeGreaterThan(0);
+  });
+
+  it('renders datetime-local input when type is datetime-local', () => {
+    render(
+      <FormField
+        label="Start Time"
+        register={mockRegister}
+        name="onAirStartTime"
+        error={undefined}
+        type="datetime-local"
+      />
+    );
+
+    const input = screen.getByLabelText('Start Time');
+    expect(input.getAttribute('type')).toBe('datetime-local');
+  });
+
+  it('sets min attribute for datetime-local input', () => {
+    render(
+      <FormField
+        label="Start Time"
+        register={mockRegister}
+        name="onAirStartTime"
+        error={undefined}
+        type="datetime-local"
+      />
+    );
+
+    const input = screen.getByLabelText('Start Time');
+    const minAttr = input.getAttribute('min');
+    expect(minAttr).toBeTruthy();
+    
+    // Verify the min attribute is a valid datetime string in the expected format
+    const minDate = DateTime.fromFormat(minAttr || '', "yyyy-MM-dd'T'HH:mm");
+    expect(minDate.isValid).toBe(true);
+    
+    // Verify it's set to current time + 6 minutes (as in the component)
+    const expectedMin = DateTime.now()
+      .set({ minute: DateTime.now().minute + 6 })
+      .toFormat("yyyy-MM-dd'T'HH:mm");
+    expect(minAttr).toBe(expectedMin);
   });
 });
