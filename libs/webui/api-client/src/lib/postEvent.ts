@@ -7,7 +7,7 @@ export const postEvent = async (event: CreateEventRequest['body']) => {
     description: event.description,
     onAirStartTime: event.onAirStartTime,
     onAirEndTime: event.onAirEndTime,
-    source: event.source,
     inputType: event.inputType,
+    source: event.source,
   });
 };
