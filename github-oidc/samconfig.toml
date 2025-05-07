@@ -1,0 +1,5 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "trackflix-live-oidc"
+capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
