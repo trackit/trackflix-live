@@ -1,12 +1,9 @@
 name: Deploy
 
-# on:
-#   push:
-#     tags:
-#       - 'demo-v*'
 on:
   push:
-    branches: [ "feat/github-cd-demo" ]
+    tags:
+      - 'demo-v*'
 
 permissions:
   id-token: write
@@ -16,10 +13,9 @@ jobs:
   Deploy_backend:
     runs-on: ubuntu-latest
     env:
-      # For testing purposes, you can set secrets directly here instead of using repository secrets
-      STAGE: 'mathis-demo'
-      WAITING_SOURCE: 's3://trackflix-live-demo-videos/waiting.mp4'
-      AWS_DEFAULT_REGION: 'us-west-2'
+      STAGE: ${{ secrets.STAGE }}
+      WAITING_SOURCE: ${{ secrets.WAITING_SOURCE }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
@@ -29,17 +25,16 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: 'us-west-2' # Hardcoded for testing
-          role-to-assume: 'arn:aws:iam::576872909007:role/trackflix-live-oidc-mathis-Role-84HtLVgrGuR6' # Replace with your test role ARN
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       - run: npm ci
       - run: npx nx run api:deploy
   
   Deploy_frontend:
     runs-on: ubuntu-latest
     env:
-      # For testing purposes, you can set secrets directly here instead of using repository secrets
-      STAGE: 'mathis-demo'
-      AWS_DEFAULT_REGION: 'us-west-2'
+      STAGE: ${{ secrets.STAGE }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
@@ -49,15 +44,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: 'us-west-2' # Hardcoded for testing
-          role-to-assume: 'arn:aws:iam::576872909007:role/trackflix-live-oidc-mathis-Role-84HtLVgrGuR6' # Replace with your test role ARN
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       - run: npm ci
       - run: npx nx run webui:upload
-
-# Note: For production use, replace the hardcoded values with repository secrets:
-# AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-# AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-# STAGE: ${{ secrets.STAGE }}
-# WAITING_SOURCE: ${{ secrets.WAITING_SOURCE }}
-# GITHUB_ORG_USER: ${{ secrets.GITHUB_ORG_USER }}
-# GITHUB_REPO_NAME: ${{ secrets.GITHUB_REPO_NAME }}
