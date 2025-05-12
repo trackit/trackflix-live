@@ -1,7 +1,6 @@
 import { InputType } from '@aws-sdk/client-medialive';
 import {
   Hls,
-  InputNetworkLocation,
   MediaConnect,
   RtmpPull,
   RtmpPush,
@@ -56,16 +55,12 @@ export const RtpPushSchema: JSONSchemaType<Rtp> = {
       type: 'string',
       const: InputType.RTP_PUSH,
     },
-    inputNetworkLocation: {
-      type: 'string',
-      enum: [InputNetworkLocation.AWS],
-    },
     inputSecurityGroups: {
       type: 'string',
       pattern: '^[0-9]+$',
     },
   },
-  required: ['inputType', 'inputNetworkLocation', 'inputSecurityGroups'],
+  required: ['inputType', 'inputSecurityGroups'],
   additionalProperties: false,
 };
 
@@ -76,10 +71,6 @@ export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
       type: 'string',
       const: InputType.RTMP_PUSH,
     },
-    inputNetworkLocation: {
-      type: 'string',
-      enum: [InputNetworkLocation.AWS],
-    },
     inputSecurityGroups: {
       type: 'string',
       pattern: '^[0-9]+$',
@@ -88,7 +79,7 @@ export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
       type: 'string',
     },
   },
-  required: ['inputType', 'inputNetworkLocation', 'inputSecurityGroups'],
+  required: ['inputType', 'inputSecurityGroups'],
   additionalProperties: false,
 };
 

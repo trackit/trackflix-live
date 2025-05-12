@@ -14,20 +14,13 @@ export type TsFile = { inputType: InputType; value: string };
 
 export type Hls = { inputType: InputType; value: string };
 
-export enum InputNetworkLocation {
-  AWS = 'AWS',
-  ON_PREMISES = 'ON_PREMISES',
-}
-
 export type Rtp = {
   inputType: InputType;
-  inputNetworkLocation: InputNetworkLocation;
   inputSecurityGroups: string;
 };
 
 export type RtmpPush = {
   inputType: InputType;
-  inputNetworkLocation: InputNetworkLocation;
   inputSecurityGroups: string;
   streamName: string;
 };

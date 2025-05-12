@@ -1,6 +1,6 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
-import { EventMother, InputNetworkLocation } from '@trackflix-live/types';
+import { EventMother } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
   AuthorizationError,
@@ -170,7 +170,6 @@ describe('Create event adapter', () => {
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
-        inputNetworkLocation: InputNetworkLocation.AWS,
         inputSecurityGroups: '1234567',
         inputType: InputType.RTP_PUSH,
       })
@@ -274,7 +273,6 @@ describe('Create event adapter', () => {
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
         inputType: InputType.RTMP_PUSH,
-        inputNetworkLocation: InputNetworkLocation.AWS,
         inputSecurityGroups: '1234567',
         streamName: 'test/test',
       })

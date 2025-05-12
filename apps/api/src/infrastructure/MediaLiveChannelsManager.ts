@@ -848,7 +848,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     return {
       Name: inputName,
       Type: InputType.RTP_PUSH,
-      InputNetworkLocation: source.inputNetworkLocation,
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
         : undefined,
@@ -862,7 +861,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     return {
       Name: inputName,
       Type: InputType.RTMP_PUSH,
-      InputNetworkLocation: source.inputNetworkLocation,
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
         : undefined,
