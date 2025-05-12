@@ -16,10 +16,12 @@ export interface SingleAssetFormProps {
   onSubmit: (data: {
     name: string;
     description: string;
-    source: string;
+    source: {
+      value: string;
+      inputType: InputType;
+    };
     onAirStartTime: string;
     onAirEndTime: string;
-    inputType: InputType;
   }) => void;
   disabled?: boolean;
 }
@@ -31,13 +33,16 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
     .object({
       name: z.string().min(1),
       description: z.string(),
-      source: z
-        .string()
-        .min(1)
-        .regex(
-          /^s3:\/\/[a-z0-9][a-z0-9.-]*[a-z0-9](\/.*)?$/,
-          'Must be a valid S3 URI (e.g., s3://bucket-name/key)'
-        ),
+      source: z.object({
+        value: z
+          .string()
+          .min(1)
+          .regex(
+            /^s3:\/\/[a-z0-9][a-z0-9.-]*[a-z0-9](\/.*)?$/,
+            'Must be a valid S3 URI (e.g., s3://bucket-name/key)'
+          ),
+        inputType: z.nativeEnum(InputType),
+      }),
       onAirStartTime: z.coerce.date(),
       onAirEndTime: z.coerce.date(),
     })
@@ -50,14 +55,12 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
     register,
     formState: { errors },
     handleSubmit,
-    setValue,
-    watch,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       description: '',
-      source: '',
+      source: { value: '', inputType: InputType.MP4_FILE },
       onAirStartTime: DateTime.now()
         .set({ minute: DateTime.now().minute + 30 })
         .toJSDate(),
@@ -100,7 +103,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           ...data,
           onAirStartTime: data.onAirStartTime.toISOString(),
           onAirEndTime: data.onAirEndTime.toISOString(),
-          inputType: InputType.MP4_FILE,
+          source: data.source,
         });
       })}
     >
