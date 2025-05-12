@@ -8,9 +8,7 @@ import {
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
-import { AuthorizationError } from '../../utils';
-import { InputType } from '@aws-sdk/client-medialive';
-import { isString } from '../../utils';
+import { AuthorizationError, isMP4File, isTSFile } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
@@ -55,10 +53,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     } satisfies Event;
 
     if (
-      (event.source.inputType === InputType.MP4_FILE ||
-        event.source.inputType === InputType.TS_FILE) &&
-      isString(event.source) &&
-      !(await this.assetsService.assetExists(event.source))
+      (isMP4File(event.source) || isTSFile(event.source)) &&
+      !(await this.assetsService.assetExists(event.source.value))
     ) {
       throw new AssetNotFoundError();
     }

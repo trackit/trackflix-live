@@ -2,12 +2,14 @@ import {
   CreateChannelParameters,
   CreateChannelResponse,
   CreateMediaLiveChannelError,
+  isHLS,
   isMediaConnect,
+  isMP4File,
   isRtmpPull,
   isRtmpPush,
   isRtp,
   isSrtCaller,
-  isString,
+  isTSFile,
   LiveChannelsManager,
   StartChannelParameters,
 } from '@trackflix-live/api-events';
@@ -29,12 +31,15 @@ import {
   InputType,
 } from '@aws-sdk/client-medialive';
 import {
+  Hls,
   MediaConnect,
   RtmpPull,
   RtmpPush,
   Rtp,
+  S3Source,
   Source,
   SrtCaller,
+  TsFile,
 } from '@trackflix-live/types';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -61,7 +66,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   public async createChannel({
     eventId,
     source,
-    type,
     packageChannelId,
   }: CreateChannelParameters): Promise<CreateChannelResponse> {
     const waitingInputName = `TrackflixLiveMLIW-${eventId}`;
@@ -86,7 +90,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
 
     const inputName = `TrackflixLiveMLI-${eventId}`;
     const input = await this.client.send(
-      new CreateInputCommand(this.createInputCommand(type, source, inputName))
+      new CreateInputCommand(this.createInputCommand(source, inputName))
     );
 
     if (input.Input === undefined || input.Input.Id === undefined) {
@@ -713,7 +717,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
             InputId: input.Input.Id,
             InputAttachmentName: inputName,
             InputSettings:
-              type === InputType.URL_PULL
+              source.inputType === InputType.URL_PULL
                 ? {
                     NetworkInputSettings: {
                       HlsInputSettings: {
@@ -804,44 +808,38 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   }
 
   private createInputCommand(
-    type: InputType,
     source: Source,
     inputName: string
   ): CreateInputCommandInput {
-    if (
-      isString(source) &&
-      (type === InputType.TS_FILE ||
-        type === InputType.MP4_FILE ||
-        type === InputType.URL_PULL)
-    ) {
+    if (isMP4File(source) || isHLS(source) || isTSFile(source)) {
       return {
         Name: inputName,
-        Type: type,
+        Type: source.inputType,
         Sources: this.buildClassicSource(source),
       };
     }
-    if (isRtp(source, type)) {
+    if (isRtp(source)) {
       return this.buildRtp(source, inputName);
     }
-    if (isRtmpPush(source, type)) {
+    if (isRtmpPush(source)) {
       return this.buildRtmpPush(source, inputName);
     }
-    if (isRtmpPull(source, type)) {
+    if (isRtmpPull(source)) {
       return this.buildRtmpPull(source, inputName);
     }
-    if (isMediaConnect(source, type)) {
+    if (isMediaConnect(source)) {
       return this.buildMediaConnect(source, inputName);
     }
-    if (isSrtCaller(source, type)) {
+    if (isSrtCaller(source)) {
       return this.buildSrtCaller(source, inputName);
     }
     throw new CreateMediaLiveChannelError();
   }
 
-  private buildClassicSource(source: string) {
+  private buildClassicSource(source: Hls | S3Source | TsFile) {
     return [
       {
-        Url: source,
+        Url: source.value,
       },
     ];
   }
