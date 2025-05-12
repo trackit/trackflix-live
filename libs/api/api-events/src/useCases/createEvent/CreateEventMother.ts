@@ -15,9 +15,11 @@ export class CreateEventMother {
       description: 'This is a sample testing event',
       onAirStartTime: '2030-01-22T10:00:00.000Z',
       onAirEndTime: '2030-01-22T11:00:00.000Z',
-      source: 's3://sample-bucket/sample-asset.mp4',
+      source: {
+        value: 's3://sample-bucket/sample-asset.mp4',
+        inputType: InputType.MP4_FILE,
+      },
       userGroups: ['Creators'],
-      inputType: InputType.MP4_FILE,
     });
   }
 
@@ -43,11 +45,6 @@ export class CreateEventMother {
 
   public withUserGroups(userGroups: string[]) {
     this.data.userGroups = userGroups;
-    return this;
-  }
-
-  public withInputType(inputType: InputType) {
-    this.data.inputType = inputType;
     return this;
   }
 

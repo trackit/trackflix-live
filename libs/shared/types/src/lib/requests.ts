@@ -3,12 +3,7 @@ import { Event } from './types';
 export type CreateEventRequest = {
   body: Pick<
     Event,
-    | 'name'
-    | 'description'
-    | 'onAirStartTime'
-    | 'onAirEndTime'
-    | 'source'
-    | 'inputType'
+    'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
   >;
 };
 export type CreateEventResponse = { body: { event: Event } };

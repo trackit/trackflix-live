@@ -1,288 +1,181 @@
 import { InputType } from '@aws-sdk/client-medialive';
 import {
-  CreateEventRequest,
+  Hls,
   InputNetworkLocation,
+  MediaConnect,
+  RtmpPull,
+  RtmpPush,
+  Rtp,
+  S3Source,
+  SrtCaller,
   SrtDecryptionAlgorithm,
+  TsFile,
 } from '@trackflix-live/types';
 import { JSONSchemaType } from 'ajv';
 
-export const s3SourceSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const s3SourceSchema: JSONSchemaType<S3Source> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
-    inputType: {
-      type: 'string',
-      enum: ['MP4_FILE'],
-    },
-    source: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
+    value: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
+    inputType: { type: 'string', enum: [InputType.MP4_FILE] },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'value'],
   additionalProperties: false,
 };
 
-export const TsSourceSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const TsSourceSchema: JSONSchemaType<TsFile> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.TS_FILE],
     },
-    source: { type: 'string', pattern: '^s3:\\/\\/.+\\.ts$' },
+    value: { type: 'string', pattern: '^s3:\\/\\/.+\\.ts$' },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'value'],
   additionalProperties: false,
 };
 
-export const HlsSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const HlsSchema: JSONSchemaType<Hls> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.URL_PULL],
     },
-    source: { type: 'string', pattern: '^https?:\\/\\/.+\\.m3u8$' },
+    value: { type: 'string', pattern: '^https?:\\/\\/.+\\.m3u8$' },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'value'],
   additionalProperties: false,
 };
 
-export const RtpPushSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const RtpPushSchema: JSONSchemaType<Rtp> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.RTP_PUSH],
     },
-    source: {
-      type: 'object',
-      properties: {
-        inputNetworkLocation: {
-          type: 'string',
-          enum: [InputNetworkLocation.AWS],
-        },
-        inputSecurityGroups: {
-          type: 'string',
-          pattern: '^[0-9]+$',
-        },
-      },
-      required: ['inputNetworkLocation', 'inputSecurityGroups'],
+    type: 'object',
+    inputNetworkLocation: {
+      type: 'string',
+      enum: [InputNetworkLocation.AWS],
     },
+    inputSecurityGroups: {
+      type: 'string',
+      pattern: '^[0-9]+$',
+    },
+    required: ['inputNetworkLocation', 'inputSecurityGroups'],
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'inputNetworkLocation', 'inputSecurityGroups'],
   additionalProperties: false,
 };
 
-export const RtmpPushSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.RTMP_PUSH],
     },
-    source: {
-      type: 'object',
-      properties: {
-        inputNetworkLocation: {
-          type: 'string',
-          enum: [InputNetworkLocation.AWS],
-        },
-        inputSecurityGroups: {
-          type: 'string',
-          pattern: '^[0-9]+$',
-        },
-        streamName: {
-          type: 'string',
-        },
-      },
-      required: ['inputNetworkLocation', 'inputSecurityGroups'],
+    inputNetworkLocation: {
+      type: 'string',
+      enum: [InputNetworkLocation.AWS],
+    },
+    inputSecurityGroups: {
+      type: 'string',
+      pattern: '^[0-9]+$',
+    },
+    streamName: {
+      type: 'string',
     },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'inputNetworkLocation', 'inputSecurityGroups'],
   additionalProperties: false,
 };
 
-export const RtmpPullSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const RtmpPullSchema: JSONSchemaType<RtmpPull> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.RTMP_PULL],
     },
-    source: {
-      type: 'object',
-      properties: {
-        url: {
-          type: 'string',
-          pattern: '^rtmp:\\/\\/',
-        },
-        password: { type: 'string', nullable: true },
-        username: { type: 'string', nullable: true },
-      },
-      required: ['url'],
+    url: {
+      type: 'string',
+      pattern: '^rtmp:\\/\\/',
     },
+    password: { type: 'string', nullable: true },
+    username: { type: 'string', nullable: true },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'url'],
   additionalProperties: false,
 };
 
-export const MediaConnectSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const MediaConnectSchema: JSONSchemaType<MediaConnect> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.MEDIACONNECT],
     },
-    source: {
-      type: 'object',
-      properties: {
-        flowArn: {
-          type: 'string',
-          pattern: '^arn:aws:mediaconnect:[a-z0-9-]+:\\d{12}:flow:[^:]+:[^:]+$',
-        },
-        roleArn: {
-          type: 'string',
-          pattern: '^arn:aws:iam::\\d{12}:role/[^/]+$',
-        },
-      },
-      required: ['flowArn', 'roleArn'],
+    flowArn: {
+      type: 'string',
+      pattern: '^arn:aws:mediaconnect:[a-z0-9-]+:\\d{12}:flow:[^:]+:[^:]+$',
+    },
+    roleArn: {
+      type: 'string',
+      pattern: '^arn:aws:iam::\\d{12}:role/[^/]+$',
     },
   },
-  required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
-    'inputType',
-    'source',
-  ],
+  required: ['inputType', 'flowArn', 'roleArn'],
   additionalProperties: false,
 };
 
-export const SrtCallerSchema: JSONSchemaType<CreateEventRequest['body']> = {
+export const SrtCallerSchema: JSONSchemaType<SrtCaller> = {
   type: 'object',
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    onAirStartTime: { type: 'string', format: 'date-time' },
-    onAirEndTime: { type: 'string', format: 'date-time' },
     inputType: {
       type: 'string',
       enum: [InputType.SRT_CALLER],
     },
-    source: {
+    decryption: {
       type: 'object',
+      nullable: true,
       properties: {
-        decryption: {
-          type: 'object',
-          nullable: true,
-          properties: {
-            algorithm: {
-              type: 'string',
-              enum: [
-                SrtDecryptionAlgorithm.AES_128,
-                SrtDecryptionAlgorithm.AES_192,
-                SrtDecryptionAlgorithm.AES_256,
-              ],
-            },
-            passphraseSecretArn: {
-              type: 'string',
-            },
-          },
-          required: ['algorithm', 'passphraseSecretArn'],
-        },
-        srtListenerAddress: {
+        algorithm: {
           type: 'string',
+          enum: [
+            SrtDecryptionAlgorithm.AES_128,
+            SrtDecryptionAlgorithm.AES_192,
+            SrtDecryptionAlgorithm.AES_256,
+          ],
         },
-        srtListenerPort: {
+        passphraseSecretArn: {
           type: 'string',
-        },
-        streamId: {
-          type: 'string',
-        },
-        minimumLatency: {
-          type: 'number',
-          minimum: 0,
         },
       },
-      required: ['srtListenerAddress', 'srtListenerPort', 'minimumLatency'],
+      required: ['algorithm', 'passphraseSecretArn'],
+    },
+    srtListenerAddress: {
+      type: 'string',
+    },
+    srtListenerPort: {
+      type: 'string',
+    },
+    streamId: {
+      type: 'string',
+    },
+    minimumLatency: {
+      type: 'number',
+      minimum: 0,
     },
   },
   required: [
-    'name',
-    'description',
-    'onAirStartTime',
-    'onAirEndTime',
     'inputType',
-    'source',
+    'srtListenerAddress',
+    'srtListenerPort',
+    'minimumLatency',
   ],
   additionalProperties: false,
 };

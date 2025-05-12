@@ -8,7 +8,7 @@ import {
   ForbiddenError,
   handleHttpRequest,
 } from '../HttpErrors';
-import Ajv, { Schema } from 'ajv';
+import Ajv, { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 import {
   APIGatewayProxyEventV2WithRequestContext,
@@ -31,18 +31,28 @@ import { CustomRequestContext } from '../types';
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
-const schema: Schema = {
+const schema: JSONSchemaType<CreateEventRequest['body']> = {
   type: 'object',
-  oneOf: [
-    s3SourceSchema,
-    RtpPushSchema,
-    RtmpPushSchema,
-    RtmpPullSchema,
-    TsSourceSchema,
-    MediaConnectSchema,
-    SrtCallerSchema,
-    HlsSchema,
-  ],
+  properties: {
+    name: { type: 'string' },
+    description: { type: 'string' },
+    onAirStartTime: { type: 'string', format: 'date-time' },
+    onAirEndTime: { type: 'string', format: 'date-time' },
+    source: {
+      type: 'object',
+      oneOf: [
+        HlsSchema,
+        MediaConnectSchema,
+        RtmpPullSchema,
+        RtmpPushSchema,
+        RtpPushSchema,
+        s3SourceSchema,
+        SrtCallerSchema,
+        TsSourceSchema,
+      ],
+    },
+  },
+  required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
 };
 
 const validate = ajv.compile(schema);
@@ -80,9 +90,6 @@ export class CreateEventAdapter {
     }
     if (!validate(body)) {
       throw new BadRequestError('Body does not match schema.');
-    }
-    if (!body) {
-      throw new BadRequestError('Body must be an object.');
     }
     this.validateInput(body);
 

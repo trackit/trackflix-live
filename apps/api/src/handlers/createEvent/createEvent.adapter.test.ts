@@ -28,7 +28,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -57,7 +56,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -76,8 +74,7 @@ describe('Create event adapter', () => {
     const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withSource('s3://test.ts')
-      .withInputType(InputType.TS_FILE)
+      .withSource({ value: 's3://test.ts', inputType: InputType.TS_FILE })
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -89,7 +86,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -108,8 +104,7 @@ describe('Create event adapter', () => {
     const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withSource('https://test.m3u8')
-      .withInputType(InputType.URL_PULL)
+      .withSource({ value: 'https://test.m3u8', inputType: InputType.URL_PULL })
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -121,7 +116,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -144,8 +138,8 @@ describe('Create event adapter', () => {
         flowArn:
           'arn:aws:mediaconnect:us-west-2:123456789123:flow:test:trackflix-live-test',
         roleArn: 'arn:aws:iam::123456789123:role/MediaLiveAccessRole',
+        inputType: InputType.MEDIACONNECT,
       })
-      .withInputType(InputType.MEDIACONNECT)
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -157,7 +151,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -177,14 +170,9 @@ describe('Create event adapter', () => {
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
-        flowArn:
-          'arn:aws:mediaconnect:us-west-2:123456789123:flow:test:trackflix-live-test',
-        roleArn: 'arn:aws:iam::123456789123:role/MediaLiveAccessRole',
-      })
-      .withInputType(InputType.RTP_PUSH)
-      .withSource({
         inputNetworkLocation: InputNetworkLocation.AWS,
         inputSecurityGroups: '1234567',
+        inputType: InputType.RTP_PUSH,
       })
       .build();
     const event = EventMother.basic().build();
@@ -197,7 +185,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -217,16 +204,11 @@ describe('Create event adapter', () => {
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
-        flowArn:
-          'arn:aws:mediaconnect:us-west-2:123456789123:flow:test:trackflix-live-test',
-        roleArn: 'arn:aws:iam::123456789123:role/MediaLiveAccessRole',
-      })
-      .withInputType(InputType.SRT_CALLER)
-      .withSource({
         streamId: 'id',
         srtListenerPort: '2000',
         srtListenerAddress: '82.66.192.191',
         minimumLatency: 2000,
+        inputType: InputType.SRT_CALLER,
       })
       .build();
     const event = EventMother.basic().build();
@@ -239,7 +221,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -260,8 +241,8 @@ describe('Create event adapter', () => {
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
         url: 'rtmp://example.com/live/test',
+        inputType: InputType.RTMP_PULL,
       })
-      .withInputType(InputType.RTMP_PULL)
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -273,7 +254,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -293,11 +273,11 @@ describe('Create event adapter', () => {
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
       .withSource({
+        inputType: InputType.RTMP_PUSH,
         inputNetworkLocation: InputNetworkLocation.AWS,
         inputSecurityGroups: '1234567',
         streamName: 'test/test',
       })
-      .withInputType(InputType.RTMP_PUSH)
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -309,7 +289,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -400,7 +379,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -431,7 +409,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -462,7 +439,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -493,7 +469,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -516,7 +491,7 @@ describe('Create event adapter', () => {
 
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withSource('s3://test.mp3')
+      .withSource({ value: 's3://test.mp3', inputType: InputType.MP4_FILE })
       .build();
 
     const response = await adapter.handle({
@@ -526,7 +501,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -549,8 +523,7 @@ describe('Create event adapter', () => {
 
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withInputType(InputType.TS_FILE)
-      .withSource('s3://test.js')
+      .withSource({ value: 's3://test.js', inputType: InputType.TS_FILE })
       .build();
 
     const response = await adapter.handle({
@@ -560,7 +533,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -583,8 +555,10 @@ describe('Create event adapter', () => {
 
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withInputType(InputType.URL_PULL)
-      .withSource('https://s3://test.mp4')
+      .withSource({
+        value: 'https://s3://test.mp4',
+        inputType: InputType.URL_PULL,
+      })
       .build();
 
     const response = await adapter.handle({
@@ -594,7 +568,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -626,7 +599,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -658,7 +630,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -691,7 +662,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {
@@ -719,7 +689,6 @@ describe('Create event adapter', () => {
         onAirStartTime: createEventReq.onAirStartTime,
         onAirEndTime: createEventReq.onAirEndTime,
         source: createEventReq.source,
-        inputType: createEventReq.inputType,
       }),
       requestContext: {
         authorizer: {

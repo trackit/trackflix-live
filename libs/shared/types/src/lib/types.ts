@@ -8,11 +8,11 @@ export enum EventStatus {
   ERROR = 'ERROR',
 }
 
-export type S3Source = string;
+export type S3Source = { inputType: InputType; value: string };
 
-export type TsFile = string;
+export type TsFile = { inputType: InputType; value: string };
 
-export type Hls = string;
+export type Hls = { inputType: InputType; value: string };
 
 export enum InputNetworkLocation {
   AWS = 'AWS',
@@ -20,27 +20,27 @@ export enum InputNetworkLocation {
 }
 
 export type Rtp = {
+  inputType: InputType;
   inputNetworkLocation: InputNetworkLocation;
   inputSecurityGroups: string;
 };
 
 export type RtmpPush = {
+  inputType: InputType;
   inputNetworkLocation: InputNetworkLocation;
-  inputSecurityGroups?: string;
-  vpcSettings?: {
-    subnetIds: string;
-    securityGroupId: string;
-  };
+  inputSecurityGroups: string;
   streamName: string;
 };
 
 export type RtmpPull = {
+  inputType: InputType;
   url: string;
   username?: string;
   password?: string;
 };
 
 export type MediaConnect = {
+  inputType: InputType;
   flowArn: string;
   roleArn: string;
 };
@@ -52,6 +52,7 @@ export enum SrtDecryptionAlgorithm {
 }
 
 export type SrtCaller = {
+  inputType: InputType;
   decryption?: {
     algorithm: SrtDecryptionAlgorithm;
     passphraseSecretArn: string;
@@ -113,7 +114,6 @@ export interface Event {
   status: EventStatus;
   endpoints: EventEndpoint[];
   logs: EventLog[];
-  inputType: InputType;
 
   liveChannelId?: string;
   liveChannelArn?: string;

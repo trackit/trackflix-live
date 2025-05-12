@@ -9,3 +9,9 @@ export class AuthorizationError extends Error {
     super('Action forbidden');
   }
 }
+
+export class CreateMediaLiveChannelError extends Error {
+  constructor() {
+    super('Error creating MediaLive Channel');
+  }
+}

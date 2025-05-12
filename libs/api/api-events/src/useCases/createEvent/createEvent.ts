@@ -14,12 +14,7 @@ import { isString } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
-  | 'name'
-  | 'description'
-  | 'onAirStartTime'
-  | 'onAirEndTime'
-  | 'source'
-  | 'inputType'
+  'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
 > & { userGroups: string[] };
 
 export class AssetNotFoundError extends Error {
@@ -60,8 +55,8 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     } satisfies Event;
 
     if (
-      (event.inputType === InputType.MP4_FILE ||
-        event.inputType === InputType.TS_FILE) &&
+      (event.source.inputType === InputType.MP4_FILE ||
+        event.source.inputType === InputType.TS_FILE) &&
       isString(event.source) &&
       !(await this.assetsService.assetExists(event.source))
     ) {

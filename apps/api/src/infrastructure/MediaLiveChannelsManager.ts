@@ -1,6 +1,7 @@
 import {
   CreateChannelParameters,
   CreateChannelResponse,
+  CreateMediaLiveChannelError,
   isMediaConnect,
   isRtmpPull,
   isRtmpPush,
@@ -834,11 +835,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     if (isSrtCaller(source, type)) {
       return this.buildSrtCaller(source, inputName);
     }
-    return {
-      Name: inputName,
-      Type: type,
-      Sources: this.buildClassicSource(''),
-    };
+    throw new CreateMediaLiveChannelError();
   }
 
   private buildClassicSource(source: string) {
@@ -870,12 +867,6 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
       InputNetworkLocation: source.inputNetworkLocation,
       InputSecurityGroups: source.inputSecurityGroups
         ? [source.inputSecurityGroups]
-        : undefined,
-      Vpc: source.vpcSettings
-        ? {
-            SubnetIds: [source.vpcSettings.subnetIds],
-            SecurityGroupIds: [source.vpcSettings.securityGroupId],
-          }
         : undefined,
       Destinations: [
         {

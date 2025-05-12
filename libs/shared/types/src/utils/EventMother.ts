@@ -72,11 +72,6 @@ export class EventMother {
     return this;
   }
 
-  public withInputType(typeInput: InputType): EventMother {
-    this.data.inputType = typeInput;
-    return this;
-  }
-
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
@@ -86,9 +81,11 @@ export class EventMother {
       onAirStartTime: '2025-01-22T10:00:00.000Z',
       onAirEndTime: '2025-01-22T20:00:00.000Z',
       createdTime: '2025-01-20T09:00:00.000Z',
-      source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+      source: {
+        value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+        inputType: InputType.MP4_FILE,
+      },
       status: EventStatus.PRE_TX,
-      inputType: InputType.MP4_FILE,
       endpoints: [],
       logs: [],
     });
