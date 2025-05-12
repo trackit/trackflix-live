@@ -91,8 +91,10 @@ describe('SingleAssetForm', () => {
     expect(submitData).toEqual({
       name: 'Test Event',
       description: 'Test Description',
-      source: 's3://test-bucket/test-key',
-      inputType: InputType.MP4_FILE,
+      source: {
+        value: 's3://test-bucket/test-key',
+        inputType: InputType.MP4_FILE,
+      },
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
         .startOf('minute')

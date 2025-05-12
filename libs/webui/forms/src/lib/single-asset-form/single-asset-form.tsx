@@ -103,7 +103,10 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           ...data,
           onAirStartTime: data.onAirStartTime.toISOString(),
           onAirEndTime: data.onAirEndTime.toISOString(),
-          source: data.source,
+          source: {
+            ...data.source,
+            inputType: InputType.MP4_FILE,
+          },
         });
       })}
     >
@@ -165,12 +168,12 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             type="text"
             className="grow"
             placeholder="s3://bucket-name/key"
-            {...register('source')}
+            {...register('source.value')}
           />
         </label>
         <div className="label">
           <span className="label-text-alt text-error">
-            {errors.source?.message}
+            {errors.source?.value?.message}
           </span>
         </div>
       </label>

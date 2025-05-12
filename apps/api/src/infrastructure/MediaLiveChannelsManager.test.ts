@@ -66,7 +66,7 @@ describe('MediaLive channels manager', () => {
         Name: expect.stringMatching(/^TrackflixLiveMLI-.*/),
         Sources: [
           {
-            Url: source,
+            Url: source.value,
           },
         ],
         Type: 'MP4_FILE',

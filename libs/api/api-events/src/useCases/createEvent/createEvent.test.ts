@@ -11,12 +11,16 @@ import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenAssetsServiceFake } from '../../infrastructure/AssetsServiceFake';
 import { AuthorizationError } from '../../utils';
+import { InputType } from '@aws-sdk/client-medialive';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
     const { eventsRepository, assetsService, useCase } = setup();
-    const source = 's3://videos/hello.mp4';
-    assetsService.addAsset(source);
+    const source = {
+      value: 's3://videos/hello.mp4',
+      inputType: InputType.MP4_FILE,
+    };
+    assetsService.addAsset(source.value);
 
     await useCase.createEvent(
       CreateEventMother.basic()
@@ -39,8 +43,11 @@ describe('CreateEvent use case', () => {
 
   it('should send a live update', async () => {
     const { useCase, eventUpdateSender, assetsService } = setup();
-    const source = 's3://videos/hello.mp4';
-    assetsService.addAsset(source);
+    const source = {
+      value: 's3://videos/hello.mp4',
+      inputType: InputType.MP4_FILE,
+    };
+    assetsService.addAsset(source.value);
 
     const event = await useCase.createEvent(
       CreateEventMother.basic()
@@ -59,8 +66,11 @@ describe('CreateEvent use case', () => {
 
   it('should schedule the creation of resources 5 minutes before air', async () => {
     const { eventSchedulerStart, useCase, assetsService } = setup();
-    const source = 's3://videos/hello.mp4';
-    assetsService.addAsset(source);
+    const source = {
+      value: 's3://videos/hello.mp4',
+      inputType: InputType.MP4_FILE,
+    };
+    assetsService.addAsset(source.value);
 
     await useCase.createEvent(
       CreateEventMother.basic()
@@ -79,8 +89,11 @@ describe('CreateEvent use case', () => {
 
   it('should schedule the destruction of resources after air', async () => {
     const { eventSchedulerStop, useCase, assetsService } = setup();
-    const source = 's3://videos/hello.mp4';
-    assetsService.addAsset(source);
+    const source = {
+      value: 's3://videos/hello.mp4',
+      inputType: InputType.MP4_FILE,
+    };
+    assetsService.addAsset(source.value);
 
     await useCase.createEvent(
       CreateEventMother.basic()
@@ -103,7 +116,10 @@ describe('CreateEvent use case', () => {
     await expect(
       useCase.createEvent(
         CreateEventMother.basic()
-          .withSource('s3://unknown-bucket/my_video.mp4')
+          .withSource({
+            value: 's3://videos/hello.mp4',
+            inputType: InputType.MP4_FILE,
+          })
           .withUserGroups(['Creators'])
           .build()
       )
@@ -112,8 +128,11 @@ describe('CreateEvent use case', () => {
 
   it('should throw if user is not in Creators group', async () => {
     const { useCase, assetsService } = setup();
-    const source = 's3://videos/hello.mp4';
-    assetsService.addAsset(source);
+    const source = {
+      value: 's3://videos/hello.mp4',
+      inputType: InputType.MP4_FILE,
+    };
+    assetsService.addAsset(source.value);
 
     await expect(
       useCase.createEvent(
