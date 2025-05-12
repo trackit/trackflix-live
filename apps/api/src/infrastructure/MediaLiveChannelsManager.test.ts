@@ -24,12 +24,14 @@ describe('MediaLive channels manager', () => {
       const { mediaLiveChannelsManager, waitingSource } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
-      const source = 's3://trackflix-live-demo-videos/oss117.mp4';
+      const source = {
+        value: 's3://trackflix-live-demo-videos/oss117.mp4',
+        inputType: InputType.MP4_FILE,
+      };
       const inputId = '9876543';
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
-      const type = InputType.MP4_FILE;
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -47,7 +49,6 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
-        type,
       });
 
       const commandCalls = mock.commandCalls(CreateInputCommand);
@@ -76,12 +77,14 @@ describe('MediaLive channels manager', () => {
       const { mediaLiveChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
-      const source = 's3://trackflix-live-demo-videos/oss117.mp4';
+      const source = {
+        value: 's3://trackflix-live-demo-videos/oss117.mp4',
+        inputType: InputType.MP4_FILE,
+      };
       const inputId = '9876543';
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const liveChannelId = '8626488';
-      const type = InputType.MP4_FILE;
 
       mock.on(CreateInputCommand).resolves({
         Input: {
@@ -99,7 +102,6 @@ describe('MediaLive channels manager', () => {
         eventId,
         packageChannelId,
         source,
-        type,
       });
 
       const commandCalls = mock.commandCalls(CreateChannelCommand);

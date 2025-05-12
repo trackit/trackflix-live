@@ -39,7 +39,6 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
     onAirStartTime: { type: 'string', format: 'date-time' },
     onAirEndTime: { type: 'string', format: 'date-time' },
     source: {
-      type: 'object',
       oneOf: [
         HlsSchema,
         MediaConnectSchema,

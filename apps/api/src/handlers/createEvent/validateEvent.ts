@@ -17,7 +17,7 @@ export const s3SourceSchema: JSONSchemaType<S3Source> = {
   type: 'object',
   properties: {
     value: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
-    inputType: { type: 'string', enum: [InputType.MP4_FILE] },
+    inputType: { type: 'string', const: InputType.MP4_FILE },
   },
   required: ['inputType', 'value'],
   additionalProperties: false,
@@ -28,7 +28,7 @@ export const TsSourceSchema: JSONSchemaType<TsFile> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.TS_FILE],
+      const: InputType.TS_FILE,
     },
     value: { type: 'string', pattern: '^s3:\\/\\/.+\\.ts$' },
   },
@@ -41,7 +41,7 @@ export const HlsSchema: JSONSchemaType<Hls> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.URL_PULL],
+      const: InputType.URL_PULL,
     },
     value: { type: 'string', pattern: '^https?:\\/\\/.+\\.m3u8$' },
   },
@@ -54,9 +54,8 @@ export const RtpPushSchema: JSONSchemaType<Rtp> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.RTP_PUSH],
+      const: InputType.RTP_PUSH,
     },
-    type: 'object',
     inputNetworkLocation: {
       type: 'string',
       enum: [InputNetworkLocation.AWS],
@@ -65,7 +64,6 @@ export const RtpPushSchema: JSONSchemaType<Rtp> = {
       type: 'string',
       pattern: '^[0-9]+$',
     },
-    required: ['inputNetworkLocation', 'inputSecurityGroups'],
   },
   required: ['inputType', 'inputNetworkLocation', 'inputSecurityGroups'],
   additionalProperties: false,
@@ -76,7 +74,7 @@ export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.RTMP_PUSH],
+      const: InputType.RTMP_PUSH,
     },
     inputNetworkLocation: {
       type: 'string',
@@ -99,7 +97,7 @@ export const RtmpPullSchema: JSONSchemaType<RtmpPull> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.RTMP_PULL],
+      const: InputType.RTMP_PULL,
     },
     url: {
       type: 'string',
@@ -117,7 +115,7 @@ export const MediaConnectSchema: JSONSchemaType<MediaConnect> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.MEDIACONNECT],
+      const: InputType.MEDIACONNECT,
     },
     flowArn: {
       type: 'string',
@@ -137,7 +135,7 @@ export const SrtCallerSchema: JSONSchemaType<SrtCaller> = {
   properties: {
     inputType: {
       type: 'string',
-      enum: [InputType.SRT_CALLER],
+      const: InputType.SRT_CALLER,
     },
     decryption: {
       type: 'object',
