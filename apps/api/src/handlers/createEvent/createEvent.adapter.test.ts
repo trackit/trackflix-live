@@ -1,6 +1,6 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
-import { EventMother } from '@trackflix-live/types';
+import { EventMother, InputType } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
   AuthorizationError,
@@ -9,7 +9,6 @@ import {
 } from '@trackflix-live/api-events';
 import { register, reset } from '@trackflix-live/di';
 import { CustomRequestContext } from '../types';
-import { InputType } from '@aws-sdk/client-medialive';
 
 describe('Create event adapter', () => {
   jest.useFakeTimers();

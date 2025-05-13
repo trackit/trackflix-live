@@ -1,5 +1,10 @@
-import { Event, EventEndpoint, EventStatus, Source } from '../lib/types';
-import { InputType } from '@aws-sdk/client-medialive';
+import {
+  Event,
+  EventEndpoint,
+  EventStatus,
+  InputType,
+  Source,
+} from '../lib/types';
 
 export class EventMother {
   private readonly data: Event;

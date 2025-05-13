@@ -7,11 +7,14 @@ import {
 } from '../../infrastructure';
 import { CreateEventMother } from './CreateEventMother';
 import { tokenEventUpdateSenderFake } from '../../infrastructure';
-import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
+import {
+  EventStatus,
+  EventUpdateAction,
+  InputType,
+} from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenAssetsServiceFake } from '../../infrastructure/AssetsServiceFake';
 import { AuthorizationError } from '../../utils';
-import { InputType } from '@aws-sdk/client-medialive';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {

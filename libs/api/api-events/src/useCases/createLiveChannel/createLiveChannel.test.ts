@@ -6,10 +6,13 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import {
+  EventMother,
+  EventUpdateAction,
+  InputType,
+} from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
-import { InputType } from '@aws-sdk/client-medialive';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {

@@ -1,6 +1,6 @@
-import { InputType } from '@aws-sdk/client-medialive';
 import {
   Hls,
+  InputType,
   MediaConnect,
   RtmpPull,
   RtmpPush,

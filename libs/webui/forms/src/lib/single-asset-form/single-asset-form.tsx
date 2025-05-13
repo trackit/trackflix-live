@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { InputType } from '@aws-sdk/client-medialive';
+import { InputType } from '@trackflix-live/types';
 
 export interface SingleAssetFormProps {
   onSubmit: (data: {

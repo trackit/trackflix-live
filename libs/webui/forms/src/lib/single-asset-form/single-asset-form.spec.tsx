@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import SingleAssetForm from './single-asset-form';
 import '@testing-library/jest-dom';
 import { DateTime } from 'luxon';
-import { InputType } from '@aws-sdk/client-medialive';
+import { InputType } from '@trackflix-live/types';
 
 describe('SingleAssetForm', () => {
   const mockOnSubmit = vi.fn();

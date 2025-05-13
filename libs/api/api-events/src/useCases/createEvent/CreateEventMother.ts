@@ -1,6 +1,5 @@
 import { CreateEventArgs } from './createEvent';
-import { Source } from '@trackflix-live/types';
-import { InputType } from '@aws-sdk/client-medialive';
+import { InputType, Source } from '@trackflix-live/types';
 
 export class CreateEventMother {
   private readonly data: CreateEventArgs;

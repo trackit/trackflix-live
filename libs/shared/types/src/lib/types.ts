@@ -1,5 +1,3 @@
-import { InputType } from '@aws-sdk/client-medialive';
-
 export enum EventStatus {
   TX = 'TX',
   PRE_TX = 'PRE-TX',
@@ -8,32 +6,43 @@ export enum EventStatus {
   ERROR = 'ERROR',
 }
 
-export type S3Source = { inputType: InputType; value: string };
+export enum InputType {
+  MP4_FILE = 'MP4_FILE',
+  TS_FILE = 'TS_FILE',
+  URL_PULL = 'URL_PULL',
+  RTP_PUSH = 'RTP_PUSH',
+  RTMP_PUSH = 'RTMP_PUSH',
+  RTMP_PULL = 'RTMP_PULL',
+  MEDIACONNECT = 'MEDIACONNECT',
+  SRT_CALLER = 'SRT_CALLER',
+}
 
-export type TsFile = { inputType: InputType; value: string };
+export type S3Source = { inputType: InputType.MP4_FILE; value: string };
 
-export type Hls = { inputType: InputType; value: string };
+export type TsFile = { inputType: InputType.TS_FILE; value: string };
+
+export type Hls = { inputType: InputType.URL_PULL; value: string };
 
 export type Rtp = {
-  inputType: InputType;
+  inputType: InputType.RTP_PUSH;
   inputSecurityGroups: string;
 };
 
 export type RtmpPush = {
-  inputType: InputType;
+  inputType: InputType.RTMP_PUSH;
   inputSecurityGroups: string;
   streamName: string;
 };
 
 export type RtmpPull = {
-  inputType: InputType;
+  inputType: InputType.RTMP_PULL;
   url: string;
   username?: string;
   password?: string;
 };
 
 export type MediaConnect = {
-  inputType: InputType;
+  inputType: InputType.MEDIACONNECT;
   flowArn: string;
   roleArn: string;
 };
@@ -45,7 +54,7 @@ export enum SrtDecryptionAlgorithm {
 }
 
 export type SrtCaller = {
-  inputType: InputType;
+  inputType: InputType.SRT_CALLER;
   decryption?: {
     algorithm: SrtDecryptionAlgorithm;
     passphraseSecretArn: string;
