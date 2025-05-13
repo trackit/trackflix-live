@@ -5,12 +5,12 @@ import {
   CreateInputCommand,
   DeleteChannelCommand,
   DeleteInputCommand,
-  InputType,
   MediaLiveClient,
   StartChannelCommand,
   StopChannelCommand,
 } from '@aws-sdk/client-medialive';
 import { MediaLiveChannelsManager } from './MediaLiveChannelsManager';
+import { InputType, S3Source } from '@trackflix-live/types';
 
 describe('MediaLive channels manager', () => {
   const mock = mockClient(MediaLiveClient);
@@ -24,7 +24,7 @@ describe('MediaLive channels manager', () => {
       const { mediaLiveChannelsManager, waitingSource } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
-      const source = {
+      const source: S3Source = {
         value: 's3://trackflix-live-demo-videos/oss117.mp4',
         inputType: InputType.MP4_FILE,
       };
@@ -77,7 +77,7 @@ describe('MediaLive channels manager', () => {
       const { mediaLiveChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
-      const source = {
+      const source: S3Source = {
         value: 's3://trackflix-live-demo-videos/oss117.mp4',
         inputType: InputType.MP4_FILE,
       };

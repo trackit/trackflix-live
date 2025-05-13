@@ -10,6 +10,7 @@ import {
   EventMother,
   EventUpdateAction,
   InputType,
+  S3Source,
 } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
@@ -23,7 +24,7 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = {
+    const source: S3Source = {
       value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
       inputType: InputType.MP4_FILE,
     };
@@ -74,7 +75,7 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = {
+    const source: S3Source = {
       inputType: InputType.MP4_FILE,
       value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
     };
@@ -120,7 +121,7 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = {
+    const source: S3Source = {
       inputType: InputType.MP4_FILE,
       value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
     };
@@ -159,7 +160,7 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = {
+    const source: S3Source = {
       inputType: InputType.MP4_FILE,
       value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
     };
@@ -205,7 +206,7 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = {
+    const source: S3Source = {
       inputType: InputType.MP4_FILE,
       value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
     };

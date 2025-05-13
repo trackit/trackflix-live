@@ -10,16 +10,13 @@ import {
 } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { InputType } from '@trackflix-live/types';
+import { InputType, Source } from '@trackflix-live/types';
 
 export interface SingleAssetFormProps {
   onSubmit: (data: {
     name: string;
     description: string;
-    source: {
-      value: string;
-      inputType: InputType;
-    };
+    source: Source;
     onAirStartTime: string;
     onAirEndTime: string;
   }) => void;

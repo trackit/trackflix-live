@@ -11,6 +11,7 @@ import {
   EventStatus,
   EventUpdateAction,
   InputType,
+  S3Source,
 } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenAssetsServiceFake } from '../../infrastructure/AssetsServiceFake';
@@ -19,7 +20,7 @@ import { AuthorizationError } from '../../utils';
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
     const { eventsRepository, assetsService, useCase } = setup();
-    const source = {
+    const source: S3Source = {
       value: 's3://videos/hello.mp4',
       inputType: InputType.MP4_FILE,
     };
@@ -46,7 +47,7 @@ describe('CreateEvent use case', () => {
 
   it('should send a live update', async () => {
     const { useCase, eventUpdateSender, assetsService } = setup();
-    const source = {
+    const source: S3Source = {
       value: 's3://videos/hello.mp4',
       inputType: InputType.MP4_FILE,
     };
@@ -69,7 +70,7 @@ describe('CreateEvent use case', () => {
 
   it('should schedule the creation of resources 5 minutes before air', async () => {
     const { eventSchedulerStart, useCase, assetsService } = setup();
-    const source = {
+    const source: S3Source = {
       value: 's3://videos/hello.mp4',
       inputType: InputType.MP4_FILE,
     };
@@ -92,7 +93,7 @@ describe('CreateEvent use case', () => {
 
   it('should schedule the destruction of resources after air', async () => {
     const { eventSchedulerStop, useCase, assetsService } = setup();
-    const source = {
+    const source: S3Source = {
       value: 's3://videos/hello.mp4',
       inputType: InputType.MP4_FILE,
     };
@@ -131,7 +132,7 @@ describe('CreateEvent use case', () => {
 
   it('should throw if user is not in Creators group', async () => {
     const { useCase, assetsService } = setup();
-    const source = {
+    const source: S3Source = {
       value: 's3://videos/hello.mp4',
       inputType: InputType.MP4_FILE,
     };
