@@ -8,7 +8,7 @@ import {
 } from '../../ports';
 import { Event, EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
-import { AuthorizationError } from '../../utils';
+import { AuthorizationError, isMP4File, isTSFile } from '../../utils';
 
 export type CreateEventArgs = Pick<
   Event,
@@ -52,7 +52,10 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
       status: EventStatus.PRE_TX,
     } satisfies Event;
 
-    if (!(await this.assetsService.assetExists(event.source))) {
+    if (
+      (isMP4File(event.source) || isTSFile(event.source)) &&
+      !(await this.assetsService.assetExists(event.source.value))
+    ) {
       throw new AssetNotFoundError();
     }
 
