@@ -1,0 +1,309 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for the GitHub OIDC for the TrackFlix Live application
+
+Parameters:
+  Stage:
+    Type: String
+    Description: The deployment stage (e.g., dev, staging, prod)
+  GitHubOrgUser:
+    Type: String
+    Description: The GitHub organization or username that owns the repository
+  RepositoryName:
+    Type: String
+    Description: The name of the GitHub repository
+  OIDCAudience:
+    Type: String
+    Default: sts.amazonaws.com
+    Description: The audience value in the JWT token (typically sts.amazonaws.com)
+
+Resources:
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: 
+                - !Ref GithubOidc
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Ref OIDCAudience
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrgUser}/${RepositoryName}:*
+      Policies:
+        - PolicyName: GitHubActionsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:TagResource'
+                  - 'lambda:UntagResource'
+                  - 'lambda:GetFunction'
+                  - 'lambda:CreateFunction'
+                  - 'lambda:DeleteFunction'
+                  - 'lambda:UpdateFunctionCode'
+                  - 'lambda:UpdateFunctionConfiguration'
+                  - 'lambda:InvokeFunction'
+                  - 'lambda:AddPermission'
+                  - 'lambda:RemovePermission'
+                  - 'lambda:GetPolicy'
+                  - 'lambda:ListFunctions'
+                Resource: 
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*'
+              - Effect: Allow
+                Action:
+                  - 'cloudformation:CreateChangeSet'
+                  - 'cloudformation:DeleteChangeSet'
+                  - 'cloudformation:DescribeChangeSet'
+                  - 'cloudformation:ExecuteChangeSet'
+                  - 'cloudformation:DescribeStacks'
+                  - 'cloudformation:ListStacks'
+                  - 'cloudformation:GetTemplateSummary'
+                  - 'cloudformation:DescribeStackEvents'
+                Resource:
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*'
+                  - 'arn:aws:cloudformation:us-west-2:aws:transform/Serverless-2016-10-31'
+              - Effect: Allow
+                Action:
+                  - 's3:CreateBucket'
+                  - 's3:DeleteBucket'
+                  - 's3:PutBucketPolicy'
+                  - 's3:GetBucketPolicy'
+                  - 's3:PutBucketWebsite'
+                  - 's3:GetBucketWebsite'
+                  - 's3:PutBucketCORS'
+                  - 's3:GetBucketCORS'
+                  - 's3:PutBucketPublicAccessBlock'
+                  - 's3:GetBucketPublicAccessBlock'
+                  - 's3:PutBucketTagging'
+                  - 's3:GetBucketTagging'
+                  - 's3:PutEncryptionConfiguration'
+                  - 's3:GetEncryptionConfiguration'
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                  - 's3:DeleteObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - 'arn:aws:s3:::trackflix-live-webui-*'
+                  - 'arn:aws:s3:::trackflix-live-webui-*/*'
+                  - 'arn:aws:s3:::aws-sam-cli-managed-default-samclisourcebucket-*'
+                  - 'arn:aws:s3:::aws-sam-cli-managed-default-samclisourcebucket-*/*'
+              - Effect: Allow
+                Action:
+                  - 'iam:CreatePolicy'
+                  - 'iam:DeletePolicy'
+                  - 'iam:GetPolicy'
+                  - 'iam:GetPolicyVersion'
+                  - 'iam:CreatePolicyVersion'
+                  - 'iam:DeletePolicyVersion'
+                  - 'iam:ListPolicyVersions'
+                  - 'iam:AttachRolePolicy'
+                  - 'iam:DetachRolePolicy'
+                  - 'iam:PutRolePolicy'
+                  - 'iam:DeleteRolePolicy'
+                  - 'iam:CreateRole'
+                  - 'iam:DeleteRole'
+                  - 'iam:GetRole'
+                  - 'iam:TagRole'
+                  - 'iam:UntagRole'
+                  - 'iam:ListRoleTags'
+                  - 'iam:UpdateRole'
+                  - 'iam:UpdateRoleDescription'
+                  - 'iam:PassRole'
+                  - 'iam:TagPolicy'
+                  - 'iam:UntagPolicy'
+                  - 'iam:ListPolicyTags'
+                  - 'iam:ListRoles'
+                  - 'iam:ListPolicies'
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/*'
+              - Effect: Allow
+                Action:
+                  - 'cognito-idp:CreateUserPool'
+                  - 'cognito-idp:DeleteUserPool'
+                  - 'cognito-idp:DescribeUserPool'
+                  - 'cognito-idp:UpdateUserPool'
+                  - 'cognito-idp:CreateUserPoolClient'
+                  - 'cognito-idp:DeleteUserPoolClient'
+                  - 'cognito-idp:UpdateUserPoolClient'
+                  - 'cognito-idp:DescribeUserPoolClient'
+                  - 'cognito-idp:ListUserPoolClients'
+                  - 'cognito-idp:ListUserPools'
+                  - 'cognito-idp:AddCustomAttributes'
+                  - 'cognito-idp:TagResource'
+                  - 'cognito-idp:UntagResource'
+                  - 'cognito-idp:ListTagsForResource'
+                  - 'cognito-idp:CreateGroup'
+                  - 'cognito-idp:DeleteGroup'
+                  - 'cognito-idp:GetGroup'
+                  - 'cognito-idp:ListGroups'
+                  - 'cognito-idp:UpdateGroup'
+                Resource:
+                  - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+              - Effect: Allow
+                Action:
+                  - 'cloudfront:CreateDistribution'
+                  - 'cloudfront:DeleteDistribution'
+                  - 'cloudfront:GetDistribution'
+                  - 'cloudfront:UpdateDistribution'
+                  - 'cloudfront:TagResource'
+                  - 'cloudfront:UntagResource'
+                  - 'cloudfront:ListTagsForResource'
+                  - 'cloudfront:CreateCloudFrontOriginAccessIdentity'
+                  - 'cloudfront:DeleteCloudFrontOriginAccessIdentity'
+                  - 'cloudfront:GetCloudFrontOriginAccessIdentity'
+                  - 'cloudfront:CreateOriginAccessControl'
+                  - 'cloudfront:DeleteOriginAccessControl'
+                  - 'cloudfront:GetOriginAccessControl'
+                  - 'cloudfront:ListOriginAccessControls'
+                  - 'cloudfront:UpdateOriginAccessControl'
+                  - 'cloudfront:CreateInvalidation'
+                  - 'cloudfront:GetInvalidation'
+                  - 'cloudfront:ListInvalidations'
+                Resource:
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/*'
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:origin-access-identity/*'
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:origin-access-control/*'
+              - Effect: Allow
+                Action:
+                  - 'cloudfront:CreateOriginAccessControl'
+                Resource:
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - 'iot:CreatePolicy'
+                  - 'iot:DeletePolicy'
+                  - 'iot:GetPolicy'
+                  - 'iot:ListPolicies'
+                  - 'iot:CreatePolicyVersion'
+                  - 'iot:DeletePolicyVersion'
+                  - 'iot:ListPolicyVersions'
+                  - 'iot:GetPolicyVersion'
+                  - 'iot:SetDefaultPolicyVersion'
+                  - 'iot:AttachPolicy'
+                  - 'iot:DetachPolicy'
+                  - 'iot:CreateThing'
+                  - 'iot:DeleteThing'
+                  - 'iot:ListThings'
+                  - 'iot:DescribeThing'
+                  - 'iot:TagResource'
+                  - 'iot:UntagResource'
+                  - 'iot:ListTagsForResource'
+                Resource:
+                  - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:policy/*'
+                  - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:thing/*'
+                  - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - 'iot:DescribeEndpoint'
+                Resource: 
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:CreateTable'
+                  - 'dynamodb:DeleteTable'
+                  - 'dynamodb:DescribeTable'
+                  - 'dynamodb:UpdateTable'
+                  - 'dynamodb:ListTables'
+                  - 'dynamodb:TagResource'
+                  - 'dynamodb:UntagResource'
+                  - 'dynamodb:ListTagsOfResource'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:BatchWriteItem'
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:Scan'
+                Resource:
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*'
+              - Effect: Allow
+                Action:
+                  - 'cognito-identity:CreateIdentityPool'
+                  - 'cognito-identity:DeleteIdentityPool'
+                  - 'cognito-identity:DescribeIdentityPool'
+                  - 'cognito-identity:GetIdentityPoolRoles'
+                  - 'cognito-identity:ListIdentityPools'
+                  - 'cognito-identity:SetIdentityPoolRoles'
+                  - 'cognito-identity:UpdateIdentityPool'
+                  - 'cognito-identity:TagResource'
+                  - 'cognito-identity:UntagResource'
+                  - 'cognito-identity:ListTagsForResource'
+                Resource:
+                  - !Sub 'arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/*'
+              - Effect: Allow
+                Action:
+                  - 'states:CreateStateMachine'
+                  - 'states:DeleteStateMachine'
+                  - 'states:DescribeStateMachine'
+                  - 'states:ListStateMachines'
+                  - 'states:UpdateStateMachine'
+                  - 'states:TagResource'
+                  - 'states:UntagResource'
+                  - 'states:ListTagsForResource'
+                  - 'states:StartExecution'
+                  - 'states:StopExecution'
+                  - 'states:DescribeExecution'
+                  - 'states:ListExecutions'
+                Resource:
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*'
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:*:*'
+              - Effect: Allow
+                Action:
+                  - 'events:PutRule'
+                  - 'events:DeleteRule'
+                  - 'events:DescribeRule'
+                  - 'events:ListRules'
+                  - 'events:EnableRule'
+                  - 'events:DisableRule'
+                  - 'events:PutTargets'
+                  - 'events:RemoveTargets'
+                  - 'events:ListTargetsByRule'
+                  - 'events:TagResource'
+                  - 'events:UntagResource'
+                  - 'events:ListTagsForResource'
+                Resource:
+                  - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*'
+              - Effect: Allow
+                Action:
+                  - 'apigateway:GET'
+                  - 'apigateway:POST'
+                  - 'apigateway:PUT'
+                  - 'apigateway:DELETE'
+                  - 'apigateway:PATCH'
+                  - 'apigateway:TagResource'
+                  - 'apigateway:UntagResource'
+                  - 'apigateway:UpdateRestApiPolicy'
+                  - 'apigateway:CreateDeployment'
+                  - 'apigateway:CreateRestApi'
+                  - 'apigateway:DeleteRestApi'
+                  - 'apigateway:UpdateRestApi'
+                  - 'apigateway:GetResources'
+                  - 'apigateway:CreateResource'
+                  - 'apigateway:DeleteResource'
+                  - 'apigateway:UpdateResource'
+                  - 'apigateway:GetStages'
+                  - 'apigateway:CreateStage'
+                  - 'apigateway:DeleteStage'
+                  - 'apigateway:UpdateStage'
+                Resource:
+                  - !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis'
+                  - !Sub 'arn:aws:apigateway:${AWS::Region}::/restapis/*'
+                  - !Sub 'arn:aws:apigateway:${AWS::Region}::/tags/*'
+
+  GithubOidc:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: 
+        - !Ref OIDCAudience
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+Outputs:
+  Role:
+    Value: !GetAtt Role.Arn 
