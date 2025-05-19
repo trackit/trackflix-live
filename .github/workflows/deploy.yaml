@@ -32,6 +32,7 @@ jobs:
   
   Deploy_frontend:
     runs-on: ubuntu-latest
+    needs: Deploy_backend
     env:
       STAGE: ${{ secrets.STAGE }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
