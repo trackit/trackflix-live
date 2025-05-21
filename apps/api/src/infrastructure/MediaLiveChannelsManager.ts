@@ -31,15 +31,15 @@ import {
   InputType,
 } from '@aws-sdk/client-medialive';
 import {
-  Hls,
-  MediaConnect,
-  RtmpPull,
-  RtmpPush,
-  Rtp,
-  S3Source,
+  HlsSource,
+  MediaConnectSource,
+  RtmpPullSource,
+  RtmpPushSource,
+  RtpSource,
+  Mp4Source,
   Source,
-  SrtCaller,
-  TsFile,
+  SrtCallerSource,
+  TsFileSource,
 } from '@trackflix-live/types';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -836,7 +836,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     throw new CreateMediaLiveChannelError();
   }
 
-  private buildClassicSource(source: Hls | S3Source | TsFile) {
+  private buildClassicSource(source: HlsSource | Mp4Source | TsFileSource) {
     return [
       {
         Url: source.value,
@@ -844,7 +844,10 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     ];
   }
 
-  private buildRtp(source: Rtp, inputName: string): CreateInputCommandInput {
+  private buildRtp(
+    source: RtpSource,
+    inputName: string
+  ): CreateInputCommandInput {
     return {
       Name: inputName,
       Type: InputType.RTP_PUSH,
@@ -855,7 +858,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   }
 
   private buildRtmpPush(
-    source: RtmpPush,
+    source: RtmpPushSource,
     inputName: string
   ): CreateInputCommandInput {
     return {
@@ -873,7 +876,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   }
 
   private buildRtmpPull(
-    source: RtmpPull,
+    source: RtmpPullSource,
     inputName: string
   ): CreateInputCommandInput {
     return {
@@ -890,7 +893,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   }
 
   private buildMediaConnect(
-    source: MediaConnect,
+    source: MediaConnectSource,
     inputName: string
   ): CreateInputCommandInput {
     return {
@@ -906,7 +909,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
   }
 
   private buildSrtCaller(
-    source: SrtCaller,
+    source: SrtCallerSource,
     inputName: string
   ): CreateInputCommandInput {
     return {

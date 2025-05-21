@@ -17,31 +17,31 @@ export enum InputType {
   SRT_CALLER = 'SRT_CALLER',
 }
 
-export type S3Source = { inputType: InputType.MP4_FILE; value: string };
+export type Mp4Source = { inputType: InputType.MP4_FILE; value: string };
 
-export type TsFile = { inputType: InputType.TS_FILE; value: string };
+export type TsFileSource = { inputType: InputType.TS_FILE; value: string };
 
-export type Hls = { inputType: InputType.URL_PULL; value: string };
+export type HlsSource = { inputType: InputType.URL_PULL; value: string };
 
-export type Rtp = {
+export type RtpSource = {
   inputType: InputType.RTP_PUSH;
   inputSecurityGroups: string;
 };
 
-export type RtmpPush = {
+export type RtmpPushSource = {
   inputType: InputType.RTMP_PUSH;
   inputSecurityGroups: string;
   streamName: string;
 };
 
-export type RtmpPull = {
+export type RtmpPullSource = {
   inputType: InputType.RTMP_PULL;
   url: string;
   username?: string;
   password?: string;
 };
 
-export type MediaConnect = {
+export type MediaConnectSource = {
   inputType: InputType.MEDIACONNECT;
   flowArn: string;
   roleArn: string;
@@ -53,7 +53,7 @@ export enum SrtDecryptionAlgorithm {
   AES_256 = 'AES256',
 }
 
-export type SrtCaller = {
+export type SrtCallerSource = {
   inputType: InputType.SRT_CALLER;
   decryption?: {
     algorithm: SrtDecryptionAlgorithm;
@@ -66,14 +66,14 @@ export type SrtCaller = {
 };
 
 export type Source =
-  | S3Source
-  | Rtp
-  | RtmpPush
-  | RtmpPull
-  | TsFile
-  | Hls
-  | MediaConnect
-  | SrtCaller;
+  | Mp4Source
+  | RtpSource
+  | RtmpPushSource
+  | RtmpPullSource
+  | TsFileSource
+  | HlsSource
+  | MediaConnectSource
+  | SrtCallerSource;
 
 export enum LogType {
   PACKAGE_CHANNEL_CREATED = 'PACKAGE_CHANNEL_CREATED',

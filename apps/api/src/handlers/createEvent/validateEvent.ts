@@ -1,18 +1,18 @@
 import {
-  Hls,
+  HlsSource,
   InputType,
-  MediaConnect,
-  RtmpPull,
-  RtmpPush,
-  Rtp,
-  S3Source,
-  SrtCaller,
+  MediaConnectSource,
+  RtmpPullSource,
+  RtmpPushSource,
+  RtpSource,
+  Mp4Source,
+  SrtCallerSource,
   SrtDecryptionAlgorithm,
-  TsFile,
+  TsFileSource,
 } from '@trackflix-live/types';
 import { JSONSchemaType } from 'ajv';
 
-export const s3SourceSchema: JSONSchemaType<S3Source> = {
+export const s3SourceSchema: JSONSchemaType<Mp4Source> = {
   type: 'object',
   properties: {
     value: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
@@ -22,7 +22,7 @@ export const s3SourceSchema: JSONSchemaType<S3Source> = {
   additionalProperties: false,
 };
 
-export const TsSourceSchema: JSONSchemaType<TsFile> = {
+export const TsSourceSchema: JSONSchemaType<TsFileSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -35,7 +35,7 @@ export const TsSourceSchema: JSONSchemaType<TsFile> = {
   additionalProperties: false,
 };
 
-export const HlsSchema: JSONSchemaType<Hls> = {
+export const HlsSchema: JSONSchemaType<HlsSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -48,7 +48,7 @@ export const HlsSchema: JSONSchemaType<Hls> = {
   additionalProperties: false,
 };
 
-export const RtpPushSchema: JSONSchemaType<Rtp> = {
+export const RtpPushSchema: JSONSchemaType<RtpSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -64,7 +64,7 @@ export const RtpPushSchema: JSONSchemaType<Rtp> = {
   additionalProperties: false,
 };
 
-export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
+export const RtmpPushSchema: JSONSchemaType<RtmpPushSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -83,7 +83,7 @@ export const RtmpPushSchema: JSONSchemaType<RtmpPush> = {
   additionalProperties: false,
 };
 
-export const RtmpPullSchema: JSONSchemaType<RtmpPull> = {
+export const RtmpPullSchema: JSONSchemaType<RtmpPullSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -101,7 +101,7 @@ export const RtmpPullSchema: JSONSchemaType<RtmpPull> = {
   additionalProperties: false,
 };
 
-export const MediaConnectSchema: JSONSchemaType<MediaConnect> = {
+export const MediaConnectSchema: JSONSchemaType<MediaConnectSource> = {
   type: 'object',
   properties: {
     inputType: {
@@ -121,7 +121,7 @@ export const MediaConnectSchema: JSONSchemaType<MediaConnect> = {
   additionalProperties: false,
 };
 
-export const SrtCallerSchema: JSONSchemaType<SrtCaller> = {
+export const SrtCallerSchema: JSONSchemaType<SrtCallerSource> = {
   type: 'object',
   properties: {
     inputType: {
