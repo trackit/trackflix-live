@@ -6,7 +6,12 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import { EventMother, EventUpdateAction } from '@trackflix-live/types';
+import {
+  EventMother,
+  EventUpdateAction,
+  InputType,
+  Mp4Source,
+} from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
 
@@ -19,7 +24,10 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const source: Mp4Source = {
+      value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+      inputType: InputType.MP4_FILE,
+    };
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
 
@@ -67,7 +75,10 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const source: Mp4Source = {
+      inputType: InputType.MP4_FILE,
+      value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+    };
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
 
@@ -110,7 +121,10 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const source: Mp4Source = {
+      inputType: InputType.MP4_FILE,
+      value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+    };
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
 
@@ -146,7 +160,10 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const source: Mp4Source = {
+      inputType: InputType.MP4_FILE,
+      value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+    };
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
 
@@ -189,7 +206,10 @@ describe('Create live channel use case', () => {
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
     const liveChannelId = '8626488';
-    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const source: Mp4Source = {
+      inputType: InputType.MP4_FILE,
+      value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+    };
     const liveInputId = '1234567';
     const liveWaitingInputId = '7654321';
 

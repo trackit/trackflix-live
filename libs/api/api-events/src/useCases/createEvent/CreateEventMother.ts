@@ -1,5 +1,5 @@
 import { CreateEventArgs } from './createEvent';
-import { Source } from '@trackflix-live/types';
+import { InputType, Source } from '@trackflix-live/types';
 
 export class CreateEventMother {
   private readonly data: CreateEventArgs;
@@ -14,7 +14,10 @@ export class CreateEventMother {
       description: 'This is a sample testing event',
       onAirStartTime: '2030-01-22T10:00:00.000Z',
       onAirEndTime: '2030-01-22T11:00:00.000Z',
-      source: 's3://sample-bucket/sample-asset.mp4',
+      source: {
+        value: 's3://sample-bucket/sample-asset.mp4',
+        inputType: InputType.MP4_FILE,
+      },
       userGroups: ['Creators'],
     });
   }

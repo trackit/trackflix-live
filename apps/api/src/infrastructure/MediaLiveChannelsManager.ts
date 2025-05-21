@@ -1,6 +1,15 @@
 import {
   CreateChannelParameters,
   CreateChannelResponse,
+  CreateMediaLiveChannelError,
+  isHLS,
+  isMediaConnect,
+  isMP4File,
+  isRtmpPull,
+  isRtmpPush,
+  isRtp,
+  isSrtCaller,
+  isTSFile,
   LiveChannelsManager,
   StartChannelParameters,
 } from '@trackflix-live/api-events';
@@ -18,7 +27,20 @@ import {
   DeleteChannelCommand,
   DeleteInputCommand,
   BatchUpdateScheduleCommand,
+  CreateInputCommandInput,
+  InputType,
 } from '@aws-sdk/client-medialive';
+import {
+  HlsSource,
+  MediaConnectSource,
+  RtmpPullSource,
+  RtmpPushSource,
+  RtpSource,
+  Mp4Source,
+  Source,
+  SrtCallerSource,
+  TsFileSource,
+} from '@trackflix-live/types';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
   private readonly client: MediaLiveClient;
@@ -68,15 +90,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
 
     const inputName = `TrackflixLiveMLI-${eventId}`;
     const input = await this.client.send(
-      new CreateInputCommand({
-        Name: inputName,
-        Type: 'MP4_FILE',
-        Sources: [
-          {
-            Url: source,
-          },
-        ],
-      })
+      new CreateInputCommand(this.createInputCommand(source, inputName))
     );
 
     if (input.Input === undefined || input.Input.Id === undefined) {
@@ -702,6 +716,16 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
           {
             InputId: input.Input.Id,
             InputAttachmentName: inputName,
+            InputSettings:
+              source.inputType === InputType.URL_PULL
+                ? {
+                    NetworkInputSettings: {
+                      HlsInputSettings: {
+                        BufferSegments: 3,
+                      },
+                    },
+                  }
+                : undefined,
           },
         ],
       })
@@ -781,5 +805,132 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
         InputId: inputId,
       })
     );
+  }
+
+  private createInputCommand(
+    source: Source,
+    inputName: string
+  ): CreateInputCommandInput {
+    if (isMP4File(source) || isHLS(source) || isTSFile(source)) {
+      return {
+        Name: inputName,
+        Type: source.inputType,
+        Sources: this.buildClassicSource(source),
+      };
+    }
+    if (isRtp(source)) {
+      return this.buildRtp(source, inputName);
+    }
+    if (isRtmpPush(source)) {
+      return this.buildRtmpPush(source, inputName);
+    }
+    if (isRtmpPull(source)) {
+      return this.buildRtmpPull(source, inputName);
+    }
+    if (isMediaConnect(source)) {
+      return this.buildMediaConnect(source, inputName);
+    }
+    if (isSrtCaller(source)) {
+      return this.buildSrtCaller(source, inputName);
+    }
+    throw new CreateMediaLiveChannelError();
+  }
+
+  private buildClassicSource(source: HlsSource | Mp4Source | TsFileSource) {
+    return [
+      {
+        Url: source.value,
+      },
+    ];
+  }
+
+  private buildRtp(
+    source: RtpSource,
+    inputName: string
+  ): CreateInputCommandInput {
+    return {
+      Name: inputName,
+      Type: InputType.RTP_PUSH,
+      InputSecurityGroups: source.inputSecurityGroups
+        ? [source.inputSecurityGroups]
+        : undefined,
+    };
+  }
+
+  private buildRtmpPush(
+    source: RtmpPushSource,
+    inputName: string
+  ): CreateInputCommandInput {
+    return {
+      Name: inputName,
+      Type: InputType.RTMP_PUSH,
+      InputSecurityGroups: source.inputSecurityGroups
+        ? [source.inputSecurityGroups]
+        : undefined,
+      Destinations: [
+        {
+          StreamName: source.streamName,
+        },
+      ],
+    };
+  }
+
+  private buildRtmpPull(
+    source: RtmpPullSource,
+    inputName: string
+  ): CreateInputCommandInput {
+    return {
+      Name: inputName,
+      Type: InputType.RTMP_PULL,
+      Sources: [
+        {
+          Url: source.url,
+          PasswordParam: source.password,
+          Username: source.username,
+        },
+      ],
+    };
+  }
+
+  private buildMediaConnect(
+    source: MediaConnectSource,
+    inputName: string
+  ): CreateInputCommandInput {
+    return {
+      Name: inputName,
+      Type: InputType.MEDIACONNECT,
+      RoleArn: source.roleArn,
+      MediaConnectFlows: [
+        {
+          FlowArn: source.flowArn,
+        },
+      ],
+    };
+  }
+
+  private buildSrtCaller(
+    source: SrtCallerSource,
+    inputName: string
+  ): CreateInputCommandInput {
+    return {
+      Name: inputName,
+      Type: InputType.SRT_CALLER,
+      SrtSettings: {
+        SrtCallerSources: [
+          {
+            StreamId: source.streamId,
+            SrtListenerPort: source.srtListenerPort,
+            SrtListenerAddress: source.srtListenerAddress,
+            MinimumLatency: source.minimumLatency,
+            Decryption: source.decryption
+              ? {
+                  Algorithm: source.decryption.algorithm,
+                  PassphraseSecretArn: source.decryption.passphraseSecretArn,
+                }
+              : undefined,
+          },
+        ],
+      },
+    };
   }
 }

@@ -1,4 +1,10 @@
-import { Event, EventEndpoint, EventStatus } from '../lib/types';
+import {
+  Event,
+  EventEndpoint,
+  EventStatus,
+  InputType,
+  Source,
+} from '../lib/types';
 
 export class EventMother {
   private readonly data: Event;
@@ -12,7 +18,7 @@ export class EventMother {
     return this;
   }
 
-  public withSource(source: string): EventMother {
+  public withSource(source: Source): EventMother {
     this.data.source = source;
     return this;
   }
@@ -80,7 +86,10 @@ export class EventMother {
       onAirStartTime: '2025-01-22T10:00:00.000Z',
       onAirEndTime: '2025-01-22T20:00:00.000Z',
       createdTime: '2025-01-20T09:00:00.000Z',
-      source: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+      source: {
+        value: 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4',
+        inputType: InputType.MP4_FILE,
+      },
       status: EventStatus.PRE_TX,
       endpoints: [],
       logs: [],

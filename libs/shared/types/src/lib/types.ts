@@ -6,9 +6,74 @@ export enum EventStatus {
   ERROR = 'ERROR',
 }
 
-export type S3Source = string;
+export enum InputType {
+  MP4_FILE = 'MP4_FILE',
+  TS_FILE = 'TS_FILE',
+  URL_PULL = 'URL_PULL',
+  RTP_PUSH = 'RTP_PUSH',
+  RTMP_PUSH = 'RTMP_PUSH',
+  RTMP_PULL = 'RTMP_PULL',
+  MEDIACONNECT = 'MEDIACONNECT',
+  SRT_CALLER = 'SRT_CALLER',
+}
 
-export type Source = S3Source;
+export type Mp4Source = { inputType: InputType.MP4_FILE; value: string };
+
+export type TsFileSource = { inputType: InputType.TS_FILE; value: string };
+
+export type HlsSource = { inputType: InputType.URL_PULL; value: string };
+
+export type RtpSource = {
+  inputType: InputType.RTP_PUSH;
+  inputSecurityGroups: string;
+};
+
+export type RtmpPushSource = {
+  inputType: InputType.RTMP_PUSH;
+  inputSecurityGroups: string;
+  streamName: string;
+};
+
+export type RtmpPullSource = {
+  inputType: InputType.RTMP_PULL;
+  url: string;
+  username?: string;
+  password?: string;
+};
+
+export type MediaConnectSource = {
+  inputType: InputType.MEDIACONNECT;
+  flowArn: string;
+  roleArn: string;
+};
+
+export enum SrtDecryptionAlgorithm {
+  AES_128 = 'AES128',
+  AES_192 = 'AES192',
+  AES_256 = 'AES256',
+}
+
+export type SrtCallerSource = {
+  inputType: InputType.SRT_CALLER;
+  decryption?: {
+    algorithm: SrtDecryptionAlgorithm;
+    passphraseSecretArn: string;
+  };
+  srtListenerAddress: string;
+  srtListenerPort: string;
+  streamId: string;
+  minimumLatency: number;
+};
+
+export type Source =
+  | Mp4Source
+  | RtpSource
+  | RtmpPushSource
+  | RtmpPullSource
+  | TsFileSource
+  | HlsSource
+  | MediaConnectSource
+  | SrtCallerSource;
 
 export enum LogType {
   PACKAGE_CHANNEL_CREATED = 'PACKAGE_CHANNEL_CREATED',

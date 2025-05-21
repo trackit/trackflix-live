@@ -1,6 +1,6 @@
 import { CreateEventAdapter } from './createEvent.adapter';
 import { APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda';
-import { EventMother } from '@trackflix-live/types';
+import { EventMother, InputType } from '@trackflix-live/types';
 import {
   AssetNotFoundError,
   AuthorizationError,
@@ -40,10 +40,241 @@ describe('Create event adapter', () => {
     expect(useCase.createEvent).toHaveBeenCalledWith(createEventReq);
   });
 
-  it('should return successful response', async () => {
+  it('should return successful response for MP4_FILE', async () => {
     const { adapter, useCase } = setup();
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for TS_FILE', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({ value: 's3://test.ts', inputType: InputType.TS_FILE })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for URL_PULL', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({ value: 'https://test.m3u8', inputType: InputType.URL_PULL })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for MEDIACONNECT', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        flowArn:
+          'arn:aws:mediaconnect:us-west-2:123456789123:flow:test:trackflix-live-test',
+        roleArn: 'arn:aws:iam::123456789123:role/MediaLiveAccessRole',
+        inputType: InputType.MEDIACONNECT,
+      })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for RTP', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        inputSecurityGroups: '1234567',
+        inputType: InputType.RTP_PUSH,
+      })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for SRT_CALLER', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        streamId: 'id',
+        srtListenerPort: '2000',
+        srtListenerAddress: '82.66.192.191',
+        minimumLatency: 2000,
+        inputType: InputType.SRT_CALLER,
+      })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for RTMP_PULL', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        url: 'rtmp://example.com/live/test',
+        inputType: InputType.RTMP_PULL,
+      })
+      .build();
+    const event = EventMother.basic().build();
+    useCase.createEvent.mockImplementationOnce(() => event);
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body || '')).toEqual({ event });
+  });
+
+  it('should return successful response for RTMP_PUSH', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        inputType: InputType.RTMP_PUSH,
+        inputSecurityGroups: '1234567',
+        streamName: 'test/test',
+      })
       .build();
     const event = EventMother.basic().build();
     useCase.createEvent.mockImplementationOnce(() => event);
@@ -257,7 +488,74 @@ describe('Create event adapter', () => {
 
     const createEventReq = CreateEventMother.basic()
       .withOnAirStartTime('2025-03-10T10:00:00.000Z')
-      .withSource('s3://test.mp3')
+      .withSource({ value: 's3://test.mp3', inputType: InputType.MP4_FILE })
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(400);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Bad Request',
+      description: 'Body does not match schema.',
+    });
+  });
+
+  it('should return 400 response if source is not an S3 URI of an TS_FILE', async () => {
+    const { adapter } = setup();
+
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({ value: 's3://test.js', inputType: InputType.TS_FILE })
+      .build();
+
+    const response = await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(response.statusCode).toEqual(400);
+    expect(JSON.parse(response.body || '')).toEqual({
+      message: 'Bad Request',
+      description: 'Body does not match schema.',
+    });
+  });
+
+  it('should return 400 response if source is not an HLS url', async () => {
+    const { adapter } = setup();
+
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .withSource({
+        value: 'https://s3://test.mp4',
+        inputType: InputType.URL_PULL,
+      })
       .build();
 
     const response = await adapter.handle({
