@@ -154,7 +154,11 @@ export const formSchema = z
             path: ['inputSecurityGroups'],
           });
         }
-        if ('decryptionEnabled' in data && !data.decryption?.Algorithm) {
+        if (
+          'decryptionEnabled' in data &&
+          data.decryptionEnabled &&
+          !data.decryption?.Algorithm
+        ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message:
@@ -164,6 +168,7 @@ export const formSchema = z
         }
         if (
           'decryptionEnabled' in data &&
+          data.decryptionEnabled &&
           !data.decryption?.passphraseSecretArn
         ) {
           ctx.addIssue({
@@ -190,7 +195,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
 
   const {
     register,
-    setValue,
     formState: { errors },
     handleSubmit,
     watch,
@@ -514,6 +518,8 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             if (!data.source.decryptionEnabled) {
               data.source.decryption = undefined;
             }
+            delete data.source.value;
+            delete data.source.decryptionEnabled;
             sourceData = data.source as Source;
             break;
           default:
