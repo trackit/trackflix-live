@@ -205,7 +205,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       description: '',
       source: {
         inputType: InputType.MP4_FILE,
-        value: '',
       },
       onAirStartTime: DateTime.now()
         .set({ minute: DateTime.now().minute + 30 })
@@ -518,7 +517,6 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             if (!data.source.decryptionEnabled) {
               data.source.decryption = undefined;
             }
-            delete data.source.value;
             delete data.source.decryptionEnabled;
             sourceData = data.source as Source;
             break;
