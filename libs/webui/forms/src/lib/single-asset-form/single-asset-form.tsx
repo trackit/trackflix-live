@@ -107,7 +107,7 @@ export const mediaConnectSourceSchema = z.object({
 
 export const srtCallerSourceSchema = z.object({
   inputType: z.literal(InputType.SRT_CALLER),
-  streamId: z.string().min(1, { message: 'Stream ID cannot be empty' }),
+  streamId: z.string().optional(),
   srtListenerPort: z
     .string()
     .min(1, { message: 'SRT Listener Port cannot be empty' }),
@@ -120,7 +120,7 @@ export const srtCallerSourceSchema = z.object({
   decryptionEnabled: z.boolean().optional(),
   decryption: z
     .object({
-      Algorithm: z
+      algorithm: z
         .enum([...Object.values(SrtDecryptionAlgorithm)] as [
           string,
           ...string[]
@@ -157,13 +157,13 @@ export const formSchema = z
         if (
           'decryptionEnabled' in data &&
           data.decryptionEnabled &&
-          !data.decryption?.Algorithm
+          !data.decryption?.algorithm
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message:
               'Decryption algorithm must be provided if decryption is enabled',
-            path: ['decryption', 'Algorithm'],
+            path: ['decryption', 'algorithm'],
           });
         }
         if (
@@ -412,10 +412,10 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       <FormField
         label="Decryption Algorithm"
         register={register}
-        name="source.decryption.Algorithm"
+        name="source.decryption.algorithm"
         error={
           (errors.source as FieldErrors<z.infer<typeof srtCallerSourceSchema>>)
-            ?.decryption?.Algorithm
+            ?.decryption?.algorithm
         }
         type="select"
         options={Object.values(SrtDecryptionAlgorithm).map((algo) => ({
@@ -517,6 +517,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             if (!data.source.decryptionEnabled) {
               data.source.decryption = undefined;
             }
+            if (data.source.streamId === '') data.source.streamId = undefined;
             delete data.source.decryptionEnabled;
             sourceData = data.source as Source;
             break;
