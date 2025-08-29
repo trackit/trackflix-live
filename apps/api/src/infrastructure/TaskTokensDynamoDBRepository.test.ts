@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { TaskTokensDynamoDBRepository } from './TaskTokensDynamoDBRepository';
+import * as allure from 'allure-js-commons';
 
 describe('TaskTokensDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -19,6 +20,11 @@ describe('TaskTokensDynamoDBRepository', () => {
 
   describe('createTaskToken', () => {
     it('should create a task token', async () => {
+      await allure.feature('Task tokens management');
+      await allure.story('Token creation');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { ddbClient, repository, tableName } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
@@ -54,6 +60,11 @@ describe('TaskTokensDynamoDBRepository', () => {
 
   describe('consumeTaskToken', () => {
     it('should do nothing if task token does not exist', async () => {
+      await allure.feature('Task tokens management');
+      await allure.story('Token consumer');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { repository } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
@@ -68,6 +79,11 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should return task token', async () => {
+      await allure.feature('Task tokens management');
+      await allure.story('Token consumer');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { repository } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
@@ -96,6 +112,11 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should delete task token', async () => {
+      await allure.feature('Task tokens management');
+      await allure.story('Token consumer');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { repository, ddbClient, tableName } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';

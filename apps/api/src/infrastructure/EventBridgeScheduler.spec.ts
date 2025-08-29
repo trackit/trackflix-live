@@ -5,6 +5,7 @@ import {
   CreateScheduleCommand,
   DeleteScheduleCommand,
 } from '@aws-sdk/client-scheduler';
+import * as allure from 'allure-js-commons';
 
 describe('EventBridgeScheduler', () => {
   const mock = mockClient(SchedulerClient);
@@ -15,6 +16,11 @@ describe('EventBridgeScheduler', () => {
 
   describe('scheduleEvent', () => {
     it('should schedule an event', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event scheduling');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { scheduler, target, roleArn } = setup();
       const eventId = '005fc3b5-623c-41f6-8885-22dc72f30676';
 
@@ -51,6 +57,11 @@ describe('EventBridgeScheduler', () => {
     });
 
     it('should throw an error when scheduling an event fails', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event scheduling');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { scheduler } = setup();
       mock
         .on(CreateScheduleCommand)
@@ -66,6 +77,11 @@ describe('EventBridgeScheduler', () => {
     });
 
     it('should throw an error if an invalid Date is passed', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event scheduling');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { scheduler } = setup();
 
       await expect(
@@ -80,12 +96,22 @@ describe('EventBridgeScheduler', () => {
 
   describe('deleteSchedule', () => {
     it('should delete schedule', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event scheduling');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { scheduler } = setup();
 
       await scheduler.deleteSchedule('test-event');
     });
 
     it('should throw an error if the delete schedule throws an error', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event scheduling');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { scheduler } = setup();
       mock
         .on(DeleteScheduleCommand)

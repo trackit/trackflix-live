@@ -1,7 +1,7 @@
 export default {
   displayName: 'di',
   preset: '../../../jest.preset.js',
-  testEnvironment: 'node',
+  testEnvironment: 'allure-jest/node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },

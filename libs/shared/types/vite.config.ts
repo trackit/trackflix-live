@@ -15,7 +15,11 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    reporters: ['default'],
+    setupFiles: ['allure-vitest/setup'],
+    reporters: [
+      'default',
+      ['allure-vitest/reporter', { resultsDir: 'allure-results' }],
+    ],
     coverage: {
       reportsDirectory: '../../../coverage/libs/types',
       provider: 'v8',

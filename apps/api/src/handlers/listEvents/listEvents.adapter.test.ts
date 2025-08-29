@@ -3,9 +3,15 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { EventMother } from '@trackflix-live/types';
 import { register, reset } from '@trackflix-live/di';
 import { tokenListEventsUseCase } from '@trackflix-live/api-events';
+import * as allure from 'allure-js-commons';
 
 describe('List events adapter', () => {
   it('should call use case', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
 
     await adapter.handle({} as APIGatewayProxyEventV2);
@@ -14,6 +20,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const sampleEvent = EventMother.basic().build();
 
@@ -32,6 +43,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if nextToken is valid', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const sampleEvent = EventMother.basic().build();
 
@@ -56,6 +72,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if there are no events', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.listEvents.mockImplementationOnce(() => ({
       events: [],
@@ -72,6 +93,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if a sort attribute is defined', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const event1 = EventMother.basic()
       .withId('bbaf9b7d-5f75-468d-b81d-8ba7637af888')
@@ -103,6 +129,11 @@ describe('List events adapter', () => {
   });
 
   it('should return the events matching a name if specified', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const event1 = EventMother.basic()
       .withId('bbaf9b7d-5f75-468d-b81d-8ba7637af888')
@@ -132,6 +163,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the limit is invalid', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({
@@ -144,6 +180,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the nextToken is malformed', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({
@@ -156,6 +197,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortOrder is specified without sortBy', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({
@@ -168,6 +214,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortOrder is invalid', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({
@@ -180,6 +231,11 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortBy is invalid', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({

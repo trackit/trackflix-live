@@ -10,6 +10,7 @@ import {
   StopChannelCommand,
 } from '@aws-sdk/client-medialive';
 import { MediaLiveChannelsManager } from './MediaLiveChannelsManager';
+import * as allure from 'allure-js-commons';
 
 describe('MediaLive channels manager', () => {
   const mock = mockClient(MediaLiveClient);
@@ -20,6 +21,11 @@ describe('MediaLive channels manager', () => {
 
   describe('createChannel', () => {
     it('should create inputs', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager, waitingSource } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
@@ -70,6 +76,11 @@ describe('MediaLive channels manager', () => {
     });
 
     it('should create channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
       const packageChannelId = '456789';
@@ -105,6 +116,11 @@ describe('MediaLive channels manager', () => {
 
   describe('startChannel', () => {
     it('should start channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const channelId = '812345';
       const eventId = '0b7bc597-1be8-4634-8cbf-54ffb7668fe6';
@@ -124,6 +140,11 @@ describe('MediaLive channels manager', () => {
     });
 
     it('should create schedule', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const channelId = '812345';
       const eventId = '0b7bc597-1be8-4634-8cbf-54ffb7668fe6';
@@ -162,6 +183,11 @@ describe('MediaLive channels manager', () => {
 
   describe('stopChannel', () => {
     it('should stop channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const channelId = '812345';
 
@@ -177,6 +203,11 @@ describe('MediaLive channels manager', () => {
 
   describe('deleteChannel', () => {
     it('should delete channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const channelId = '812345';
 
@@ -192,6 +223,11 @@ describe('MediaLive channels manager', () => {
 
   describe('deleteInput', () => {
     it('should delete input', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaLive channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaLiveChannelsManager } = setup();
       const inputId = '812345';
 

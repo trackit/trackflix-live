@@ -49,3 +49,8 @@ vitest.config.*.timestamp*
 
 # AWS SAM files
 .aws-sam
+
+# Allure files
+allure-results
+allure-merged-results
+allure-report

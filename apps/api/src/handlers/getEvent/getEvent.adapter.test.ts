@@ -6,9 +6,15 @@ import {
   tokenGetEventUseCase,
   EventDoesNotExistError,
 } from '@trackflix-live/api-events';
+import * as allure from 'allure-js-commons';
 
 describe('Get event adapter', () => {
   it('should call use case', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
 
     const event = EventMother.basic().build();
@@ -23,6 +29,11 @@ describe('Get event adapter', () => {
   });
 
   it('should return successful response', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
 
     const event = EventMother.basic().build();
@@ -41,6 +52,11 @@ describe('Get event adapter', () => {
   });
 
   it('should return 400 response if no id is provided', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({} as APIGatewayProxyEventV2);
@@ -49,6 +65,11 @@ describe('Get event adapter', () => {
   });
 
   it('should return 404 response if event is not found', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
 
     useCase.getEvent.mockRejectedValue(new EventDoesNotExistError());

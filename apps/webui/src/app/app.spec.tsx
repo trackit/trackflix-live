@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { beforeAll, describe, it, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as allure from 'allure-js-commons';
 
 import App from './app';
 
@@ -25,6 +26,11 @@ beforeAll(() => {
 
 describe('App', () => {
   it('should render successfully', () => {
+    allure.feature('Essential features');
+    allure.story('Basic functionality');
+    allure.owner('Alexis Le Dinh');
+    allure.severity('critical');
+
     const queryClient = new QueryClient();
 
     const { baseElement } = render(

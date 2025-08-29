@@ -9,9 +9,15 @@ import {
   tokenDeleteEventUseCase,
 } from '@trackflix-live/api-events';
 import { CustomRequestContext } from '../types';
+import * as allure from 'allure-js-commons';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
 
     await adapter.handle({
@@ -34,6 +40,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return successful response', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const response = await adapter.handle({
       pathParameters: {
@@ -55,6 +66,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 404 if the event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockRejectedValue(new NotFoundError());
 
@@ -76,6 +92,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 400 if the event status is not PRE_TX', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockRejectedValue(
       new EventCannotBeDeletedIfNotOnPreTxError()
@@ -102,6 +123,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 400 if the event is on air', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockRejectedValue(
       new EventCannotBeDeletedWhileOnAirError()
@@ -128,6 +154,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 403 response if use case throws an AuthorizationError', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockRejectedValue(new AuthorizationError());
 
@@ -152,6 +183,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should handle cognito:groups as a string', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockResolvedValue(undefined);
 
@@ -175,6 +211,11 @@ describe('Delete Event adapter', () => {
   });
 
   it('should handle empty cognito:groups', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     useCase.deleteEvent.mockRejectedValue(new AuthorizationError());
 

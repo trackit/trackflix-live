@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-iot-data-plane';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
 import { AttachPolicyCommand, IoTClient } from '@aws-sdk/client-iot';
+import * as allure from 'allure-js-commons';
 
 describe('Events Iot Update Sender', () => {
   const dataPlaneMock = mockClient(IoTDataPlaneClient);
@@ -18,6 +19,11 @@ describe('Events Iot Update Sender', () => {
 
   describe('send', () => {
     it('should send event update', async () => {
+      await allure.feature('Live updates');
+      await allure.story('Events updates');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { eventsIotUpdateSender, iotTopicName } = setup();
       const event = EventMother.basic().build();
 
@@ -44,6 +50,11 @@ describe('Events Iot Update Sender', () => {
 
   describe('attachPolicyToIdentity', () => {
     it('should attach policy', async () => {
+      await allure.feature('Live updates');
+      await allure.story('IOT Policy setup');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { eventsIotUpdateSender, iotPolicy } = setup();
       const identityId = 'my_identity_id';
 

@@ -8,6 +8,7 @@ import {
 } from '@aws-sdk/client-mediapackage';
 import { MediaPackageChannelsManager } from './MediaPackageChannelsManager';
 import { EndpointType, EventEndpoint } from '@trackflix-live/types';
+import * as allure from 'allure-js-commons';
 
 describe('MediaPackage channels manager', () => {
   const mock = mockClient(MediaPackageClient);
@@ -18,6 +19,11 @@ describe('MediaPackage channels manager', () => {
 
   describe('createChannel', () => {
     it('should create channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaPackage channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaPackageChannelsManager } = setup();
       const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
       const endpoints: EventEndpoint[] = [
@@ -50,6 +56,11 @@ describe('MediaPackage channels manager', () => {
     });
 
     it('should create HLS and DASH endpoints', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaPackage channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaPackageChannelsManager } = setup();
       const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
       const endpoints: EventEndpoint[] = [
@@ -94,6 +105,11 @@ describe('MediaPackage channels manager', () => {
 
   describe('deleteChannel', () => {
     it('should delete channel', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaPackage channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaPackageChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
 
@@ -107,6 +123,11 @@ describe('MediaPackage channels manager', () => {
     });
 
     it('should delete HLS and DASH endpoints', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('MediaPackage channel');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { mediaPackageChannelsManager } = setup();
       const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
 

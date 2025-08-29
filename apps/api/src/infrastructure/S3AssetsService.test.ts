@@ -1,6 +1,7 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import { S3AssetsService } from './S3AssetsService';
+import * as allure from 'allure-js-commons';
 
 describe('S3AssetsService', () => {
   const mock = mockClient(S3Client);
@@ -10,6 +11,11 @@ describe('S3AssetsService', () => {
   });
 
   it('should return true if asset exists', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('S3 file');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { s3AssetsService } = setup();
 
     mock.resolvesOnce({
@@ -22,6 +28,11 @@ describe('S3AssetsService', () => {
   });
 
   it('should return false if asset does not exist', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('S3 file');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { s3AssetsService } = setup();
 
     mock.rejectsOnce(

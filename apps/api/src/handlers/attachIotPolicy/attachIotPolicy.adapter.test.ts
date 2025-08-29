@@ -2,9 +2,15 @@ import { AttachIotPolicyAdapter } from './attachIotPolicy.adapter';
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { register, reset } from '@trackflix-live/di';
 import { tokenAttachIotPolicyUseCase } from '@trackflix-live/api-events';
+import * as allure from 'allure-js-commons';
 
 describe('Attach Iot Policy adapter', () => {
   it('should call use case', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter, useCase } = setup();
     const identityId = 'be35ca18-685f-4b26-aa2b-f454d921f1cd';
 
@@ -18,6 +24,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return successful response', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
 
     const response = await adapter.handle({
@@ -33,6 +44,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if no body is provided', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
     const response = await adapter.handle({
       body: undefined,
@@ -45,6 +61,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if body is not json', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
     const response = await adapter.handle({
       body: 'invalid json',
@@ -57,6 +78,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if body does not match schema', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { adapter } = setup();
     const response = await adapter.handle({
       body: JSON.stringify({

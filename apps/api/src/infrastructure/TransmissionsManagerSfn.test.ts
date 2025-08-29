@@ -5,6 +5,7 @@ import {
   StartExecutionCommand,
 } from '@aws-sdk/client-sfn';
 import { TransmissionsManagerSfn } from './TransmissionsManagerSfn';
+import * as allure from 'allure-js-commons';
 
 describe('Transmissions Manager Sfn', () => {
   const mock = mockClient(SFNClient);
@@ -15,6 +16,11 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('startTransmission', () => {
     it('should start state machine execution', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('Start transmission');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { transmissionsManager, startTransmissionStateMachineArn } =
         setup();
       const eventId = '49688a8e-2ab8-45f8-97fe-f0b649442bf4';
@@ -40,6 +46,11 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('resumeStartTransmission', () => {
     it('should resume start state machine execution', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('Resume transmission');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { transmissionsManager } = setup();
       const taskToken = 'sample_task_token';
       const output = {
@@ -65,6 +76,11 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('stopTransmission', () => {
     it('should start state machine execution', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('Stop transmission');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
+
       const { transmissionsManager, stopTransmissionStateMachineArn } = setup();
       const eventId = '49688a8e-2ab8-45f8-97fe-f0b649442bf4';
       const executionArn =

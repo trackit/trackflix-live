@@ -16,7 +16,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    reporters: ['default'],
+    setupFiles: ['allure-vitest/setup'],
+    reporters: [
+      'default',
+      ['allure-vitest/reporter', { resultsDir: 'allure-results' }],
+    ],
     coverage: {
       reportsDirectory: '../../../coverage/libs/single-asset-flow',
       provider: 'v8',

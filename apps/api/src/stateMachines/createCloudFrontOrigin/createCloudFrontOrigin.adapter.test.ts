@@ -2,9 +2,15 @@ import { register, reset } from '@trackflix-live/di';
 import { tokenCreateCDNOriginUseCase } from '@trackflix-live/api-events';
 import { CreateCloudFrontOriginAdapter } from './createCloudFrontOrigin.adapter';
 import { EndpointType, EventEndpoint } from '@trackflix-live/types';
+import * as allure from 'allure-js-commons';
 
 describe('Create CloudFront origin', () => {
   it('should call use case', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('CloudFront distribution');
+    await allure.owner('Mathis Lorenzo');
+    await allure.severity('normal');
+
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
     const packageDomainName = 'test.cloudfront.net';

@@ -17,6 +17,13 @@
       "options": {
         "cwd": "libs/shared/types"
       }
+    },
+    "test": {
+      "options": {
+        "env": {
+          "ALLURE_LABEL_epic": "Shared"
+        }
+      }
     }
   }
 }

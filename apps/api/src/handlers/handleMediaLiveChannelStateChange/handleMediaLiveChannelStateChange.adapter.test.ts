@@ -2,9 +2,15 @@ import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChann
 import { EventBridgeEvent } from 'aws-lambda';
 import { register, reset } from '@trackflix-live/di';
 import { tokenHandleLiveChannelStateChangeUseCase } from '@trackflix-live/api-events';
+import * as allure from 'allure-js-commons';
 
 describe('Handle MediaLive channel state change adapter', () => {
   it('should call use case', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('MediaLive channel');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, adapter } = setup();
     const channelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';

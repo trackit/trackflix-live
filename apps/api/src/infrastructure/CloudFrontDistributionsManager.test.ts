@@ -10,6 +10,7 @@ import {
 } from '@aws-sdk/client-cloudfront';
 import { CloudFrontDistributionsManager } from './CloudFrontDistributionsManager';
 import { EndpointType, EventEndpoint } from '@trackflix-live/types';
+import * as allure from 'allure-js-commons';
 
 describe('CloudFront distributions manager', () => {
   const mock = mockClient(CloudFrontClient);
@@ -80,6 +81,11 @@ describe('CloudFront distributions manager', () => {
 
   describe('getDistribution', () => {
     it('should get distribution', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('CloudFront distribution');
+      await allure.owner('Mathis Lorenzo');
+      await allure.severity('normal');
+
       const { cloudFrontDistributionsManager, distributionId } = setup();
 
       mock
@@ -95,6 +101,11 @@ describe('CloudFront distributions manager', () => {
     });
 
     it('should throw if distribution not found', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('CloudFront distribution');
+      await allure.owner('Mathis Lorenzo');
+      await allure.severity('normal');
+
       const { cloudFrontDistributionsManager } = setup();
 
       mock.on(GetDistributionCommand).resolves({});
@@ -107,6 +118,11 @@ describe('CloudFront distributions manager', () => {
 
   describe('createOrigin', () => {
     it('should create origin', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('CloudFront distribution');
+      await allure.owner('Mathis Lorenzo');
+      await allure.severity('normal');
+
       const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'test-event-id';
       const packageDomainName = 'test-domain-name';
@@ -179,6 +195,11 @@ describe('CloudFront distributions manager', () => {
 
   describe('deleteOrigin', () => {
     it('should delete origin and associated cache behaviors', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('CloudFront distribution');
+      await allure.owner('Mathis Lorenzo');
+      await allure.severity('normal');
+
       const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'test-event-id';
 
@@ -332,6 +353,11 @@ describe('CloudFront distributions manager', () => {
     });
 
     it('should not fail if origin does not exist', async () => {
+      await allure.feature('Live resources management');
+      await allure.story('CloudFront distribution');
+      await allure.owner('Mathis Lorenzo');
+      await allure.severity('normal');
+
       const { cloudFrontDistributionsManager, distributionId } = setup();
       const eventId = 'non-existent-event-id';
 

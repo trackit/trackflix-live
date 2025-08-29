@@ -13,6 +13,7 @@ import {
   LogType,
 } from '@trackflix-live/types';
 import { EventDoesNotExistError } from '@trackflix-live/api-events';
+import * as allure from 'allure-js-commons';
 
 describe('EventsDynamoDBRepository', () => {
   beforeEach(async () => {
@@ -27,6 +28,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('createEvent', () => {
     it('should create an event in DynamoDB', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event creation');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -47,6 +53,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('listEvents', () => {
     it('should list events from DynamoDB', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -59,6 +70,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return events in multiple requests if limit is less than the number of events', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       await repository.createEvent(
@@ -92,6 +108,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const event1 = EventMother.basic()
@@ -119,6 +140,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in desc order', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const event1 = EventMother.basic()
@@ -147,6 +173,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order and using pagination', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const event1 = EventMother.basic()
@@ -182,6 +213,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const event1 = EventMother.basic()
@@ -204,6 +240,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified in any order', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const event1 = EventMother.basic()
@@ -235,6 +276,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('getEvent', () => {
     it('should get an event from DynamoDB', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -248,6 +294,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('appendLogsToEvent', () => {
     it('should append logs to an event', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -277,6 +328,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventStatus', () => {
     it('should update event status', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic()
@@ -303,6 +359,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveChannelArn', () => {
     it('should update event live channel arn', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -329,6 +390,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveChannelId', () => {
     it('should update event live channel id', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -354,6 +420,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveInputId', () => {
     it('should update event live input id', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -379,6 +450,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveWaitingInputId', () => {
     it('should update event live waiting input id', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -407,6 +483,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventDestroyedTime', () => {
     it('should update event destroyed time', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -432,6 +513,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updatePackageDomainName', () => {
     it('should update event package domain name', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -460,6 +546,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventEndpoints', () => {
     it('should update event endpoints', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event update');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { ddbClient, repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -494,6 +585,11 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('deleteEvent', () => {
     it('should delete an event from DynamoDB', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event deletion');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       const sampleEvent = EventMother.basic().build();
@@ -504,6 +600,11 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should throw a NotFoundError when deleting an item that does not exist', async () => {
+      await allure.feature('Events management');
+      await allure.story('Event deletion');
+      await allure.owner('Nathan de Balthasar');
+      await allure.severity('normal');
+
       const { repository } = setup();
 
       await expect(repository.deleteEvent('non-existing-id')).rejects.toThrow(
