@@ -6,9 +6,15 @@ import { tokenEventSchedulerDeleteFake } from '../../infrastructure/EventSchedul
 import { registerTestInfrastructure } from '../../infrastructure';
 import { EventDoesNotExistError } from '../../utils/errors';
 import { AuthorizationError } from '../../utils';
+import * as allure from 'allure-js-commons';
 
 describe('DeleteEvent use case', () => {
   it('should delete event', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
 
     const event = EventMother.basic().build();
@@ -20,25 +26,43 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw an error if the event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase } = setup();
 
-    await expect(useCase.deleteEvent({ eventId: 'non-existing-id', userGroups: ['Creators'] })).rejects.toThrow(
-      EventDoesNotExistError
-    );
+    await expect(
+      useCase.deleteEvent({
+        eventId: 'non-existing-id',
+        userGroups: ['Creators'],
+      })
+    ).rejects.toThrow(EventDoesNotExistError);
   });
 
   it('should throw an error if the event status is not PRE_TX', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
 
     const event = EventMother.basic().withStatus(EventStatus.POST_TX).build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
-      'Event cannot be deleted'
-    );
+    await expect(
+      useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })
+    ).rejects.toThrow('Event cannot be deleted');
   });
 
   it('should throw an error if the current time is between onAirStartTime (-6min) and onAirEndTime', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2025-01-01T04:56:00Z'));
@@ -49,12 +73,17 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
-      'Cannot delete event while it is on air'
-    );
+    await expect(
+      useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })
+    ).rejects.toThrow('Cannot delete event while it is on air');
   });
 
   it('should delete schedules', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event scheduling');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase, eventSchedulerDelete } = setup();
 
     const event = EventMother.basic()
@@ -70,6 +99,11 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw if user is not in Creators group', async () => {
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
 
     const event = EventMother.basic().build();

@@ -9,9 +9,15 @@ import {
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
+import * as allure from 'allure-js-commons';
 
 describe('Create live channel use case', () => {
   it('should create live channel', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('MediaLive channel');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, liveChannelsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const taskToken = 'sample_task_token';
@@ -55,6 +61,11 @@ describe('Create live channel use case', () => {
   });
 
   it('should create task token', async () => {
+    await allure.feature('Task tokens management');
+    await allure.story('Token creation');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const {
       useCase,
       eventsRepository,
@@ -103,6 +114,11 @@ describe('Create live channel use case', () => {
   });
 
   it('should store logs after creating the live channel', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, liveChannelsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const taskToken = 'sample_task_token';
@@ -139,6 +155,11 @@ describe('Create live channel use case', () => {
   });
 
   it('should store resources ids after creating the live channel', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, liveChannelsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const taskToken = 'sample_task_token';
@@ -177,6 +198,11 @@ describe('Create live channel use case', () => {
   });
 
   it('should emit logs after creating the live channel', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const {
       useCase,
       eventsRepository,
@@ -226,6 +252,11 @@ describe('Create live channel use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event creation');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
     const taskToken = 'sample_task_token';

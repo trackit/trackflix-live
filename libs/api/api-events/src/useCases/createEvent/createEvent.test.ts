@@ -11,9 +11,15 @@ import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { tokenAssetsServiceFake } from '../../infrastructure/AssetsServiceFake';
 import { AuthorizationError } from '../../utils';
+import * as allure from 'allure-js-commons';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event creation');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, assetsService, useCase } = setup();
     const source = 's3://videos/hello.mp4';
     assetsService.addAsset(source);
@@ -38,6 +44,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should send a live update', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventUpdateSender, assetsService } = setup();
     const source = 's3://videos/hello.mp4';
     assetsService.addAsset(source);
@@ -58,6 +69,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should schedule the creation of resources 5 minutes before air', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event scheduling');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventSchedulerStart, useCase, assetsService } = setup();
     const source = 's3://videos/hello.mp4';
     assetsService.addAsset(source);
@@ -78,6 +94,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should schedule the destruction of resources after air', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event scheduling');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventSchedulerStop, useCase, assetsService } = setup();
     const source = 's3://videos/hello.mp4';
     assetsService.addAsset(source);
@@ -98,6 +119,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should throw if asset does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event creation');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase } = setup();
 
     await expect(
@@ -111,6 +137,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should throw if user is not in Creators group', async () => {
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, assetsService } = setup();
     const source = 's3://videos/hello.mp4';
     assetsService.addAsset(source);

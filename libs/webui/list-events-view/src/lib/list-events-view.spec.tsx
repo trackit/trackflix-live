@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
+import * as allure from 'allure-js-commons';
 
 // Mock the API client properly
 vi.mock('@trackflix-live/api-client', () => ({
@@ -182,11 +183,21 @@ describe('ListEventsView', () => {
   });
 
   it('renders loading state initially', () => {
+    allure.feature('Events management');
+    allure.story('Event');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     renderWithClient(<ListAssetView />);
     expect(screen.getByTestId('loader')).toBeInTheDocument();
   });
 
   it('renders events after loading', async () => {
+    allure.feature('Events management');
+    allure.story('Event');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     renderWithClient(<ListAssetView />);
 
     await waitFor(() => {
@@ -196,6 +207,11 @@ describe('ListEventsView', () => {
   });
 
   it('handles pagination', async () => {
+    allure.feature('Events management');
+    allure.story('Event');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     renderWithClient(<ListAssetView />);
 
     await waitFor(() => {

@@ -7,9 +7,15 @@ import {
 import { DeleteLiveInputUseCaseImpl } from './deleteLiveInput';
 import { EventMother, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('Delete live input use case', () => {
   it('should delete live input', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('MediaLive channel');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { liveChannelsManager, eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveInputId = '8626488';
@@ -32,6 +38,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
 
@@ -43,6 +54,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not have live input id', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
 
@@ -60,6 +76,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not have live waiting input id', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveInputId = '8626488';
@@ -79,6 +100,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should add logs', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveInputId = '8626488';
@@ -112,6 +138,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should emit updates', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventUpdateSender, eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveInputId = '8626488';

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useUserStore } from './user-store';
+import * as allure from 'allure-js-commons';
 
 describe('User Store', () => {
   beforeEach(() => {
@@ -12,6 +13,11 @@ describe('User Store', () => {
   });
 
   it('should have initial state', () => {
+    allure.feature('Essential features');
+    allure.story('Roles');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const state = useUserStore.getState();
     expect(state.userSession).toBeNull();
     expect(state.user).toBeNull();
@@ -19,6 +25,11 @@ describe('User Store', () => {
   });
 
   it('should set user session', () => {
+    allure.feature('Essential features');
+    allure.story('Roles');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const mockSession = {
       tokens: {
         idToken: {
@@ -36,6 +47,16 @@ describe('User Store', () => {
   });
 
   it('should set isCreator to true when user has creators group', () => {
+    allure.feature('Essential features');
+    allure.story('Roles');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
+    allure.feature('Essential features');
+    allure.story('Roles');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const mockSession = {
       tokens: {
         idToken: {
@@ -52,6 +73,11 @@ describe('User Store', () => {
   });
 
   it('should set user', () => {
+    allure.feature('Essential features');
+    allure.story('Roles');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const mockUser = {
       username: 'testuser',
       userId: '123',

@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import TxTimeline from './tx-timeline';
+import * as allure from 'allure-js-commons';
 
 describe('TxTimeline', () => {
   beforeEach(() => {
@@ -13,6 +14,11 @@ describe('TxTimeline', () => {
   });
 
   it('should render all steps with their titles', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },
       { title: 'Processing', datetime: '2024-03-15T12:00:00.000Z' },
@@ -27,6 +33,11 @@ describe('TxTimeline', () => {
   });
 
   it('should format dates correctly', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [{ title: 'Start', datetime: '2024-03-15T11:55:00.000Z' }];
 
     render(<TxTimeline steps={steps} />);
@@ -38,6 +49,11 @@ describe('TxTimeline', () => {
   });
 
   it('should show -- for steps without datetime', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },
       { title: 'Processing' },
@@ -52,6 +68,11 @@ describe('TxTimeline', () => {
   });
 
   it('should handle invalid dates', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [{ title: 'Start', datetime: 'invalid-date' }];
 
     render(<TxTimeline steps={steps} />);
@@ -60,6 +81,11 @@ describe('TxTimeline', () => {
   });
 
   it('should render progress bar', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },
       { title: 'Processing', datetime: '2024-03-15T12:00:00.000Z' },

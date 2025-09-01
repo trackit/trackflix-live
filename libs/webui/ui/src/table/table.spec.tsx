@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
 import { MemoryRouter } from 'react-router';
 import '@testing-library/jest-dom';
+import * as allure from 'allure-js-commons';
 
 interface TestData {
   id: string;
@@ -45,6 +46,11 @@ describe('Table Component', () => {
   };
 
   it('renders table headers and data', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     setup();
     expect(screen.getByText('Name')).toBeVisible();
     expect(screen.getByText('John Doe')).toBeVisible();
@@ -52,11 +58,21 @@ describe('Table Component', () => {
   });
 
   it('displays loading state when isPending is true', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     setup({ isPending: true });
     expect(screen.getByTestId('loader')).toBeVisible();
   });
 
   it('handles pagination - next and previous', async () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const setNextToken = vi.fn();
     setup({ setNextToken, nextToken: 'token123' });
 
@@ -74,6 +90,11 @@ describe('Table Component', () => {
   });
 
   it('disables previous button on first page', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     setup();
     const prevButton = screen.getByRole('button', {
       name: 'Go to previous page',
@@ -82,6 +103,11 @@ describe('Table Component', () => {
   });
 
   it('changes rows per page when selecting a new value', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const setPerPage = vi.fn();
     setup({ setPerPage });
 

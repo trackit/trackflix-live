@@ -5,9 +5,15 @@ import {
 } from '../../infrastructure';
 import { EventMother, EventStatus } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('ListEvents use case', () => {
   it('should return a list of events', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     const sampleEvent = EventMother.basic().build();
@@ -21,6 +27,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should return an empty list if there are no events', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase } = setup();
 
     const events = await useCase.listEvents({
@@ -31,6 +42,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should return event in multiple requests if the limit is less than the number of events', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -58,6 +74,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items in ascending order', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -80,6 +101,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items in descending order', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -102,6 +128,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by name', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -123,6 +154,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by onAirStartTime', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -144,6 +180,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by onAirEndTime', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(
@@ -165,6 +206,11 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by status', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
 
     await eventsRepository.createEvent(

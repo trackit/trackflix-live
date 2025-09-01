@@ -5,8 +5,14 @@ import {
   tokenTransmissionsManagerFake,
 } from '../../infrastructure';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 describe('Handle live channel state change use case', () => {
   it('should do nothing if no task token exist', async () => {
+    await allure.feature('Task tokens management');
+    await allure.story('Token consumer');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase } = setup();
 
     await expect(
@@ -18,6 +24,11 @@ describe('Handle live channel state change use case', () => {
   });
 
   it('should consume task token and resume start transmission', async () => {
+    await allure.feature('Task tokens management');
+    await allure.story('Token consumer');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, taskTokensRepository, transmissionsManager } = setup();
     const channelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';

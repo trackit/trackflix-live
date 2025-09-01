@@ -1,10 +1,16 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import * as allure from 'allure-js-commons';
 
 import Timeline from './timeline';
 
 describe('Timeline', () => {
   it('should render successfully with basic steps', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [{ text: 'Step 1' }, { text: 'Step 2' }, { text: 'Step 3' }];
 
     const { baseElement } = render(<Timeline steps={steps} />);
@@ -17,6 +23,11 @@ describe('Timeline', () => {
   });
 
   it('should render completed steps with primary color', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [
       { text: 'Step 1', completed: true },
       { text: 'Step 2', completed: true },
@@ -34,6 +45,11 @@ describe('Timeline', () => {
   });
 
   it('should render loading spinner for steps in loading state', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps = [
       { text: 'Step 1', completed: true },
       { text: 'Step 2', loading: true },
@@ -48,6 +64,11 @@ describe('Timeline', () => {
   });
 
   it('should render empty steps array', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const steps: { text: string; completed?: boolean; loading?: boolean }[] =
       [];
 

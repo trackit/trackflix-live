@@ -10,9 +10,15 @@ import {
   EventUpdateAction,
 } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('Update status use case', () => {
   it('should emit event', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, eventUpdateSender } = setup();
     const event = EventMother.basic().build();
 
@@ -31,6 +37,11 @@ describe('Update status use case', () => {
   });
 
   it('should update event status to TX', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
     const event = EventMother.basic().withStatus(EventStatus.PRE_TX).build();
 

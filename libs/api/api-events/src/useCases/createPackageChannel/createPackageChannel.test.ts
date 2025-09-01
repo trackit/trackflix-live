@@ -12,9 +12,15 @@ import {
   LogType,
 } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('Create Package channel use case', () => {
   it('should create channel', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('MediaLive channel');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
@@ -30,6 +36,11 @@ describe('Create Package channel use case', () => {
   });
 
   it('should store logs', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
@@ -49,6 +60,11 @@ describe('Create Package channel use case', () => {
   });
 
   it('should store endpoints', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
@@ -82,6 +98,11 @@ describe('Create Package channel use case', () => {
   });
 
   it('should update package domain name', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase, packageChannelsManager, eventsRepository } = setup();
     const packageChannelId = '8123456';
 
@@ -98,10 +119,17 @@ describe('Create Package channel use case', () => {
 
     await useCase.createPackageChannel(event.id);
 
-    expect(eventsRepository.events[0].packageDomainName).toEqual('trackflix-live.mediapackage.com');
+    expect(eventsRepository.events[0].packageDomainName).toEqual(
+      'trackflix-live.mediapackage.com'
+    );
   });
 
   it('should emit events', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const {
       useCase,
       packageChannelsManager,

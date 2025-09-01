@@ -4,6 +4,7 @@ import { register } from './register';
 import { inject } from './inject';
 import { reset } from './reset';
 import { createInjectionToken } from './DIToken';
+import * as allure from 'allure-js-commons';
 
 type NumberGetter = {
   getNumber: () => number;
@@ -26,6 +27,11 @@ describe('di-container', () => {
   describe('register', () => {
     describe('basic usage', () => {
       it('should register a dependency through use value', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useValue: new OneGetter() });
 
         const getter = inject<NumberGetter>(NumberGetterToken);
@@ -34,6 +40,11 @@ describe('di-container', () => {
       });
 
       it('should register a dependency through use class', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useClass: OneGetter });
 
         const getter = inject<NumberGetter>(NumberGetterToken);
@@ -42,6 +53,11 @@ describe('di-container', () => {
       });
 
       it('should register a dependency through use factory', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useFactory: () => new OneGetter() });
 
         const getter = inject<NumberGetter>(NumberGetterToken);
@@ -62,6 +78,11 @@ describe('di-container', () => {
       }
 
       it('should allow injection of dependencies', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useValue: new OneGetter() });
 
         const logger = new NumberLogger();
@@ -91,6 +112,11 @@ describe('di-container', () => {
         createInjectionToken<ExternalNumberLogger>(ExternalNumberLogger.name);
 
       it('should register an external dependency through use factory with dependencies', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useValue: new OneGetter() });
         register(ExternalNumberLoggerToken, {
           useFactory: () => new ExternalNumberLogger(inject(NumberGetterToken)),
@@ -106,6 +132,11 @@ describe('di-container', () => {
       });
 
       it('should register an external dependency through use value with dependencies', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useValue: new OneGetter() });
         register(ExternalNumberLoggerToken, {
           useValue: new ExternalNumberLogger(inject(NumberGetterToken)),
@@ -123,6 +154,11 @@ describe('di-container', () => {
 
     describe('no override', () => {
       it('should throw an error when registering a dependency twice', () => {
+        allure.feature('Essential features');
+        allure.story('Dependency Injection');
+        allure.owner('Alexandre Sauner');
+        allure.severity('normal');
+
         register(NumberGetterToken, { useValue: new OneGetter() });
 
         expect(() =>
@@ -134,6 +170,11 @@ describe('di-container', () => {
 
   describe('reset', () => {
     it('should reset the container', () => {
+      allure.feature('Essential features');
+      allure.story('Dependency Injection');
+      allure.owner('Alexandre Sauner');
+      allure.severity('normal');
+
       register(NumberGetterToken, { useValue: new OneGetter() });
 
       const getter = inject<NumberGetter>(NumberGetterToken);

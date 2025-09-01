@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ThemeSwitcher, { THEME_KEYS } from './theme-switcher';
 import { useDarkMode } from 'usehooks-ts';
 import '@testing-library/jest-dom';
+import * as allure from 'allure-js-commons';
 
 // Mock the entire usehooks-ts module
 vi.mock('usehooks-ts', () => ({
@@ -43,11 +44,21 @@ describe('ThemeSwitcher', () => {
   });
 
   it('should render successfully', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const { baseElement } = render(<ThemeSwitcher />);
     expect(baseElement).toBeTruthy();
   });
 
   it('should render toggle checkbox and icons', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<ThemeSwitcher />);
 
     expect(screen.getByRole('checkbox')).toBeTruthy();
@@ -61,6 +72,11 @@ describe('ThemeSwitcher', () => {
   });
 
   it('should toggle theme when checkbox is clicked', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<ThemeSwitcher />);
 
     const checkbox = screen.getByRole('checkbox');
@@ -70,6 +86,11 @@ describe('ThemeSwitcher', () => {
   });
 
   it('should set light theme attribute when isDarkMode is false', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<ThemeSwitcher />);
 
     expect(document.documentElement.getAttribute('data-theme')).toBe(
@@ -78,6 +99,11 @@ describe('ThemeSwitcher', () => {
   });
 
   it('should set dark theme attribute when isDarkMode is true', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     vi.mocked(useDarkMode).mockImplementation(() => ({
       isDarkMode: true,
       toggle: mockToggle,
@@ -94,6 +120,11 @@ describe('ThemeSwitcher', () => {
   });
 
   it('should update checkbox state based on isDarkMode', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     vi.mocked(useDarkMode).mockImplementation(() => ({
       isDarkMode: true,
       toggle: vi.fn(),

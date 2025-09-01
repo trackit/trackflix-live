@@ -9,16 +9,20 @@ import {
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
+import * as allure from 'allure-js-commons';
 
 describe('Delete CDN origin use case', () => {
   it('should delete CDN origin', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('CloudFront distribution');
+    await allure.owner('Mathis Lorenzo');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, cdnDistributionsManager } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({
@@ -33,13 +37,16 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should store logs after deleting the CDN origin', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Mathis Lorenzo');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({
@@ -55,17 +62,16 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should emit logs after deleting the CDN origin', async () => {
-    const {
-      useCase,
-      eventsRepository,
-      eventUpdateSender,
-    } = setup();
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Mathis Lorenzo');
+    await allure.severity('normal');
+
+    const { useCase, eventsRepository, eventUpdateSender } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({
@@ -89,6 +95,11 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Mathis Lorenzo');
+    await allure.severity('normal');
+
     const { useCase } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 

@@ -6,9 +6,15 @@ import {
 import { SaveResultsUseCaseImpl } from './saveResults';
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('Save results use case', () => {
   it('should store LIVE_CHANNEL_STARTED log event', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository } = setup();
     const event = EventMother.basic().build();
 
@@ -27,6 +33,11 @@ describe('Save results use case', () => {
   });
 
   it('should emit event', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Nathan de Balthasar');
+    await allure.severity('normal');
+
     const { useCase, eventsRepository, eventUpdateSender } = setup();
     const event = EventMother.basic().build();
 

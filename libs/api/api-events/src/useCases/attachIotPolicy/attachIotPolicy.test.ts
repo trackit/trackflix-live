@@ -4,9 +4,15 @@ import {
   registerTestInfrastructure,
 } from '../../infrastructure';
 import { inject, reset } from '@trackflix-live/di';
+import * as allure from 'allure-js-commons';
 
 describe('Attach Iot policy use case', () => {
   it('should attach policy', async () => {
+    await allure.feature('Live updates');
+    await allure.story('IOT Policy setup');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventUpdateSender, useCase } = setup();
     const identityId = '9c99241d-8cfe-4af9-9894-a7a6961fadb3';
 

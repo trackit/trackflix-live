@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import CopyText from './copy-text';
 import '@testing-library/jest-dom';
+import * as allure from 'allure-js-commons';
 
 describe('CopyText', () => {
   beforeEach(() => {
@@ -21,16 +22,31 @@ describe('CopyText', () => {
   });
 
   it('renders text content', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<CopyText text="Test content" />);
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
   it('shows copy button by default', () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<CopyText text="Test content" />);
     expect(screen.getByText('Copy')).toBeInTheDocument();
   });
 
   it('changes button text and icon when clicked', async () => {
+    allure.feature('Essential features');
+    allure.story('UI components');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(<CopyText text="Test content" />);
 
     const button = screen.getByRole('button');

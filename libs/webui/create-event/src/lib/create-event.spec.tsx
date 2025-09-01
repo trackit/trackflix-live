@@ -4,6 +4,7 @@ import CreateEvent from './create-event';
 import { postEvent } from '@trackflix-live/api-client';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import * as allure from 'allure-js-commons';
 
 // Mock the api-client
 vi.mock('@trackflix-live/api-client', () => ({
@@ -39,6 +40,11 @@ describe('SingleAssetFlow', () => {
   });
 
   it('should render successfully', () => {
+    allure.feature('Events management');
+    allure.story('Event creation');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     const { baseElement } = render(
       <MemoryRouter>
         <CreateEvent />
@@ -49,6 +55,11 @@ describe('SingleAssetFlow', () => {
   });
 
   it('should handle form submission successfully', async () => {
+    allure.feature('Events management');
+    allure.story('Event creation');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     render(
       <MemoryRouter>
         <CreateEvent />
@@ -68,6 +79,11 @@ describe('SingleAssetFlow', () => {
   });
 
   it('should handle submission errors', async () => {
+    allure.feature('Events management');
+    allure.story('Event creation');
+    allure.owner('Alexis le Dinh');
+    allure.severity('normal');
+
     // Mock console.error to prevent error output in tests
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn());
 

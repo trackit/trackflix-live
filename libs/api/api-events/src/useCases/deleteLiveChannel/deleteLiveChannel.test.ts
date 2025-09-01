@@ -9,9 +9,15 @@ import { DeleteLiveChannelUseCaseImpl } from './deleteLiveChannel';
 import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
+import * as allure from 'allure-js-commons';
 
 describe('Delete live channel use case', () => {
   it('should delete live channel', async () => {
+    await allure.feature('Live resources management');
+    await allure.story('MediaLive channel');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { liveChannelsManager, eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelArn =
@@ -33,6 +39,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should create task token', async () => {
+    await allure.feature('Task tokens management');
+    await allure.story('Token creation');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, taskTokensRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelArn =
@@ -65,6 +76,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
 
@@ -77,6 +93,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should throw if event does not have live channel id', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelArn =
@@ -98,6 +119,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should throw if event does not have live channel arn', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event deletion');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelId = '8626488';
@@ -118,6 +144,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should append live channel stopped log', async () => {
+    await allure.feature('Events management');
+    await allure.story('Event update');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelArn =
@@ -144,6 +175,11 @@ describe('Delete live channel use case', () => {
   });
 
   it('should emit live update', async () => {
+    await allure.feature('Live updates');
+    await allure.story('Events updates');
+    await allure.owner('Alexandre Sauner');
+    await allure.severity('normal');
+
     const { eventUpdateSender, eventsRepository, useCase } = setup();
     const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
     const liveChannelArn =
