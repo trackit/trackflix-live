@@ -38,6 +38,7 @@ export default defineConfig({
       ['allure-vitest/reporter', { resultsDir: 'allure-results' }],
     ],
     coverage: {
+      enabled: true,
       reportsDirectory: '../../coverage/apps/webui',
       provider: 'v8',
     },
