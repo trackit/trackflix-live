@@ -40,7 +40,8 @@ export default defineConfig({
     coverage: {
       enabled: true,
       reportsDirectory: '../../coverage/apps/webui',
-      provider: 'v8',
+      provider: 'istanbul',
+      reporter: ['json'],
     },
   },
 });

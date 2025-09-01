@@ -8,5 +8,6 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   collectCoverage: true,
   coverageDirectory: '../../coverage/apps/api',
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['json'],
+  coverageProvider: 'babel',
 };
