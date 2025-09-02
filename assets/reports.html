@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .title {
+      color: #212529;
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin-bottom: 20px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 16px 40px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .business {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+    }
+
+    .business:hover {
+      background: linear-gradient(135deg, #3a8bfd 0%, #00d4fd 100%);
+      color: white;
+    }
+
+    .technical {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      color: white;
+    }
+
+    .technical:hover {
+      background: linear-gradient(135deg, #36d966 0%, #2ee6c4 100%);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 class="title">Reports Dashboard</h1>
+  <a href="/allure-report" class="button business">Business Report</a>
+  <a href="/coverage-report" class="button technical">Technical Report</a>
+</div>
+</body>
+</html>

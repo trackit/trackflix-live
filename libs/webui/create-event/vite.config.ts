@@ -22,8 +22,10 @@ export default defineConfig({
       ['allure-vitest/reporter', { resultsDir: 'allure-results' }],
     ],
     coverage: {
-      reportsDirectory: '../../../coverage/libs/single-asset-flow',
-      provider: 'v8',
+      enabled: true,
+      reportsDirectory: '../../coverage/libs/single-asset-flow',
+      provider: 'istanbul',
+      reporter: ['json'],
     },
   },
 });

@@ -22,8 +22,10 @@ export default defineConfig({
       ['allure-vitest/reporter', { resultsDir: 'allure-results' }],
     ],
     coverage: {
+      enabled: true,
       reportsDirectory: '../../../coverage/libs/webui/stores',
-      provider: 'v8',
+      provider: 'istanbul',
+      reporter: ['json'],
     },
   },
 });
