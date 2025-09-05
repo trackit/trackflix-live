@@ -1,0 +1,19 @@
+{
+  "name": "reports",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "targets": {
+    "clearAllureResults": {
+      "command": "bash scripts/clearAllureResults.sh"
+    },
+    "generateAllureReport": {
+      "command": "bash scripts/generateAllureReport.sh"
+    },
+    "generateCoverageReport": {
+      "command": "bash scripts/generateCoverageReport.sh"
+    },
+    "generateReports": {
+      "command": "bash scripts/generateReports.sh"
+    }
+  }
+}
