@@ -32,6 +32,15 @@ More information in the Back-end [README.md](apps/api/README.md)
 
 More information in the Back-end [README.md](apps/webui/README.md)
 
+# Test reports
+
+Tests reports (one business report and one technical code coverage report) can be generated using the following command:
+```shell
+$ nx run reports:generateReports
+```
+You must ensure that all tests have been executed previously to generating the reports.
+The reports will be available in the `final-report` folder.
+
 # License
 
 Copyright 2025 TrackIt
