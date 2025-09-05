@@ -26,7 +26,8 @@ beforeAll(() => {
 
 describe('App', () => {
   it('should render successfully', () => {
-    allure.feature('Essential features');
+    allure.epic('Misc');
+    allure.feature('Web interface');
     allure.story('Basic functionality');
     allure.owner('Alexis Le Dinh');
     allure.severity('critical');

@@ -43,21 +43,23 @@ describe('ThemeSwitcher', () => {
     }));
   });
 
-  it('should render successfully', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render successfully', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { baseElement } = render(<ThemeSwitcher />);
     expect(baseElement).toBeTruthy();
   });
 
-  it('should render toggle checkbox and icons', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render toggle checkbox and icons', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<ThemeSwitcher />);
 
@@ -71,11 +73,12 @@ describe('ThemeSwitcher', () => {
     expect(svgs).toHaveLength(2);
   });
 
-  it('should toggle theme when checkbox is clicked', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should toggle theme when checkbox is clicked', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<ThemeSwitcher />);
 
@@ -85,11 +88,12 @@ describe('ThemeSwitcher', () => {
     expect(mockToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('should set light theme attribute when isDarkMode is false', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should set light theme attribute when isDarkMode is false', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<ThemeSwitcher />);
 
@@ -98,11 +102,12 @@ describe('ThemeSwitcher', () => {
     );
   });
 
-  it('should set dark theme attribute when isDarkMode is true', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should set dark theme attribute when isDarkMode is true', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     vi.mocked(useDarkMode).mockImplementation(() => ({
       isDarkMode: true,
@@ -119,11 +124,12 @@ describe('ThemeSwitcher', () => {
     );
   });
 
-  it('should update checkbox state based on isDarkMode', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should update checkbox state based on isDarkMode', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     vi.mocked(useDarkMode).mockImplementation(() => ({
       isDarkMode: true,

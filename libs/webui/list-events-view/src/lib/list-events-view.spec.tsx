@@ -182,21 +182,23 @@ describe('ListEventsView', () => {
     vi.clearAllMocks(); // Clear mocks between tests
   });
 
-  it('renders loading state initially', () => {
-    allure.feature('Events management');
-    allure.story('Event');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('renders loading state initially', async () => {
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     renderWithClient(<ListAssetView />);
     expect(screen.getByTestId('loader')).toBeInTheDocument();
   });
 
   it('renders events after loading', async () => {
-    allure.feature('Events management');
-    allure.story('Event');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     renderWithClient(<ListAssetView />);
 
@@ -207,10 +209,11 @@ describe('ListEventsView', () => {
   });
 
   it('handles pagination', async () => {
-    allure.feature('Events management');
-    allure.story('Event');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     renderWithClient(<ListAssetView />);
 

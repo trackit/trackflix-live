@@ -8,6 +8,7 @@ import { inject, reset } from '@trackflix-live/di';
 import * as allure from 'allure-js-commons';
 describe('Handle live channel state change use case', () => {
   it('should do nothing if no task token exist', async () => {
+    await allure.epic('Misc');
     await allure.feature('Task tokens management');
     await allure.story('Token consumer');
     await allure.owner('Alexandre Sauner');
@@ -24,6 +25,7 @@ describe('Handle live channel state change use case', () => {
   });
 
   it('should consume task token and resume start transmission', async () => {
+    await allure.epic('Misc');
     await allure.feature('Task tokens management');
     await allure.story('Token consumer');
     await allure.owner('Alexandre Sauner');

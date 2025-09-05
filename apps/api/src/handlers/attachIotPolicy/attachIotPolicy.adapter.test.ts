@@ -6,8 +6,11 @@ import * as allure from 'allure-js-commons';
 
 describe('Attach Iot Policy adapter', () => {
   it('should call use case', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -24,8 +27,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return successful response', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -44,8 +50,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if no body is provided', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -61,8 +70,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if body is not json', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -78,8 +90,11 @@ describe('Attach Iot Policy adapter', () => {
   });
 
   it('should return 400 response if body does not match schema', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

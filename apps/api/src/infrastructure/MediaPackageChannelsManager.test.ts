@@ -19,8 +19,9 @@ describe('MediaPackage channels manager', () => {
 
   describe('createChannel', () => {
     it('should create channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaPackage channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -56,8 +57,9 @@ describe('MediaPackage channels manager', () => {
     });
 
     it('should create HLS and DASH endpoints', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaPackage channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -105,8 +107,9 @@ describe('MediaPackage channels manager', () => {
 
   describe('deleteChannel', () => {
     it('should delete channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaPackage channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -123,8 +126,9 @@ describe('MediaPackage channels manager', () => {
     });
 
     it('should delete HLS and DASH endpoints', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaPackage channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 

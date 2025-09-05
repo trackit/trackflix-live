@@ -13,8 +13,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Delete Event adapter', () => {
   it('should call use case', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -40,8 +41,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return successful response', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -66,8 +68,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 404 if the event does not exist', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -92,8 +95,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 400 if the event status is not PRE_TX', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -123,8 +127,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 400 if the event is on air', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -154,8 +159,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should return 403 response if use case throws an AuthorizationError', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -183,8 +189,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should handle cognito:groups as a string', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -211,8 +218,9 @@ describe('Delete Event adapter', () => {
   });
 
   it('should handle empty cognito:groups', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

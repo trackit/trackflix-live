@@ -39,11 +39,12 @@ describe('SingleAssetFlow', () => {
     });
   });
 
-  it('should render successfully', () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render successfully', async () => {
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { baseElement } = render(
       <MemoryRouter>
@@ -55,10 +56,11 @@ describe('SingleAssetFlow', () => {
   });
 
   it('should handle form submission successfully', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(
       <MemoryRouter>
@@ -79,10 +81,11 @@ describe('SingleAssetFlow', () => {
   });
 
   it('should handle submission errors', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     // Mock console.error to prevent error output in tests
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn());

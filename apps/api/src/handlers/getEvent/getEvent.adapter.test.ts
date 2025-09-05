@@ -10,8 +10,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Get event adapter', () => {
   it('should call use case', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to view a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -29,8 +30,9 @@ describe('Get event adapter', () => {
   });
 
   it('should return successful response', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to view a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -52,8 +54,9 @@ describe('Get event adapter', () => {
   });
 
   it('should return 400 response if no id is provided', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to view a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -65,8 +68,9 @@ describe('Get event adapter', () => {
   });
 
   it('should return 404 response if event is not found', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to view a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

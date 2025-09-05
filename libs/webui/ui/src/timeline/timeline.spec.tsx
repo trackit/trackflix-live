@@ -5,11 +5,12 @@ import * as allure from 'allure-js-commons';
 import Timeline from './timeline';
 
 describe('Timeline', () => {
-  it('should render successfully with basic steps', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render successfully with basic steps', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [{ text: 'Step 1' }, { text: 'Step 2' }, { text: 'Step 3' }];
 
@@ -22,11 +23,12 @@ describe('Timeline', () => {
     });
   });
 
-  it('should render completed steps with primary color', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render completed steps with primary color', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [
       { text: 'Step 1', completed: true },
@@ -44,11 +46,12 @@ describe('Timeline', () => {
     expect(dividers[1]).toHaveClass('bg-primary');
   });
 
-  it('should render loading spinner for steps in loading state', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render loading spinner for steps in loading state', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [
       { text: 'Step 1', completed: true },
@@ -63,11 +66,12 @@ describe('Timeline', () => {
     expect(spinner).toBeInTheDocument();
   });
 
-  it('should render empty steps array', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render empty steps array', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps: { text: string; completed?: boolean; loading?: boolean }[] =
       [];

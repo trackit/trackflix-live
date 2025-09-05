@@ -29,13 +29,6 @@
         "deploy",
         "build"
       ]
-    },
-    "test": {
-      "options": {
-        "env": {
-          "ALLURE_LABEL_epic": "Web interface"
-        }
-      }
     }
   }
 }

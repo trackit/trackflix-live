@@ -12,11 +12,12 @@ describe('User Store', () => {
     });
   });
 
-  it('should have initial state', () => {
-    allure.feature('Essential features');
-    allure.story('Roles');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should have initial state', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const state = useUserStore.getState();
     expect(state.userSession).toBeNull();
@@ -24,11 +25,12 @@ describe('User Store', () => {
     expect(state.isCreator).toBe(false);
   });
 
-  it('should set user session', () => {
-    allure.feature('Essential features');
-    allure.story('Roles');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should set user session', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const mockSession = {
       tokens: {
@@ -46,16 +48,12 @@ describe('User Store', () => {
     expect(state.isCreator).toBe(false);
   });
 
-  it('should set isCreator to true when user has creators group', () => {
-    allure.feature('Essential features');
-    allure.story('Roles');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
-
-    allure.feature('Essential features');
-    allure.story('Roles');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should set isCreator to true when user has creators group', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const mockSession = {
       tokens: {
@@ -72,11 +70,12 @@ describe('User Store', () => {
     expect(state.isCreator).toBe(true);
   });
 
-  it('should set user', () => {
-    allure.feature('Essential features');
-    allure.story('Roles');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should set user', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Essential features');
+    await allure.story('Roles');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const mockUser = {
       username: 'testuser',

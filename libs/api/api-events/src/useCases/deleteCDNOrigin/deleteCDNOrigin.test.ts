@@ -13,8 +13,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Delete CDN origin use case', () => {
   it('should delete CDN origin', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('CloudFront distribution');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Mathis Lorenzo');
     await allure.severity('normal');
 
@@ -37,8 +38,9 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should store logs after deleting the CDN origin', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Mathis Lorenzo');
     await allure.severity('normal');
 
@@ -62,8 +64,11 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should emit logs after deleting the CDN origin', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Mathis Lorenzo');
     await allure.severity('normal');
 
@@ -95,8 +100,9 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Mathis Lorenzo');
     await allure.severity('normal');
 

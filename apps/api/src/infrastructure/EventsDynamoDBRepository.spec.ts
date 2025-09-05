@@ -28,8 +28,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('createEvent', () => {
     it('should create an event in DynamoDB', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event creation');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -53,8 +54,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('listEvents', () => {
     it('should list events from DynamoDB', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -70,8 +72,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return events in multiple requests if limit is less than the number of events', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -108,8 +111,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -140,8 +144,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in desc order', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -173,8 +178,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order and using pagination', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -213,8 +219,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -240,8 +247,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified in any order', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to list live events');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -276,8 +284,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('getEvent', () => {
     it('should get an event from DynamoDB', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a viewer, I want to view a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -294,8 +303,10 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('appendLogsToEvent', () => {
     it('should append logs to an event', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -328,8 +339,10 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventStatus', () => {
     it('should update event status', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -359,8 +372,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveChannelArn', () => {
     it('should update event live channel arn', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -390,8 +404,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveChannelId', () => {
     it('should update event live channel id', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -420,8 +435,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveInputId', () => {
     it('should update event live input id', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -450,8 +466,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateLiveWaitingInputId', () => {
     it('should update event live waiting input id', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -483,8 +500,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventDestroyedTime', () => {
     it('should update event destroyed time', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -513,8 +531,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updatePackageDomainName', () => {
     it('should update event package domain name', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -546,8 +565,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('updateEventEndpoints', () => {
     it('should update event endpoints', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event update');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -585,8 +605,9 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('deleteEvent', () => {
     it('should delete an event from DynamoDB', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event deletion');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -600,8 +621,9 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should throw a NotFoundError when deleting an item that does not exist', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event deletion');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 

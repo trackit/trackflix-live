@@ -16,8 +16,9 @@ describe('Create event adapter', () => {
   jest.setSystemTime(new Date('2025-03-05T10:00:00.000Z'));
 
   it('should call use case', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -47,8 +48,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return successful response', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -81,8 +83,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if no body is provided', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -106,8 +109,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if body is not json', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -131,8 +135,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if body does not match schema', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -158,8 +163,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if start date is after end date', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -194,8 +200,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if start date is in the past', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -229,8 +236,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if start date is not at least 6 minutes in the future', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -264,8 +272,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if start date is more than 364 days in the future', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -299,8 +308,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if source is not an S3 URI of an MP4', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -336,8 +346,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 400 response if use case throws an AssetNotFoundError', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -372,8 +383,9 @@ describe('Create event adapter', () => {
   });
 
   it('should return 403 response if use case throws an AuthorizationError', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -408,8 +420,9 @@ describe('Create event adapter', () => {
   });
 
   it('should handle cognito:groups as a string', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -441,8 +454,9 @@ describe('Create event adapter', () => {
   });
 
   it('should handle empty cognito:groups', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

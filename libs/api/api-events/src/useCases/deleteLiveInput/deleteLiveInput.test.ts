@@ -11,8 +11,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Delete live input use case', () => {
   it('should delete live input', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('MediaLive channel');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -38,8 +39,9 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not exist', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -54,8 +56,9 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not have live input id', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -76,8 +79,9 @@ describe('Delete live input use case', () => {
   });
 
   it('should throw if event does not have live waiting input id', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -100,8 +104,9 @@ describe('Delete live input use case', () => {
   });
 
   it('should add logs', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -138,8 +143,11 @@ describe('Delete live input use case', () => {
   });
 
   it('should emit updates', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

@@ -19,8 +19,11 @@ describe('Events Iot Update Sender', () => {
 
   describe('send', () => {
     it('should send event update', async () => {
+      await allure.epic('MVP');
       await allure.feature('Live updates');
-      await allure.story('Events updates');
+      await allure.story(
+        'As a user, I want my user interface to update without refreshing the page'
+      );
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -50,8 +53,11 @@ describe('Events Iot Update Sender', () => {
 
   describe('attachPolicyToIdentity', () => {
     it('should attach policy', async () => {
+      await allure.epic('MVP');
       await allure.feature('Live updates');
-      await allure.story('IOT Policy setup');
+      await allure.story(
+        'As a user, I want my user interface to update without refreshing the page'
+      );
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 

@@ -12,8 +12,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Start live channel use case', () => {
   it('should start live channel', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('MediaLive channel');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -50,6 +51,7 @@ describe('Start live channel use case', () => {
   });
 
   it('should create task token', async () => {
+    await allure.epic('Misc');
     await allure.feature('Task tokens management');
     await allure.story('Token creation');
     await allure.owner('Alexandre Sauner');
@@ -89,8 +91,9 @@ describe('Start live channel use case', () => {
   });
 
   it('should store LIVE_CHANNEL_CREATED log event', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -121,8 +124,11 @@ describe('Start live channel use case', () => {
   });
 
   it('should emit event', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

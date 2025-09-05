@@ -5,8 +5,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Update status adapter', () => {
   it('should call use case', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('Basic management');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

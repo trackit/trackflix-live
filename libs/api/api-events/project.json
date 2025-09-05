@@ -16,13 +16,6 @@
       "options": {
         "cwd": "libs/api/api-events"
       }
-    },
-    "test": {
-      "options": {
-        "env": {
-          "ALLURE_LABEL_epic": "API"
-        }
-      }
     }
   }
 }

@@ -16,8 +16,9 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('startTransmission', () => {
     it('should start state machine execution', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('Start transmission');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -46,8 +47,9 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('resumeStartTransmission', () => {
     it('should resume start state machine execution', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('Resume transmission');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -76,8 +78,9 @@ describe('Transmissions Manager Sfn', () => {
 
   describe('stopTransmission', () => {
     it('should start state machine execution', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('Stop transmission');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 

@@ -81,8 +81,10 @@ describe('CloudFront distributions manager', () => {
 
   describe('getDistribution', () => {
     it('should get distribution', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('CloudFront distribution');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Mathis Lorenzo');
       await allure.severity('normal');
 
@@ -101,8 +103,10 @@ describe('CloudFront distributions manager', () => {
     });
 
     it('should throw if distribution not found', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('CloudFront distribution');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Mathis Lorenzo');
       await allure.severity('normal');
 
@@ -118,8 +122,9 @@ describe('CloudFront distributions manager', () => {
 
   describe('createOrigin', () => {
     it('should create origin', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('CloudFront distribution');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Mathis Lorenzo');
       await allure.severity('normal');
 
@@ -195,8 +200,9 @@ describe('CloudFront distributions manager', () => {
 
   describe('deleteOrigin', () => {
     it('should delete origin and associated cache behaviors', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('CloudFront distribution');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Mathis Lorenzo');
       await allure.severity('normal');
 
@@ -353,8 +359,9 @@ describe('CloudFront distributions manager', () => {
     });
 
     it('should not fail if origin does not exist', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('CloudFront distribution');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Mathis Lorenzo');
       await allure.severity('normal');
 

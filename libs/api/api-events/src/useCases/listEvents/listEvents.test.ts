@@ -9,8 +9,9 @@ import * as allure from 'allure-js-commons';
 
 describe('ListEvents use case', () => {
   it('should return a list of events', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -27,8 +28,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should return an empty list if there are no events', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -42,8 +44,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should return event in multiple requests if the limit is less than the number of events', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -74,8 +77,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items in ascending order', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -101,8 +105,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items in descending order', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -128,8 +133,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by name', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -154,8 +160,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by onAirStartTime', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -180,8 +187,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by onAirEndTime', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -206,8 +214,9 @@ describe('ListEvents use case', () => {
   });
 
   it('should sort items by status', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

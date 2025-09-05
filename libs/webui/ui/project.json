@@ -5,13 +5,5 @@
   "projectType": "library",
   "tags": ["type:ui", "scope:webui"],
   "// targets": "to see all targets run: nx show project ui --web",
-  "targets": {
-    "test": {
-      "options": {
-        "env": {
-          "ALLURE_LABEL_epic": "Web interface"
-        }
-      }
-    }
-  }
+  "targets": {}
 }

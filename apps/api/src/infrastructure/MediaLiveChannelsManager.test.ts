@@ -21,8 +21,9 @@ describe('MediaLive channels manager', () => {
 
   describe('createChannel', () => {
     it('should create inputs', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -76,8 +77,9 @@ describe('MediaLive channels manager', () => {
     });
 
     it('should create channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -116,8 +118,9 @@ describe('MediaLive channels manager', () => {
 
   describe('startChannel', () => {
     it('should start channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -140,8 +143,9 @@ describe('MediaLive channels manager', () => {
     });
 
     it('should create schedule', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -183,8 +187,9 @@ describe('MediaLive channels manager', () => {
 
   describe('stopChannel', () => {
     it('should stop channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -203,8 +208,9 @@ describe('MediaLive channels manager', () => {
 
   describe('deleteChannel', () => {
     it('should delete channel', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 
@@ -223,8 +229,9 @@ describe('MediaLive channels manager', () => {
 
   describe('deleteInput', () => {
     it('should delete input', async () => {
-      await allure.feature('Live resources management');
-      await allure.story('MediaLive channel');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Alexandre Sauner');
       await allure.severity('normal');
 

@@ -11,8 +11,9 @@ describe('S3AssetsService', () => {
   });
 
   it('should return true if asset exists', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('S3 file');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -28,8 +29,9 @@ describe('S3AssetsService', () => {
   });
 
   it('should return false if asset does not exist', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('S3 file');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

@@ -13,11 +13,12 @@ describe('TxTimeline', () => {
     );
   });
 
-  it('should render all steps with their titles', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render all steps with their titles', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },
@@ -32,11 +33,12 @@ describe('TxTimeline', () => {
     });
   });
 
-  it('should format dates correctly', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should format dates correctly', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [{ title: 'Start', datetime: '2024-03-15T11:55:00.000Z' }];
 
@@ -48,11 +50,12 @@ describe('TxTimeline', () => {
     expect(screen.getByText(timeRegex)).toBeInTheDocument();
   });
 
-  it('should show -- for steps without datetime', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should show -- for steps without datetime', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },
@@ -67,11 +70,12 @@ describe('TxTimeline', () => {
     expect(placeholders).toHaveLength(2);
   });
 
-  it('should handle invalid dates', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should handle invalid dates', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [{ title: 'Start', datetime: 'invalid-date' }];
 
@@ -80,11 +84,12 @@ describe('TxTimeline', () => {
     expect(screen.getByText('--')).toBeInTheDocument();
   });
 
-  it('should render progress bar', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render progress bar', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const steps = [
       { title: 'Start', datetime: '2024-03-15T11:55:00.000Z' },

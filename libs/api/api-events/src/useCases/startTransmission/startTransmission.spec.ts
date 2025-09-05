@@ -8,8 +8,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Start transmission use case', () => {
   it('should start transmission', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('Start transmission');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

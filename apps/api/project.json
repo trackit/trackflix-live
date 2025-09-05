@@ -39,10 +39,7 @@
     },
     "test": {
       "options": {
-        "passWithNoTests": true,
-        "env": {
-          "ALLURE_LABEL_epic": "API"
-        }
+        "passWithNoTests": true
       }
     }
   }

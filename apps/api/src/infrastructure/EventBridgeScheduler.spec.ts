@@ -16,8 +16,9 @@ describe('EventBridgeScheduler', () => {
 
   describe('scheduleEvent', () => {
     it('should schedule an event', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event scheduling');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -57,8 +58,9 @@ describe('EventBridgeScheduler', () => {
     });
 
     it('should throw an error when scheduling an event fails', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event scheduling');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -77,8 +79,9 @@ describe('EventBridgeScheduler', () => {
     });
 
     it('should throw an error if an invalid Date is passed', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event scheduling');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to create a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -96,8 +99,9 @@ describe('EventBridgeScheduler', () => {
 
   describe('deleteSchedule', () => {
     it('should delete schedule', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event scheduling');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 
@@ -107,8 +111,9 @@ describe('EventBridgeScheduler', () => {
     });
 
     it('should throw an error if the delete schedule throws an error', async () => {
-      await allure.feature('Events management');
-      await allure.story('Event scheduling');
+      await allure.epic('MVP');
+      await allure.feature('Live events');
+      await allure.story('As a creator, I want to delete a live event');
       await allure.owner('Nathan de Balthasar');
       await allure.severity('normal');
 

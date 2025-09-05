@@ -10,8 +10,9 @@ import * as allure from 'allure-js-commons';
 
 describe('DeleteEvent use case', () => {
   it('should delete event', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -26,8 +27,9 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw an error if the event does not exist', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -42,8 +44,9 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw an error if the event status is not PRE_TX', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -58,8 +61,9 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw an error if the current time is between onAirStartTime (-6min) and onAirEndTime', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event deletion');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -79,8 +83,9 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should delete schedules', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event scheduling');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -99,6 +104,7 @@ describe('DeleteEvent use case', () => {
   });
 
   it('should throw if user is not in Creators group', async () => {
+    await allure.epic('Misc');
     await allure.feature('Essential features');
     await allure.story('Roles');
     await allure.owner('Nathan de Balthasar');

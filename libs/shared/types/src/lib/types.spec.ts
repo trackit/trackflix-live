@@ -2,11 +2,12 @@ import { EventStatus } from './types';
 import * as allure from 'allure-js-commons';
 
 describe('EventStatus', () => {
-  it('should have the correct values', () => {
-    allure.feature('Essential features');
-    allure.story('Shared typing');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should have the correct values', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Essential features');
+    await allure.story('Shared typing');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     expect(EventStatus.TX).toBe('TX');
     expect(EventStatus.PRE_TX).toBe('PRE-TX');

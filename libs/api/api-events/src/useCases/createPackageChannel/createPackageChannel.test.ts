@@ -16,8 +16,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Create Package channel use case', () => {
   it('should create channel', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('MediaLive channel');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -36,8 +37,9 @@ describe('Create Package channel use case', () => {
   });
 
   it('should store logs', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -60,8 +62,9 @@ describe('Create Package channel use case', () => {
   });
 
   it('should store endpoints', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -98,8 +101,9 @@ describe('Create Package channel use case', () => {
   });
 
   it('should update package domain name', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -125,8 +129,11 @@ describe('Create Package channel use case', () => {
   });
 
   it('should emit events', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

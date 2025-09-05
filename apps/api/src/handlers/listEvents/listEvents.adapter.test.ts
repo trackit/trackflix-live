@@ -7,8 +7,9 @@ import * as allure from 'allure-js-commons';
 
 describe('List events adapter', () => {
   it('should call use case', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -20,8 +21,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -43,8 +45,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if nextToken is valid', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -72,8 +75,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if there are no events', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -93,8 +97,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a successful response if a sort attribute is defined', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -129,8 +134,9 @@ describe('List events adapter', () => {
   });
 
   it('should return the events matching a name if specified', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -163,8 +169,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the limit is invalid', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -180,8 +187,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the nextToken is malformed', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -197,8 +205,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortOrder is specified without sortBy', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -214,8 +223,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortOrder is invalid', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -231,8 +241,9 @@ describe('List events adapter', () => {
   });
 
   it('should return a response with status code 400 if the sortBy is invalid', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a viewer, I want to list live events');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

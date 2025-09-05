@@ -5,31 +5,34 @@ import Panel from './panel';
 import * as allure from 'allure-js-commons';
 
 describe('Panel', () => {
-  it('should render successfully', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render successfully', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { baseElement } = render(<Panel>test</Panel>);
     expect(baseElement).toBeTruthy();
   });
 
-  it('should render with custom className', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render with custom className', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { container } = render(<Panel className="custom-class">test</Panel>);
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
-  it('should render children content', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render children content', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(
       <Panel>
@@ -39,21 +42,23 @@ describe('Panel', () => {
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
-  it('should combine default and custom classes', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should combine default and custom classes', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { container } = render(<Panel className="custom-class">test</Panel>);
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
-  it('should handle multiple children', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should handle multiple children', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(
       <Panel>

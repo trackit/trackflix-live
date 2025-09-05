@@ -21,31 +21,34 @@ describe('CopyText', () => {
     vi.clearAllTimers();
   });
 
-  it('renders text content', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('renders text content', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<CopyText text="Test content" />);
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
-  it('shows copy button by default', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('shows copy button by default', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<CopyText text="Test content" />);
     expect(screen.getByText('Copy')).toBeInTheDocument();
   });
 
   it('changes button text and icon when clicked', async () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<CopyText text="Test content" />);
 

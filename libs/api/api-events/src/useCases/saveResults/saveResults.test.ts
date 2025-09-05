@@ -10,8 +10,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Save results use case', () => {
   it('should store LIVE_CHANNEL_STARTED log event', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event update');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 
@@ -33,8 +34,11 @@ describe('Save results use case', () => {
   });
 
   it('should emit event', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Nathan de Balthasar');
     await allure.severity('normal');
 

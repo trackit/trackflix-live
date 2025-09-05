@@ -45,11 +45,12 @@ describe('Table Component', () => {
     );
   };
 
-  it('renders table headers and data', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('renders table headers and data', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     setup();
     expect(screen.getByText('Name')).toBeVisible();
@@ -57,21 +58,23 @@ describe('Table Component', () => {
     expect(screen.getByText('Jane Smith')).toBeVisible();
   });
 
-  it('displays loading state when isPending is true', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('displays loading state when isPending is true', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     setup({ isPending: true });
     expect(screen.getByTestId('loader')).toBeVisible();
   });
 
   it('handles pagination - next and previous', async () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const setNextToken = vi.fn();
     setup({ setNextToken, nextToken: 'token123' });
@@ -89,11 +92,12 @@ describe('Table Component', () => {
     await waitFor(() => expect(setNextToken).toHaveBeenCalledWith(undefined));
   });
 
-  it('disables previous button on first page', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('disables previous button on first page', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     setup();
     const prevButton = screen.getByRole('button', {
@@ -102,11 +106,12 @@ describe('Table Component', () => {
     expect(prevButton).toHaveClass('btn-disabled');
   });
 
-  it('changes rows per page when selecting a new value', () => {
-    allure.feature('Essential features');
-    allure.story('UI components');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('changes rows per page when selecting a new value', async () => {
+    await allure.epic('Misc');
+    await allure.feature('Web interface');
+    await allure.story('UI components');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const setPerPage = vi.fn();
     setup({ setPerPage });

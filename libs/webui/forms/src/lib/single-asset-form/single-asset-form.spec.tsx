@@ -20,21 +20,23 @@ describe('SingleAssetForm', () => {
     vi.useRealTimers();
   });
 
-  it('should render successfully', () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should render successfully', async () => {
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const { baseElement } = render(<SingleAssetForm onSubmit={mockOnSubmit} />);
     expect(baseElement).toBeTruthy();
   });
 
-  it('should display all form inputs and submit button', () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should display all form inputs and submit button', async () => {
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
 
@@ -47,10 +49,11 @@ describe('SingleAssetForm', () => {
   });
 
   it('should show error message for empty required fields', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const user = userEvent.setup();
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
@@ -64,10 +67,11 @@ describe('SingleAssetForm', () => {
   });
 
   it('should submit form with valid data', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const user = userEvent.setup({ delay: null }); // Disable delay for faster tests
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
@@ -126,10 +130,11 @@ describe('SingleAssetForm', () => {
   });
 
   it('should show error for invalid S3 URI format', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const user = userEvent.setup({ delay: null });
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
@@ -147,10 +152,11 @@ describe('SingleAssetForm', () => {
   });
 
   it('should show error when end time is before start time', async () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     const user = userEvent.setup({ delay: null }); // Disable delay for faster tests
     render(<SingleAssetForm onSubmit={mockOnSubmit} />);
@@ -191,11 +197,12 @@ describe('SingleAssetForm', () => {
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
-  it('should be disabled when disabled prop is true', () => {
-    allure.feature('Events management');
-    allure.story('Event creation');
-    allure.owner('Alexis le Dinh');
-    allure.severity('normal');
+  it('should be disabled when disabled prop is true', async () => {
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
+    await allure.owner('Alexis le Dinh');
+    await allure.severity('normal');
 
     render(<SingleAssetForm onSubmit={mockOnSubmit} disabled={true} />);
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();

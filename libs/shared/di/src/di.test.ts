@@ -26,11 +26,12 @@ describe('di-container', () => {
 
   describe('register', () => {
     describe('basic usage', () => {
-      it('should register a dependency through use value', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should register a dependency through use value', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useValue: new OneGetter() });
 
@@ -39,11 +40,12 @@ describe('di-container', () => {
         expect(getter.getNumber()).toBe(1);
       });
 
-      it('should register a dependency through use class', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should register a dependency through use class', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useClass: OneGetter });
 
@@ -52,11 +54,12 @@ describe('di-container', () => {
         expect(getter.getNumber()).toBe(1);
       });
 
-      it('should register a dependency through use factory', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should register a dependency through use factory', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useFactory: () => new OneGetter() });
 
@@ -77,11 +80,12 @@ describe('di-container', () => {
         }
       }
 
-      it('should allow injection of dependencies', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should allow injection of dependencies', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useValue: new OneGetter() });
 
@@ -111,11 +115,12 @@ describe('di-container', () => {
       const ExternalNumberLoggerToken =
         createInjectionToken<ExternalNumberLogger>(ExternalNumberLogger.name);
 
-      it('should register an external dependency through use factory with dependencies', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should register an external dependency through use factory with dependencies', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useValue: new OneGetter() });
         register(ExternalNumberLoggerToken, {
@@ -131,11 +136,12 @@ describe('di-container', () => {
         expect(logger).toHaveProperty('loggedNumber', 1);
       });
 
-      it('should register an external dependency through use value with dependencies', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should register an external dependency through use value with dependencies', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useValue: new OneGetter() });
         register(ExternalNumberLoggerToken, {
@@ -153,11 +159,12 @@ describe('di-container', () => {
     });
 
     describe('no override', () => {
-      it('should throw an error when registering a dependency twice', () => {
-        allure.feature('Essential features');
-        allure.story('Dependency Injection');
-        allure.owner('Alexandre Sauner');
-        allure.severity('normal');
+      it('should throw an error when registering a dependency twice', async () => {
+        await allure.epic('Misc');
+        await allure.feature('Essential features');
+        await allure.story('Dependency Injection');
+        await allure.owner('Alexandre Sauner');
+        await allure.severity('normal');
 
         register(NumberGetterToken, { useValue: new OneGetter() });
 
@@ -169,11 +176,12 @@ describe('di-container', () => {
   });
 
   describe('reset', () => {
-    it('should reset the container', () => {
-      allure.feature('Essential features');
-      allure.story('Dependency Injection');
-      allure.owner('Alexandre Sauner');
-      allure.severity('normal');
+    it('should reset the container', async () => {
+      await allure.epic('Misc');
+      await allure.feature('Essential features');
+      await allure.story('Dependency Injection');
+      await allure.owner('Alexandre Sauner');
+      await allure.severity('normal');
 
       register(NumberGetterToken, { useValue: new OneGetter() });
 

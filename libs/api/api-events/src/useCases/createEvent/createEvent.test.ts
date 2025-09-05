@@ -15,8 +15,9 @@ import * as allure from 'allure-js-commons';
 
 describe('CreateEvent use case', () => {
   it('should save event', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -44,8 +45,11 @@ describe('CreateEvent use case', () => {
   });
 
   it('should send a live update', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('Events updates');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -69,8 +73,9 @@ describe('CreateEvent use case', () => {
   });
 
   it('should schedule the creation of resources 5 minutes before air', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event scheduling');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -94,8 +99,9 @@ describe('CreateEvent use case', () => {
   });
 
   it('should schedule the destruction of resources after air', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event scheduling');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -119,8 +125,9 @@ describe('CreateEvent use case', () => {
   });
 
   it('should throw if asset does not exist', async () => {
-    await allure.feature('Events management');
-    await allure.story('Event creation');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
@@ -137,6 +144,7 @@ describe('CreateEvent use case', () => {
   });
 
   it('should throw if user is not in Creators group', async () => {
+    await allure.epic('Misc');
     await allure.feature('Essential features');
     await allure.story('Roles');
     await allure.owner('Alexandre Sauner');

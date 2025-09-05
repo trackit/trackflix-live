@@ -20,6 +20,7 @@ describe('TaskTokensDynamoDBRepository', () => {
 
   describe('createTaskToken', () => {
     it('should create a task token', async () => {
+      await allure.epic('Misc');
       await allure.feature('Task tokens management');
       await allure.story('Token creation');
       await allure.owner('Alexandre Sauner');
@@ -60,6 +61,7 @@ describe('TaskTokensDynamoDBRepository', () => {
 
   describe('consumeTaskToken', () => {
     it('should do nothing if task token does not exist', async () => {
+      await allure.epic('Misc');
       await allure.feature('Task tokens management');
       await allure.story('Token consumer');
       await allure.owner('Alexandre Sauner');
@@ -79,6 +81,7 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should return task token', async () => {
+      await allure.epic('Misc');
       await allure.feature('Task tokens management');
       await allure.story('Token consumer');
       await allure.owner('Alexandre Sauner');
@@ -112,6 +115,7 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should delete task token', async () => {
+      await allure.epic('Misc');
       await allure.feature('Task tokens management');
       await allure.story('Token consumer');
       await allure.owner('Alexandre Sauner');

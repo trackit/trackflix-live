@@ -6,8 +6,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Create CloudFront origin', () => {
   it('should call use case', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('CloudFront distribution');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to create a live event');
     await allure.owner('Mathis Lorenzo');
     await allure.severity('normal');
 

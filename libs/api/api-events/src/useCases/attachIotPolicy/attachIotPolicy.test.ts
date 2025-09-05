@@ -8,8 +8,11 @@ import * as allure from 'allure-js-commons';
 
 describe('Attach Iot policy use case', () => {
   it('should attach policy', async () => {
+    await allure.epic('MVP');
     await allure.feature('Live updates');
-    await allure.story('IOT Policy setup');
+    await allure.story(
+      'As a user, I want my user interface to update without refreshing the page'
+    );
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 

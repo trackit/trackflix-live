@@ -8,8 +8,9 @@ import * as allure from 'allure-js-commons';
 
 describe('Stop transmission use case', () => {
   it('should stop transmission', async () => {
-    await allure.feature('Live resources management');
-    await allure.story('Stop transmission');
+    await allure.epic('MVP');
+    await allure.feature('Live events');
+    await allure.story('As a creator, I want to delete a live event');
     await allure.owner('Alexandre Sauner');
     await allure.severity('normal');
 
