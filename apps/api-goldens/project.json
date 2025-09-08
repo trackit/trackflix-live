@@ -1,17 +1,15 @@
 {
-  "name": "api-e2e",
+  "name": "api-goldens",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "implicitDependencies": ["api"],
   "targets": {
-    "e2e": {
+    "run": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "apps/api-e2e/jest.config.ts",
+        "jestConfig": "apps/api-goldens/jest.config.ts",
         "passWithNoTests": true
-      },
-      "dependsOn": ["api:build"]
+      }
     }
   }
 }

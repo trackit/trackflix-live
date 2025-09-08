@@ -1,5 +1,5 @@
 export default {
-  displayName: 'api-e2e',
+  displayName: 'api-goldens',
   preset: '../../jest.preset.js',
   setupFiles: ['<rootDir>/src/test-setup.ts'],
   testEnvironment: 'node',
@@ -12,5 +12,5 @@ export default {
     ],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/api-e2e',
+  coverageDirectory: '../../coverage/api-goldens',
 };
