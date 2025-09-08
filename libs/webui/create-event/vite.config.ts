@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     coverage: {
       enabled: true,
-      reportsDirectory: '../../coverage/libs/single-asset-flow',
+      reportsDirectory: '../../../coverage/libs/single-asset-flow',
       provider: 'istanbul',
       reporter: ['json'],
     },
