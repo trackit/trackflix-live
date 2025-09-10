@@ -1,0 +1,9 @@
+{
+  "name": "live-view",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/webui/live-view/src",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:webui"],
+  "// targets": "to see all targets run: nx show project live-view --web",
+  "targets": {}
+}

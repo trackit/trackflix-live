@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
+import { formatBitrate } from './utils';
 
 interface VideoPlayerProps {
   src: string;
@@ -28,9 +29,17 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
     minBitrate: 0,
     maxBitrate: 0,
   });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!videoRef.current) return;
+
+    if (!src) {
+      setError('Aucune URL vidéo fournie');
+      return;
+    }
+
+    setError(null);
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -42,6 +51,13 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         liveDurationInfinity: true,
       });
       hlsRef.current = hls;
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error('HLS Error:', event, data);
+        if (data.fatal) {
+          setError(`Erreur HLS: ${data.type} - ${data.details}`);
+        }
+      });
 
       hls.loadSource(src);
       hls.attachMedia(videoRef.current);
@@ -91,10 +107,25 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
     }
   };
 
-  const formatBitrate = (bits: number) => {
-    const mbps = (bits / 1_000_000).toFixed(2);
-    return `${mbps} Mbps`;
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.error('Video element error:', e);
+    const videoElement = e.target as HTMLVideoElement;
+    if (videoElement.error) {
+      setError(`Erreur vidéo: ${videoElement.error.message} (code: ${videoElement.error.code})`);
+    }
   };
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-2 items-center h-full">
+        <div className="text-center text-red-500 p-4">
+          <p className="text-lg font-semibold">Erreur de lecture vidéo</p>
+          <p className="text-sm">{error}</p>
+          <p className="text-xs mt-2">URL: {src}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2  items-center h-full">
@@ -136,6 +167,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         autoPlay
         muted
         className="w-full mx-auto"
+        onError={handleVideoError}
       />
     </div>
   );

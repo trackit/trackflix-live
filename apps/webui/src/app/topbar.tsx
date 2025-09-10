@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Link } from 'react-router';
 import { useDarkMode } from 'usehooks-ts';
 import { signOut } from 'aws-amplify/auth';
-import { User } from 'lucide-react';
+import { Rocket, User } from 'lucide-react';
 import { ThemeSwitcher, Clock } from '@trackflix-live/ui';
 import logoWhite from '../assets/TrackFlix_Live_White.svg';
 import logoDark from '../assets/TrackFlix_Live_Black_Red.svg';
@@ -40,6 +40,14 @@ const Topbar = () => {
         </div>
       </Link>
       <div className="flex items-center gap-4 mr-8">
+        <Link
+          to="/live"
+          className="btn btn-sm text-black dark:text-white input-bordered"
+        >
+          <Rocket className="w-4 h-4" />
+          Trackit TV Live
+        </Link>
+
         <ThemeSwitcher />
 
         <div className="dropdown dropdown-end">

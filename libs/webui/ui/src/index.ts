@@ -1,6 +1,7 @@
 export * from './page-title/page-title';
 export * from './status-badge/status-badge';
 export * from './video-player/video-player';
+export * from './video-player';
 export * from './copy-text/copy-text';
 export * from './timeline/timeline';
 export * from './clock/clock';

@@ -5,6 +5,7 @@ import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 
 import { CreateEvent } from '@trackflix-live/create-event';
 import { ListEventsView } from '@trackflix-live/list-events-view';
+import { LiveView } from '@trackflix-live/live-view';
 import { StatusView } from '@trackflix-live/status-view';
 import { postIot } from '@trackflix-live/api-client';
 
@@ -46,6 +47,7 @@ export function App() {
             <Route index element={<ListEventsView />} />
             <Route path={'/create'} element={<CreateEvent />}></Route>
             <Route path={'/status/:id'} element={<StatusView />} />
+            <Route path={'/live'} element={<LiveView />} />
           </Routes>
         </div>
       </div>
