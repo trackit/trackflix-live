@@ -5,7 +5,6 @@ import {
   StartChannelParameters,
 } from '@trackflix-live/api-events';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { randomUUID } from 'crypto';
 
 export class QaLiveChannelsManager implements LiveChannelsManager {
   private readonly sqsClient: SQSClient;
