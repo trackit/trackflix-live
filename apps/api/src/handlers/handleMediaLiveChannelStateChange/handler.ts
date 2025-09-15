@@ -1,8 +1,13 @@
 import { EventBridgeEvent } from 'aws-lambda';
 import { HandleMediaLiveChannelStateChangeAdapter } from './handleMediaLiveChannelStateChange.adapter';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
+import { registerQaInfrastructure } from '../../infrastructure/registerQaInfrastructure';
 
-registerProductionInfrastructure();
+const infrastructure =
+  process.env.QA_MODE !== 'true'
+    ? registerProductionInfrastructure
+    : registerQaInfrastructure;
+infrastructure();
 
 const adapter = new HandleMediaLiveChannelStateChangeAdapter();
 

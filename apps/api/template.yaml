@@ -5,6 +5,9 @@ Description: Template for the TrackFlix Live application
 Parameters:
   WaitingSource:
     Type: String
+  QaMode:
+    Type: String
+    Default: "false"
 
 Globals:
   Function:
@@ -15,6 +18,10 @@ Globals:
     Runtime: nodejs20.x
     LoggingConfig:
       LogFormat: JSON
+    Environment:
+      Variables:
+        QA_MODE: !Ref QaMode
+
 
 Resources:
   #############################
@@ -128,6 +135,41 @@ Resources:
                   - s3:GetObjectAttributes
                 Resource:
                   - "arn:aws:s3:::*"
+
+  QaLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub "${AWS::StackName}-SQS-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ReceiveMessage
+                Resource:
+                  - !GetAtt QaLiveChannelQueue.Arn
+        - PolicyName: !Sub "${AWS::StackName}-Lambda-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt HandleMediaLiveChannelStateChange.Arn
+
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -346,9 +388,9 @@ Resources:
                 Action:
                   - "cloudfront:CreateOriginRequestPolicy"
                   - "cloudfront:GetOriginRequestPolicy"
-                  - "cloudfront:CreateCachePolicy" 
+                  - "cloudfront:CreateCachePolicy"
                   - "cloudfront:GetCachePolicy"
-                Resource: 
+                Resource:
                   - !Sub "arn:aws:cloudfront::${AWS::AccountId}:origin-request-policy/*"
                   - !Sub "arn:aws:cloudfront::${AWS::AccountId}:cache-policy/*"
         - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
@@ -383,6 +425,15 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+        - PolicyName: !Sub "${AWS::StackName}-SQS-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "sqs:SendMessage"
+                Resource: !GetAtt QaLiveChannelQueue.Arn
+
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -404,6 +455,7 @@ Resources:
                 Resource:
                   - !GetAtt StartTransmission.Arn
                   - !GetAtt StopTransmission.Arn
+
   ###########
   # COGNITO #
   ###########
@@ -553,6 +605,17 @@ Resources:
       BillingMode: PAY_PER_REQUEST
 
   ####################
+  #    SQS QUEUES    #
+  ####################
+
+  QaLiveChannelQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "qa-live-channel-${AWS::StackName}"
+      DelaySeconds: 10
+      VisibilityTimeout: 65
+
+  ####################
   # LAMBDA FUNCTIONS #
   ####################
   CreateEvent:
@@ -686,6 +749,29 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - handler.ts
+  HandleQaMediaLiveChannelStateChange:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/handlers/handleQaMediaLiveChannelStateChange/
+      Handler: handler.main
+      Role: !GetAtt QaLambdaRole.Arn
+      Environment:
+        Variables:
+          HANDLE_MEDIA_LIVE_CHANNEL_STATE_CHANGE_LAMBDA_NAME: !Ref HandleMediaLiveChannelStateChange
+      Events:
+        QaHandleMediaLiveChannelStateChange:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt QaLiveChannelQueue.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - handler.ts
   DeleteEvent:
     Type: AWS::Serverless::Function
     Properties:
@@ -779,6 +865,7 @@ Resources:
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
           WAITING_SOURCE: !Ref WaitingSource
+          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -799,6 +886,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
+          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -896,6 +984,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
+          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -916,6 +1005,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
+          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

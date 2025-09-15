@@ -1,7 +1,12 @@
 import { StopMediaLiveChannelAdapter } from './stopMediaLiveChannel.adapter';
 import { registerProductionInfrastructure } from '../../infrastructure/registerProductionInfrastructure';
+import { registerQaInfrastructure } from '../../infrastructure/registerQaInfrastructure';
 
-registerProductionInfrastructure();
+const infrastructure =
+  process.env.QA_MODE !== 'true'
+    ? registerProductionInfrastructure
+    : registerQaInfrastructure;
+infrastructure();
 
 const adapter = new StopMediaLiveChannelAdapter();
 
