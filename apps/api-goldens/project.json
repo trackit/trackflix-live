@@ -10,6 +10,9 @@
         "jestConfig": "apps/api-goldens/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "test": {
+      "command": "echo No tests."
     }
   }
 }
