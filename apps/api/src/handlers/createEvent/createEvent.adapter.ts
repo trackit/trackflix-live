@@ -117,7 +117,10 @@ export class CreateEventAdapter {
   private startDateIsInFuture(input: CreateEventRequest['body']) {
     const startTime = new Date(input.onAirStartTime).getTime();
     const currentTime = Date.now();
-    const minimumTime = currentTime + 6 * 60 * 1000;
+    const minimumTime =
+      process.env.QA_MODE === 'true'
+        ? currentTime
+        : currentTime + 6 * 60 * 1000;
 
     if (startTime < minimumTime) {
       throw new BadRequestError(

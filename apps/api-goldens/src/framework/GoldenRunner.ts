@@ -25,7 +25,7 @@ export class GoldenRunner {
     this.scenario = scenario;
   }
 
-  public async run() {
+  public run() {
     beforeAll(async () => {
       await this.setupUsers();
     });

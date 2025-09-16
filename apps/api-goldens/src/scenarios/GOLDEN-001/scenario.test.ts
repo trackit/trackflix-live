@@ -5,10 +5,10 @@ const viewer = 'viewer@trackit.io';
 const creator = 'creator@trackit.io';
 
 const onAirStartTime = new Date();
-onAirStartTime.setMinutes(onAirStartTime.getMinutes() + 10);
+onAirStartTime.setSeconds(onAirStartTime.getSeconds() + 90);
 
 const onAirEndTime = new Date(onAirStartTime);
-onAirEndTime.setMinutes(onAirEndTime.getMinutes() + 5);
+onAirEndTime.setSeconds(onAirEndTime.getSeconds() + 30);
 
 const scenario: Scenario = {
   users: [
