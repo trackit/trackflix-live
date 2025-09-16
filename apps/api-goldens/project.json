@@ -13,6 +13,9 @@
     },
     "test": {
       "command": "echo No tests."
+    },
+    "generateEnvironment": {
+      "command": "sh scripts/generateApiGoldensEnvironment.sh"
     }
   }
 }

@@ -74,6 +74,111 @@ const scenario: Scenario = {
         },
       },
     },
+    {
+      name: 'Wait for live resources creation',
+      type: ScenarioStepType.WAIT_FOR_REQUEST,
+
+      secondsBetweenRetries: 15,
+      maximumRetries: 10,
+
+      user: creator,
+      route: (cache: Record<string, string>) =>
+        `/event/${
+          JSON.parse(cache['Creator creates an event'])['event']['id']
+        }`,
+      method: 'GET',
+
+      expectedResponse: {
+        event: {
+          status: 'TX',
+        },
+      },
+    },
+    {
+      type: ScenarioStepType.TODO,
+      name: 'Live resources are created',
+    },
+    {
+      name: 'Viewer can view the event',
+      type: ScenarioStepType.REQUEST,
+
+      user: viewer,
+      route: (cache: Record<string, string>) =>
+        `/event/${
+          JSON.parse(cache['Creator creates an event'])['event']['id']
+        }`,
+      method: 'GET',
+
+      expectedStatusCode: 200,
+      expectedResponse: {
+        event: {
+          createdTime: expect.any(String),
+          description: 'This is a testing event',
+          endpoints: [
+            {
+              type: 'HLS',
+              url: expect.any(String),
+            },
+            {
+              type: 'DASH',
+              url: expect.any(String),
+            },
+          ],
+          id: expect.any(String),
+          logs: [
+            {
+              timestamp: expect.any(Number),
+              type: 'PACKAGE_CHANNEL_CREATED',
+            },
+            {
+              timestamp: expect.any(Number),
+              type: 'LIVE_INPUT_CREATED',
+            },
+            {
+              timestamp: expect.any(Number),
+              type: 'CDN_ORIGIN_CREATED',
+            },
+            {
+              timestamp: expect.any(Number),
+              type: 'LIVE_CHANNEL_CREATED',
+            },
+            {
+              timestamp: expect.any(Number),
+              type: 'LIVE_CHANNEL_STARTED',
+            },
+          ],
+          name: 'QA event',
+          onAirStartTime: onAirStartTime.toISOString(),
+          onAirEndTime: onAirEndTime.toISOString(),
+          source: 's3://trackflix-live-demo-videos/bbb.mp4',
+          status: 'TX',
+        },
+      },
+    },
+    {
+      name: 'Wait for live resources destruction',
+      type: ScenarioStepType.WAIT_FOR_REQUEST,
+
+      secondsBetweenRetries: 15,
+      maximumRetries: 10,
+
+      user: creator,
+      route: (cache: Record<string, string>) =>
+        `/event/${
+          JSON.parse(cache['Creator creates an event'])['event']['id']
+        }`,
+      method: 'GET',
+
+      expectedResponse: {
+        event: {
+          status: 'ENDED',
+        },
+      },
+    },
+    {
+      type: ScenarioStepType.TODO,
+      name: 'Live resources are destructed',
+    },
   ],
 };
 

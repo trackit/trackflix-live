@@ -21,6 +21,8 @@ export class GoldenRunner {
 
   private readonly tokens: Record<string, string> = {};
 
+  private readonly cache: Record<string, string> = {};
+
   public constructor(scenario: Scenario) {
     this.scenario = scenario;
   }
@@ -35,30 +37,65 @@ export class GoldenRunner {
     });
 
     for (const step of this.scenario.steps) {
-      it(step.name, async () => {
-        switch (step.type) {
-          case ScenarioStepType.REQUEST: {
-            const response = await this.request(step);
+      it(
+        step.name,
+        async () => {
+          switch (step.type) {
+            case ScenarioStepType.REQUEST: {
+              const response = await this.request(step);
 
-            expect(response.status).toEqual(
-              step.expectedStatusCode !== undefined
-                ? step.expectedStatusCode
-                : 200
-            );
-
-            if (typeof step.expectedResponse === 'string') {
-              expect(await response.text()).toEqual(step.expectedResponse);
-            } else if (step.expectedResponse !== undefined) {
-              expect(await response.json()).toMatchObject(
-                step.expectedResponse
+              expect(response.status).toEqual(
+                step.expectedStatusCode !== undefined
+                  ? step.expectedStatusCode
+                  : 200
               );
-            }
 
-            break;
+              const body = await response.text();
+
+              if (typeof step.expectedResponse === 'string') {
+                expect(body).toEqual(step.expectedResponse);
+              } else if (step.expectedResponse !== undefined) {
+                expect(JSON.parse(body)).toMatchObject(step.expectedResponse);
+              }
+
+              this.cache[step.name] = body;
+
+              break;
+            }
+            case ScenarioStepType.WAIT_FOR_REQUEST: {
+              let success = false;
+              for (let i = 0; i < step.maximumRetries; i += 1) {
+                const response = await this.request(step);
+
+                try {
+                  const body = await response.json();
+                  expect(body).toMatchObject(step.expectedResponse);
+                  this.cache[step.name] = JSON.stringify(body);
+                  success = true;
+                  break;
+                } catch {
+                  await this.sleep(step.secondsBetweenRetries * 1000);
+                }
+              }
+
+              if (!success) {
+                throw new Error(`Wait for request "${step.name}" failed.`);
+              }
+              break;
+            }
           }
-        }
-      });
+        },
+        1000 * 60 * 10
+      );
     }
+  }
+
+  private sleep(timeout: number): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, timeout);
+    });
   }
 
   private async setupUsers() {
@@ -125,8 +162,15 @@ export class GoldenRunner {
     );
   }
 
-  private request(request: ScenarioStepRequest) {
-    return fetch(`${process.env.API_URL}${request.route}`, {
+  private request(
+    request: Pick<ScenarioStepRequest, 'route' | 'method' | 'body' | 'user'>
+  ) {
+    const route =
+      typeof request.route === 'string'
+        ? request.route
+        : request.route(this.cache);
+
+    return fetch(`${process.env.API_URL}${route}`, {
       method: request.method,
       headers: {
         Authorization: `Bearer ${this.tokens[request.user]}`,

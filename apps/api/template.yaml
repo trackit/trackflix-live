@@ -612,7 +612,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub "qa-live-channel-${AWS::StackName}"
-      DelaySeconds: 10
+      DelaySeconds: 5
       VisibilityTimeout: 65
 
   ####################

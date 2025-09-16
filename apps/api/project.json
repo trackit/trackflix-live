@@ -31,11 +31,17 @@
       }
     },
     "deploy": {
-      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\" --parameter-overrides WaitingSource=\"$WAITING_SOURCE\",QaMode=\"$QA_MODE\" --no-fail-on-empty-changeset",
+      "command": "sam deploy --stack-name=\"trackflix-live-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-$STAGE\" --parameter-overrides WaitingSource=\"$WAITING_SOURCE\" QaMode=\"$QA_MODE\" --no-fail-on-empty-changeset",
       "options": {
         "cwd": "apps/api"
       },
       "dependsOn": ["build"]
+    },
+    "delete": {
+      "command": "sam delete --stack-name=\"trackflix-live-$STAGE\"",
+      "options": {
+        "cwd": "apps/api"
+      }
     },
     "test": {
       "options": {
