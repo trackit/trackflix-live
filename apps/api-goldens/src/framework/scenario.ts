@@ -4,11 +4,17 @@ export interface Scenario {
 }
 
 export type ScenarioStep = ScenarioStepBase &
-  (ScenarioStepRequest | ScenarioStepWaitForRequest | ScenarioStepTodo);
+  (
+    | ScenarioStepRequest
+    | ScenarioStepWaitForRequest
+    | ScenarioStepVerifyResources
+    | ScenarioStepTodo
+  );
 
 export enum ScenarioStepType {
   REQUEST,
   WAIT_FOR_REQUEST,
+  VERIFY_RESOURCES,
   TODO,
 }
 
@@ -42,4 +48,14 @@ export type ScenarioStepWaitForRequest = Omit<ScenarioStepRequest, 'type'> & {
 
 export interface ScenarioStepTodo {
   type: ScenarioStepType.TODO;
+}
+
+export interface ScenarioStepVerifyResources {
+  type: ScenarioStepType.VERIFY_RESOURCES;
+
+  eventId: (cache: Record<string, string>) => string;
+  before?: Date;
+  after?: Date;
+
+  expectedCalls?: unknown[];
 }

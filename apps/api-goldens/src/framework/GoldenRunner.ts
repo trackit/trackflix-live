@@ -12,12 +12,19 @@ import {
   AdminSetUserPasswordCommand,
   CognitoIdentityProviderClient,
 } from '@aws-sdk/client-cognito-identity-provider';
+import {
+  GetObjectCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 export class GoldenRunner {
   private readonly scenario: Scenario;
 
   private readonly cognito: CognitoIdentityProviderClient =
     new CognitoIdentityProviderClient();
+
+  private readonly s3: S3Client = new S3Client();
 
   private readonly tokens: Record<string, string> = {};
 
@@ -82,6 +89,15 @@ export class GoldenRunner {
                 throw new Error(`Wait for request "${step.name}" failed.`);
               }
               break;
+            }
+            case ScenarioStepType.VERIFY_RESOURCES: {
+              const logs = await this.fetchQaLogs({
+                eventId: step.eventId(this.cache),
+                before: step.before,
+                after: step.after,
+              });
+
+              expect(logs).toMatchObject(step.expectedCalls);
             }
           }
         },
@@ -178,5 +194,54 @@ export class GoldenRunner {
       body:
         request.body !== undefined ? JSON.stringify(request.body) : undefined,
     });
+  }
+
+  private async fetchQaLogs({
+    eventId,
+    before,
+    after,
+  }: {
+    eventId: string;
+    before?: Date;
+    after?: Date;
+  }) {
+    const listResponse = await this.s3.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.LOGS_BUCKET,
+        Prefix: eventId,
+      })
+    );
+
+    const logs = await Promise.all(
+      listResponse.Contents.map(async (item) => {
+        const response = await this.s3.send(
+          new GetObjectCommand({
+            Bucket: process.env.LOGS_BUCKET,
+            Key: item.Key,
+          })
+        );
+
+        return {
+          key: item.Key,
+          body: JSON.parse(await response.Body.transformToString()),
+        };
+      })
+    );
+
+    const filteredLogs = logs.filter((log) => {
+      const logDate = new Date(log.key.slice(0, -5));
+
+      if (before !== undefined && logDate > before) {
+        return false;
+      }
+
+      if (after !== undefined && logDate < after) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return filteredLogs.map((item) => item.body);
   }
 }
