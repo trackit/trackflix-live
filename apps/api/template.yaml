@@ -21,6 +21,7 @@ Globals:
     Environment:
       Variables:
         QA_MODE: !Ref QaMode
+        QA_LOGS_BUCKET: !Ref QaLogsBucket
 
 
 Resources:
@@ -433,6 +434,14 @@ Resources:
                 Action:
                   - "sqs:SendMessage"
                 Resource: !GetAtt QaLiveChannelQueue.Arn
+        - PolicyName: !Sub "${AWS::StackName}-S3-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                Resource: !Sub '${QaLogsBucket.Arn}/*'
 
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
@@ -614,6 +623,20 @@ Resources:
       QueueName: !Sub "qa-live-channel-${AWS::StackName}"
       DelaySeconds: 5
       VisibilityTimeout: 65
+
+  ####################
+  #    S3 BUCKETS    #
+  ####################
+
+  QaLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "qa-logs-${AWS::StackName}"
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteAfter3Days
+            Status: Enabled
+            ExpirationInDays: 3
 
   ####################
   # LAMBDA FUNCTIONS #
@@ -1343,3 +1366,5 @@ Outputs:
     Value: !Sub "${AWS::StackName}"
   CloudFrontDistributionId:
     Value: !Ref CloudFrontDistribution
+  QaLogsBucket:
+    Value: !Ref QaLogsBucket

@@ -5,8 +5,13 @@ import {
   StartChannelParameters,
 } from '@trackflix-live/api-events';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { S3Client } from '@aws-sdk/client-s3';
+import { QaManager } from './QaManager';
 
-export class QaLiveChannelsManager implements LiveChannelsManager {
+export class QaLiveChannelsManager
+  extends QaManager
+  implements LiveChannelsManager
+{
   private readonly sqsClient: SQSClient;
 
   private readonly queueUrl: string;
@@ -14,10 +19,15 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
   public constructor({
     sqsClient,
     queueUrl,
+    s3Client,
+    bucketName,
   }: {
     sqsClient: SQSClient;
     queueUrl: string;
+    s3Client: S3Client;
+    bucketName: string;
   }) {
+    super({ s3Client, bucketName, service: 'Live' });
     this.sqsClient = sqsClient;
     this.queueUrl = queueUrl;
   }
@@ -35,7 +45,12 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    console.log('createChannel', JSON.stringify(parameters, null, 2));
+    await this.saveLogs({
+      method: 'createChannel',
+      eventId: parameters.eventId,
+      parameters,
+    });
+
     return {
       channelId: parameters.eventId,
       channelArn: parameters.eventId,
@@ -45,6 +60,12 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
   }
 
   public async deleteChannel(channelId: string): Promise<void> {
+    await this.saveLogs({
+      method: 'deleteChannel',
+      eventId: channelId,
+      parameters: channelId,
+    });
+
     await this.sqsClient.send(
       new SendMessageCommand({
         QueueUrl: this.queueUrl,
@@ -54,12 +75,14 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
         }),
       })
     );
-
-    console.log('deleteChannel', JSON.stringify(channelId, null, 2));
   }
 
   public async deleteInput(inputId: string): Promise<void> {
-    console.log('deleteInput', JSON.stringify(inputId, null, 2));
+    await this.saveLogs({
+      method: 'deleteInput',
+      eventId: inputId,
+      parameters: inputId,
+    });
   }
 
   public async startChannel(parameters: StartChannelParameters): Promise<void> {
@@ -73,7 +96,11 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    console.log('startChannel', JSON.stringify(parameters, null, 2));
+    await this.saveLogs({
+      method: 'startChannel',
+      eventId: parameters.eventId,
+      parameters,
+    });
   }
 
   public async stopChannel(channelId: string): Promise<void> {
@@ -87,6 +114,10 @@ export class QaLiveChannelsManager implements LiveChannelsManager {
       })
     );
 
-    console.log('stopChannel', JSON.stringify(channelId, null, 2));
+    await this.saveLogs({
+      method: 'stopChannel',
+      eventId: channelId,
+      parameters: channelId,
+    });
   }
 }

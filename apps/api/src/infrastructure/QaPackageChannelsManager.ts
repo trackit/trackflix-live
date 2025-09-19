@@ -3,14 +3,34 @@ import {
   PackageChannelsManager,
 } from '@trackflix-live/api-events';
 import { EndpointType } from '@trackflix-live/types';
+import { S3Client } from '@aws-sdk/client-s3';
+import { QaManager } from './QaManager';
 
-export class QaPackageChannelsManager implements PackageChannelsManager {
+export class QaPackageChannelsManager
+  extends QaManager
+  implements PackageChannelsManager
+{
+  public constructor({
+    s3Client,
+    bucketName,
+  }: {
+    s3Client: S3Client;
+    bucketName: string;
+  }) {
+    super({ s3Client, bucketName, service: 'Package' });
+  }
+
   public async createChannel(
     eventId: string
   ): Promise<CreatePackageChannelResponse> {
-    console.log('createChannel', JSON.stringify(eventId, null, 2));
+    await this.saveLogs({
+      method: 'createChannel',
+      eventId: eventId,
+      parameters: eventId,
+    });
+
     return {
-      channelId: 'MOCK_PACKAGE_CHANNEL_ID',
+      channelId: eventId,
       endpoints: [
         {
           type: EndpointType.HLS,
@@ -25,7 +45,12 @@ export class QaPackageChannelsManager implements PackageChannelsManager {
   }
 
   public async deleteChannel(channelId: string): Promise<void> {
-    console.log('deleteChannel', JSON.stringify(channelId, null, 2));
+    await this.saveLogs({
+      method: 'deleteChannel',
+      eventId: channelId,
+      parameters: channelId,
+    });
+
     return Promise.resolve(undefined);
   }
 }

@@ -4,12 +4,32 @@ import {
   CreateCDNOriginResponse,
   DeleteCDNOriginParameters,
 } from '@trackflix-live/api-events';
+import { S3Client } from '@aws-sdk/client-s3';
+import { QaManager } from './QaManager';
 
-export class QaCdnDistributionsManager implements CDNDistributionsManager {
+export class QaCdnDistributionsManager
+  extends QaManager
+  implements CDNDistributionsManager
+{
+  public constructor({
+    s3Client,
+    bucketName,
+  }: {
+    s3Client: S3Client;
+    bucketName: string;
+  }) {
+    super({ s3Client, bucketName, service: 'CDN' });
+  }
+
   public async createOrigin(
     parameters: CreateCDNOriginParameters
   ): Promise<CreateCDNOriginResponse> {
-    console.log('createOrigin', JSON.stringify(parameters, null, 2));
+    await this.saveLogs({
+      method: 'createOrigin',
+      eventId: parameters.eventId,
+      parameters,
+    });
+
     return {
       eventId: parameters.eventId,
       endpoints: parameters.endpoints.map((endpoint) => ({
@@ -22,6 +42,10 @@ export class QaCdnDistributionsManager implements CDNDistributionsManager {
   public async deleteOrigin(
     parameters: DeleteCDNOriginParameters
   ): Promise<void> {
-    console.log('deleteOrigin', JSON.stringify(parameters, null, 2));
+    await this.saveLogs({
+      method: 'deleteOrigin',
+      eventId: parameters.eventId,
+      parameters,
+    });
   }
 }

@@ -95,13 +95,23 @@ export const registerQaInfrastructure = () => {
       new QaLiveChannelsManager({
         sqsClient,
         queueUrl: process.env.QA_LIVE_CHANNEL_QUEUE_URL || '',
+        s3Client,
+        bucketName: process.env.QA_LOGS_BUCKET || '',
       }),
   });
   register(tokenPackageChannelsManager, {
-    useClass: QaPackageChannelsManager,
+    useFactory: () =>
+      new QaPackageChannelsManager({
+        s3Client,
+        bucketName: process.env.QA_LOGS_BUCKET || '',
+      }),
   });
   register(tokenCDNDistributionsManager, {
-    useClass: QaCdnDistributionsManager,
+    useFactory: () =>
+      new QaCdnDistributionsManager({
+        s3Client,
+        bucketName: process.env.QA_LOGS_BUCKET || '',
+      }),
   });
   register(tokenTaskTokensRepository, {
     useFactory: () => {
