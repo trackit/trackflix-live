@@ -1368,3 +1368,5 @@ Outputs:
     Value: !Ref CloudFrontDistribution
   QaLogsBucket:
     Value: !Ref QaLogsBucket
+  EventsTableName:
+    Value: !Ref EventsTable

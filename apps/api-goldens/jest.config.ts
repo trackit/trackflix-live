@@ -13,4 +13,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/api-goldens',
+  maxWorkers: 1,
 };

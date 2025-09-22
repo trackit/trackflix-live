@@ -18,6 +18,8 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import path from 'path';
+import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
 export class GoldenRunner {
   private readonly scenario: Scenario;
@@ -26,6 +28,8 @@ export class GoldenRunner {
     new CognitoIdentityProviderClient();
 
   private readonly s3: S3Client = new S3Client();
+
+  private readonly dynamo: DynamoDBClient = new DynamoDBClient();
 
   private readonly tokens: Record<string, string> = {};
 
@@ -42,6 +46,7 @@ export class GoldenRunner {
 
     afterAll(async () => {
       await this.destroyUsers();
+      await this.wipeDatabase();
     });
 
     for (const step of this.scenario.steps) {
@@ -244,5 +249,26 @@ export class GoldenRunner {
     });
 
     return filteredLogs.map((item) => item.body);
+  }
+
+  private async wipeDatabase() {
+    const items = await this.dynamo.send(
+      new ScanCommand({
+        TableName: process.env.EVENTS_TABLE_NAME,
+        Limit: 100,
+      })
+    );
+    await Promise.all(
+      (items.Items || []).map(async (item) => {
+        await this.dynamo.send(
+          new DeleteCommand({
+            TableName: process.env.EVENTS_TABLE_NAME,
+            Key: {
+              id: item.id.S,
+            },
+          })
+        );
+      })
+    );
   }
 }

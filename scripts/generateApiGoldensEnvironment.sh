@@ -5,6 +5,7 @@ user_pool_id=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="UserPool
 user_pool_client_id=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="UserPoolClientId") | .OutputValue')
 api_endpoint=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="ApiEndpoint") | .OutputValue')
 logs_bucket=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="QaLogsBucket") | .OutputValue')
+events_table_name=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="EventsTableName") | .OutputValue')
 
 
 {
@@ -12,4 +13,5 @@ logs_bucket=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="QaLogsBuc
   echo "CLIENT_ID=$user_pool_client_id"
   echo "API_URL=$api_endpoint"
   echo "LOGS_BUCKET=$logs_bucket"
+  echo "EVENTS_TABLE_NAME=$events_table_name"
 } > apps/api-goldens/.env
