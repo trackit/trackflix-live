@@ -11,6 +11,7 @@ import {
   AdminInitiateAuthCommand,
   AdminSetUserPasswordCommand,
   CognitoIdentityProviderClient,
+  MessageActionType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
   GetObjectCommand,
@@ -132,6 +133,7 @@ export class GoldenRunner {
         UserPoolId: process.env.USERPOOL_ID!,
         Username: user.username,
         TemporaryPassword: 'Qa@Trackit2025$',
+        MessageAction: MessageActionType.SUPPRESS,
       })
     );
 
