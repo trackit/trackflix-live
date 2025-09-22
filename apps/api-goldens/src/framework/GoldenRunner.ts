@@ -17,6 +17,7 @@ import {
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
+import path from 'path';
 
 export class GoldenRunner {
   private readonly scenario: Scenario;
@@ -229,7 +230,7 @@ export class GoldenRunner {
     );
 
     const filteredLogs = logs.filter((log) => {
-      const logDate = new Date(log.key.slice(0, -5));
+      const logDate = new Date(path.parse(log.key).name);
 
       if (before !== undefined && logDate > before) {
         return false;
