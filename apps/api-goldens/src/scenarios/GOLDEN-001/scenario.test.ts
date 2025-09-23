@@ -257,7 +257,7 @@ const scenario: Scenario = {
   ],
 };
 
-describe.skip('GOLDEN-001', () => {
+describe('GOLDEN-001', () => {
   const runner = new GoldenRunner(scenario);
   runner.run();
 });

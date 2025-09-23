@@ -9,6 +9,9 @@ Parameters:
     Type: String
     Default: "false"
 
+Conditions:
+  IsQa: !Equals [!Ref QaMode, "true"]
+
 Globals:
   Function:
     Timeout: 60
@@ -20,9 +23,8 @@ Globals:
       LogFormat: JSON
     Environment:
       Variables:
-        QA_MODE: !Ref QaMode
-        QA_LOGS_BUCKET: !Ref QaLogsBucket
-
+        QA_MODE: !If [IsQa, !Ref QaMode, !Ref AWS::NoValue]
+        QA_LOGS_BUCKET: !If [IsQa, !Ref QaLogsBucket, !Ref AWS::NoValue]
 
 Resources:
   #############################
@@ -139,6 +141,7 @@ Resources:
 
   QaLambdaRole:
     Type: "AWS::IAM::Role"
+    Condition: IsQa
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -426,22 +429,28 @@ Resources:
                 Action:
                   - "iot:Publish"
                 Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
-        - PolicyName: !Sub "${AWS::StackName}-SQS-policy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "sqs:SendMessage"
-                Resource: !GetAtt QaLiveChannelQueue.Arn
-        - PolicyName: !Sub "${AWS::StackName}-S3-policy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:PutObject"
-                Resource: !Sub '${QaLogsBucket.Arn}/*'
+        - !If
+          - IsQa
+          - PolicyName: !Sub "${AWS::StackName}-SQS-policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "sqs:SendMessage"
+                  Resource: !GetAtt QaLiveChannelQueue.Arn
+          - !Ref AWS::NoValue
+        - !If
+          - IsQa
+          - PolicyName: !Sub "${AWS::StackName}-S3-policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "s3:PutObject"
+                  Resource: !Sub '${QaLogsBucket.Arn}/*'
+          - !Ref AWS::NoValue
 
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
@@ -619,6 +628,7 @@ Resources:
 
   QaLiveChannelQueue:
     Type: AWS::SQS::Queue
+    Condition: IsQa
     Properties:
       QueueName: !Sub "qa-live-channel-${AWS::StackName}"
       DelaySeconds: 5
@@ -630,6 +640,7 @@ Resources:
 
   QaLogsBucket:
     Type: AWS::S3::Bucket
+    Condition: IsQa
     Properties:
       BucketName: !Sub "qa-logs-${AWS::StackName}"
       LifecycleConfiguration:
@@ -774,6 +785,7 @@ Resources:
           - handler.ts
   HandleQaMediaLiveChannelStateChange:
     Type: AWS::Serverless::Function
+    Condition: IsQa
     Properties:
       CodeUri: ./src/handlers/handleQaMediaLiveChannelStateChange/
       Handler: handler.main
@@ -888,7 +900,7 @@ Resources:
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
           IOT_TOPIC: !Sub "${AWS::StackName}"
           WAITING_SOURCE: !Ref WaitingSource
-          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
+          QA_LIVE_CHANNEL_QUEUE_URL: !If [IsQa, !Ref QaLiveChannelQueue, !Ref AWS::NoValue]
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -909,7 +921,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
-          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
+          QA_LIVE_CHANNEL_QUEUE_URL: !If [IsQa, !Ref QaLiveChannelQueue, !Ref AWS::NoValue]
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -1007,7 +1019,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
-          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
+          QA_LIVE_CHANNEL_QUEUE_URL: !If [IsQa, !Ref QaLiveChannelQueue, !Ref AWS::NoValue]
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -1028,7 +1040,7 @@ Resources:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
           IOT_TOPIC: !Sub "${AWS::StackName}"
-          QA_LIVE_CHANNEL_QUEUE_URL: !Ref QaLiveChannelQueue
+          QA_LIVE_CHANNEL_QUEUE_URL: !If [IsQa, !Ref QaLiveChannelQueue, !Ref AWS::NoValue]
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -1368,5 +1380,6 @@ Outputs:
     Value: !Ref CloudFrontDistribution
   QaLogsBucket:
     Value: !Ref QaLogsBucket
+    Condition: IsQa
   EventsTableName:
     Value: !Ref EventsTable
