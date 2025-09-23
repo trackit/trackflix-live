@@ -1,53 +1,72 @@
 import {
   Scenario,
+  ScenarioStepBase,
   ScenarioStepRequest,
   ScenarioStepType,
-  ScenarioUser,
-} from './scenario';
-import {
-  AdminAddUserToGroupCommand,
-  AdminCreateUserCommand,
-  AdminDeleteUserCommand,
-  AdminInitiateAuthCommand,
-  AdminSetUserPasswordCommand,
-  CognitoIdentityProviderClient,
-  MessageActionType,
-} from '@aws-sdk/client-cognito-identity-provider';
-import {
-  GetObjectCommand,
-  ListObjectsV2Command,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import path from 'path';
-import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
-import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
+  ScenarioStepVerifyResources,
+  ScenarioStepWaitForRequest,
+} from './Scenario';
+import { sleep } from './utils';
+import { GoldenUsersManager } from './GoldenUsersManager';
+import { GoldenDatabasesManager } from './GoldenDatabasesManager';
+import { GoldenLogsManager } from './GoldenLogsManager';
+import { GoldenRequestsManager } from './GoldenRequestsManager';
+
+const SECONDS_TO_MILLISECONDS = 1000;
+
+const MINUTES_TO_SECONDS = 60;
 
 export class GoldenRunner {
   private readonly scenario: Scenario;
 
-  private readonly cognito: CognitoIdentityProviderClient =
-    new CognitoIdentityProviderClient();
+  private readonly usersManager: GoldenUsersManager;
 
-  private readonly s3: S3Client = new S3Client();
+  private readonly databasesManager: GoldenDatabasesManager;
 
-  private readonly dynamo: DynamoDBClient = new DynamoDBClient();
+  private readonly logsManager: GoldenLogsManager;
 
-  private readonly tokens: Record<string, string> = {};
-
-  private readonly cache: Record<string, string> = {};
+  private readonly requestsManager: GoldenRequestsManager;
 
   public constructor(scenario: Scenario) {
     this.scenario = scenario;
+
+    const { API_URL, LOGS_BUCKET, EVENTS_TABLE_NAME, USERPOOL_ID, CLIENT_ID } =
+      process.env;
+
+    if (
+      [API_URL, LOGS_BUCKET, EVENTS_TABLE_NAME, USERPOOL_ID, CLIENT_ID].some(
+        (envVar) => envVar === undefined
+      )
+    ) {
+      throw new Error('Missing environment variables.');
+    }
+
+    this.usersManager = new GoldenUsersManager({
+      userpoolId: USERPOOL_ID,
+      clientId: CLIENT_ID,
+    });
+
+    this.databasesManager = new GoldenDatabasesManager({
+      eventsTableName: EVENTS_TABLE_NAME,
+    });
+
+    this.logsManager = new GoldenLogsManager({
+      logsBucket: LOGS_BUCKET,
+    });
+
+    this.requestsManager = new GoldenRequestsManager({
+      apiUrl: API_URL,
+    });
   }
 
   public run() {
     beforeAll(async () => {
-      await this.setupUsers();
+      await this.usersManager.setupUsers(this.scenario);
     });
 
     afterAll(async () => {
-      await this.destroyUsers();
-      await this.wipeDatabase();
+      await this.usersManager.destroyUsers(this.scenario);
+      await this.databasesManager.wipeDatabase();
     });
 
     for (const step of this.scenario.steps) {
@@ -55,222 +74,72 @@ export class GoldenRunner {
         step.name,
         async () => {
           switch (step.type) {
-            case ScenarioStepType.REQUEST: {
-              const response = await this.request(step);
-
-              expect(response.status).toEqual(
-                step.expectedStatusCode !== undefined
-                  ? step.expectedStatusCode
-                  : 200
-              );
-
-              const body = await response.text();
-
-              if (typeof step.expectedResponse === 'string') {
-                expect(body).toEqual(step.expectedResponse);
-              } else if (step.expectedResponse !== undefined) {
-                expect(JSON.parse(body)).toMatchObject(step.expectedResponse);
-              }
-
-              this.cache[step.name] = body;
-
+            case ScenarioStepType.REQUEST:
+              await this.request(step);
               break;
-            }
-            case ScenarioStepType.WAIT_FOR_REQUEST: {
-              let success = false;
-              for (let i = 0; i < step.maximumRetries; i += 1) {
-                const response = await this.request(step);
-
-                try {
-                  const body = await response.json();
-                  expect(body).toMatchObject(step.expectedResponse);
-                  this.cache[step.name] = JSON.stringify(body);
-                  success = true;
-                  break;
-                } catch {
-                  await this.sleep(step.secondsBetweenRetries * 1000);
-                }
-              }
-
-              if (!success) {
-                throw new Error(`Wait for request "${step.name}" failed.`);
-              }
+            case ScenarioStepType.WAIT_FOR_REQUEST:
+              await this.waitForRequest(step);
               break;
-            }
-            case ScenarioStepType.VERIFY_RESOURCES: {
-              const logs = await this.fetchQaLogs({
-                eventId: step.eventId(this.cache),
-                before: step.before,
-                after: step.after,
-              });
-
-              expect(logs).toMatchObject(step.expectedCalls);
-            }
+            case ScenarioStepType.VERIFY_RESOURCES:
+              await this.verifyResources(step);
+              break;
           }
         },
-        1000 * 60 * 10
+        10 * MINUTES_TO_SECONDS * SECONDS_TO_MILLISECONDS
       );
     }
   }
 
-  private sleep(timeout: number): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, timeout);
+  private async request(step: ScenarioStepRequest & ScenarioStepBase) {
+    const response = await this.requestsManager.request({
+      ...step,
+      token: this.usersManager.getUserToken(step.user),
     });
-  }
 
-  private async setupUsers() {
-    await Promise.all(
-      this.scenario.users.map(async (user) => this.setupUser(user))
-    );
-  }
-
-  private async setupUser(user: ScenarioUser) {
-    await this.cognito.send(
-      new AdminCreateUserCommand({
-        UserPoolId: process.env.USERPOOL_ID!,
-        Username: user.username,
-        TemporaryPassword: 'Qa@Trackit2025$',
-        MessageAction: MessageActionType.SUPPRESS,
-      })
+    expect(response.status).toEqual(
+      step.expectedStatusCode !== undefined ? step.expectedStatusCode : 200
     );
 
-    await this.cognito.send(
-      new AdminSetUserPasswordCommand({
-        UserPoolId: process.env.USERPOOL_ID!,
-        Username: user.username,
-        Password: 'Qa@Trackit2025$',
-        Permanent: true,
-      })
-    );
-
-    if (user.isCreator === true) {
-      await this.cognito.send(
-        new AdminAddUserToGroupCommand({
-          UserPoolId: process.env.USERPOOL_ID!,
-          Username: user.username,
-          GroupName: 'Creators',
-        })
-      );
+    if (typeof step.expectedResponse === 'string') {
+      expect(response.body).toEqual(step.expectedResponse);
+    } else if (step.expectedResponse !== undefined) {
+      expect(JSON.parse(response.body)).toMatchObject(step.expectedResponse);
     }
-
-    const authResponse = await this.cognito.send(
-      new AdminInitiateAuthCommand({
-        UserPoolId: process.env.USERPOOL_ID!,
-        ClientId: process.env.CLIENT_ID!,
-        AuthFlow: 'ADMIN_NO_SRP_AUTH',
-        AuthParameters: {
-          USERNAME: user.username,
-          PASSWORD: 'Qa@Trackit2025$',
-        },
-      })
-    );
-
-    this.tokens[user.username] = authResponse.AuthenticationResult.IdToken;
   }
 
-  private async destroyUsers() {
-    await Promise.all(
-      this.scenario.users.map(async (user) => this.destroyUser(user))
-    );
-  }
-
-  private async destroyUser(user: ScenarioUser) {
-    await this.cognito.send(
-      new AdminDeleteUserCommand({
-        UserPoolId: process.env.USERPOOL_ID!,
-        Username: user.username,
-      })
-    );
-  }
-
-  private request(
-    request: Pick<ScenarioStepRequest, 'route' | 'method' | 'body' | 'user'>
+  private async waitForRequest(
+    step: ScenarioStepWaitForRequest & ScenarioStepBase
   ) {
-    const route =
-      typeof request.route === 'string'
-        ? request.route
-        : request.route(this.cache);
+    let success = false;
+    for (let i = 0; i < step.maximumRetries; i += 1) {
+      const response = await this.requestsManager.request({
+        ...step,
+        token: this.usersManager.getUserToken(step.user),
+      });
 
-    return fetch(`${process.env.API_URL}${route}`, {
-      method: request.method,
-      headers: {
-        Authorization: `Bearer ${this.tokens[request.user]}`,
-      },
-      body:
-        request.body !== undefined ? JSON.stringify(request.body) : undefined,
-    });
+      try {
+        expect(JSON.parse(response.body)).toMatchObject(step.expectedResponse);
+        success = true;
+        break;
+      } catch {
+        await sleep(step.secondsBetweenRetries * SECONDS_TO_MILLISECONDS);
+      }
+    }
+
+    if (!success) {
+      throw new Error(`Wait for request "${step.name}" failed.`);
+    }
   }
 
-  private async fetchQaLogs({
-    eventId,
-    before,
-    after,
-  }: {
-    eventId: string;
-    before?: Date;
-    after?: Date;
-  }) {
-    const listResponse = await this.s3.send(
-      new ListObjectsV2Command({
-        Bucket: process.env.LOGS_BUCKET,
-        Prefix: eventId,
-      })
-    );
-
-    const logs = await Promise.all(
-      listResponse.Contents.map(async (item) => {
-        const response = await this.s3.send(
-          new GetObjectCommand({
-            Bucket: process.env.LOGS_BUCKET,
-            Key: item.Key,
-          })
-        );
-
-        return {
-          key: item.Key,
-          body: JSON.parse(await response.Body.transformToString()),
-        };
-      })
-    );
-
-    const filteredLogs = logs.filter((log) => {
-      const logDate = new Date(path.parse(log.key).name);
-
-      if (before !== undefined && logDate > before) {
-        return false;
-      }
-
-      if (after !== undefined && logDate < after) {
-        return false;
-      }
-
-      return true;
+  private async verifyResources(
+    step: ScenarioStepVerifyResources & ScenarioStepBase
+  ) {
+    const logs = await this.logsManager.fetchLogs({
+      eventId: this.requestsManager.processCacheQuery(step.eventId),
+      before: step.before,
+      after: step.after,
     });
 
-    return filteredLogs.map((item) => item.body);
-  }
-
-  private async wipeDatabase() {
-    const items = await this.dynamo.send(
-      new ScanCommand({
-        TableName: process.env.EVENTS_TABLE_NAME,
-        Limit: 100,
-      })
-    );
-    await Promise.all(
-      (items.Items || []).map(async (item) => {
-        await this.dynamo.send(
-          new DeleteCommand({
-            TableName: process.env.EVENTS_TABLE_NAME,
-            Key: {
-              id: item.id.S,
-            },
-          })
-        );
-      })
-    );
+    expect(logs).toMatchObject(step.expectedCalls);
   }
 }

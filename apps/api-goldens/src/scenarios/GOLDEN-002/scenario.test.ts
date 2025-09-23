@@ -1,5 +1,5 @@
 import { GoldenRunner } from '../../framework/GoldenRunner';
-import { Scenario, ScenarioStepType } from '../../framework/scenario';
+import { Scenario, ScenarioStepType } from '../../framework/Scenario';
 
 const viewer = 'viewer@trackit.io';
 const creator = 'creator@trackit.io';

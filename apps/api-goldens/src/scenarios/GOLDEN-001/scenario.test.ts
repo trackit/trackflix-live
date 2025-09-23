@@ -1,14 +1,14 @@
 import { GoldenRunner } from '../../framework/GoldenRunner';
-import { Scenario, ScenarioStepType } from '../../framework/scenario';
+import { Scenario, ScenarioStepType } from '../../framework/Scenario';
 
 const viewer = 'viewer@trackit.io';
 const creator = 'creator@trackit.io';
 
 const onAirStartTime = new Date();
-onAirStartTime.setSeconds(onAirStartTime.getSeconds() + 90);
+onAirStartTime.setSeconds(onAirStartTime.getSeconds() + 140);
 
 const onAirEndTime = new Date(onAirStartTime);
-onAirEndTime.setSeconds(onAirEndTime.getSeconds() + 45);
+onAirEndTime.setSeconds(onAirEndTime.getSeconds() + 30);
 
 const scenario: Scenario = {
   users: [

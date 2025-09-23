@@ -61,7 +61,7 @@ export class CreateEventUseCaseImpl implements CreateEventUseCase {
     const preTxTime = new Date(event.onAirStartTime);
 
     if (process.env['QA_MODE'] === 'true') {
-      preTxTime.setMinutes(preTxTime.getMinutes() - 1);
+      preTxTime.setMinutes(preTxTime.getMinutes() - 2);
     } else {
       preTxTime.setMinutes(preTxTime.getMinutes() - 5);
     }
