@@ -1,0 +1,33 @@
+{
+  "name": "api-goldens-ci",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "targets": {
+    "validate": {
+      "command": "sam validate",
+      "options": {
+        "cwd": "apps/api-goldens-ci"
+      },
+      "dependsOn": ["build"]
+    },
+    "build": {
+      "command": "sam build --cached",
+      "options": {
+        "cwd": "apps/api-goldens-ci"
+      }
+    },
+    "deploy": {
+      "command": "sam deploy --stack-name=\"trackflix-live-api-goldens-ci-$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-live-api-goldens-ci-$STAGE\" --parameter-overrides Stage=\"$STAGE\" GitHubOrgUser=\"$GITHUB_ORG_USER\" RepositoryName=\"$GITHUB_REPO_NAME\" OIDCAudience=\"$OIDC_AUDIENCE\" --no-fail-on-empty-changeset",
+      "options": {
+        "cwd": "apps/api-goldens-ci"
+      },
+      "dependsOn": ["build"]
+    },
+    "delete": {
+      "command": "sam delete --stack-name=\"trackflix-live-api-goldens-ci-$STAGE\"",
+      "options": {
+        "cwd":  "apps/api-goldens-ci"
+      }
+    }
+  }
+}

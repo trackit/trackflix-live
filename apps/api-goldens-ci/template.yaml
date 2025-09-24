@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for the GitHub OIDC for the TrackFlix Live application
+
+Parameters:
+  Stage:
+    Type: String
+    Description: The deployment stage (e.g., dev, staging, prod)
+  GitHubOrgUser:
+    Type: String
+    Description: The GitHub organization or username that owns the repository
+  RepositoryName:
+    Type: String
+    Description: The name of the GitHub repository
+  OIDCAudience:
+    Type: String
+    Default: sts.amazonaws.com
+    Description: The audience value in the JWT token (typically sts.amazonaws.com)
+
+Resources:
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated:
+                - !Ref GithubOidc
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Ref OIDCAudience
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrgUser}/${RepositoryName}:*
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  GithubOidc:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - !Ref OIDCAudience
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+Outputs:
+  Role:
+    Value: !GetAtt Role.Arn
