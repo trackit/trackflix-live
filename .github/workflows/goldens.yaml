@@ -12,4 +12,4 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
-      - run: npx nx run api-goldens:test
+      - run: npx nx run api-goldens:run
