@@ -16,6 +16,9 @@
     },
     "generateEnvironment": {
       "command": "sh scripts/generateApiGoldensEnvironment.sh"
+    },
+    "emptyLogsBucket": {
+      "command": "aws s3 rm s3://$LOGS_BUCKET --recursive"
     }
   }
 }

@@ -30,4 +30,5 @@ jobs:
       - run: npx nx run api-goldens:generateEnvironment
       - run: npx nx run api-goldens:run
         continue-on-error: true
-      - run: npx nx run api:delete
+      - run: npx nx run api-goldens:emptyLogsBucket
+      - run: npx nx run api:delete --no-prompts
