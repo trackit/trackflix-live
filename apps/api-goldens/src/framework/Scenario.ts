@@ -57,5 +57,5 @@ export interface ScenarioStepVerifyResources {
   before?: Date;
   after?: Date;
 
-  expectedCalls?: unknown[];
+  expectedCalls: unknown[];
 }

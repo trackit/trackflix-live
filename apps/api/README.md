@@ -110,3 +110,7 @@ This handler calls the `setErrorStatus` use case which updates some values in th
 ## Infrastructure
 
 In the `src/infrastructure` folder, you will find implementations for the core's ports: they tie the infrastructure to the core business logic.
+
+## Golden tests
+
+See the Golden tests README [here](../api-goldens/README.md).

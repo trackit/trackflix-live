@@ -118,6 +118,9 @@ export class GoldenRunner {
       });
 
       try {
+        expect(response.status).toEqual(
+          step.expectedStatusCode !== undefined ? step.expectedStatusCode : 200
+        );
         expect(JSON.parse(response.body)).toMatchObject(step.expectedResponse);
         success = true;
         break;
