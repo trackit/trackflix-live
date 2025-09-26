@@ -2,7 +2,7 @@
 
 Description golden tests TODO
 
-Schema env golden tests
+![Architecture diagram](assets/diagram.png)
 
 Explain what is mocked and what is real
 
@@ -135,3 +135,21 @@ const scenario: Scenario = {
 | expectedCalls | Yes       | The expected calls to live resources services.                             |
 
 ## 4. CI/CD
+
+A GitHub Actions workflow is available to run the golden tests. It uses OpenID Connect (OIDC) to securely allow GitHub to access AWS resources without requiring long-lived credentials.
+
+First, create a `.env` file in `apps/api-goldens-ci` following this template:
+```dotenv
+STAGE=qa
+GITHUB_ORG_USER=
+GITHUB_REPO_NAME=
+OIDC_AUDIENCE=sts.amazonaws.com
+```
+
+Next, deploy the stack containing the OIDC provider and IAM role used by GitHub:
+```shell
+$ nx run api-goldens-ci:deploy
+```
+
+The stack output will provide an IAM role ARN. Create a GitHub Actions secret with the name `AWS_ROLE_TO_ASSUME` and set its value to this role ARN.
+Once this is done, the workflow can be started manually from GitHub.
