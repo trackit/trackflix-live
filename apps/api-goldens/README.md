@@ -1,10 +1,20 @@
 # Golden tests
 
-Description golden tests TODO
+Golden tests are comprehensive end-to-end integration tests designed to validate the complete functionality of the Trackflix Live system.
+These tests ensure that all components work together correctly by simulating real-world user scenarios and verifying both the API responses and the underlying infrastructure behavior.
+Unlike unit tests that focus on individual components, golden tests validate the entire system flow from user interactions through to live streaming resource management based on real-world scenarios.
 
 ![Architecture diagram](assets/diagram.png)
 
-Explain what is mocked and what is real
+As seen in the diagram, the test runner itself is running on a local computer (or CI/CD pipeline).
+This local test runner will make requests to Trackflix Live's API endpoint to simulate user activity.
+
+Most of Trackflix Live is running in its standard Live configuration apart from a few details that have been changed for test purposes:
+- The condition that a live must be created at least 6 minutes before its air time is removed.
+- The start transmission state machine will run 2 minutes before air time instead of 5 minutes before air time.
+- All the live resources created/destroyed when starting and ending live transmissions are mocked: instead of creating them, we log the actions in an S3 bucket for QA logs: 
+this bucket of logs is used to assert live resources creation and destruction in the test runner.
+- Since MediaLive is not called because of the mocked resources, there is an SQS queue with a slight delay and a Lambda function that sends mocked MediaLive events to Trackflix Live to simulate the channels being created/started/stopped/destroyed.
 
 ## 1. Deploying an environment for golden tests
 
