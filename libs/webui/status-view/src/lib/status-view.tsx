@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { deleteEvent, getEvent, pubsub } from '@trackflix-live/api-client';
+import { eventsRepositorySingleton, pubsub } from '@trackflix-live/api-client';
 import { Event, GetEventResponse, LogType } from '@trackflix-live/types';
 import {
   CopyText,
@@ -170,7 +170,7 @@ export function StatusView() {
     queryKey: ['event', id],
     queryFn: () => {
       if (!id) return null;
-      return getEvent(id);
+      return eventsRepositorySingleton.get().getEvent(id);
     },
   });
   const [event, setEvent] = useState<Event | null>(null);
@@ -186,7 +186,8 @@ export function StatusView() {
   const [now, setNow] = useState<DateTime | null>(null);
   const [canDelete, setCanDelete] = useState(false);
   const deleteMutation = useMutation({
-    mutationFn: () => deleteEvent(event?.id || ''),
+    mutationFn: () =>
+      eventsRepositorySingleton.get().deleteEvent(event?.id || ''),
     onSuccess: () => {
       navigate('/');
     },

@@ -1,15 +1,17 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import CreateEvent from './create-event';
-import { postEvent } from '@trackflix-live/api-client';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import * as allure from 'allure-js-commons';
+import {
+  eventsRepositorySingleton,
+  EventsRepositoryFake,
+} from '@trackflix-live/api-client';
 
-// Mock the api-client
-vi.mock('@trackflix-live/api-client', () => ({
-  postEvent: vi.fn(),
-}));
+// Mock the repository
+const eventsRepository = new EventsRepositoryFake();
+eventsRepositorySingleton.override(eventsRepository);
 
 // Mock the user store
 vi.mock('@trackflix-live/webui-stores', () => ({
@@ -33,10 +35,6 @@ vi.mock('@trackflix-live/forms', () => ({
 describe('SingleAssetFlow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock successful API response
-    (postEvent as any).mockResolvedValue({
-      event: { id: '123' },
-    });
   });
 
   it('should render successfully', async () => {
@@ -71,8 +69,19 @@ describe('SingleAssetFlow', () => {
     const submitButton = screen.getByText('Submit Form');
     fireEvent.click(submitButton);
 
-    // Check if postEvent was called
-    expect(postEvent).toHaveBeenCalledWith({ title: 'Test Event' });
+    // Check if event was created
+    expect(
+      (await eventsRepository.listEvents({ queryStringParameters: {} })).events
+    ).toMatchInlineSnapshot([
+      {
+        createdTime: '1970-01-01T00:00:00.000Z',
+        endpoints: [],
+        id: '0',
+        logs: [],
+        status: 'PRE-TX',
+        title: 'Test Event',
+      },
+    ]);
 
     // Wait for navigation
     await waitFor(() => {
@@ -90,8 +99,10 @@ describe('SingleAssetFlow', () => {
     // Mock console.error to prevent error output in tests
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
-    // Mock API error
-    (postEvent as any).mockRejectedValue(new Error('API Error'));
+    // Repository spy
+    vi.spyOn(eventsRepository, 'createEvent').mockRejectedValueOnce(
+      new Error('Mock Error')
+    );
 
     render(
       <MemoryRouter>

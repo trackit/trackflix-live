@@ -1,10 +1,10 @@
 import { SingleAssetForm } from '@trackflix-live/forms';
-import { postEvent } from '@trackflix-live/api-client';
 import { Panel } from '@trackflix-live/ui';
 import { useState } from 'react';
 import { CreateEventRequest } from '@trackflix-live/types';
 import { useNavigate } from 'react-router';
 import { useUserStore } from '@trackflix-live/webui-stores';
+import { eventsRepositorySingleton } from '@trackflix-live/api-client';
 
 export function CreateEvent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,7 +13,7 @@ export function CreateEvent() {
   const onSubmit = async (data: CreateEventRequest['body']) => {
     try {
       setIsSubmitting(true);
-      const res = await postEvent(data);
+      const res = await eventsRepositorySingleton.get().createEvent(data);
       navigate(`/status/${res.event.id}`);
     } catch (err) {
       setIsSubmitting(false);

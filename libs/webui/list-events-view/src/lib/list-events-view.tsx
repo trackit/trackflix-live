@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { Panel, Table, StatusBadge } from '@trackflix-live/ui';
-import { listEvents } from '@trackflix-live/api-client';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Event,
@@ -17,6 +16,7 @@ import { useDebounceValue } from 'usehooks-ts';
 import { useNavigate } from 'react-router';
 import { PageTitle } from '@trackflix-live/ui';
 import { useUserStore } from '@trackflix-live/webui-stores';
+import { eventsRepositorySingleton } from '@trackflix-live/api-client';
 
 export function ListEventsView() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export function ListEventsView() {
   const { data, isPending } = useQuery<ListEventsResponse['body']>({
     queryKey: ['events', nextToken, perPage, sorting, debouncedSearch],
     queryFn: () => {
-      return listEvents({
+      return eventsRepositorySingleton.get().listEvents({
         queryStringParameters: {
           limit: perPage.toString(),
           nextToken: nextToken,

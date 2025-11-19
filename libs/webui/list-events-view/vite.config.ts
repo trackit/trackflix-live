@@ -5,7 +5,7 @@ import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../../node_modules/.vite/libs/single-asset-flow',
+  cacheDir: '../../../node_modules/.vite/libs/list-events-views',
   plugins: [react(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   // Uncomment this if you are using workers.
   // worker: {
@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     coverage: {
       enabled: true,
-      reportsDirectory: '../../../coverage/libs/single-asset-flow',
+      reportsDirectory: '../../../coverage/libs/list-events-views',
       provider: 'istanbul',
       reporter: ['json'],
     },

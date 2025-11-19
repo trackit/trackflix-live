@@ -15,7 +15,7 @@ export class ApiError extends Error {
   }
 }
 
-export class ApiClient {
+export abstract class ApiBaseClient {
   private readonly axiosInstance: AxiosInstance;
 
   constructor(config: CreateAxiosDefaults) {
@@ -69,26 +69,19 @@ export class ApiClient {
     }
   }
 
-  async get<T>(url: string) {
+  protected async get<T>(url: string) {
     return this.request<T>('get', url);
   }
 
-  async post<T>(url: string, data: unknown) {
+  protected async post<T>(url: string, data: unknown) {
     return this.request<T>('post', url, data);
   }
 
-  async put<T>(url: string, data: unknown) {
+  protected async put<T>(url: string, data: unknown) {
     return this.request<T>('put', url, data);
   }
 
-  async delete<T>(url: string) {
+  protected async delete<T>(url: string) {
     return this.request<T>('delete', url);
   }
 }
-
-export const apiClient = new ApiClient({
-  baseURL: import.meta.env.VITE_API_URL || '',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});

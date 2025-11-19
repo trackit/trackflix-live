@@ -6,10 +6,10 @@ import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import { CreateEvent } from '@trackflix-live/create-event';
 import { ListEventsView } from '@trackflix-live/list-events-view';
 import { StatusView } from '@trackflix-live/status-view';
-import { postIot } from '@trackflix-live/api-client';
 
 import Topbar from './topbar';
 import { useUserStore } from '@trackflix-live/webui-stores';
+import { iotServiceSingleton } from '@trackflix-live/api-client';
 
 export function App() {
   const { setUserSession, setUser } = useUserStore();
@@ -20,7 +20,9 @@ export function App() {
         const session = await fetchAuthSession();
         setUserSession(session);
         if (session.identityId)
-          await postIot({ identityId: session.identityId });
+          await iotServiceSingleton
+            .get()
+            .attachIotPolicy({ identityId: session.identityId });
       } catch (error) {
         console.error('Error attaching IoT Core to cognito identity:', error);
       }
