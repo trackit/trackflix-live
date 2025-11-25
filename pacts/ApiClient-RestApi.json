@@ -1,0 +1,129 @@
+{
+  "consumer": {
+    "name": "ApiClient"
+  },
+  "interactions": [
+    {
+      "description": "get all events",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "events exist"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/events"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "events": [
+              {
+                "id": "1",
+                "name": "My first event"
+              }
+            ]
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.events": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "get event with id 10",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "event with id 10 exists"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/event/10"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "event": {
+              "id": "1",
+              "name": "My first event"
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.event": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "16.0.2"
+    },
+    "pactRust": {
+      "ffi": "0.4.28",
+      "models": "1.3.5"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "RestApi"
+  }
+}

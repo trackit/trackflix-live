@@ -26,9 +26,9 @@ export abstract class ApiBaseClient {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken;
 
-      if (!token || !config.headers)
-        throw new ApiError('Authentication failed');
-      config.headers.Authorization = `Bearer ${token.toString()}`;
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token.toString()}`;
+      }
       return config;
     });
 

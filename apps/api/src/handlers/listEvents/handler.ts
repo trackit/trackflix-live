@@ -8,7 +8,7 @@ import { CustomRequestContext } from '../types';
 import { registerQaInfrastructure } from '../../infrastructure/registerQaInfrastructure';
 
 const infrastructure =
-  process.env.QA_MODE !== 'true'
+  process.env.QA_MODE !== 'true' && process.env.AWS_SAM_LOCAL !== 'true'
     ? registerProductionInfrastructure
     : registerQaInfrastructure;
 infrastructure();

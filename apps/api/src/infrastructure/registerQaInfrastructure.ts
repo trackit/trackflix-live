@@ -34,7 +34,18 @@ export const registerQaInfrastructure = () => {
   const schedulerClient = new SchedulerClient();
   const iotDataPlaneClient = new IoTDataPlaneClient();
   const iotClient = new IoTClient();
-  const dynamoClient = new DynamoDBClient();
+  const dynamoClient = new DynamoDBClient(
+    process.env.AWS_SAM_LOCAL === 'true'
+      ? {
+          endpoint: 'http://docker.for.mac.localhost:8000/',
+          credentials: {
+            accessKeyId: 'fakeAccessKeyId',
+            secretAccessKey: 'fakeSecretAccessKey',
+          },
+          region: 'us-west-2',
+        }
+      : {}
+  );
   const dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
   const sfnClient = new SFNClient();
   const s3Client = new S3Client();
@@ -76,7 +87,7 @@ export const registerQaInfrastructure = () => {
     useFactory: () => {
       return new EventsDynamoDBRepository(
         dynamoDocumentClient,
-        process.env.EVENTS_TABLE || ''
+        process.env.EVENTS_TABLE || 'EventsTable'
       );
     },
   });

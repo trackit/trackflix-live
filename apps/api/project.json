@@ -47,6 +47,13 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "local": {
+      "command": "sam local start-api",
+      "options": {
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["build"]
     }
   }
 }
