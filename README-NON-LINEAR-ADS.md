@@ -51,7 +51,7 @@ Our system supports two formats:
 
 The system relies on a chain of AWS services that transform a raw video stream into a broadcastable stream with integrated ads:
 
-![TrackIt TV Architecture - Complete pipeline from video source to browser](apps/webui/public/docs/Trackit%20TV%20architecture.png)
+![TrackIt TV Architecture - Complete pipeline from video source to browser](apps/webui/public/docs/Trackit_TV_architecture.png)
 
 The key point: **MediaTailor does not visually insert the ad into the video**. It inserts **metadata** (markers) into the HLS manifest. It is then the **client** (our React code) that reads this metadata and displays the ad components on top of the video.
 
