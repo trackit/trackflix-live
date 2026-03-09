@@ -32,9 +32,9 @@ const getTimelineSteps = (event: Event): TimelineStepWithLog[] => {
       loading:
         event.logs.length === 0 &&
         DateTime.now().toMillis() >
-          DateTime.fromISO(event.onAirStartTime)
-            .minus({ minutes: PRE_TX_TIME })
-            .toMillis(),
+        DateTime.fromISO(event.onAirStartTime)
+          .minus({ minutes: PRE_TX_TIME })
+          .toMillis(),
     },
     {
       id: LogType.LIVE_INPUT_CREATED,
@@ -183,6 +183,9 @@ export function StatusView() {
   );
   const [displayPlayer, setDisplayPlayer] = useState(false);
   const [displayLinks, setDisplayLinks] = useState(false);
+  const [orientation, setOrientation] = useState<'HORIZONTAL' | 'VERTICAL'>(
+    'HORIZONTAL'
+  );
   const [now, setNow] = useState<DateTime | null>(null);
   const [canDelete, setCanDelete] = useState(false);
   const deleteMutation = useMutation({
@@ -336,21 +339,42 @@ export function StatusView() {
           </div>
 
           <Panel className={'w-full min-w-[80dvw] mb-14 !p-4'}>
+            <div className="flex justify-between items-center mb-6">
+              <div className="tabs tabs-boxed">
+                <button
+                  className={`tab ${orientation === 'HORIZONTAL' ? 'tab-active' : ''}`}
+                  onClick={() => setOrientation('HORIZONTAL')}
+                >
+                  Live (16:9)
+                </button>
+                <button
+                  className={`tab ${orientation === 'VERTICAL' ? 'tab-active' : ''}`}
+                  onClick={() => setOrientation('VERTICAL')}
+                  disabled={
+                    !event?.endpoints.some((e) => e.orientation === 'VERTICAL')
+                  }
+                >
+                  Cropped (9:16)
+                </button>
+              </div>
+            </div>
             {displayLinks ? (
               <>
-                {event?.endpoints.map((endpoint) => (
-                  <CopyText
-                    key={endpoint.url}
-                    className={'w-full mb-2'}
-                    text={endpoint.url}
-                    icon={
-                      <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
-                        <Link className="w-3 h-3" />
-                        {endpoint.type}
-                      </div>
-                    }
-                  />
-                ))}
+                {event?.endpoints
+                  .filter((e) => e.orientation === orientation)
+                  .map((endpoint) => (
+                    <CopyText
+                      key={endpoint.url}
+                      className={'w-full mb-2'}
+                      text={endpoint.url}
+                      icon={
+                        <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
+                          <Link className="w-3 h-3" />
+                          {endpoint.type}
+                        </div>
+                      }
+                    />
+                  ))}
                 <hr className={'my-6'} />
               </>
             ) : null}
@@ -361,10 +385,17 @@ export function StatusView() {
               <div className={'flex-grow w-full md:w-1/2 lg:w-2/3 '}>
                 {displayPlayer ? (
                   <VideoPlayer
+                    key={`${orientation}-${event?.id}`}
                     src={
                       event?.endpoints.find(
+                        (endpoint) =>
+                          endpoint.orientation === orientation &&
+                          endpoint.type === 'HLS'
+                      )?.url ||
+                      event?.endpoints.find(
                         (endpoint) => endpoint.type === 'HLS'
-                      )?.url || ''
+                      )?.url ||
+                      ''
                     }
                   />
                 ) : (

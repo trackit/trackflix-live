@@ -6,8 +6,9 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
+import { tokenElementalInferenceManager } from '../../ports';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
-import { inject, reset } from '@trackflix-live/di';
+import { inject, reset, register } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Create live channel use case', () => {
@@ -249,6 +250,11 @@ const setup = () => {
   const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
+  const elementalInferenceManager = {
+    setupRealtimeCropping: jest.fn().mockResolvedValue(undefined),
+  };
+  register(tokenElementalInferenceManager, { useValue: elementalInferenceManager });
+
   const useCase = new CreateLiveChannelUseCaseImpl();
 
   return {
@@ -257,5 +263,6 @@ const setup = () => {
     liveChannelsManager,
     useCase,
     eventUpdateSender,
+    elementalInferenceManager,
   };
 };

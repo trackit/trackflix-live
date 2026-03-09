@@ -8,6 +8,7 @@ export class CreateCloudFrontOriginAdapter {
   public async handle(params: {
     eventId: string;
     packageDomainName: string;
+    verticalPackageDomainName?: string;
     endpoints: EventEndpoint[];
   }): Promise<{
     eventId: string;
@@ -15,6 +16,7 @@ export class CreateCloudFrontOriginAdapter {
     await this.useCase.createCDNOrigin({
       eventId: params.eventId,
       packageDomainName: params.packageDomainName,
+      verticalPackageDomainName: params.verticalPackageDomainName,
       endpoints: params.endpoints,
     });
     return {
