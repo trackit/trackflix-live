@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 
 interface VideoPlayerProps {
   src: string;
+  aspectRatio?: '16/9' | '9/16';
 }
 
 interface QualityLevel {
@@ -18,7 +19,7 @@ interface HlsStats {
   maxBitrate: number;
 }
 
-export function VideoPlayer({ src }: VideoPlayerProps) {
+export function VideoPlayer({ src, aspectRatio = '16/9' }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [qualities, setQualities] = useState<QualityLevel[]>([]);
@@ -135,7 +136,12 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         controls
         autoPlay
         muted
-        className="w-full mx-auto"
+        className="w-full mx-auto bg-black rounded-lg shadow-lg"
+        style={{
+          aspectRatio: aspectRatio.replace('/', ' / '),
+          objectFit: 'contain',
+          maxWidth: aspectRatio === '9/16' ? '400px' : '100%',
+        }}
       />
     </div>
   );

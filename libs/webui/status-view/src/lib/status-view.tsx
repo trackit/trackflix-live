@@ -354,7 +354,7 @@ export function StatusView() {
                     !event?.endpoints.some((e) => e.orientation === 'VERTICAL')
                   }
                 >
-                  Cropped (9:16)
+                  Live (9:16)
                 </button>
               </div>
             </div>
@@ -386,6 +386,7 @@ export function StatusView() {
                 {displayPlayer ? (
                   <VideoPlayer
                     key={`${orientation}-${event?.id}`}
+                    aspectRatio={orientation === 'VERTICAL' ? '9/16' : '16/9'}
                     src={
                       event?.endpoints.find(
                         (endpoint) =>
