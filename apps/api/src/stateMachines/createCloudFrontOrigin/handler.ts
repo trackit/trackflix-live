@@ -11,13 +11,16 @@ export const main = async (params: {
   liveChannelArn: string;
   liveChannelId: string;
   packageChannelId: string;
+  verticalPackageChannelId: string;
   packageDomainName: string;
+  verticalPackageDomainName?: string;
   endpoints: EventEndpoint[];
 }): Promise<{
   eventId: string;
   liveChannelArn: string;
   liveChannelId: string;
   packageChannelId: string;
+  verticalPackageChannelId: string;
 }> => {
   await adapter.handle(params);
   return {
@@ -25,5 +28,6 @@ export const main = async (params: {
     liveChannelArn: params.liveChannelArn,
     liveChannelId: params.liveChannelId,
     packageChannelId: params.packageChannelId,
+    verticalPackageChannelId: params.verticalPackageChannelId,
   };
 };

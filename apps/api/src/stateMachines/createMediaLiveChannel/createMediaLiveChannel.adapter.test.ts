@@ -21,6 +21,8 @@ describe('Create MediaLive channel adapter', () => {
       input: {
         packageChannelId,
         eventId,
+        packageDomainName: 'example.com',
+        endpoints: [],
       },
       taskToken,
     });
@@ -30,11 +32,17 @@ describe('Create MediaLive channel adapter', () => {
       liveChannelArn,
       liveChannelId,
       packageChannelId,
+      endpoints: [],
+      packageDomainName: 'example.com',
+      verticalPackageChannelId: undefined,
+      verticalPackageDomainName: undefined,
     });
     expect(useCase.createLiveChannel).toHaveBeenCalledWith({
       packageChannelId,
       eventId,
       taskToken,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
   });
 });
