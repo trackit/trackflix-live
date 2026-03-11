@@ -6,8 +6,9 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
+import { tokenElementalInferenceManager } from '../../ports';
 import { EventMother, EventUpdateAction } from '@trackflix-live/types';
-import { inject, reset } from '@trackflix-live/di';
+import { inject, reset, register } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils/errors';
 
 describe('Create live channel use case', () => {
@@ -37,6 +38,8 @@ describe('Create live channel use case', () => {
       eventId,
       taskToken,
       packageChannelId,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
 
     expect(response).toEqual({
@@ -85,6 +88,8 @@ describe('Create live channel use case', () => {
       eventId,
       taskToken,
       packageChannelId,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
 
     expect(taskTokensRepository.taskTokens).toEqual([
@@ -96,6 +101,10 @@ describe('Create live channel use case', () => {
           liveChannelArn,
           liveChannelId,
           packageChannelId,
+          packageDomainName: 'example.com',
+          endpoints: [],
+          verticalPackageChannelId: undefined,
+          verticalPackageDomainName: undefined,
         },
         taskToken,
       },
@@ -128,6 +137,8 @@ describe('Create live channel use case', () => {
       eventId,
       taskToken,
       packageChannelId,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
 
     expect(eventsRepository.events[0].logs).toEqual([
@@ -164,6 +175,8 @@ describe('Create live channel use case', () => {
       eventId,
       taskToken,
       packageChannelId,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
 
     expect(eventsRepository.events).toMatchObject([
@@ -207,6 +220,8 @@ describe('Create live channel use case', () => {
       eventId,
       taskToken,
       packageChannelId,
+      packageDomainName: 'example.com',
+      endpoints: [],
     });
 
     expect(eventUpdateSender.eventUpdates).toMatchObject([
@@ -236,6 +251,8 @@ describe('Create live channel use case', () => {
         eventId,
         taskToken,
         packageChannelId,
+        packageDomainName: 'example.com',
+        endpoints: [],
       })
     ).rejects.toThrow(EventDoesNotExistError);
   });
@@ -249,6 +266,11 @@ const setup = () => {
   const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
 
+  const elementalInferenceManager = {
+    setupRealtimeCropping: jest.fn().mockResolvedValue(undefined),
+  };
+  register(tokenElementalInferenceManager, { useValue: elementalInferenceManager });
+
   const useCase = new CreateLiveChannelUseCaseImpl();
 
   return {
@@ -257,5 +279,6 @@ const setup = () => {
     liveChannelsManager,
     useCase,
     eventUpdateSender,
+    elementalInferenceManager,
   };
 };
