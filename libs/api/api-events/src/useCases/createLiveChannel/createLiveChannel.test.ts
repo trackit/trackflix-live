@@ -269,7 +269,9 @@ const setup = () => {
   const elementalInferenceManager = {
     setupRealtimeCropping: jest.fn().mockResolvedValue(undefined),
   };
-  register(tokenElementalInferenceManager, { useValue: elementalInferenceManager });
+  register(tokenElementalInferenceManager, {
+    useValue: elementalInferenceManager,
+  });
 
   const useCase = new CreateLiveChannelUseCaseImpl();
 

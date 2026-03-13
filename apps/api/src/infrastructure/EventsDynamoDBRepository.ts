@@ -136,8 +136,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
       events: response.Items as Event[],
       nextToken: response.LastEvaluatedKey
         ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString(
-          'base64'
-        )
+            'base64'
+          )
         : null,
     };
   }
@@ -356,7 +356,8 @@ export class EventsDynamoDBRepository implements EventsRepository {
       Key: {
         id: eventId,
       },
-      UpdateExpression: 'SET #verticalPackageDomainName = :verticalPackageDomainName',
+      UpdateExpression:
+        'SET #verticalPackageDomainName = :verticalPackageDomainName',
       ExpressionAttributeNames: {
         '#verticalPackageDomainName': 'verticalPackageDomainName',
       },

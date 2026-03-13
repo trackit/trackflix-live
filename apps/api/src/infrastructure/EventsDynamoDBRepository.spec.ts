@@ -18,7 +18,8 @@ import * as http from 'http';
 
 const isDBUp = async () => {
   return new Promise((resolve) => {
-    const req = http.get('http://localhost:8000', () => resolve(true))
+    const req = http
+      .get('http://localhost:8000', () => resolve(true))
       .on('error', () => resolve(false));
     req.end();
   });
@@ -28,7 +29,7 @@ describe('EventsDynamoDBRepository', () => {
   let dbUp = false;
 
   beforeAll(async () => {
-    dbUp = await isDBUp() as boolean;
+    dbUp = (await isDBUp()) as boolean;
   });
 
   beforeEach(async () => {
@@ -45,7 +46,9 @@ describe('EventsDynamoDBRepository', () => {
   describe('createEvent', () => {
     if (!dbUp) {
       it('should skip tests if db is down', () => {
-        console.warn('Skipping createEvent tests because DynamoDB Local is down');
+        console.warn(
+          'Skipping createEvent tests because DynamoDB Local is down'
+        );
       });
       return;
     }

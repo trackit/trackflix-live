@@ -6,12 +6,12 @@ Resources:
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: !Sub "${AWS::StackName}"
+      BucketName: !Sub '${AWS::StackName}'
       PublicAccessBlockConfiguration:
-        BlockPublicAcls : true
-        BlockPublicPolicy : true
-        IgnorePublicAcls : true
-        RestrictPublicBuckets : true
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -43,7 +43,7 @@ Resources:
           - DomainName: !GetAtt S3Bucket.RegionalDomainName
             Id: S3Origin
             S3OriginConfig:
-              OriginAccessIdentity: ""
+              OriginAccessIdentity: ''
             OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
         Enabled: true
         DefaultRootObject: index.html
@@ -80,7 +80,7 @@ Resources:
 
 Outputs:
   BucketName:
-    Value: !Sub "${AWS::StackName}"
+    Value: !Sub '${AWS::StackName}'
   DistributionId:
     Value: !Ref CFDistribution
   DomainName:

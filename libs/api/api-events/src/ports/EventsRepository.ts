@@ -33,8 +33,14 @@ export interface EventsRepository {
     eventId: string,
     liveWaitingInputId: string
   ): Promise<Event>;
-  updatePackageDomainName(eventId: string, packageDomainName: string): Promise<Event>;
-  updateVerticalPackageDomainName(eventId: string, verticalPackageDomainName: string): Promise<Event>;
+  updatePackageDomainName(
+    eventId: string,
+    packageDomainName: string
+  ): Promise<Event>;
+  updateVerticalPackageDomainName(
+    eventId: string,
+    verticalPackageDomainName: string
+  ): Promise<Event>;
   updateEventDestroyedTime(
     eventId: string,
     destroyedTime: string

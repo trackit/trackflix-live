@@ -88,7 +88,10 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
-  async updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event> {
+  async updateEndpoints(
+    eventId: string,
+    endpoints: EventEndpoint[]
+  ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
       throw new EventDoesNotExistError();

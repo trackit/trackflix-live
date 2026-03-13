@@ -142,9 +142,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
         // Update endpoint URL to use CloudFront domain
         endpoint.url =
-          'https://' +
-          distributionData.distribution.DomainName +
-          pathPattern;
+          'https://' + distributionData.distribution.DomainName + pathPattern;
       }
     }
 
@@ -181,7 +179,9 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
     const origins =
       distributionData.distribution.DistributionConfig.Origins.Items;
     distributionData.distribution.DistributionConfig.Origins.Items =
-      origins.filter((origin) => origin.Id !== eventId && origin.Id !== `${eventId}-vertical`);
+      origins.filter(
+        (origin) => origin.Id !== eventId && origin.Id !== `${eventId}-vertical`
+      );
     distributionData.distribution.DistributionConfig.Origins.Quantity =
       distributionData.distribution.DistributionConfig.Origins.Items.length;
 
@@ -193,7 +193,9 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     distributionData.distribution.DistributionConfig.CacheBehaviors.Items =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items.filter(
-        (behavior) => behavior.TargetOriginId !== eventId && behavior.TargetOriginId !== `${eventId}-vertical`
+        (behavior) =>
+          behavior.TargetOriginId !== eventId &&
+          behavior.TargetOriginId !== `${eventId}-vertical`
       );
     distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items.length;

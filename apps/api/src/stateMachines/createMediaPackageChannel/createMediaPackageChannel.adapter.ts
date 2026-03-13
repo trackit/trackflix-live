@@ -5,11 +5,7 @@ import { EventEndpoint } from '@trackflix-live/types';
 export class CreateMediaPackageChannelAdapter {
   private readonly useCase = inject(tokenCreatePackageChannelUseCase);
 
-  public async handle({
-    eventId,
-  }: {
-    eventId: string;
-  }): Promise<{
+  public async handle({ eventId }: { eventId: string }): Promise<{
     eventId: string;
     packageChannelId: string;
     verticalPackageChannelId: string;

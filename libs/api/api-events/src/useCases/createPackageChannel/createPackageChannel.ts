@@ -3,7 +3,11 @@ import {
   tokenEventUpdateSender,
   tokenPackageChannelsManager,
 } from '../../ports';
-import { EventEndpoint, EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventEndpoint,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreatePackageChannelUseCase {
@@ -17,7 +21,8 @@ export interface CreatePackageChannelUseCase {
 }
 
 export class CreatePackageChannelUseCaseImpl
-  implements CreatePackageChannelUseCase {
+  implements CreatePackageChannelUseCase
+{
   private readonly packageChannelsManager = inject(tokenPackageChannelsManager);
 
   private readonly eventsRepository = inject(tokenEventsRepository);
@@ -37,9 +42,15 @@ export class CreatePackageChannelUseCaseImpl
     await this.eventsRepository.updateEndpoints(eventId, endpoints);
 
     const packageDomainName =
-      endpoints.find((e) => e.orientation === 'HORIZONTAL')?.url.replace('https://', '').split('/')[0] ?? '';
+      endpoints
+        .find((e) => e.orientation === 'HORIZONTAL')
+        ?.url.replace('https://', '')
+        .split('/')[0] ?? '';
     const verticalPackageDomainName =
-      endpoints.find((e) => e.orientation === 'VERTICAL')?.url.replace('https://', '').split('/')[0] ?? '';
+      endpoints
+        .find((e) => e.orientation === 'VERTICAL')
+        ?.url.replace('https://', '')
+        .split('/')[0] ?? '';
 
     await this.eventsRepository.updatePackageDomainName(
       eventId,

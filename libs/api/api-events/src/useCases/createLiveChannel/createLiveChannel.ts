@@ -5,7 +5,11 @@ import {
   tokenTaskTokensRepository,
   tokenElementalInferenceManager,
 } from '../../ports';
-import { EventEndpoint, EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventEndpoint,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
 
@@ -41,7 +45,9 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  private readonly elementalInferenceManager = inject(tokenElementalInferenceManager);
+  private readonly elementalInferenceManager = inject(
+    tokenElementalInferenceManager
+  );
 
   public async createLiveChannel({
     eventId,
@@ -65,7 +71,9 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     });
 
     // Configuration of real-time smart cropping for this event
-    await this.elementalInferenceManager.setupRealtimeCropping(liveChannel.channelArn);
+    await this.elementalInferenceManager.setupRealtimeCropping(
+      liveChannel.channelArn
+    );
 
     const currentTimestamp = Date.now();
     await this.eventsRepository.appendLogsToEvent(eventId, [
