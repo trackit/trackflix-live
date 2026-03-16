@@ -1,5 +1,4 @@
 import { createInjectionToken } from '@trackflix-live/di';
-import { PackageChannelsManager } from './PackageChannelsManager';
 
 export interface CreateTaskTokenParameters {
   channelArn: string;
