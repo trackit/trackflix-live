@@ -45,6 +45,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     eventId,
     source,
     packageChannelId,
+    verticalPackageChannelId,
   }: CreateChannelParameters): Promise<CreateChannelResponse> {
     const waitingInputName = `TrackflixLiveMLIW-${eventId}`;
     const waitingInput = await this.client.send(
@@ -314,6 +315,26 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
                     MediaPackageOutputSettings: {},
                   },
                   VideoDescriptionName: 'video_768_432',
+                },
+              ],
+            },
+            {
+              OutputGroupSettings: {
+                MediaPackageGroupSettings: {
+                  Destination: {
+                    DestinationRefId: 'VerticalDestination',
+                  },
+                },
+              },
+              Outputs: [
+                {
+                  AudioDescriptionNames: ['audio_1_aac128'],
+                  CaptionDescriptionNames: [],
+                  OutputName: 'Vertical_1080_1920',
+                  OutputSettings: {
+                    MediaPackageOutputSettings: {},
+                  },
+                  VideoDescriptionName: 'video_1080_1920_smartcrop',
                 },
               ],
             },
@@ -682,6 +703,46 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               Sharpness: 50,
               Width: 1920,
             },
+            {
+              CodecSettings: {
+                H264Settings: {
+                  AdaptiveQuantization: 'HIGH',
+                  AfdSignaling: 'NONE',
+                  Bitrate: 3000000,
+                  ColorMetadata: 'INSERT',
+                  EntropyEncoding: 'CABAC',
+                  FlickerAq: 'ENABLED',
+                  ForceFieldPictures: 'DISABLED',
+                  FramerateControl: 'SPECIFIED',
+                  FramerateDenominator: 1001,
+                  FramerateNumerator: 30000,
+                  GopBReference: 'ENABLED',
+                  GopClosedCadence: 1,
+                  GopNumBFrames: 3,
+                  GopSize: 60,
+                  GopSizeUnits: 'FRAMES',
+                  Level: 'H264_LEVEL_4_1',
+                  LookAheadRateControl: 'HIGH',
+                  NumRefFrames: 1,
+                  ParControl: 'SPECIFIED',
+                  Profile: 'HIGH',
+                  RateControlMode: 'CBR',
+                  ScanType: 'PROGRESSIVE',
+                  SceneChangeDetect: 'ENABLED',
+                  SpatialAq: 'ENABLED',
+                  SubgopLength: 'FIXED',
+                  Syntax: 'DEFAULT',
+                  TemporalAq: 'ENABLED',
+                  TimecodeInsertion: 'DISABLED',
+                },
+              },
+              Height: 1920,
+              Name: 'video_1080_1920_smartcrop',
+              RespondToAfd: 'NONE',
+              ScalingBehavior: 'STRETCH_TO_OUTPUT',
+              Sharpness: 50,
+              Width: 1080,
+            },
           ],
         },
         Destinations: [
@@ -690,6 +751,14 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
             MediaPackageSettings: [
               {
                 ChannelId: packageChannelId,
+              },
+            ],
+          },
+          {
+            Id: 'VerticalDestination',
+            MediaPackageSettings: [
+              {
+                ChannelId: verticalPackageChannelId,
               },
             ],
           },

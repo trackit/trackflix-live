@@ -44,6 +44,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     '#liveChannelId': 'liveChannelId',
     '#liveInputId': 'liveInputId',
     '#packageDomainName': 'packageDomainName',
+    '#verticalPackageDomainName': 'verticalPackageDomainName',
     '#liveWaitingInputId': 'liveWaitingInputId',
     '#logs': 'logs',
     '#endpoints': 'endpoints',
@@ -337,6 +338,31 @@ export class EventsDynamoDBRepository implements EventsRepository {
       },
       ExpressionAttributeValues: {
         ':packageDomainName': packageDomainName,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    const response = await this.client.send(new UpdateCommand(params));
+
+    return response.Attributes as Event;
+  }
+
+  public async updateVerticalPackageDomainName(
+    eventId: string,
+    verticalPackageDomainName: string
+  ): Promise<Event> {
+    const params: UpdateCommandInput = {
+      TableName: this.tableName,
+      Key: {
+        id: eventId,
+      },
+      UpdateExpression:
+        'SET #verticalPackageDomainName = :verticalPackageDomainName',
+      ExpressionAttributeNames: {
+        '#verticalPackageDomainName': 'verticalPackageDomainName',
+      },
+      ExpressionAttributeValues: {
+        ':verticalPackageDomainName': verticalPackageDomainName,
       },
       ReturnValues: 'ALL_NEW',
     };
