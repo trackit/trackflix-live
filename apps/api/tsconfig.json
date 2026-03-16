@@ -12,6 +12,6 @@
   ],
   "compilerOptions": {
     "esModuleInterop": true,
-    "strictNullChecks": true,
+    "strictNullChecks": true
   }
 }
