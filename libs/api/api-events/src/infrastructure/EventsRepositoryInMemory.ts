@@ -88,7 +88,10 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
-  async updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event> {
+  async updateEndpoints(
+    eventId: string,
+    endpoints: EventEndpoint[]
+  ): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
       throw new EventDoesNotExistError();
@@ -165,6 +168,19 @@ export class EventsRepositoryInMemory implements EventsRepository {
     }
 
     event.packageDomainName = packageDomainName;
+    return event;
+  }
+
+  public async updateVerticalPackageDomainName(
+    eventId: string,
+    verticalPackageDomainName: string
+  ): Promise<Event> {
+    const event = this.events.find((event) => event.id === eventId);
+    if (!event) {
+      throw new EventDoesNotExistError();
+    }
+
+    event.verticalPackageDomainName = verticalPackageDomainName;
 
     return event;
   }

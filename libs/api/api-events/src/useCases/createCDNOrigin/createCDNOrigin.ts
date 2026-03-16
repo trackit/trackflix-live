@@ -18,25 +18,32 @@ export interface CreateCDNOriginUseCase {
 export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
   private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly cdnDistributionsManager = inject(tokenCDNDistributionsManager);
+  private readonly cdnDistributionsManager = inject(
+    tokenCDNDistributionsManager
+  );
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
   public async createCDNOrigin({
     eventId,
+    packageDomainName,
+    verticalPackageDomainName,
+    endpoints,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
       throw new EventDoesNotExistError();
     }
 
-    const { endpoints } = await this.cdnDistributionsManager.createOrigin({
-      eventId,
-      packageDomainName: event.packageDomainName ?? '',
-      endpoints: event.endpoints ?? [],
-    });
+    const { endpoints: updatedEndpoints } =
+      await this.cdnDistributionsManager.createOrigin({
+        eventId,
+        packageDomainName: packageDomainName,
+        verticalPackageDomainName: verticalPackageDomainName,
+        endpoints: endpoints,
+      });
 
-    await this.eventsRepository.updateEndpoints(eventId, endpoints);
+    await this.eventsRepository.updateEndpoints(eventId, updatedEndpoints);
 
     const currentTimestamp = Date.now();
     const logEvent = await this.eventsRepository.appendLogsToEvent(eventId, [

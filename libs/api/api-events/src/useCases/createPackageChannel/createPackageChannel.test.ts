@@ -25,7 +25,13 @@ describe('Create Package channel use case', () => {
 
     const response = await useCase.createPackageChannel(event.id);
 
-    expect(response).toEqual(packageChannelId);
+    expect(response).toEqual({
+      packageChannelId,
+      verticalPackageChannelId: `${packageChannelId}-vertical`,
+      packageDomainName: '',
+      verticalPackageDomainName: '',
+      endpoints: [],
+    });
     expect(packageChannelsManager.createdChannels).toEqual([event.id]);
   });
 
@@ -60,10 +66,12 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
         type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
       },
     ]);
 
@@ -73,10 +81,12 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
         type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
       },
     ]);
   });
@@ -93,12 +103,15 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
     ]);
 
     await useCase.createPackageChannel(event.id);
 
-    expect(eventsRepository.events[0].packageDomainName).toEqual('trackflix-live.mediapackage.com');
+    expect(eventsRepository.events[0].packageDomainName).toEqual(
+      'trackflix-live.mediapackage.com'
+    );
   });
 
   it('should emit events', async () => {

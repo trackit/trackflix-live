@@ -3,11 +3,21 @@ import {
   tokenEventUpdateSender,
   tokenPackageChannelsManager,
 } from '../../ports';
-import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventEndpoint,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreatePackageChannelUseCase {
-  createPackageChannel(eventId: string): Promise<string>;
+  createPackageChannel(eventId: string): Promise<{
+    packageChannelId: string;
+    verticalPackageChannelId: string;
+    packageDomainName: string;
+    verticalPackageDomainName: string;
+    endpoints: EventEndpoint[];
+  }>;
 }
 
 export class CreatePackageChannelUseCaseImpl
@@ -19,14 +29,37 @@ export class CreatePackageChannelUseCaseImpl
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  public async createPackageChannel(eventId: string): Promise<string> {
-    const { channelId, endpoints } =
+  public async createPackageChannel(eventId: string): Promise<{
+    packageChannelId: string;
+    verticalPackageChannelId: string;
+    packageDomainName: string;
+    verticalPackageDomainName: string;
+    endpoints: EventEndpoint[];
+  }> {
+    const { mainChannelId, verticalChannelId, endpoints } =
       await this.packageChannelsManager.createChannel(eventId);
 
     await this.eventsRepository.updateEndpoints(eventId, endpoints);
 
-    const packageDomainName = endpoints.at(0)?.url.replace('https://', '').split('/')[0] ?? '';
-    await this.eventsRepository.updatePackageDomainName(eventId, packageDomainName);
+    const packageDomainName =
+      endpoints
+        .find((e) => e.orientation === 'HORIZONTAL')
+        ?.url.replace('https://', '')
+        .split('/')[0] ?? '';
+    const verticalPackageDomainName =
+      endpoints
+        .find((e) => e.orientation === 'VERTICAL')
+        ?.url.replace('https://', '')
+        .split('/')[0] ?? '';
+
+    await this.eventsRepository.updatePackageDomainName(
+      eventId,
+      packageDomainName
+    );
+    await this.eventsRepository.updateVerticalPackageDomainName(
+      eventId,
+      verticalPackageDomainName
+    );
 
     const event = await this.eventsRepository.appendLogsToEvent(eventId, [
       {
@@ -40,7 +73,13 @@ export class CreatePackageChannelUseCaseImpl
       value: event,
     });
 
-    return channelId;
+    return {
+      packageChannelId: mainChannelId,
+      verticalPackageChannelId: verticalChannelId,
+      packageDomainName,
+      verticalPackageDomainName,
+      endpoints,
+    };
   }
 }
 

@@ -6,7 +6,6 @@ import {
 } from '../../ports';
 import { EventStatus, EventUpdateAction } from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
-import { StopTransmissionUseCaseImpl } from '../stopTransmission';
 
 export interface StopLiveChannelParameters {
   eventId: string;

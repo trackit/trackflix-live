@@ -9,15 +9,15 @@ import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
 
 export interface DeleteCDNOriginUseCase {
-  deleteCDNOrigin(
-    params: DeleteCDNOriginParameters
-  ): Promise<void>;
+  deleteCDNOrigin(params: DeleteCDNOriginParameters): Promise<void>;
 }
 
 export class DeleteCDNOriginUseCaseImpl implements DeleteCDNOriginUseCase {
   private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly cdnDistributionsManager = inject(tokenCDNDistributionsManager);
+  private readonly cdnDistributionsManager = inject(
+    tokenCDNDistributionsManager
+  );
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
