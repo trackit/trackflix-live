@@ -1,7 +1,9 @@
 import { createInjectionToken } from '@trackflix-live/di';
 import { ElementalInferenceManager } from '../ports/ElementalInferenceManager';
 
-export class ElementalInferenceManagerFake implements ElementalInferenceManager {
+export class ElementalInferenceManagerFake
+  implements ElementalInferenceManager
+{
   public readonly setupRealtimeCroppingCalls: string[] = [];
 
   public async setupRealtimeCropping(channelArn: string): Promise<void> {
