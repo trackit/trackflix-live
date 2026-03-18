@@ -4,6 +4,7 @@ import {
   tokenEventsRepositoryInMemory,
   tokenEventUpdateSenderFake,
   tokenLiveChannelsManagerFake,
+  tokenElementalInferenceManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
 import { tokenElementalInferenceManager } from '../../ports';
@@ -256,6 +257,62 @@ describe('Create live channel use case', () => {
       })
     ).rejects.toThrow(EventDoesNotExistError);
   });
+
+  it('should create vertical live channel', async () => {
+    const {
+      useCase,
+      eventsRepository,
+      liveChannelsManager,
+      elementalInferenceManager,
+      taskTokensRepository,
+    } = setup();
+    const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
+    const taskToken = 'sample_task_token';
+    const packageChannelId = '8354829';
+    const verticalPackageChannelId = '9354829';
+    const liveChannelArn =
+      'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+    const liveChannelId = '8626488';
+    const source = 's3://f1-live-broadcasts/monaco-gp-2025-live.mp4';
+    const liveInputId = '1234567';
+    const liveWaitingInputId = '7654321';
+
+    await eventsRepository.createEvent(
+      EventMother.basic().withId(eventId).withSource(source).build()
+    );
+    liveChannelsManager.setCreateChannelResponse({
+      channelArn: liveChannelArn,
+      channelId: liveChannelId,
+      inputId: liveInputId,
+      waitingInputId: liveWaitingInputId,
+    });
+
+    await useCase.createLiveChannel({
+      eventId,
+      taskToken,
+      packageChannelId,
+      verticalPackageChannelId,
+      packageDomainName: 'example.com',
+      verticalPackageDomainName: 'vertical.example.com',
+      endpoints: [],
+    });
+
+    expect(liveChannelsManager.createdChannels).toEqual([
+      {
+        eventId,
+        packageChannelId,
+        verticalPackageChannelId,
+        source,
+      },
+    ]);
+    expect(elementalInferenceManager.setupRealtimeCroppingCalls).toEqual([
+      liveChannelArn,
+    ]);
+    expect(taskTokensRepository.taskTokens[0].output).toMatchObject({
+      verticalPackageChannelId,
+      verticalPackageDomainName: 'vertical.example.com',
+    });
+  });
 });
 
 const setup = () => {
@@ -265,13 +322,7 @@ const setup = () => {
   const taskTokensRepository = inject(tokenTaskTokensRepositoryInMemory);
   const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
-
-  const elementalInferenceManager = {
-    setupRealtimeCropping: jest.fn().mockResolvedValue(undefined),
-  };
-  register(tokenElementalInferenceManager, {
-    useValue: elementalInferenceManager,
-  });
+  const elementalInferenceManager = inject(tokenElementalInferenceManagerFake);
 
   const useCase = new CreateLiveChannelUseCaseImpl();
 

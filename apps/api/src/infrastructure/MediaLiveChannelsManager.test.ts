@@ -101,6 +101,41 @@ describe('MediaLive channels manager', () => {
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toMatchSnapshot();
     });
+
+    it('should create vertical channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+      const packageChannelId = '456789';
+      const verticalPackageChannelId = '987654';
+      const source = 's3://trackflix-live-demo-videos/oss117.mp4';
+      const inputId = '9876543';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+      const liveChannelId = '8626488';
+
+      mock.on(CreateInputCommand).resolves({
+        Input: {
+          Id: inputId,
+        },
+      });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: {
+          Arn: liveChannelArn,
+          Id: liveChannelId,
+        },
+      });
+
+      await mediaLiveChannelsManager.createChannel({
+        eventId,
+        packageChannelId,
+        verticalPackageChannelId,
+        source,
+      });
+
+      const commandCalls = mock.commandCalls(CreateChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toMatchSnapshot();
+    });
   });
 
   describe('startChannel', () => {
