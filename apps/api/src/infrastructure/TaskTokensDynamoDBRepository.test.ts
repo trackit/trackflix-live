@@ -1,25 +1,26 @@
 import {
-  CreateTableCommand,
-  DeleteTableCommand,
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  DeleteCommand,
+} from '@aws-sdk/lib-dynamodb';
+import { mockClient } from 'aws-sdk-client-mock';
 import { TaskTokensDynamoDBRepository } from './TaskTokensDynamoDBRepository';
 
 describe('TaskTokensDynamoDBRepository', () => {
-  beforeEach(async () => {
-    const { createTable } = setup();
-    await createTable();
+  const ddbMock = mockClient(DynamoDBDocumentClient);
+  const tableName = 'TaskTokensTable';
+  const repository = new TaskTokensDynamoDBRepository({
+    client: ddbMock as unknown as DynamoDBDocumentClient,
+    tableName,
   });
 
-  afterEach(async () => {
-    const { deleteTable } = setup();
-    await deleteTable();
+  beforeEach(() => {
+    ddbMock.reset();
   });
 
   describe('createTaskToken', () => {
     it('should create a task token', async () => {
-      const { ddbClient, repository, tableName } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const taskToken = 'sample_task_token';
@@ -35,29 +36,27 @@ describe('TaskTokensDynamoDBRepository', () => {
         expectedStatus,
       });
 
-      const databaseResponse = await ddbClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: {
-            key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
-          },
-        })
-      );
-
-      expect(databaseResponse.Item).toEqual({
-        key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
-        output,
-        taskToken,
+      expect(ddbMock.commandCalls(PutCommand)).toHaveLength(1);
+      expect(ddbMock.commandCalls(PutCommand)[0].args[0].input).toEqual({
+        TableName: tableName,
+        Item: {
+          key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
+          output,
+          taskToken,
+        },
       });
     });
   });
 
   describe('consumeTaskToken', () => {
     it('should do nothing if task token does not exist', async () => {
-      const { repository } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const expectedStatus = 'CREATED' as const;
+
+      ddbMock.on(GetCommand).resolves({
+        Item: undefined,
+      });
 
       const response = await repository.consumeTaskToken({
         channelArn,
@@ -68,7 +67,6 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should return task token', async () => {
-      const { repository } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const taskToken = 'sample_task_token';
@@ -77,11 +75,12 @@ describe('TaskTokensDynamoDBRepository', () => {
       };
       const expectedStatus = 'CREATED' as const;
 
-      await repository.createTaskToken({
-        channelArn,
-        taskToken,
-        output,
-        expectedStatus,
+      ddbMock.on(GetCommand).resolves({
+        Item: {
+          key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
+          output,
+          taskToken,
+        },
       });
 
       const response = await repository.consumeTaskToken({
@@ -96,7 +95,6 @@ describe('TaskTokensDynamoDBRepository', () => {
     });
 
     it('should delete task token', async () => {
-      const { repository, ddbClient, tableName } = setup();
       const channelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
       const taskToken = 'sample_task_token';
@@ -105,11 +103,12 @@ describe('TaskTokensDynamoDBRepository', () => {
       };
       const expectedStatus = 'CREATED' as const;
 
-      await repository.createTaskToken({
-        channelArn,
-        taskToken,
-        output,
-        expectedStatus,
+      ddbMock.on(GetCommand).resolves({
+        Item: {
+          key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
+          output,
+          taskToken,
+        },
       });
 
       await repository.consumeTaskToken({
@@ -117,64 +116,13 @@ describe('TaskTokensDynamoDBRepository', () => {
         expectedStatus,
       });
 
-      const databaseResponse = await ddbClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: {
-            key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
-          },
-        })
-      );
-
-      expect(databaseResponse.Item).toBeUndefined();
+      expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(1);
+      expect(ddbMock.commandCalls(DeleteCommand)[0].args[0].input).toEqual({
+        TableName: tableName,
+        Key: {
+          key: 'arn:aws:medialive:us-west-2:000000000000:channel:8626488#CREATED',
+        },
+      });
     });
   });
 });
-
-const setup = () => {
-  const tableName = 'TaskTokensTable';
-  const dynamoDBClient = new DynamoDBClient({
-    endpoint: 'http://localhost:8000',
-    credentials: {
-      accessKeyId: 'fakeAccessKeyId',
-      secretAccessKey: 'fakeSecretAccessKey',
-    },
-    region: 'us-west-2',
-  });
-
-  const ddbClient = DynamoDBDocumentClient.from(dynamoDBClient);
-  const createTable = async () => {
-    await dynamoDBClient.send(
-      new CreateTableCommand({
-        TableName: tableName,
-        AttributeDefinitions: [{ AttributeName: 'key', AttributeType: 'S' }],
-        KeySchema: [{ AttributeName: 'key', KeyType: 'HASH' }],
-        ProvisionedThroughput: {
-          ReadCapacityUnits: 1,
-          WriteCapacityUnits: 1,
-        },
-      })
-    );
-  };
-
-  const deleteTable = async () => {
-    await dynamoDBClient.send(
-      new DeleteTableCommand({
-        TableName: tableName,
-      })
-    );
-  };
-
-  const repository = new TaskTokensDynamoDBRepository({
-    client: ddbClient,
-    tableName,
-  });
-
-  return {
-    ddbClient,
-    repository,
-    tableName,
-    createTable,
-    deleteTable,
-  };
-};

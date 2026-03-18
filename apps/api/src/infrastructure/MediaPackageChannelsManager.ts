@@ -52,7 +52,8 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
     }
 
     return {
-      channelId: mediaPackageChannelId,
+      mainChannelId: mediaPackageChannelId,
+      verticalChannelId: 'not-implemented-yet',
       endpoints: [
         {
           url: hlsResponse.Url,

@@ -1,22 +1,29 @@
 import { CreateMediaPackageChannelAdapter } from './createMediaPackageChannel.adapter';
 import { register, reset } from '@trackflix-live/di';
 import { tokenCreatePackageChannelUseCase } from '@trackflix-live/api-events';
+import { EventEndpoint } from '@trackflix-live/types';
 
 describe('Create MediaPackage channel', () => {
   it('should call use case', async () => {
     const { useCase, adapter } = setup();
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
-    const packageChannelId = '123456';
+    const result = {
+      packageChannelId: 'main-123',
+      verticalPackageChannelId: 'vert-123',
+      packageDomainName: 'domain.com',
+      verticalPackageDomainName: 'vdomain.com',
+      endpoints: [] as EventEndpoint[],
+    };
 
-    useCase.createPackageChannel.mockImplementation(() => packageChannelId);
+    useCase.createPackageChannel.mockImplementation(() => result);
 
-    const result = await adapter.handle({
+    const output = await adapter.handle({
       eventId,
     });
 
-    expect(result).toEqual({
+    expect(output).toEqual({
       eventId,
-      packageChannelId,
+      ...result,
     });
     expect(useCase.createPackageChannel).toHaveBeenCalledWith(eventId);
   });

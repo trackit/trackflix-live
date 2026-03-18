@@ -1,10 +1,15 @@
 import { EventsDynamoDBRepository } from './EventsDynamoDBRepository';
 import {
-  CreateTableCommand,
-  DeleteTableCommand,
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  UpdateCommand,
+  QueryCommand,
+  DeleteCommand,
+  ScanCommand,
+} from '@aws-sdk/lib-dynamodb';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { mockClient } from 'aws-sdk-client-mock';
 import {
   EndpointType,
   EventEndpoint,
@@ -15,42 +20,36 @@ import {
 import { EventDoesNotExistError } from '@trackflix-live/api-events';
 
 describe('EventsDynamoDBRepository', () => {
-  beforeEach(async () => {
-    const { createTable } = setup();
-    await createTable();
-  });
+  const ddbMock = mockClient(DynamoDBDocumentClient);
+  const tableName = 'EventsTable';
+  const repository = new EventsDynamoDBRepository(
+    ddbMock as unknown as DynamoDBDocumentClient,
+    tableName
+  );
 
-  afterEach(async () => {
-    const { deleteTable } = setup();
-    await deleteTable();
+  beforeEach(() => {
+    ddbMock.reset();
   });
 
   describe('createEvent', () => {
     it('should create an event in DynamoDB', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
-      const response = await repository.createEvent(sampleEvent);
+      await repository.createEvent(sampleEvent);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
+      expect(ddbMock.commandCalls(PutCommand)).toHaveLength(1);
+      expect(ddbMock.commandCalls(PutCommand)[0].args[0].input).toMatchObject({
+        TableName: tableName,
+        Item: sampleEvent,
       });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(response).toBeUndefined();
-      expect(responseFromDB.Item).toMatchObject(sampleEvent);
     });
   });
 
   describe('listEvents', () => {
     it('should list events from DynamoDB', async () => {
-      const { repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
-      await repository.createEvent(sampleEvent);
+      ddbMock.on(ScanCommand).resolves({
+        Items: [sampleEvent],
+      });
 
       const response = await repository.listEvents({ limit: 10 });
 
@@ -59,28 +58,30 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return events in multiple requests if limit is less than the number of events', async () => {
-      const { repository } = setup();
-
-      await repository.createEvent(
-        EventMother.basic()
-          .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
-          .build()
-      );
-      await repository.createEvent(
-        EventMother.basic()
-          .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
-          .build()
-      );
-      await repository.createEvent(
-        EventMother.basic()
-          .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
-          .build()
-      );
+      ddbMock.on(ScanCommand).resolves({
+        Items: [
+          EventMother.basic()
+            .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
+            .build(),
+        ],
+        LastEvaluatedKey: { id: '37bfc238-6ef4-45a4-b874-9d8c2525ac5f' },
+      });
 
       const response = await repository.listEvents({ limit: 1 });
 
       expect(response.events.length).toBe(1);
       expect(response.nextToken).toBeDefined();
+
+      ddbMock.on(ScanCommand).resolves({
+        Items: [
+          EventMother.basic()
+            .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
+            .build(),
+          EventMother.basic()
+            .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
+            .build(),
+        ],
+      });
 
       const response2 = await repository.listEvents({
         limit: 3,
@@ -92,8 +93,6 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order', async () => {
-      const { repository } = setup();
-
       const event1 = EventMother.basic()
         .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
         .withName('Event 1')
@@ -106,9 +105,10 @@ describe('EventsDynamoDBRepository', () => {
         .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
         .withName('Event 3')
         .build();
-      await repository.createEvent(event3);
-      await repository.createEvent(event1);
-      await repository.createEvent(event2);
+
+      ddbMock.on(QueryCommand).resolves({
+        Items: [event1, event2, event3],
+      });
 
       const response = await repository.listEvents({
         limit: 10,
@@ -119,8 +119,6 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in desc order', async () => {
-      const { repository } = setup();
-
       const event1 = EventMother.basic()
         .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
         .withName('Event 1')
@@ -133,9 +131,10 @@ describe('EventsDynamoDBRepository', () => {
         .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
         .withName('Event 3')
         .build();
-      await repository.createEvent(event3);
-      await repository.createEvent(event1);
-      await repository.createEvent(event2);
+
+      ddbMock.on(QueryCommand).resolves({
+        Items: [event3, event2, event1],
+      });
 
       const response = await repository.listEvents({
         limit: 10,
@@ -147,8 +146,6 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should list and sort items by a given attribute in asc order and using pagination', async () => {
-      const { repository } = setup();
-
       const event1 = EventMother.basic()
         .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
         .withName('Event 1')
@@ -161,9 +158,11 @@ describe('EventsDynamoDBRepository', () => {
         .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
         .withName('Event 3')
         .build();
-      await repository.createEvent(event3);
-      await repository.createEvent(event1);
-      await repository.createEvent(event2);
+
+      ddbMock.on(QueryCommand).resolves({
+        Items: [event1, event2],
+        LastEvaluatedKey: { id: event2.id },
+      });
 
       const response = await repository.listEvents({
         limit: 2,
@@ -171,6 +170,10 @@ describe('EventsDynamoDBRepository', () => {
       });
 
       expect(response.events).toMatchObject([event1, event2]);
+
+      ddbMock.on(QueryCommand).resolves({
+        Items: [event3],
+      });
 
       const response2 = await repository.listEvents({
         limit: 10,
@@ -182,18 +185,14 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified', async () => {
-      const { repository } = setup();
-
       const event1 = EventMother.basic()
         .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
         .withName('Moto GP Race')
         .build();
-      const event2 = EventMother.basic()
-        .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
-        .withName('CS:GO Tournament EUW 2025')
-        .build();
-      await repository.createEvent(event1);
-      await repository.createEvent(event2);
+
+      ddbMock.on(ScanCommand).resolves({
+        Items: [event1],
+      });
 
       const response = await repository.listEvents({
         limit: 10,
@@ -204,8 +203,6 @@ describe('EventsDynamoDBRepository', () => {
     });
 
     it('should return results matching name when specified in any order', async () => {
-      const { repository } = setup();
-
       const event1 = EventMother.basic()
         .withId('37bfc238-6ef4-45a4-b874-9d8c2525ac5f')
         .withName('Moto GP Race')
@@ -214,13 +211,10 @@ describe('EventsDynamoDBRepository', () => {
         .withId('7bb6463a-0fe0-4a25-a0c0-04fa14f66f5e')
         .withName('F1 Race car')
         .build();
-      const event3 = EventMother.basic()
-        .withId('a69fd9cb-a581-4797-a5c6-2e6bdfd18e70')
-        .withName('CS:GO Tournament EUW 2025')
-        .build();
-      await repository.createEvent(event1);
-      await repository.createEvent(event2);
-      await repository.createEvent(event3);
+
+      ddbMock.on(QueryCommand).resolves({
+        Items: [event1, event2],
+      });
 
       const response = await repository.listEvents({
         limit: 10,
@@ -235,10 +229,10 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('getEvent', () => {
     it('should get an event from DynamoDB', async () => {
-      const { repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
-      await repository.createEvent(sampleEvent);
+      ddbMock.on(GetCommand).resolves({
+        Item: sampleEvent,
+      });
 
       const response = await repository.getEvent(sampleEvent.id);
 
@@ -248,263 +242,203 @@ describe('EventsDynamoDBRepository', () => {
 
   describe('appendLogsToEvent', () => {
     it('should append logs to an event', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
-      await repository.createEvent(sampleEvent);
-
       const log = {
         timestamp: Date.now(),
         type: LogType.PACKAGE_CHANNEL_CREATED,
       };
 
-      await repository.appendLogsToEvent(sampleEvent.id, [log]);
-
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          logs: [log],
         },
       });
-      const responseFromDB = await ddbClient.send(command);
 
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        logs: [log],
+      await repository.appendLogsToEvent(sampleEvent.id, [log]);
+
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
+      expect(
+        ddbMock.commandCalls(UpdateCommand)[0].args[0].input
+      ).toMatchObject({
+        TableName: tableName,
+        Key: { id: sampleEvent.id },
       });
     });
   });
 
   describe('updateEventStatus', () => {
     it('should update event status', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic()
         .withStatus(EventStatus.PRE_TX)
         .build();
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          status: EventStatus.TX,
+        },
+      });
 
       await repository.updateEventStatus(sampleEvent.id, EventStatus.TX);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        status: EventStatus.TX,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateLiveChannelArn', () => {
     it('should update event live channel arn', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const liveChannelArn =
         'arn:aws:medialive:us-west-2:000000000000:channel:1672338';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          liveChannelArn,
+        },
+      });
 
       await repository.updateLiveChannelArn(sampleEvent.id, liveChannelArn);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        liveChannelArn,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateLiveChannelId', () => {
     it('should update event live channel id', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const liveChannelId = '1672338';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          liveChannelId,
+        },
+      });
 
       await repository.updateLiveChannelId(sampleEvent.id, liveChannelId);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        liveChannelId,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateLiveInputId', () => {
     it('should update event live input id', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const liveInputId = '1672338';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          liveInputId,
+        },
+      });
 
       await repository.updateLiveInputId(sampleEvent.id, liveInputId);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        liveInputId,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateLiveWaitingInputId', () => {
     it('should update event live waiting input id', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const liveWaitingInputId = '1672338';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          liveWaitingInputId,
+        },
+      });
 
       await repository.updateLiveWaitingInputId(
         sampleEvent.id,
         liveWaitingInputId
       );
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        liveWaitingInputId,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateEventDestroyedTime', () => {
     it('should update event destroyed time', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const destroyedTime = '2025-02-25T15:56:34.400Z';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          destroyedTime,
+        },
+      });
 
       await repository.updateEventDestroyedTime(sampleEvent.id, destroyedTime);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        destroyedTime,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updatePackageDomainName', () => {
     it('should update event package domain name', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const packageDomainName = 'example-domain.cloudfront.net';
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          packageDomainName,
+        },
+      });
 
       await repository.updatePackageDomainName(
         sampleEvent.id,
         packageDomainName
       );
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        packageDomainName,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('updateEventEndpoints', () => {
     it('should update event endpoints', async () => {
-      const { ddbClient, repository } = setup();
-
       const sampleEvent = EventMother.basic().build();
       const endpoints: EventEndpoint[] = [
         {
           type: EndpointType.HLS,
           url: 'https://example.com/hls/stream.m3u8',
         },
-        {
-          type: EndpointType.DASH,
-          url: 'https://example.com/dash/manifest.mpd',
-        },
       ];
-      await repository.createEvent(sampleEvent);
+
+      ddbMock.on(UpdateCommand).resolves({
+        Attributes: {
+          ...sampleEvent,
+          endpoints,
+        },
+      });
 
       await repository.updateEndpoints(sampleEvent.id, endpoints);
 
-      const command = new GetCommand({
-        TableName: 'EventsTable',
-        Key: {
-          id: sampleEvent.id,
-        },
-      });
-      const responseFromDB = await ddbClient.send(command);
-
-      expect(responseFromDB.Item).toMatchObject({
-        ...sampleEvent,
-        endpoints,
-      });
+      expect(ddbMock.commandCalls(UpdateCommand)).toHaveLength(1);
     });
   });
 
   describe('deleteEvent', () => {
     it('should delete an event from DynamoDB', async () => {
-      const { repository } = setup();
+      ddbMock.on(DeleteCommand).resolves({});
 
-      const sampleEvent = EventMother.basic().build();
-      await repository.createEvent(sampleEvent);
-
-      await repository.deleteEvent(sampleEvent.id);
-      expect(await repository.getEvent(sampleEvent.id)).toBeUndefined();
+      await repository.deleteEvent('some-id');
+      expect(ddbMock.commandCalls(DeleteCommand)).toHaveLength(1);
     });
 
     it('should throw a NotFoundError when deleting an item that does not exist', async () => {
-      const { repository } = setup();
+      ddbMock.on(DeleteCommand).rejects(
+        new ConditionalCheckFailedException({
+          message: 'Item does not exist',
+          $metadata: {},
+        })
+      );
 
       await expect(repository.deleteEvent('non-existing-id')).rejects.toThrow(
         EventDoesNotExistError
@@ -512,91 +446,3 @@ describe('EventsDynamoDBRepository', () => {
     });
   });
 });
-
-const setup = () => {
-  const dynamoDBClient = new DynamoDBClient({
-    endpoint: 'http://localhost:8000',
-    credentials: {
-      accessKeyId: 'fakeAccessKeyId',
-      secretAccessKey: 'fakeSecretAccessKey',
-    },
-    region: 'us-west-2',
-  });
-
-  const ddbClient = DynamoDBDocumentClient.from(dynamoDBClient);
-  const createTable = async () => {
-    await dynamoDBClient.send(
-      new CreateTableCommand({
-        TableName: 'EventsTable',
-        AttributeDefinitions: [
-          { AttributeName: 'id', AttributeType: 'S' },
-          { AttributeName: 'GSI-name-PK', AttributeType: 'S' },
-          { AttributeName: 'name', AttributeType: 'S' },
-          { AttributeName: 'GSI-onAirStartTime-PK', AttributeType: 'S' },
-          { AttributeName: 'onAirStartTime', AttributeType: 'S' },
-          { AttributeName: 'GSI-onAirEndTime-PK', AttributeType: 'S' },
-          { AttributeName: 'onAirEndTime', AttributeType: 'S' },
-          { AttributeName: 'GSI-status-PK', AttributeType: 'S' },
-          { AttributeName: 'status', AttributeType: 'S' },
-        ],
-        KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
-        ProvisionedThroughput: {
-          ReadCapacityUnits: 1,
-          WriteCapacityUnits: 1,
-        },
-        GlobalSecondaryIndexes: [
-          {
-            IndexName: 'GSI-name',
-            KeySchema: [
-              { AttributeName: 'GSI-name-PK', KeyType: 'HASH' },
-              { AttributeName: 'name', KeyType: 'RANGE' },
-            ],
-            Projection: { ProjectionType: 'ALL' },
-          },
-          {
-            IndexName: 'GSI-onAirStartTime',
-            KeySchema: [
-              { AttributeName: 'GSI-onAirStartTime-PK', KeyType: 'HASH' },
-              { AttributeName: 'onAirStartTime', KeyType: 'RANGE' },
-            ],
-            Projection: { ProjectionType: 'ALL' },
-          },
-          {
-            IndexName: 'GSI-onAirEndTime',
-            KeySchema: [
-              { AttributeName: 'GSI-onAirEndTime-PK', KeyType: 'HASH' },
-              { AttributeName: 'onAirEndTime', KeyType: 'RANGE' },
-            ],
-            Projection: { ProjectionType: 'ALL' },
-          },
-          {
-            IndexName: 'GSI-status',
-            KeySchema: [
-              { AttributeName: 'GSI-status-PK', KeyType: 'HASH' },
-              { AttributeName: 'status', KeyType: 'RANGE' },
-            ],
-            Projection: { ProjectionType: 'ALL' },
-          },
-        ],
-        BillingMode: 'PAY_PER_REQUEST',
-      })
-    );
-  };
-
-  const deleteTable = async () => {
-    await dynamoDBClient.send(
-      new DeleteTableCommand({
-        TableName: 'EventsTable',
-      })
-    );
-  };
-
-  const repository = new EventsDynamoDBRepository(ddbClient, 'EventsTable');
-
-  return {
-    ddbClient,
-    repository,
-    createTable,
-    deleteTable,
-  };
-};

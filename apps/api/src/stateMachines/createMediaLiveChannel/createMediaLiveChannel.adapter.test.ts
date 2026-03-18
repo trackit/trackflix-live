@@ -1,12 +1,15 @@
 import { CreateMediaLiveChannelAdapter } from './createMediaLiveChannel.adapter';
 import { register, reset } from '@trackflix-live/di';
 import { tokenCreateLiveChannelUseCase } from '@trackflix-live/api-events';
+import { EventEndpoint } from '@trackflix-live/types';
 
 describe('Create MediaLive channel adapter', () => {
   it('should call use case', async () => {
     const { useCase, adapter } = setup();
-    const packageChannelId = '123456';
     const eventId = '9ce722b8-121f-4f9a-b2ee-3f94760abfd2';
+    const mainChannelId = 'main-123';
+    const verticalChannelId = 'vert-123';
+    const endpoints: EventEndpoint[] = [];
     const taskToken = 'sample_task_token';
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
@@ -19,8 +22,10 @@ describe('Create MediaLive channel adapter', () => {
 
     const response = await adapter.handle({
       input: {
-        packageChannelId,
         eventId,
+        mainChannelId,
+        verticalChannelId,
+        endpoints,
       },
       taskToken,
     });
@@ -29,12 +34,16 @@ describe('Create MediaLive channel adapter', () => {
       eventId,
       liveChannelArn,
       liveChannelId,
-      packageChannelId,
+      mainChannelId,
+      verticalChannelId,
     });
     expect(useCase.createLiveChannel).toHaveBeenCalledWith({
-      packageChannelId,
       eventId,
+      packageChannelId: mainChannelId,
+      verticalPackageChannelId: verticalChannelId,
+      packageDomainName: 'not-implemented-yet',
       taskToken,
+      endpoints,
     });
   });
 });

@@ -1,5 +1,5 @@
 .timeline-container.timeline-left-aligned {
-    li {
-        grid-template-columns: 0px 30px 1fr;
-    }
+  li {
+    grid-template-columns: 0px 30px 1fr;
+  }
 }
