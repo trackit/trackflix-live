@@ -25,11 +25,10 @@ describe('Clock', () => {
     expect(screen.getByText('12:00:00 PM')).toBeInTheDocument();
   });
 
-
   it('should cleanup interval on unmount', () => {
     const clearIntervalSpy = vi.spyOn(window, 'clearInterval');
     const { unmount } = render(<Clock />);
-    
+
     unmount();
     expect(clearIntervalSpy).toHaveBeenCalled();
   });

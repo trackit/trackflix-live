@@ -26,9 +26,9 @@ Resources:
       DistributionConfig:
         Enabled: true
         DefaultCacheBehavior:
-          TargetOriginId: dummy-origin  # We need a default origin
+          TargetOriginId: dummy-origin # We need a default origin
           ViewerProtocolPolicy: redirect-to-https
-          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled policy
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # CachingDisabled policy
         Origins:
           - Id: dummy-origin
             DomainName: trackit.io
@@ -36,89 +36,89 @@ Resources:
               HTTPPort: 80
               HTTPSPort: 443
               OriginProtocolPolicy: match-viewer
-        Comment: !Sub "${AWS::StackName} - Main Distribution"
+        Comment: !Sub '${AWS::StackName} - Main Distribution'
 
   #############
   # IAM ROLES #
   #############
   ProjectLambdaRole:
-    Type: "AWS::IAM::Role"
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-            Action: "sts:AssumeRole"
+            Action: 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+        - PolicyName: !Sub '${AWS::StackName}-DynamoDB-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "dynamodb:PutItem"
-                  - "dynamodb:Scan"
-                  - "dynamodb:GetItem"
-                  - "dynamodb:Query"
-                  - "dynamodb:DeleteItem"
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:DeleteItem'
                 Resource:
                   - !GetAtt EventsTable.Arn
-                  - !Sub "${EventsTable.Arn}/index/*"
+                  - !Sub '${EventsTable.Arn}/index/*'
               - Effect: Allow
                 Action:
-                  - "dynamodb:GetItem"
-                  - "dynamodb:DeleteItem"
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:DeleteItem'
                 Resource:
                   - !GetAtt TaskTokensTable.Arn
-        - PolicyName: !Sub "${AWS::StackName}-EventBridge-policy"
+        - PolicyName: !Sub '${AWS::StackName}-EventBridge-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "scheduler:CreateSchedule"
-                  - "scheduler:DeleteSchedule"
+                  - 'scheduler:CreateSchedule'
+                  - 'scheduler:DeleteSchedule'
                 Resource:
-                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*"
-                  - !Sub "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*"
-        - PolicyName: !Sub "${AWS::StackName}-StepFunctions-policy"
+                  - !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStartTx-*'
+                  - !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/TrackflixLiveStopTx-*'
+        - PolicyName: !Sub '${AWS::StackName}-StepFunctions-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "states:StartExecution"
-                  - "states:SendTaskSuccess"
+                  - 'states:StartExecution'
+                  - 'states:SendTaskSuccess'
                 Resource:
                   - !Ref StartTransmissionStateMachine
                   - !Ref StopTransmissionStateMachine
-        - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
+        - PolicyName: !Sub '${AWS::StackName}-IoTCore-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "iot:Publish"
-                Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+                  - 'iot:Publish'
+                Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}'
               - Effect: Allow
-                Action: "iot:AttachPolicy"
-                Resource: "*"
-        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+                Action: 'iot:AttachPolicy'
+                Resource: '*'
+        - PolicyName: !Sub '${AWS::StackName}-IAM-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "iam:PassRole"
+                  - 'iam:PassRole'
                 Resource:
-                  - !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*"
-        - PolicyName: !Sub "${AWS::StackName}-S3-policy"
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-SchedulerExecutionRole-*'
+        - PolicyName: !Sub '${AWS::StackName}-S3-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
@@ -127,24 +127,24 @@ Resources:
                   - s3:ListBucket
                   - s3:GetObjectAttributes
                 Resource:
-                  - "arn:aws:s3:::*"
+                  - 'arn:aws:s3:::*'
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Action: "sts:AssumeRole"
+          - Action: 'sts:AssumeRole'
             Principal:
-              Service: "states.amazonaws.com"
-            Effect: "Allow"
+              Service: 'states.amazonaws.com'
+            Effect: 'Allow'
       Policies:
         - PolicyName: StepFunctionsPolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Action:
-                  - "lambda:InvokeFunction"
+                  - 'lambda:InvokeFunction'
                 Resource:
                   - !GetAtt CreateMediaPackageChannel.Arn
                   - !GetAtt CreateMediaLiveChannel.Arn
@@ -158,12 +158,12 @@ Resources:
                   - !GetAtt DeleteMediaPackageChannel.Arn
                   - !GetAtt DeleteCloudFrontOrigin.Arn
                   - !GetAtt SetErrorStatus.Arn
-                Effect: "Allow"
+                Effect: 'Allow'
   IoTCoreAccessRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
@@ -172,57 +172,57 @@ Resources:
             Condition:
               StringEquals:
                 cognito-identity.amazonaws.com:aud: !Ref IdentityPool
-              "ForAnyValue:StringLike":
+              'ForAnyValue:StringLike':
                 cognito-identity.amazonaws.com:amr: authenticated
       Policies:
         - PolicyName: IoTCoreAccessPolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "iot:Connect"
-                  - "iot:Publish"
-                  - "iot:Subscribe"
-                  - "iot:Receive"
-                Resource: "*"
+                  - 'iot:Connect'
+                  - 'iot:Publish'
+                  - 'iot:Subscribe'
+                  - 'iot:Receive'
+                Resource: '*'
   IoTCorePolicy:
     Type: AWS::IoT::Policy
     Properties:
-      PolicyName: !Sub "IoTCoreAccessPolicy-${AWS::StackName}"
+      PolicyName: !Sub 'IoTCoreAccessPolicy-${AWS::StackName}'
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action:
-              - "iot:Connect"
-            Resource: "*"
+              - 'iot:Connect'
+            Resource: '*'
           - Effect: Allow
-            Action: "iot:Subscribe"
-            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/${AWS::StackName}"
+            Action: 'iot:Subscribe'
+            Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/${AWS::StackName}'
           - Effect: Allow
-            Action: "iot:Receive"
-            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+            Action: 'iot:Receive'
+            Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}'
   MediaLiveRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Action: "sts:AssumeRole"
+          - Action: 'sts:AssumeRole'
             Principal:
-              Service: "medialive.amazonaws.com"
-            Effect: "Allow"
+              Service: 'medialive.amazonaws.com'
+            Effect: 'Allow'
       Policies:
         - PolicyName: MediaLiveCustomPolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Action:
                   - ssm:Describe*
                   - ssm:Get*
                   - ssm:List*
-                Resource: "*"
+                Resource: '*'
                 Effect: Allow
               - Effect: Allow
                 Action:
@@ -230,7 +230,7 @@ Resources:
                   - s3:PutObject
                   - s3:GetObject
                   - s3:DeleteObject
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - mediastore:ListContainers
@@ -238,7 +238,7 @@ Resources:
                   - mediastore:GetObject
                   - mediastore:DeleteObject
                   - mediastore:DescribeObject
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -252,7 +252,7 @@ Resources:
                   - mediaconnect:ManagedDescribeFlow
                   - mediaconnect:ManagedAddOutput
                   - mediaconnect:ManagedRemoveOutput
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - ec2:describeSubnets
@@ -264,143 +264,143 @@ Resources:
                   - ec2:describeSecurityGroups
                   - ec2:describeAddresses
                   - ec2:associateAddress
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - mediapackage:DescribeChannel
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - mediapackagev2:PutObject
                   - mediapackagev2:GetChannel
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - kms:GenerateDataKey
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                Resource: "*"
+                Resource: '*'
   StateMachineLambdaRole:
-    Type: "AWS::IAM::Role"
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
-            Action: "sts:AssumeRole"
+            Action: 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: !Sub "${AWS::StackName}-MediaPackage-policy"
+        - PolicyName: !Sub '${AWS::StackName}-MediaPackage-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "mediapackage:CreateChannel"
-                  - "mediapackage:DeleteChannel"
+                  - 'mediapackage:CreateChannel'
+                  - 'mediapackage:DeleteChannel'
                 Resource:
-                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*"
+                  - !Sub 'arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:channels/*'
               - Effect: Allow
                 Action:
-                  - "mediapackage:CreateOriginEndpoint"
-                  - "mediapackage:DeleteOriginEndpoint"
+                  - 'mediapackage:CreateOriginEndpoint'
+                  - 'mediapackage:DeleteOriginEndpoint'
                 Resource:
-                  - !Sub "arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*"
-        - PolicyName: !Sub "${AWS::StackName}-MediaLive-policy"
+                  - !Sub 'arn:aws:mediapackage:${AWS::Region}:${AWS::AccountId}:origin_endpoints/*'
+        - PolicyName: !Sub '${AWS::StackName}-MediaLive-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "medialive:CreateInput"
-                  - "medialive:DeleteInput"
+                  - 'medialive:CreateInput'
+                  - 'medialive:DeleteInput'
                 Resource:
-                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*"
+                  - !Sub 'arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:input:*'
               - Effect: Allow
                 Action:
-                  - "medialive:CreateChannel"
-                  - "medialive:StartChannel"
-                  - "medialive:StopChannel"
-                  - "medialive:DeleteChannel"
-                  - "medialive:BatchUpdateSchedule"
+                  - 'medialive:CreateChannel'
+                  - 'medialive:StartChannel'
+                  - 'medialive:StopChannel'
+                  - 'medialive:DeleteChannel'
+                  - 'medialive:BatchUpdateSchedule'
                 Resource:
-                  - !Sub "arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*"
-        - PolicyName: !Sub "${AWS::StackName}-CloudFront-policy"
+                  - !Sub 'arn:aws:medialive:${AWS::Region}:${AWS::AccountId}:channel:*'
+        - PolicyName: !Sub '${AWS::StackName}-CloudFront-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "cloudfront:GetDistribution"
-                  - "cloudfront:UpdateDistribution"
-                  - "cloudfront:GetDistributionConfig"
-                  - "cloudfront:TagResource"
+                  - 'cloudfront:GetDistribution'
+                  - 'cloudfront:UpdateDistribution'
+                  - 'cloudfront:GetDistributionConfig'
+                  - 'cloudfront:TagResource'
                 Resource:
-                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
               - Effect: Allow
                 Action:
-                  - "cloudfront:CreateOriginRequestPolicy"
-                  - "cloudfront:GetOriginRequestPolicy"
-                  - "cloudfront:CreateCachePolicy" 
-                  - "cloudfront:GetCachePolicy"
-                Resource: 
-                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:origin-request-policy/*"
-                  - !Sub "arn:aws:cloudfront::${AWS::AccountId}:cache-policy/*"
-        - PolicyName: !Sub "${AWS::StackName}-IAM-policy"
+                  - 'cloudfront:CreateOriginRequestPolicy'
+                  - 'cloudfront:GetOriginRequestPolicy'
+                  - 'cloudfront:CreateCachePolicy'
+                  - 'cloudfront:GetCachePolicy'
+                Resource:
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:origin-request-policy/*'
+                  - !Sub 'arn:aws:cloudfront::${AWS::AccountId}:cache-policy/*'
+        - PolicyName: !Sub '${AWS::StackName}-IAM-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "iam:PassRole"
+                  - 'iam:PassRole'
                 Resource:
                   - !GetAtt MediaLiveRole.Arn
-        - PolicyName: !Sub "${AWS::StackName}-DynamoDB-policy"
+        - PolicyName: !Sub '${AWS::StackName}-DynamoDB-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "dynamodb:PutItem"
+                  - 'dynamodb:PutItem'
                 Resource:
                   - !GetAtt TaskTokensTable.Arn
               - Effect: Allow
                 Action:
-                  - "dynamodb:GetItem"
-                  - "dynamodb:UpdateItem"
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:UpdateItem'
                 Resource:
                   - !GetAtt EventsTable.Arn
-        - PolicyName: !Sub "${AWS::StackName}-IoTCore-policy"
+        - PolicyName: !Sub '${AWS::StackName}-IoTCore-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "iot:Publish"
-                Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}"
+                  - 'iot:Publish'
+                Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}'
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service: scheduler.amazonaws.com
-            Action: "sts:AssumeRole"
+            Action: 'sts:AssumeRole'
       Policies:
-        - PolicyName: !Sub "${AWS::StackName}-Scheduler-policy"
+        - PolicyName: !Sub '${AWS::StackName}-Scheduler-policy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - "lambda:InvokeFunction"
+                  - 'lambda:InvokeFunction'
                 Resource:
                   - !GetAtt StartTransmission.Arn
                   - !GetAtt StopTransmission.Arn
@@ -410,7 +410,7 @@ Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !Sub "${AWS::StackName}"
+      UserPoolName: !Sub '${AWS::StackName}'
       Policies:
         PasswordPolicy:
           MinimumLength: 12
@@ -438,7 +438,7 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: !Sub "${AWS::StackName}"
+      ClientName: !Sub '${AWS::StackName}'
       UserPoolId: !Ref UserPool
       ExplicitAuthFlows:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
@@ -446,7 +446,7 @@ Resources:
         - ALLOW_USER_SRP_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
       CallbackURLs:
-        - !Sub "http://localhost:3000/auth_callback"
+        - !Sub 'http://localhost:3000/auth_callback'
       SupportedIdentityProviders:
         - COGNITO
       AllowedOAuthFlowsUserPoolClient: true
@@ -460,7 +460,7 @@ Resources:
   IdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
-      IdentityPoolName: !Sub "${AWS::StackName}"
+      IdentityPoolName: !Sub '${AWS::StackName}'
       AllowUnauthenticatedIdentities: false
       CognitoIdentityProviders:
         - ClientId:
@@ -483,26 +483,26 @@ Resources:
   EventsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "events-${AWS::StackName}"
+      TableName: !Sub 'events-${AWS::StackName}'
       AttributeDefinitions:
         - AttributeName: id
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: GSI-name-PK
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: name
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: GSI-onAirStartTime-PK
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: onAirStartTime
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: GSI-onAirEndTime-PK
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: onAirEndTime
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: GSI-status-PK
-          AttributeType: "S"
+          AttributeType: 'S'
         - AttributeName: status
-          AttributeType: "S"
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: id
           KeyType: HASH
@@ -543,10 +543,10 @@ Resources:
   TaskTokensTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "taskTokens-${AWS::StackName}"
+      TableName: !Sub 'taskTokens-${AWS::StackName}'
       AttributeDefinitions:
         - AttributeName: key
-          AttributeType: "S"
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: key
           KeyType: HASH
@@ -567,7 +567,7 @@ Resources:
           START_TX_LAMBDA: !GetAtt StartTransmission.Arn
           STOP_TX_LAMBDA: !GetAtt StopTransmission.Arn
           ROLE_ARN: !GetAtt SchedulerExecutionRole.Arn
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
       Events:
         CreateEvent:
           Type: Api
@@ -580,7 +580,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -605,7 +605,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -630,7 +630,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -642,7 +642,7 @@ Resources:
       Role: !GetAtt ProjectLambdaRole.Arn
       Environment:
         Variables:
-          IOT_POLICY: !Sub "IoTCoreAccessPolicy-${AWS::StackName}"
+          IOT_POLICY: !Sub 'IoTCoreAccessPolicy-${AWS::StackName}'
       Events:
         AttachIotPolicy:
           Type: Api
@@ -655,7 +655,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -682,7 +682,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -707,7 +707,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -725,7 +725,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -743,7 +743,7 @@ Resources:
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -756,13 +756,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -777,14 +777,14 @@ Resources:
           EVENTS_TABLE: !Ref EventsTable
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           MEDIA_LIVE_ROLE: !GetAtt MediaLiveRole.Arn
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
           WAITING_SOURCE: !Ref WaitingSource
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -798,13 +798,13 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -817,14 +817,14 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
           DISTRIBUTION_ID: !Ref CloudFrontDistribution
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -837,13 +837,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -856,13 +856,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -875,13 +875,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -895,13 +895,13 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -915,13 +915,13 @@ Resources:
         Variables:
           TASK_TOKENS_TABLE: !Ref TaskTokensTable
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -934,13 +934,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -953,13 +953,13 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -972,14 +972,14 @@ Resources:
       Environment:
         Variables:
           EVENTS_TABLE: !Ref EventsTable
-          IOT_TOPIC: !Sub "${AWS::StackName}"
+          IOT_TOPIC: !Sub '${AWS::StackName}'
           DISTRIBUTION_ID: !Ref CloudFrontDistribution
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Format: cjs
         Minify: true
-        Target: "es2020"
+        Target: 'es2020'
         Sourcemap: true
         EntryPoints:
           - handler.ts
@@ -990,7 +990,7 @@ Resources:
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Sub "${AWS::StackName}"
+      Name: !Sub '${AWS::StackName}'
       StageName: prod
       Cors:
         AllowMethods: "'*'"
@@ -1009,7 +1009,7 @@ Resources:
   StartTransmissionStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
-      StateMachineName: !Sub "${AWS::StackName}-StartTransmission"
+      StateMachineName: !Sub '${AWS::StackName}-StartTransmission'
       DefinitionString: |
         {
           "Comment": "State machine to start a Trackflix Live transmission",
@@ -1134,7 +1134,7 @@ Resources:
   StopTransmissionStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
-      StateMachineName: !Sub "${AWS::StackName}-StopTransmission"
+      StateMachineName: !Sub '${AWS::StackName}-StopTransmission'
       DefinitionString: |
         {
           "Comment": "State machine to stop a Trackflix Live transmission",
@@ -1248,8 +1248,8 @@ Outputs:
   UserPoolClientId:
     Value: !Ref UserPoolClient
   ApiEndpoint:
-    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod'
   IotTopic:
-    Value: !Sub "${AWS::StackName}"
+    Value: !Sub '${AWS::StackName}'
   CloudFrontDistributionId:
     Value: !Ref CloudFrontDistribution

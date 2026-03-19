@@ -98,7 +98,9 @@ describe('Create Package channel use case', () => {
 
     await useCase.createPackageChannel(event.id);
 
-    expect(eventsRepository.events[0].packageDomainName).toEqual('trackflix-live.mediapackage.com');
+    expect(eventsRepository.events[0].packageDomainName).toEqual(
+      'trackflix-live.mediapackage.com'
+    );
   });
 
   it('should emit events', async () => {
