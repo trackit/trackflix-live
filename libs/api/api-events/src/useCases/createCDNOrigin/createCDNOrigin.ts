@@ -18,7 +18,9 @@ export interface CreateCDNOriginUseCase {
 export class CreateCDNOriginUseCaseImpl implements CreateCDNOriginUseCase {
   private readonly eventsRepository = inject(tokenEventsRepository);
 
-  private readonly cdnDistributionsManager = inject(tokenCDNDistributionsManager);
+  private readonly cdnDistributionsManager = inject(
+    tokenCDNDistributionsManager
+  );
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 

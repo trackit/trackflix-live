@@ -20,9 +20,7 @@ export interface CDNDistributionsManager {
   createOrigin(
     parameters: CreateCDNOriginParameters
   ): Promise<CreateCDNOriginResponse>;
-  deleteOrigin(
-    parameters: DeleteCDNOriginParameters
-  ): Promise<void>;
+  deleteOrigin(parameters: DeleteCDNOriginParameters): Promise<void>;
 }
 export const tokenCDNDistributionsManager =
   createInjectionToken<CDNDistributionsManager>('CDNDistributionsManager');

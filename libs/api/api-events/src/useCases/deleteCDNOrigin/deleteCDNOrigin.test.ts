@@ -16,9 +16,7 @@ describe('Delete CDN origin use case', () => {
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({
@@ -37,9 +35,7 @@ describe('Delete CDN origin use case', () => {
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({
@@ -55,17 +51,11 @@ describe('Delete CDN origin use case', () => {
   });
 
   it('should emit logs after deleting the CDN origin', async () => {
-    const {
-      useCase,
-      eventsRepository,
-      eventUpdateSender,
-    } = setup();
+    const { useCase, eventsRepository, eventUpdateSender } = setup();
     const eventId = 'b5654288-ac69-4cef-90da-32d8acb67a89';
 
     await eventsRepository.createEvent(
-      EventMother.basic()
-        .withId(eventId)
-        .build()
+      EventMother.basic().withId(eventId).build()
     );
 
     await useCase.deleteCDNOrigin({

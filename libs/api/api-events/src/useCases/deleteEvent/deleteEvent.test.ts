@@ -22,9 +22,12 @@ describe('DeleteEvent use case', () => {
   it('should throw an error if the event does not exist', async () => {
     const { useCase } = setup();
 
-    await expect(useCase.deleteEvent({ eventId: 'non-existing-id', userGroups: ['Creators'] })).rejects.toThrow(
-      EventDoesNotExistError
-    );
+    await expect(
+      useCase.deleteEvent({
+        eventId: 'non-existing-id',
+        userGroups: ['Creators'],
+      })
+    ).rejects.toThrow(EventDoesNotExistError);
   });
 
   it('should throw an error if the event status is not PRE_TX', async () => {
@@ -33,9 +36,9 @@ describe('DeleteEvent use case', () => {
     const event = EventMother.basic().withStatus(EventStatus.POST_TX).build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
-      'Event cannot be deleted'
-    );
+    await expect(
+      useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })
+    ).rejects.toThrow('Event cannot be deleted');
   });
 
   it('should throw an error if the current time is between onAirStartTime (-6min) and onAirEndTime', async () => {
@@ -49,9 +52,9 @@ describe('DeleteEvent use case', () => {
       .build();
     await eventsRepository.createEvent(event);
 
-    await expect(useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })).rejects.toThrow(
-      'Cannot delete event while it is on air'
-    );
+    await expect(
+      useCase.deleteEvent({ eventId: event.id, userGroups: ['Creators'] })
+    ).rejects.toThrow('Cannot delete event while it is on air');
   });
 
   it('should delete schedules', async () => {
