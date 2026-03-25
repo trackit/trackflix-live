@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 
 interface VideoPlayerProps {
   src: string;
+  vertical?: boolean;
 }
 
 interface QualityLevel {
@@ -18,7 +19,7 @@ interface HlsStats {
   maxBitrate: number;
 }
 
-export function VideoPlayer({ src }: VideoPlayerProps) {
+export function VideoPlayer({ src, vertical }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [qualities, setQualities] = useState<QualityLevel[]>([]);
@@ -135,7 +136,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         controls
         autoPlay
         muted
-        className="w-full mx-auto"
+        className={vertical ? 'max-w-[300px] mx-auto' : 'w-full mx-auto'}
       />
     </div>
   );
