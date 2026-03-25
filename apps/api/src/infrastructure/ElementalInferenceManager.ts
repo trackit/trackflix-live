@@ -1,10 +1,8 @@
 import {
   ElementalInferenceClient,
   CreateFeedCommand,
-  AssociateFeedCommand,
-  OutputStatus,
-  ListFeedsCommand,
   DeleteFeedCommand,
+  GetFeedCommand,
 } from '@aws-sdk/client-elementalinference';
 
 export class ElementalInferenceManager {
@@ -14,89 +12,50 @@ export class ElementalInferenceManager {
     this.client = client;
   }
 
-  public async setupRealtimeCropping(channelArn: string): Promise<void> {
-    try {
-      await this.cleanupFeeds();
+  public async createFeed(
+    eventId: string
+  ): Promise<{ feedArn: string; feedId: string }> {
+    const response = await this.client.send(
+      new CreateFeedCommand({
+        name: `CroppingFeed-${eventId}`,
+        outputs: [],
+      })
+    );
 
-      const feedName = `CroppingFeed-${Date.now()}`;
-      console.log(
-        `Creating real-time cropping feed: ${feedName} for channel: ${channelArn}`
+    if (!response.arn || !response.id) {
+      throw new Error(
+        `CreateFeedCommand returned incomplete response for event ${eventId}`
       );
-
-      // 1. Create the inference feed
-      const createFeedResponse = await this.client.send(
-        new CreateFeedCommand({
-          name: feedName,
-          outputs: [],
-        })
-      );
-
-      if (!createFeedResponse.id) {
-        throw new Error(
-          `Failed to create Elemental Inference Feed for channel ${channelArn}`
-        );
-      }
-
-      // 2. Associate the feed with the MediaLive channel ID and configure cropping
-      // Note: associatedResourceName does not allow ARNs. We must extract the ID (last part of the ARN).
-      const channelId = channelArn.split(':').pop() || channelArn;
-
-      await this.client.send(
-        new AssociateFeedCommand({
-          id: createFeedResponse.id,
-          associatedResourceName: channelId,
-          outputs: [
-            {
-              name: 'CroppingOutput',
-              status: OutputStatus.ENABLED,
-              outputConfig: {
-                cropping: {},
-              },
-            },
-          ],
-        })
-      );
-
-      console.log(
-        `Successfully associated cropping feed ${createFeedResponse.id} with channel ${channelArn}`
-      );
-    } catch (error) {
-      console.error(
-        `Error during smart cropping setup for channel ${channelArn}:`,
-        error
-      );
-      // Non-blocking: we log the error but don't rethrow to avoid blocking the entire stream creation flow.
-      // This is especially important for ServiceQuotaExceededException.
     }
+
+    await this.waitForFeedAvailable(response.id);
+
+    return { feedArn: response.arn, feedId: response.id };
   }
 
-  private async cleanupFeeds(): Promise<void> {
-    try {
-      const listResponse = await this.client.send(new ListFeedsCommand({}));
-      const feeds = listResponse.feeds || [];
-
-      // If we have more than 0 feeds, try to clean up.
-      // Quota is usually very low (1 or 2), and feeds can leak if deletion fails.
-      if (feeds.length > 0) {
-        console.log(
-          `Found ${feeds.length} existing Elemental Inference feeds. Cleaning up...`
-        );
-        for (const feed of feeds) {
-          if (feed.id) {
-            try {
-              await this.client.send(new DeleteFeedCommand({ id: feed.id }));
-              console.log(`Deleted Elemental Inference feed: ${feed.id}`);
-            } catch (deleteError) {
-              console.warn(`Could not delete feed ${feed.id}:`, deleteError);
-            }
-          }
-        }
+  private async waitForFeedAvailable(
+    feedId: string,
+    maxAttempts = 30,
+    delayMs = 1000
+  ): Promise<void> {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const feed = await this.client.send(new GetFeedCommand({ id: feedId }));
+      if (feed.status === 'AVAILABLE') {
+        return;
       }
-    } catch (listError) {
-      console.warn(
-        'Could not list/cleanup Elemental Inference feeds:',
-        listError
-      );
+      if (feed.status !== 'CREATING') {
+        throw new Error(
+          `Feed ${feedId} entered unexpected state: ${feed.status}`
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
+    throw new Error(
+      `Feed ${feedId} did not become AVAILABLE after ${maxAttempts} attempts`
+    );
+  }
+
+  public async deleteFeed(feedId: string): Promise<void> {
+    await this.client.send(new DeleteFeedCommand({ id: feedId }));
   }
 }

@@ -57,6 +57,7 @@ export interface Event {
   liveChannelArn?: string;
   liveInputId?: string;
   liveWaitingInputId?: string;
+  feedId?: string;
   packageDomainName?: string;
   verticalPackageDomainName?: string;
 }

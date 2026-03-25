@@ -46,6 +46,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
     source,
     packageChannelId,
     verticalPackageChannelId,
+    feedArn,
   }: CreateChannelParameters): Promise<CreateChannelResponse> {
     const waitingInputName = `TrackflixLiveMLIW-${eventId}`;
     const waitingInput = await this.client.send(
@@ -739,7 +740,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               Height: 1920,
               Name: 'video_1080_1920_smartcrop',
               RespondToAfd: 'NONE',
-              ScalingBehavior: 'STRETCH_TO_OUTPUT',
+              ScalingBehavior: 'SMART_CROP',
               Sharpness: 50,
               Width: 1080,
             },
@@ -773,6 +774,7 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
             InputAttachmentName: inputName,
           },
         ],
+        ...(feedArn && { InferenceSettings: { FeedArn: feedArn } }),
       })
     );
     if (

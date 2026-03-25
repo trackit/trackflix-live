@@ -54,6 +54,7 @@ describe('Create live channel use case', () => {
         eventId,
         packageChannelId,
         source,
+        feedArn: 'mock-feed-arn',
       },
     ]);
   });
@@ -297,16 +298,15 @@ describe('Create live channel use case', () => {
       endpoints: [],
     });
 
+    expect(elementalInferenceManager.createFeedCalls).toEqual([eventId]);
     expect(liveChannelsManager.createdChannels).toEqual([
       {
         eventId,
         packageChannelId,
         verticalPackageChannelId,
         source,
+        feedArn: 'mock-feed-arn',
       },
-    ]);
-    expect(elementalInferenceManager.setupRealtimeCroppingCalls).toEqual([
-      liveChannelArn,
     ]);
     expect(taskTokensRepository.taskTokens[0].output).toMatchObject({
       verticalPackageChannelId,

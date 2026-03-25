@@ -5,6 +5,7 @@ export interface CreateChannelParameters {
   source: string;
   packageChannelId: string;
   verticalPackageChannelId?: string;
+  feedArn?: string;
 }
 
 export interface CreateChannelResponse {

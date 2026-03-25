@@ -26,6 +26,7 @@ export interface EventsRepository {
   appendLogsToEvent(eventId: string, logs: EventLog[]): Promise<Event>;
   updateEndpoints(eventId: string, endpoints: EventEndpoint[]): Promise<Event>;
   updateEventStatus(eventId: string, status: EventStatus): Promise<Event>;
+  updateFeedId(eventId: string, feedId: string): Promise<Event>;
   updateLiveChannelId(eventId: string, liveChannelId: string): Promise<Event>;
   updateLiveChannelArn(eventId: string, liveChannelArn: string): Promise<Event>;
   updateLiveInputId(eventId: string, liveInputId: string): Promise<Event>;

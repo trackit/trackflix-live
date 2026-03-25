@@ -63,17 +63,17 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       throw new EventDoesNotExistError();
     }
 
+    // Create Elemental Inference feed first to get feedArn for channel creation
+    const { feedArn, feedId } =
+      await this.elementalInferenceManager.createFeed(eventId);
+
     const liveChannel = await this.liveChannelsManager.createChannel({
       eventId: eventId,
       source: event.source,
       packageChannelId,
       verticalPackageChannelId,
+      feedArn,
     });
-
-    // Configuration of real-time smart cropping for this event
-    await this.elementalInferenceManager.setupRealtimeCropping(
-      liveChannel.channelArn
-    );
 
     const currentTimestamp = Date.now();
     await this.eventsRepository.appendLogsToEvent(eventId, [
@@ -92,11 +92,14 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       liveChannel.channelId
     );
     await this.eventsRepository.updateLiveInputId(eventId, liveChannel.inputId);
-    const eventAfterUpdate =
-      await this.eventsRepository.updateLiveWaitingInputId(
-        eventId,
-        liveChannel.waitingInputId
-      );
+    await this.eventsRepository.updateLiveWaitingInputId(
+      eventId,
+      liveChannel.waitingInputId
+    );
+    const eventAfterUpdate = await this.eventsRepository.updateFeedId(
+      eventId,
+      feedId
+    );
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,

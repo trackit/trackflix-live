@@ -2,10 +2,8 @@ import { mockClient } from 'aws-sdk-client-mock';
 import {
   ElementalInferenceClient,
   CreateFeedCommand,
-  AssociateFeedCommand,
-  ListFeedsCommand,
   DeleteFeedCommand,
-  FeedStatus,
+  GetFeedCommand,
 } from '@aws-sdk/client-elementalinference';
 import { ElementalInferenceManager } from './ElementalInferenceManager';
 
@@ -16,90 +14,79 @@ describe('ElementalInference manager', () => {
     mock.reset();
   });
 
-  describe('setupRealtimeCropping', () => {
-    it('should cleanup existing feeds before creating a new one', async () => {
+  describe('createFeed', () => {
+    it('should create a feed with cropping output and return feedArn and feedId', async () => {
       const { elementalInferenceManager } = setup();
-      const channelArn =
-        'arn:aws:medialive:us-west-2:000000000000:channel:12345';
+      const eventId = 'evt-123';
 
-      mock.on(ListFeedsCommand).resolves({
-        feeds: [
-          {
-            id: 'feed-1',
-            arn: 'arn-1',
-            name: 'name-1',
-            status: FeedStatus.ACTIVE,
-          },
-          {
-            id: 'feed-2',
-            arn: 'arn-2',
-            name: 'name-2',
-            status: FeedStatus.ACTIVE,
-          },
-        ],
+      mock.on(CreateFeedCommand).resolves({
+        arn: 'arn:aws:elementalinference:us-west-2:000000000000:feed/new-feed',
+        id: 'new-feed-id',
       });
-      mock.on(DeleteFeedCommand).resolves({});
-      mock.on(CreateFeedCommand).resolves({ id: 'new-feed-id' });
-      mock.on(AssociateFeedCommand).resolves({});
+      mock.on(GetFeedCommand).resolves({ status: 'AVAILABLE' });
 
-      await elementalInferenceManager.setupRealtimeCropping(channelArn);
+      const result = await elementalInferenceManager.createFeed(eventId);
 
-      expect(mock.commandCalls(ListFeedsCommand)).toHaveLength(1);
-      expect(mock.commandCalls(DeleteFeedCommand)).toHaveLength(2);
-      expect(mock.commandCalls(DeleteFeedCommand)[0].args[0].input).toEqual({
-        id: 'feed-1',
+      expect(result).toEqual({
+        feedArn:
+          'arn:aws:elementalinference:us-west-2:000000000000:feed/new-feed',
+        feedId: 'new-feed-id',
       });
-      expect(mock.commandCalls(DeleteFeedCommand)[1].args[0].input).toEqual({
-        id: 'feed-2',
-      });
-    });
-
-    it('should create and associate feed with MediaLive channel ID', async () => {
-      const { elementalInferenceManager } = setup();
-      const channelArn =
-        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
-      const feedId = 'new-feed-id';
-
-      mock.on(ListFeedsCommand).resolves({ feeds: [] });
-      mock.on(CreateFeedCommand).resolves({ id: feedId });
-      mock.on(AssociateFeedCommand).resolves({});
-
-      await elementalInferenceManager.setupRealtimeCropping(channelArn);
 
       const createFeedCalls = mock.commandCalls(CreateFeedCommand);
       expect(createFeedCalls).toHaveLength(1);
-      expect(createFeedCalls[0].args[0].input).toMatchObject({
-        name: expect.stringMatching(/^CroppingFeed-.*/),
+      expect(createFeedCalls[0].args[0].input).toEqual({
+        name: 'CroppingFeed-evt-123',
         outputs: [],
-      });
-
-      const associateFeedCalls = mock.commandCalls(AssociateFeedCommand);
-      expect(associateFeedCalls).toHaveLength(1);
-      expect(associateFeedCalls[0].args[0].input).toEqual({
-        id: feedId,
-        associatedResourceName: '8626488',
-        outputs: [
-          {
-            name: 'CroppingOutput',
-            status: 'ENABLED',
-            outputConfig: {
-              cropping: {},
-            },
-          },
-        ],
       });
     });
 
-    it('should handle errors gracefully without rethrowing', async () => {
+    it('should throw when CreateFeedCommand returns incomplete response', async () => {
       const { elementalInferenceManager } = setup();
-      const channelArn =
-        'arn:aws:medialive:us-west-2:000000000000:channel:12345';
 
-      mock.on(ListFeedsCommand).rejects(new Error('AWS Error'));
+      mock.on(CreateFeedCommand).resolves({});
 
       await expect(
-        elementalInferenceManager.setupRealtimeCropping(channelArn)
-      ).resolves.not.toThrow();
+        elementalInferenceManager.createFeed('evt-456')
+      ).rejects.toThrow(
+        'CreateFeedCommand returned incomplete response for event evt-456'
+      );
+    });
+
+    it('should let SDK errors propagate', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(CreateFeedCommand).rejects(new Error('ServiceQuotaExceeded'));
+
+      await expect(
+        elementalInferenceManager.createFeed('evt-789')
+      ).rejects.toThrow('ServiceQuotaExceeded');
+    });
+  });
+
+  describe('deleteFeed', () => {
+    it('should call DeleteFeedCommand with the given feedId', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(DeleteFeedCommand).resolves({});
+
+      await elementalInferenceManager.deleteFeed('feed-to-delete');
+
+      const deleteFeedCalls = mock.commandCalls(DeleteFeedCommand);
+      expect(deleteFeedCalls).toHaveLength(1);
+      expect(deleteFeedCalls[0].args[0].input).toEqual({
+        id: 'feed-to-delete',
+      });
+    });
+
+    it('should let SDK errors propagate', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(DeleteFeedCommand).rejects(new Error('FeedNotFound'));
+
+      await expect(
+        elementalInferenceManager.deleteFeed('nonexistent-feed')
+      ).rejects.toThrow('FeedNotFound');
     });
   });
 });
