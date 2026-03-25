@@ -64,8 +64,9 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
     }
 
     // Create Elemental Inference feed first to get feedArn for channel creation
-    const { feedArn, feedId } =
-      await this.elementalInferenceManager.createFeed(eventId);
+    const { feedArn, feedId } = await this.elementalInferenceManager.createFeed(
+      eventId
+    );
 
     const liveChannel = await this.liveChannelsManager.createChannel({
       eventId: eventId,

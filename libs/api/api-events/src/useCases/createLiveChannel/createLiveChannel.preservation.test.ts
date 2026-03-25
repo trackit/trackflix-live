@@ -7,11 +7,7 @@ import {
   tokenLiveChannelsManagerFake,
   tokenTaskTokensRepositoryInMemory,
 } from '../../infrastructure';
-import {
-  EventMother,
-  EventUpdateAction,
-  LogType,
-} from '@trackflix-live/types';
+import { EventMother, EventUpdateAction, LogType } from '@trackflix-live/types';
 import { inject, reset } from '@trackflix-live/di';
 
 describe('Preservation: createLiveChannel', () => {
@@ -84,8 +80,12 @@ describe('Preservation: createLiveChannel', () => {
   });
 
   it('should send event update with EVENT_UPDATE_UPDATE action', async () => {
-    const { useCase, eventsRepository, liveChannelsManager, eventUpdateSender } =
-      setupCreate();
+    const {
+      useCase,
+      eventsRepository,
+      liveChannelsManager,
+      eventUpdateSender,
+    } = setupCreate();
     const eventId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
 
     await eventsRepository.createEvent(
@@ -115,8 +115,12 @@ describe('Preservation: createLiveChannel', () => {
   });
 
   it('should create task token with channelArn, expectedStatus CREATED, and correct output', async () => {
-    const { useCase, eventsRepository, liveChannelsManager, taskTokensRepository } =
-      setupCreate();
+    const {
+      useCase,
+      eventsRepository,
+      liveChannelsManager,
+      taskTokensRepository,
+    } = setupCreate();
     const eventId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
     const liveChannelArn =
       'arn:aws:medialive:us-west-2:000000000000:channel:9999999';

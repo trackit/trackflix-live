@@ -27,7 +27,9 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  private readonly elementalInferenceManager = inject(tokenElementalInferenceManager);
+  private readonly elementalInferenceManager = inject(
+    tokenElementalInferenceManager
+  );
 
   public async deleteLiveChannel({
     eventId,

@@ -116,10 +116,7 @@ export class EventsRepositoryInMemory implements EventsRepository {
     return event;
   }
 
-  public async updateFeedId(
-    eventId: string,
-    feedId: string
-  ): Promise<Event> {
+  public async updateFeedId(eventId: string, feedId: string): Promise<Event> {
     const event = this.events.find((event) => event.id === eventId);
     if (!event) {
       throw new EventDoesNotExistError();

@@ -35,7 +35,12 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
        * Current bug: setupRealtimeCropping is called AFTER createChannel.
        * The elementalInferenceManager doesn't even have a createFeed method.
        */
-      const { elementalInferenceManager, liveChannelsManager, eventsRepository, useCase } = setupCreate();
+      const {
+        elementalInferenceManager,
+        liveChannelsManager,
+        eventsRepository,
+        useCase,
+      } = setupCreate();
       const eventId = 'evt-bug-test-001';
       const source = 's3://test-bucket/test-video.mp4';
 
@@ -51,12 +56,15 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
 
       // Track call order using spies
       const callOrder: string[] = [];
-      const originalCreateChannel = liveChannelsManager.createChannel.bind(liveChannelsManager);
+      const originalCreateChannel =
+        liveChannelsManager.createChannel.bind(liveChannelsManager);
 
-      jest.spyOn(liveChannelsManager, 'createChannel').mockImplementation(async (params) => {
-        callOrder.push('createChannel');
-        return originalCreateChannel(params);
-      });
+      jest
+        .spyOn(liveChannelsManager, 'createChannel')
+        .mockImplementation(async (params) => {
+          callOrder.push('createChannel');
+          return originalCreateChannel(params);
+        });
 
       // The expected behavior requires createFeed to exist on the manager.
       // On unfixed code, only setupRealtimeCropping exists.
@@ -169,7 +177,12 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
        * Current bug: setupRealtimeCropping is called AFTER createChannel,
        * and errors are silently swallowed. The channel is created regardless.
        */
-      const { elementalInferenceManager, liveChannelsManager, eventsRepository, useCase } = setupCreate();
+      const {
+        elementalInferenceManager,
+        liveChannelsManager,
+        eventsRepository,
+        useCase,
+      } = setupCreate();
       const eventId = 'evt-bug-test-004';
       const source = 's3://test-bucket/test-video.mp4';
 
@@ -184,11 +197,15 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
       });
 
       // Make the inference manager's feed creation fail.
-      const feedError = new Error('ServiceQuotaExceededException: Feed limit reached');
+      const feedError = new Error(
+        'ServiceQuotaExceededException: Feed limit reached'
+      );
 
       // Override createFeed to throw (simulating feed creation failure)
       // On fixed code, createFeed exists and errors should propagate
-      jest.spyOn(elementalInferenceManager, 'createFeed').mockRejectedValue(feedError);
+      jest
+        .spyOn(elementalInferenceManager, 'createFeed')
+        .mockRejectedValue(feedError);
 
       // Expected: createLiveChannel should throw when feed creation fails
       await expect(
@@ -217,9 +234,11 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
        * Current bug: deleteLiveChannel does not inject elementalInferenceManager
        * and never calls deleteFeed. Feeds are orphaned.
        */
-      const { elementalInferenceManager, eventsRepository, useCase } = setupDelete();
+      const { elementalInferenceManager, eventsRepository, useCase } =
+        setupDelete();
       const eventId = 'evt-bug-test-005';
-      const liveChannelArn = 'arn:aws:medialive:us-west-2:000000000000:channel:1111';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:1111';
       const liveChannelId = '1111';
       const feedId = 'feed-abc-123';
 
@@ -246,7 +265,6 @@ describe('Bug Condition Exploration: Smart Crop Integration', () => {
     });
   });
 });
-
 
 const setupCreate = () => {
   reset();
