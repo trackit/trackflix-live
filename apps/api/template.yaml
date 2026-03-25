@@ -393,6 +393,7 @@ Resources:
                   - 'elemental-inference:AssociateFeed'
                   - 'elemental-inference:GetFeed'
                   - 'elemental-inference:ListFeeds'
+                  - 'elemental-inference:DeleteFeed'
                 Resource: '*'
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
