@@ -345,9 +345,16 @@ export function StatusView() {
                     className={'w-full mb-2'}
                     text={endpoint.url}
                     icon={
-                      <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
-                        <Link className="w-3 h-3" />
-                        {endpoint.type}
+                      <div className="flex items-center gap-1">
+                        <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
+                          <Link className="w-3 h-3" />
+                          {endpoint.type}
+                        </div>
+                        {endpoint.orientation === 'VERTICAL' && (
+                          <div className="badge badge-secondary badge-outline text-xs">
+                            9:16
+                          </div>
+                        )}
                       </div>
                     }
                   />
