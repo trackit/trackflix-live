@@ -40,6 +40,9 @@
     "test": {
       "options": {
         "passWithNoTests": true
+      },
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
       }
     }
   }
