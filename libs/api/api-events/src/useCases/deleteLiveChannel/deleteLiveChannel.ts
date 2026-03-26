@@ -1,5 +1,4 @@
 import {
-  tokenElementalInferenceManager,
   tokenEventsRepository,
   tokenEventUpdateSender,
   tokenLiveChannelsManager,
@@ -26,10 +25,6 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
   private readonly eventsRepository = inject(tokenEventsRepository);
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
-
-  private readonly elementalInferenceManager = inject(
-    tokenElementalInferenceManager
-  );
 
   public async deleteLiveChannel({
     eventId,
@@ -64,10 +59,6 @@ export class DeleteLiveChannelUseCaseImpl implements DeleteLiveChannelUseCase {
     const { liveChannelArn, liveChannelId } = event;
 
     await this.liveChannelsManager.deleteChannel(liveChannelId);
-
-    if (event.feedId) {
-      await this.elementalInferenceManager.deleteFeed(event.feedId);
-    }
 
     await this.taskTokensRepository.createTaskToken({
       channelArn: liveChannelArn,

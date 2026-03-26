@@ -46,6 +46,7 @@ export class EventsDynamoDBRepository implements EventsRepository {
     '#packageDomainName': 'packageDomainName',
     '#verticalPackageDomainName': 'verticalPackageDomainName',
     '#liveWaitingInputId': 'liveWaitingInputId',
+    '#feedId': 'feedId',
     '#logs': 'logs',
     '#endpoints': 'endpoints',
   };

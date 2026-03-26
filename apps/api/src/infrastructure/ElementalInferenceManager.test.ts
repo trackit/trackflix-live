@@ -3,6 +3,7 @@ import {
   ElementalInferenceClient,
   CreateFeedCommand,
   DeleteFeedCommand,
+  DisassociateFeedCommand,
   GetFeedCommand,
 } from '@aws-sdk/client-elementalinference';
 import { ElementalInferenceManager } from './ElementalInferenceManager';
@@ -65,12 +66,20 @@ describe('ElementalInference manager', () => {
   });
 
   describe('deleteFeed', () => {
-    it('should call DeleteFeedCommand with the given feedId', async () => {
+    it('should call DisassociateFeedCommand then DeleteFeedCommand with the given feedId', async () => {
       const { elementalInferenceManager } = setup();
 
+      mock.on(DisassociateFeedCommand).resolves({});
+      mock.on(GetFeedCommand).resolves({ status: 'ARCHIVED' });
       mock.on(DeleteFeedCommand).resolves({});
 
       await elementalInferenceManager.deleteFeed('feed-to-delete');
+
+      const disassociateCalls = mock.commandCalls(DisassociateFeedCommand);
+      expect(disassociateCalls).toHaveLength(1);
+      expect(disassociateCalls[0].args[0].input).toEqual({
+        id: 'feed-to-delete',
+      });
 
       const deleteFeedCalls = mock.commandCalls(DeleteFeedCommand);
       expect(deleteFeedCalls).toHaveLength(1);
@@ -82,7 +91,7 @@ describe('ElementalInference manager', () => {
     it('should let SDK errors propagate', async () => {
       const { elementalInferenceManager } = setup();
 
-      mock.on(DeleteFeedCommand).rejects(new Error('FeedNotFound'));
+      mock.on(DisassociateFeedCommand).rejects(new Error('FeedNotFound'));
 
       await expect(
         elementalInferenceManager.deleteFeed('nonexistent-feed')

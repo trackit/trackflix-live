@@ -391,6 +391,7 @@ Resources:
                 Action:
                   - 'elemental-inference:CreateFeed'
                   - 'elemental-inference:AssociateFeed'
+                  - 'elemental-inference:DisassociateFeed'
                   - 'elemental-inference:GetFeed'
                   - 'elemental-inference:DeleteFeed'
                 Resource: '*'

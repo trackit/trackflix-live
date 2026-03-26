@@ -2,6 +2,7 @@ import {
   ElementalInferenceClient,
   CreateFeedCommand,
   DeleteFeedCommand,
+  DisassociateFeedCommand,
   GetFeedCommand,
 } from '@aws-sdk/client-elementalinference';
 
@@ -28,34 +29,33 @@ export class ElementalInferenceManager {
       );
     }
 
-    await this.waitForFeedAvailable(response.id);
+    await this.waitForFeedStatus(response.id, 'AVAILABLE');
 
     return { feedArn: response.arn, feedId: response.id };
   }
 
-  private async waitForFeedAvailable(
+
+  public async deleteFeed(feedId: string): Promise<void> {
+    await this.client.send(new DisassociateFeedCommand({ id: feedId }));
+    await this.waitForFeedStatus(feedId, 'ARCHIVED');
+    await this.client.send(new DeleteFeedCommand({ id: feedId }));
+  }
+
+  private async waitForFeedStatus(
     feedId: string,
+    targetStatus: string,
     maxAttempts = 30,
     delayMs = 1000
   ): Promise<void> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const feed = await this.client.send(new GetFeedCommand({ id: feedId }));
-      if (feed.status === 'AVAILABLE') {
+      if (feed.status === targetStatus) {
         return;
-      }
-      if (feed.status !== 'CREATING') {
-        throw new Error(
-          `Feed ${feedId} entered unexpected state: ${feed.status}`
-        );
       }
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
     throw new Error(
-      `Feed ${feedId} did not become AVAILABLE after ${maxAttempts} attempts`
+      `Feed ${feedId} did not reach ${targetStatus} after ${maxAttempts} attempts`
     );
-  }
-
-  public async deleteFeed(feedId: string): Promise<void> {
-    await this.client.send(new DeleteFeedCommand({ id: feedId }));
   }
 }
