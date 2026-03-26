@@ -47,6 +47,22 @@ export function VideoPlayer({ src, vertical }: VideoPlayerProps) {
       hls.loadSource(src);
       hls.attachMedia(videoRef.current);
 
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hls.recoverMediaError();
+              break;
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hls.startLoad();
+              break;
+            default:
+              hls.destroy();
+              break;
+          }
+        }
+      });
+
       hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
         const levels = data.levels.map((level, index) => ({
           height: level.height,
