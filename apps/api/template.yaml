@@ -392,7 +392,6 @@ Resources:
                   - 'elemental-inference:CreateFeed'
                   - 'elemental-inference:AssociateFeed'
                   - 'elemental-inference:GetFeed'
-                  - 'elemental-inference:ListFeeds'
                   - 'elemental-inference:DeleteFeed'
                 Resource: '*'
   SchedulerExecutionRole:
