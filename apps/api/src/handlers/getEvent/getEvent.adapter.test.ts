@@ -67,7 +67,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    getEvent: jest.fn(),
+    getEvent: vi.fn(),
   };
   register(tokenGetEventUseCase, { useValue: useCase });
 

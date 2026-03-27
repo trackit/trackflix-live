@@ -38,9 +38,13 @@
       "dependsOn": ["build"]
     },
     "test": {
-      "options": {
-        "passWithNoTests": true
-      }
+    "executor": "@nx/vite:test",
+    "outputs": ["{options.reportsDirectory}"],
+    "options": {
+      "config": "apps/api/vitest.config.ts",
+      "reportsDirectory": "../../coverage/apps/api",
+      "passWithNoTests": true
     }
+  }
   }
 }

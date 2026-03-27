@@ -19,7 +19,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    updateStatus: jest.fn(),
+    updateStatus: vi.fn(),
   };
   register(tokenUpdateStatusUseCase, { useValue: useCase });
 

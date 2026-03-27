@@ -196,7 +196,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    listEvents: jest.fn(),
+    listEvents: vi.fn(),
   };
   register(tokenListEventsUseCase, { useValue: useCase });
 

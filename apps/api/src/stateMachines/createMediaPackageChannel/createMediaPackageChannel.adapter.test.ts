@@ -26,7 +26,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    createPackageChannel: jest.fn(),
+    createPackageChannel: vi.fn(),
   };
   register(tokenCreatePackageChannelUseCase, { useValue: useCase });
 

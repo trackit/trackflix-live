@@ -22,7 +22,7 @@ const setup = () => {
   reset();
 
   const useCase: StartTransmissionUseCase = {
-    startTransmission: jest.fn(),
+    startTransmission: vi.fn(),
   };
   register(tokenStartTransmissionUseCase, { useValue: useCase });
 

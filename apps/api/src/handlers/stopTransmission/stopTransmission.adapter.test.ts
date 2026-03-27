@@ -22,7 +22,7 @@ const setup = () => {
   reset();
 
   const useCase: StopTransmissionUseCase = {
-    stopTransmission: jest.fn(),
+    stopTransmission: vi.fn(),
   };
   register(tokenStopTransmissionUseCase, { useValue: useCase });
 

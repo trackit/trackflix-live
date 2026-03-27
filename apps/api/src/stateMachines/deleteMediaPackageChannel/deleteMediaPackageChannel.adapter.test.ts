@@ -24,7 +24,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    deletePackageChannel: jest.fn(),
+    deletePackageChannel: vi.fn(),
   };
   register(tokenDeletePackageChannelUseCase, { useValue: useCase });
 

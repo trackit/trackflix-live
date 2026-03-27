@@ -19,7 +19,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    setErrorStatus: jest.fn(),
+    setErrorStatus: vi.fn(),
   };
   register(tokenSetErrorStatusUseCase, { useValue: useCase });
 
