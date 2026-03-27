@@ -15,6 +15,7 @@
     "@aws-amplify/ui-react": "^6.9.1",
     "@aws-sdk/client-cloudfront": "^3.764.0",
     "@aws-sdk/client-dynamodb": "^3.734.0",
+    "@aws-sdk/client-elementalinference": "^3.1018.0",
     "@aws-sdk/client-iot": "^3.750.0",
     "@aws-sdk/client-iot-data-plane": "^3.744.0",
     "@aws-sdk/client-medialive": "^3.1018.0",
