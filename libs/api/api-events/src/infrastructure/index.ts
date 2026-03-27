@@ -7,3 +7,4 @@ export * from './PackageChannelsManagerFake';
 export * from './TaskTokensRepositoryInMemory';
 export * from './registerTestInfrastructure';
 export * from './CDNDistributionsManagerFake';
+export * from './ElementalInferenceManagerFake';
