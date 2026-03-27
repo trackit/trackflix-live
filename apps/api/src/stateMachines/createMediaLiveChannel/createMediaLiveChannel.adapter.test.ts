@@ -51,7 +51,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    createLiveChannel: jest.fn(),
+    createLiveChannel: vi.fn(),
   };
   register(tokenCreateLiveChannelUseCase, { useValue: useCase });
 

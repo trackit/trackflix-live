@@ -31,7 +31,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    createCDNOrigin: jest.fn(),
+    createCDNOrigin: vi.fn(),
   };
   register(tokenCreateCDNOriginUseCase, { useValue: useCase });
 

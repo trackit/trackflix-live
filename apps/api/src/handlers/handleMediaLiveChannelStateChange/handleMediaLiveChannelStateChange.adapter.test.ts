@@ -35,7 +35,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    handleLiveChannelStateChange: jest.fn(),
+    handleLiveChannelStateChange: vi.fn(),
   };
   register(tokenHandleLiveChannelStateChangeUseCase, { useValue: useCase });
 

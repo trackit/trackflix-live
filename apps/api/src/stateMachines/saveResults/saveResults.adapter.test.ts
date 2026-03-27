@@ -28,7 +28,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    saveResults: jest.fn(),
+    saveResults: vi.fn(),
   };
   register(tokenSaveResultsUseCase, { useValue: useCase });
 
