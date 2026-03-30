@@ -18,6 +18,8 @@ import {
   DeleteChannelCommand,
   DeleteInputCommand,
   BatchUpdateScheduleCommand,
+  VideoDescription,
+  AudioDescription,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -224,7 +226,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
                 AudioDescriptionLanguageCodeControl.FOLLOW_INPUT,
               Name: 'audio_3_aac128',
             },
-            {
+            ...(verticalPackageChannelId
+              ? [
+                  {
               AudioSelectorName: 'default',
               AudioTypeControl: AudioDescriptionAudioTypeControl.FOLLOW_INPUT,
               CodecSettings: {
@@ -349,7 +353,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               LanguageCodeControl:
                 AudioDescriptionLanguageCodeControl.FOLLOW_INPUT,
               Name: 'vert_audio_3_aac128',
-            },
+                  },
+                ]
+              : []) as AudioDescription[],
           ],
           CaptionDescriptions: [],
           OutputGroups: [
@@ -445,14 +451,16 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
                 },
               ],
             },
-            {
-              OutputGroupSettings: {
-                MediaPackageGroupSettings: {
-                  Destination: {
-                    DestinationRefId: 'VerticalDestination',
-                  },
-                },
-              },
+            ...(verticalPackageChannelId
+              ? [
+                  {
+                    OutputGroupSettings: {
+                      MediaPackageGroupSettings: {
+                        Destination: {
+                          DestinationRefId: 'VerticalDestination',
+                        },
+                      },
+                    },
               Outputs: [
                 {
                   AudioDescriptionNames: ['vert_audio_1_aac64'],
@@ -536,7 +544,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
                   VideoDescriptionName: 'video_1080_1920_smartcrop',
                 },
               ],
-            },
+                  },
+                ]
+              : []),
           ],
           TimecodeConfig: {
             Source: TimecodeConfigSource.SYSTEMCLOCK,
@@ -902,7 +912,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               Sharpness: 50,
               Width: 1920,
             },
-            {
+            ...(verticalPackageChannelId
+              ? [
+                  {
               CodecSettings: {
                 H264Settings: {
                   AdaptiveQuantization: 'HIGH',
@@ -1261,7 +1273,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               ScalingBehavior: 'SMART_CROP',
               Sharpness: 50,
               Width: 720,
-            },
+                  },
+                ]
+              : []) as VideoDescription[],
           ],
         },
         Destinations: [
@@ -1273,14 +1287,18 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
               },
             ],
           },
-          {
-            Id: 'VerticalDestination',
-            MediaPackageSettings: [
-              {
-                ChannelId: verticalPackageChannelId,
-              },
-            ],
-          },
+          ...(verticalPackageChannelId
+            ? [
+                {
+                  Id: 'VerticalDestination',
+                  MediaPackageSettings: [
+                    {
+                      ChannelId: verticalPackageChannelId,
+                    },
+                  ],
+                },
+              ]
+            : []),
         ],
         InputAttachments: [
           {

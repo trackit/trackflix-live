@@ -6,6 +6,7 @@ import {
   tokenElementalInferenceManager,
 } from '../../ports';
 import {
+  Event,
   EventEndpoint,
   EventUpdateAction,
   LogType,
@@ -63,10 +64,14 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       throw new EventDoesNotExistError();
     }
 
-    // Create Elemental Inference feed first to get feedArn for channel creation
-    const { feedArn, feedId } = await this.elementalInferenceManager.createFeed(
-      eventId
-    );
+    // Create Elemental Inference feed if smart cropping is enabled
+    let feedArn: string | undefined;
+    let feedId: string | undefined;
+    if (event.smartCropping) {
+      const feed = await this.elementalInferenceManager.createFeed(eventId);
+      feedArn = feed.feedArn;
+      feedId = feed.feedId;
+    }
 
     const liveChannel = await this.liveChannelsManager.createChannel({
       eventId: eventId,
@@ -97,10 +102,18 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       eventId,
       liveChannel.waitingInputId
     );
-    const eventAfterUpdate = await this.eventsRepository.updateFeedId(
-      eventId,
-      feedId
-    );
+
+    let eventAfterUpdate: Event;
+    if (feedId) {
+      eventAfterUpdate = await this.eventsRepository.updateFeedId(
+        eventId,
+        feedId
+      );
+    } else {
+      const fetched = await this.eventsRepository.getEvent(eventId);
+      if (!fetched) throw new EventDoesNotExistError();
+      eventAfterUpdate = fetched;
+    }
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,

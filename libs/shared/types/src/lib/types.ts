@@ -60,6 +60,7 @@ export interface Event {
   feedId?: string;
   packageDomainName?: string;
   verticalPackageDomainName?: string;
+  smartCropping?: boolean;
 }
 
 export enum EventUpdateAction {

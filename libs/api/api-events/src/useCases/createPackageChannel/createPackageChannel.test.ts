@@ -27,9 +27,9 @@ describe('Create Package channel use case', () => {
 
     expect(response).toEqual({
       packageChannelId,
-      verticalPackageChannelId: `${packageChannelId}-vertical`,
+      verticalPackageChannelId: undefined,
       packageDomainName: '',
-      verticalPackageDomainName: '',
+      verticalPackageDomainName: undefined,
       endpoints: [],
     });
     expect(packageChannelsManager.createdChannels).toEqual([event.id]);

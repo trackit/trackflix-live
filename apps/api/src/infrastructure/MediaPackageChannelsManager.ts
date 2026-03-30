@@ -19,81 +19,97 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
   }
 
   public async createChannel(
-    eventId: string
-  ): Promise<CreatePackageChannelResponse> {
-    const mainChannelId = `TrackflixLiveMPC-${eventId}`;
-    const verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
+      eventId: string,
+      smartCropping?: boolean
+    ): Promise<CreatePackageChannelResponse> {
+      const mainChannelId = `TrackflixLiveMPC-${eventId}`;
 
-    // Create Main Channel
-    await this.client.send(
-      new CreateChannelCommand({
-        Id: mainChannelId,
-      })
-    );
+      // Create Main Channel
+      await this.client.send(
+        new CreateChannelCommand({
+          Id: mainChannelId,
+        })
+      );
 
-    const hlsMain = await this.client.send(
-      new CreateOriginEndpointCommand({
-        ChannelId: mainChannelId,
-        Id: `TrackflixLiveMPOE-HLS-${eventId}`,
-        HlsPackage: {
-          PlaylistType: 'EVENT',
-          SegmentDurationSeconds: 3,
-        },
-      })
-    );
+      const hlsMain = await this.client.send(
+        new CreateOriginEndpointCommand({
+          ChannelId: mainChannelId,
+          Id: `TrackflixLiveMPOE-HLS-${eventId}`,
+          HlsPackage: {
+            PlaylistType: 'EVENT',
+            SegmentDurationSeconds: 3,
+          },
+        })
+      );
 
-    const dashMain = await this.client.send(
-      new CreateOriginEndpointCommand({
-        ChannelId: mainChannelId,
-        Id: `TrackflixLiveMPOE-DASH-${eventId}`,
-        DashPackage: {},
-      })
-    );
+      const dashMain = await this.client.send(
+        new CreateOriginEndpointCommand({
+          ChannelId: mainChannelId,
+          Id: `TrackflixLiveMPOE-DASH-${eventId}`,
+          DashPackage: {},
+        })
+      );
 
-    // Create Vertical Channel
-    await this.client.send(
-      new CreateChannelCommand({
-        Id: verticalChannelId,
-      })
-    );
+      if (!hlsMain.Url || !dashMain.Url) {
+        throw new Error('Failed to create MediaPackage endpoints');
+      }
 
-    const hlsVert = await this.client.send(
-      new CreateOriginEndpointCommand({
-        ChannelId: verticalChannelId,
-        Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
-        HlsPackage: {
-          PlaylistType: 'EVENT',
-          SegmentDurationSeconds: 3,
-        },
-      })
-    );
+    const endpoints: Array<{
+      url: string;
+      type: EndpointType;
+      orientation: 'HORIZONTAL' | 'VERTICAL';
+    }> = [
+      {
+        url: hlsMain.Url,
+        type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
+      },
+      {
+        url: dashMain.Url,
+        type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
+      },
+    ];
 
-    if (!hlsMain.Url || !dashMain.Url || !hlsVert.Url) {
-      throw new Error('Failed to create MediaPackage endpoints');
+      let verticalChannelId: string | undefined;
+
+      if (smartCropping) {
+        verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
+
+        await this.client.send(
+          new CreateChannelCommand({
+            Id: verticalChannelId,
+          })
+        );
+
+        const hlsVert = await this.client.send(
+          new CreateOriginEndpointCommand({
+            ChannelId: verticalChannelId,
+            Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
+            HlsPackage: {
+              PlaylistType: 'EVENT',
+              SegmentDurationSeconds: 3,
+            },
+          })
+        );
+
+        if (!hlsVert.Url) {
+          throw new Error('Failed to create vertical MediaPackage endpoint');
+        }
+
+      endpoints.push({
+        url: hlsVert.Url,
+        type: EndpointType.HLS,
+        orientation: 'VERTICAL',
+      });
+      }
+
+      return {
+        mainChannelId,
+        verticalChannelId,
+        endpoints,
+      };
     }
-
-    return {
-      mainChannelId,
-      verticalChannelId,
-      endpoints: [
-        {
-          url: hlsMain.Url,
-          type: EndpointType.HLS,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: dashMain.Url,
-          type: EndpointType.DASH,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: hlsVert.Url,
-          type: EndpointType.HLS,
-          orientation: 'VERTICAL',
-        },
-      ],
-    };
-  }
 
   public async deleteChannel(eventId: string): Promise<void> {
     const mainChannelId = `TrackflixLiveMPC-${eventId}`;

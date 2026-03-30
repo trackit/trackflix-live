@@ -15,12 +15,15 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
   public readonly deletedChannels: string[] = [];
 
   public async createChannel(
-    eventId: string
+    eventId: string,
+    smartCropping?: boolean
   ): Promise<CreatePackageChannelResponse> {
     this.createdChannels.push(eventId);
     return {
       mainChannelId: this.packageChannelId,
-      verticalChannelId: `${this.packageChannelId}-vertical`,
+      verticalChannelId: smartCropping
+        ? `${this.packageChannelId}-vertical`
+        : undefined,
       endpoints: this.returnedEndpoints,
     };
   }

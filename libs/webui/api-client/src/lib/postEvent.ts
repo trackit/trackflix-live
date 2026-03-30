@@ -8,5 +8,6 @@ export const postEvent = async (event: CreateEventRequest['body']) => {
     onAirStartTime: event.onAirStartTime,
     onAirEndTime: event.onAirEndTime,
     source: event.source,
+    ...(event.smartCropping && { smartCropping: event.smartCropping }),
   });
 };

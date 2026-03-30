@@ -54,7 +54,8 @@ describe('Create live channel use case', () => {
         eventId,
         packageChannelId,
         source,
-        feedArn: 'mock-feed-arn',
+        feedArn: undefined,
+        verticalPackageChannelId: undefined,
       },
     ]);
   });
@@ -279,7 +280,7 @@ describe('Create live channel use case', () => {
     const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
-      EventMother.basic().withId(eventId).withSource(source).build()
+      EventMother.basic().withId(eventId).withSource(source).withSmartCropping(true).build()
     );
     liveChannelsManager.setCreateChannelResponse({
       channelArn: liveChannelArn,

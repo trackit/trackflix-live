@@ -3,12 +3,15 @@ import { createInjectionToken } from '@trackflix-live/di';
 
 export interface CreatePackageChannelResponse {
   mainChannelId: string;
-  verticalChannelId: string;
+  verticalChannelId?: string;
   endpoints: EventEndpoint[];
 }
 
 export interface PackageChannelsManager {
-  createChannel(eventId: string): Promise<CreatePackageChannelResponse>;
+  createChannel(
+    eventId: string,
+    smartCropping?: boolean
+  ): Promise<CreatePackageChannelResponse>;
   deleteChannel(channelId: string): Promise<void>;
 }
 export const tokenPackageChannelsManager =

@@ -1068,16 +1068,6 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
-              "Parameters": {
-                "eventId.$": "$.eventId",
-                "liveChannelArn.$": "$.liveChannelArn",
-                "liveChannelId.$": "$.liveChannelId",
-                "packageChannelId.$": "$.packageChannelId",
-                "verticalPackageChannelId.$": "$.verticalPackageChannelId",
-                "packageDomainName.$": "$.packageDomainName",
-                "verticalPackageDomainName.$": "$.verticalPackageDomainName",
-                "endpoints.$": "$.endpoints"
-              },
               "Next": "Start MediaLive channel"
             },
             "Start MediaLive channel": {

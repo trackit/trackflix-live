@@ -4,7 +4,7 @@ export type CreateEventRequest = {
   body: Pick<
     Event,
     'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
-  >;
+  > & { smartCropping?: boolean };
 };
 export type CreateEventResponse = { body: { event: Event } };
 

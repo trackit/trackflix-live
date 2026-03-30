@@ -7,7 +7,6 @@ import {
   DeleteOriginEndpointCommand,
 } from '@aws-sdk/client-mediapackage';
 import { MediaPackageChannelsManager } from './MediaPackageChannelsManager';
-import { EndpointType, EventEndpoint } from '@trackflix-live/types';
 
 describe('MediaPackage channels manager', () => {
   const mock = mockClient(MediaPackageClient);
@@ -20,37 +19,42 @@ describe('MediaPackage channels manager', () => {
     it('should create channel', async () => {
       const { mediaPackageChannelsManager } = setup();
       const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
-      const endpoints: EventEndpoint[] = [
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
-          type: EndpointType.HLS,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
-          type: EndpointType.DASH,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025-vert.m3u8',
-          type: EndpointType.HLS,
-          orientation: 'VERTICAL',
-        },
-      ];
 
       mock
         .on(CreateOriginEndpointCommand)
         .resolvesOnce({
-          Url: endpoints[0].url,
+          Url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
         })
         .resolvesOnce({
-          Url: endpoints[1].url,
-        })
-        .resolvesOnce({
-          Url: endpoints[2].url,
+          Url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
         });
 
       await mediaPackageChannelsManager.createChannel(eventId);
+
+      const commandCalls = mock.commandCalls(CreateChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toEqual({
+        Id: `TrackflixLiveMPC-${eventId}`,
+      });
+    });
+
+    it('should create vertical channel when smartCropping is enabled', async () => {
+      const { mediaPackageChannelsManager } = setup();
+      const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
+
+      mock
+        .on(CreateOriginEndpointCommand)
+        .resolvesOnce({
+          Url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
+        })
+        .resolvesOnce({
+          Url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
+        })
+        .resolvesOnce({
+          Url: 'https://formula-1.com/live/monaco-gp-2025-vert.m3u8',
+        });
+
+      await mediaPackageChannelsManager.createChannel(eventId, true);
 
       const commandCalls = mock.commandCalls(CreateChannelCommand);
       expect(commandCalls).toHaveLength(2);
@@ -65,40 +69,20 @@ describe('MediaPackage channels manager', () => {
     it('should create HLS and DASH endpoints', async () => {
       const { mediaPackageChannelsManager } = setup();
       const eventId = '5e9019f4-b937-465c-ab7c-baeb74eb26a2';
-      const endpoints: EventEndpoint[] = [
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
-          type: EndpointType.HLS,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
-          type: EndpointType.DASH,
-          orientation: 'HORIZONTAL',
-        },
-        {
-          url: 'https://formula-1.com/live/monaco-gp-2025-vert.m3u8',
-          type: EndpointType.HLS,
-          orientation: 'VERTICAL',
-        },
-      ];
 
       mock
         .on(CreateOriginEndpointCommand)
         .resolvesOnce({
-          Url: endpoints[0].url,
+          Url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
         })
         .resolvesOnce({
-          Url: endpoints[1].url,
-        })
-        .resolvesOnce({
-          Url: endpoints[2].url,
+          Url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
         });
 
       await mediaPackageChannelsManager.createChannel(eventId);
 
       const commandCalls = mock.commandCalls(CreateOriginEndpointCommand);
-      expect(commandCalls).toHaveLength(3);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: `TrackflixLiveMPC-${eventId}`,
         Id: `TrackflixLiveMPOE-HLS-${eventId}`,
@@ -111,14 +95,6 @@ describe('MediaPackage channels manager', () => {
         ChannelId: `TrackflixLiveMPC-${eventId}`,
         Id: `TrackflixLiveMPOE-DASH-${eventId}`,
         DashPackage: {},
-      });
-      expect(commandCalls[2].args[0].input).toEqual({
-        ChannelId: `TrackflixLiveMPC-Vert-${eventId}`,
-        Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
-        HlsPackage: {
-          PlaylistType: 'EVENT',
-          SegmentDurationSeconds: 3,
-        },
       });
     });
   });

@@ -71,6 +71,11 @@ export class EventMother {
     return this;
   }
 
+  public withSmartCropping(smartCropping: boolean): EventMother {
+    this.data.smartCropping = smartCropping;
+    return this;
+  }
+
   public static basic() {
     return new EventMother({
       id: '5e9019f4-b937-465c-ab7c-baeb74eb26a2',
