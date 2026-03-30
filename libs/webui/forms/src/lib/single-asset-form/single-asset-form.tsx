@@ -224,7 +224,9 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             className="checkbox checkbox-primary"
             {...register('smartCropping')}
           />
-          <span className="label-text">Enable Smart Cropping (9:16 vertical output)</span>
+          <span className="label-text">
+            Enable Smart Cropping (9:16 vertical output)
+          </span>
         </label>
       </div>
       <div className="flex justify-end">

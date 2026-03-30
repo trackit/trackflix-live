@@ -19,40 +19,40 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
   }
 
   public async createChannel(
-      eventId: string,
-      smartCropping?: boolean
-    ): Promise<CreatePackageChannelResponse> {
-      const mainChannelId = `TrackflixLiveMPC-${eventId}`;
+    eventId: string,
+    smartCropping?: boolean
+  ): Promise<CreatePackageChannelResponse> {
+    const mainChannelId = `TrackflixLiveMPC-${eventId}`;
 
-      // Create Main Channel
-      await this.client.send(
-        new CreateChannelCommand({
-          Id: mainChannelId,
-        })
-      );
+    // Create Main Channel
+    await this.client.send(
+      new CreateChannelCommand({
+        Id: mainChannelId,
+      })
+    );
 
-      const hlsMain = await this.client.send(
-        new CreateOriginEndpointCommand({
-          ChannelId: mainChannelId,
-          Id: `TrackflixLiveMPOE-HLS-${eventId}`,
-          HlsPackage: {
-            PlaylistType: 'EVENT',
-            SegmentDurationSeconds: 3,
-          },
-        })
-      );
+    const hlsMain = await this.client.send(
+      new CreateOriginEndpointCommand({
+        ChannelId: mainChannelId,
+        Id: `TrackflixLiveMPOE-HLS-${eventId}`,
+        HlsPackage: {
+          PlaylistType: 'EVENT',
+          SegmentDurationSeconds: 3,
+        },
+      })
+    );
 
-      const dashMain = await this.client.send(
-        new CreateOriginEndpointCommand({
-          ChannelId: mainChannelId,
-          Id: `TrackflixLiveMPOE-DASH-${eventId}`,
-          DashPackage: {},
-        })
-      );
+    const dashMain = await this.client.send(
+      new CreateOriginEndpointCommand({
+        ChannelId: mainChannelId,
+        Id: `TrackflixLiveMPOE-DASH-${eventId}`,
+        DashPackage: {},
+      })
+    );
 
-      if (!hlsMain.Url || !dashMain.Url) {
-        throw new Error('Failed to create MediaPackage endpoints');
-      }
+    if (!hlsMain.Url || !dashMain.Url) {
+      throw new Error('Failed to create MediaPackage endpoints');
+    }
 
     const endpoints: Array<{
       url: string;
@@ -71,45 +71,45 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
       },
     ];
 
-      let verticalChannelId: string | undefined;
+    let verticalChannelId: string | undefined;
 
-      if (smartCropping) {
-        verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
+    if (smartCropping) {
+      verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
 
-        await this.client.send(
-          new CreateChannelCommand({
-            Id: verticalChannelId,
-          })
-        );
+      await this.client.send(
+        new CreateChannelCommand({
+          Id: verticalChannelId,
+        })
+      );
 
-        const hlsVert = await this.client.send(
-          new CreateOriginEndpointCommand({
-            ChannelId: verticalChannelId,
-            Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
-            HlsPackage: {
-              PlaylistType: 'EVENT',
-              SegmentDurationSeconds: 3,
-            },
-          })
-        );
+      const hlsVert = await this.client.send(
+        new CreateOriginEndpointCommand({
+          ChannelId: verticalChannelId,
+          Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
+          HlsPackage: {
+            PlaylistType: 'EVENT',
+            SegmentDurationSeconds: 3,
+          },
+        })
+      );
 
-        if (!hlsVert.Url) {
-          throw new Error('Failed to create vertical MediaPackage endpoint');
-        }
+      if (!hlsVert.Url) {
+        throw new Error('Failed to create vertical MediaPackage endpoint');
+      }
 
       endpoints.push({
         url: hlsVert.Url,
         type: EndpointType.HLS,
         orientation: 'VERTICAL',
       });
-      }
-
-      return {
-        mainChannelId,
-        verticalChannelId,
-        endpoints,
-      };
     }
+
+    return {
+      mainChannelId,
+      verticalChannelId,
+      endpoints,
+    };
+  }
 
   public async deleteChannel(eventId: string): Promise<void> {
     const mainChannelId = `TrackflixLiveMPC-${eventId}`;

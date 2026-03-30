@@ -280,7 +280,11 @@ describe('Create live channel use case', () => {
     const liveWaitingInputId = '7654321';
 
     await eventsRepository.createEvent(
-      EventMother.basic().withId(eventId).withSource(source).withSmartCropping(true).build()
+      EventMother.basic()
+        .withId(eventId)
+        .withSource(source)
+        .withSmartCropping(true)
+        .build()
     );
     liveChannelsManager.setCreateChannelResponse({
       channelArn: liveChannelArn,
