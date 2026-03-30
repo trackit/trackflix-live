@@ -34,7 +34,6 @@ export class ElementalInferenceManager {
     return { feedArn: response.arn, feedId: response.id };
   }
 
-
   public async deleteFeed(feedId: string): Promise<void> {
     await this.client.send(new DisassociateFeedCommand({ id: feedId }));
     await this.waitForFeedStatus(feedId, 'ARCHIVED');
