@@ -40,11 +40,7 @@ export const registerProductionInfrastructure = () => {
   const iotDataPlaneClient = new IoTDataPlaneClient();
   const iotClient = new IoTClient();
   const dynamoClient = new DynamoDBClient();
-  const dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient, {
-    marshallOptions: {
-      removeUndefinedValues: true,
-    },
-  });
+  const dynamoDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
   const mediaLiveClient = new MediaLiveClient();
   const mediaPackageClient = new MediaPackageClient();
   const cloudFrontClient = new CloudFrontClient();
