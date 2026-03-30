@@ -8,7 +8,13 @@ describe('Create MediaPackage channel', () => {
     const eventId = '9c6c0f2c-c9bf-45ce-8d8b-211929b85653';
     const packageChannelId = '123456';
 
-    useCase.createPackageChannel.mockImplementation(() => packageChannelId);
+    useCase.createPackageChannel.mockImplementation(() => ({
+      packageChannelId,
+      verticalPackageChannelId: 'vertical-id',
+      packageDomainName: 'example.com',
+      verticalPackageDomainName: 'vert.example.com',
+      endpoints: [],
+    }));
 
     const result = await adapter.handle({
       eventId,
@@ -17,6 +23,10 @@ describe('Create MediaPackage channel', () => {
     expect(result).toEqual({
       eventId,
       packageChannelId,
+      verticalPackageChannelId: 'vertical-id',
+      packageDomainName: 'example.com',
+      verticalPackageDomainName: 'vert.example.com',
+      endpoints: [],
     });
     expect(useCase.createPackageChannel).toHaveBeenCalledWith(eventId);
   });

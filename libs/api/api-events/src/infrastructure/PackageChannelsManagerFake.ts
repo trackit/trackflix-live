@@ -19,7 +19,8 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
   ): Promise<CreatePackageChannelResponse> {
     this.createdChannels.push(eventId);
     return {
-      channelId: this.packageChannelId,
+      mainChannelId: this.packageChannelId,
+      verticalChannelId: `${this.packageChannelId}-vertical`,
       endpoints: this.returnedEndpoints,
     };
   }

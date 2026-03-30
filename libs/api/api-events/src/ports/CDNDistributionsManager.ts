@@ -4,6 +4,7 @@ import { EventEndpoint } from '@trackflix-live/types';
 export interface CreateCDNOriginParameters {
   eventId: string;
   packageDomainName: string;
+  verticalPackageDomainName?: string;
   endpoints: EventEndpoint[];
 }
 

@@ -24,10 +24,17 @@ describe('MediaPackage channels manager', () => {
         {
           url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
           type: EndpointType.HLS,
+          orientation: 'HORIZONTAL',
         },
         {
           url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
           type: EndpointType.DASH,
+          orientation: 'HORIZONTAL',
+        },
+        {
+          url: 'https://formula-1.com/live/monaco-gp-2025-vert.m3u8',
+          type: EndpointType.HLS,
+          orientation: 'VERTICAL',
         },
       ];
 
@@ -38,14 +45,20 @@ describe('MediaPackage channels manager', () => {
         })
         .resolvesOnce({
           Url: endpoints[1].url,
+        })
+        .resolvesOnce({
+          Url: endpoints[2].url,
         });
 
       await mediaPackageChannelsManager.createChannel(eventId);
 
       const commandCalls = mock.commandCalls(CreateChannelCommand);
-      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[0].args[0].input).toEqual({
         Id: `TrackflixLiveMPC-${eventId}`,
+      });
+      expect(commandCalls[1].args[0].input).toEqual({
+        Id: `TrackflixLiveMPC-Vert-${eventId}`,
       });
     });
 
@@ -56,10 +69,17 @@ describe('MediaPackage channels manager', () => {
         {
           url: 'https://formula-1.com/live/monaco-gp-2025.m3u8',
           type: EndpointType.HLS,
+          orientation: 'HORIZONTAL',
         },
         {
           url: 'https://formula-1.com/live/monaco-gp-2025.mpd',
           type: EndpointType.DASH,
+          orientation: 'HORIZONTAL',
+        },
+        {
+          url: 'https://formula-1.com/live/monaco-gp-2025-vert.m3u8',
+          type: EndpointType.HLS,
+          orientation: 'VERTICAL',
         },
       ];
 
@@ -70,12 +90,15 @@ describe('MediaPackage channels manager', () => {
         })
         .resolvesOnce({
           Url: endpoints[1].url,
+        })
+        .resolvesOnce({
+          Url: endpoints[2].url,
         });
 
       await mediaPackageChannelsManager.createChannel(eventId);
 
       const commandCalls = mock.commandCalls(CreateOriginEndpointCommand);
-      expect(commandCalls).toHaveLength(2);
+      expect(commandCalls).toHaveLength(3);
       expect(commandCalls[0].args[0].input).toEqual({
         ChannelId: `TrackflixLiveMPC-${eventId}`,
         Id: `TrackflixLiveMPOE-HLS-${eventId}`,
@@ -89,6 +112,14 @@ describe('MediaPackage channels manager', () => {
         Id: `TrackflixLiveMPOE-DASH-${eventId}`,
         DashPackage: {},
       });
+      expect(commandCalls[2].args[0].input).toEqual({
+        ChannelId: `TrackflixLiveMPC-Vert-${eventId}`,
+        Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
+        HlsPackage: {
+          PlaylistType: 'EVENT',
+          SegmentDurationSeconds: 3,
+        },
+      });
     });
   });
 
@@ -100,9 +131,12 @@ describe('MediaPackage channels manager', () => {
       await mediaPackageChannelsManager.deleteChannel(eventId);
 
       const commandCalls = mock.commandCalls(DeleteChannelCommand);
-      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[0].args[0].input).toEqual({
         Id: 'TrackflixLiveMPC-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
+      });
+      expect(commandCalls[1].args[0].input).toEqual({
+        Id: 'TrackflixLiveMPC-Vert-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
     });
 
@@ -113,12 +147,15 @@ describe('MediaPackage channels manager', () => {
       await mediaPackageChannelsManager.deleteChannel(eventId);
 
       const commandCalls = mock.commandCalls(DeleteOriginEndpointCommand);
-      expect(commandCalls).toHaveLength(2);
+      expect(commandCalls).toHaveLength(3);
       expect(commandCalls[0].args[0].input).toEqual({
         Id: 'TrackflixLiveMPOE-DASH-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
       expect(commandCalls[1].args[0].input).toEqual({
         Id: 'TrackflixLiveMPOE-HLS-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
+      });
+      expect(commandCalls[2].args[0].input).toEqual({
+        Id: 'TrackflixLiveMPOE-HLS-Vert-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
     });
   });
