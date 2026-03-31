@@ -36,7 +36,10 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
     this.returnedEndpoints = endpoints;
   }
 
-  public async deleteChannel(eventId: string): Promise<void> {
+  public async deleteChannel(
+    eventId: string,
+    smartCropping?: boolean
+  ): Promise<void> {
     this.deletedChannels.push(eventId);
   }
 }

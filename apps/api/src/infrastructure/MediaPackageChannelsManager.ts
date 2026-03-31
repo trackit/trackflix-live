@@ -111,9 +111,11 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
     };
   }
 
-  public async deleteChannel(eventId: string): Promise<void> {
+  public async deleteChannel(
+    eventId: string,
+    smartCropping?: boolean
+  ): Promise<void> {
     const mainChannelId = `TrackflixLiveMPC-${eventId}`;
-    const verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
 
     // Delete Main Channel resources
     await this.client.send(
@@ -132,16 +134,18 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
       })
     );
 
-    // Delete Vertical Channel resources
-    await this.client.send(
-      new DeleteOriginEndpointCommand({
-        Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
-      })
-    );
-    await this.client.send(
-      new DeleteChannelCommand({
-        Id: verticalChannelId,
-      })
-    );
+    if (smartCropping) {
+      const verticalChannelId = `TrackflixLiveMPC-Vert-${eventId}`;
+      await this.client.send(
+        new DeleteOriginEndpointCommand({
+          Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
+        })
+      );
+      await this.client.send(
+        new DeleteChannelCommand({
+          Id: verticalChannelId,
+        })
+      );
+    }
   }
 }

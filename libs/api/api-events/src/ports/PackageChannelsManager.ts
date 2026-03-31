@@ -12,7 +12,7 @@ export interface PackageChannelsManager {
     eventId: string,
     smartCropping?: boolean
   ): Promise<CreatePackageChannelResponse>;
-  deleteChannel(channelId: string): Promise<void>;
+  deleteChannel(eventId: string, smartCropping?: boolean): Promise<void>;
 }
 export const tokenPackageChannelsManager =
   createInjectionToken<PackageChannelsManager>('PackageChannelsManager');

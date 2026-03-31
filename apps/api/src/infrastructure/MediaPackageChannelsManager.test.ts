@@ -107,10 +107,20 @@ describe('MediaPackage channels manager', () => {
       await mediaPackageChannelsManager.deleteChannel(eventId);
 
       const commandCalls = mock.commandCalls(DeleteChannelCommand);
-      expect(commandCalls).toHaveLength(2);
+      expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toEqual({
         Id: 'TrackflixLiveMPC-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
+    });
+
+    it('should delete vertical channel when smartCropping is enabled', async () => {
+      const { mediaPackageChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+
+      await mediaPackageChannelsManager.deleteChannel(eventId, true);
+
+      const commandCalls = mock.commandCalls(DeleteChannelCommand);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[1].args[0].input).toEqual({
         Id: 'TrackflixLiveMPC-Vert-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
@@ -123,15 +133,12 @@ describe('MediaPackage channels manager', () => {
       await mediaPackageChannelsManager.deleteChannel(eventId);
 
       const commandCalls = mock.commandCalls(DeleteOriginEndpointCommand);
-      expect(commandCalls).toHaveLength(3);
+      expect(commandCalls).toHaveLength(2);
       expect(commandCalls[0].args[0].input).toEqual({
         Id: 'TrackflixLiveMPOE-DASH-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
       expect(commandCalls[1].args[0].input).toEqual({
         Id: 'TrackflixLiveMPOE-HLS-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
-      });
-      expect(commandCalls[2].args[0].input).toEqual({
-        Id: 'TrackflixLiveMPOE-HLS-Vert-dbb682ee-1dd6-4ec6-a666-03b04ace1f9d',
       });
     });
   });
