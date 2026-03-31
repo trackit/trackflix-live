@@ -29,7 +29,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    deleteLiveChannel: jest.fn(),
+    deleteLiveChannel: vi.fn(),
   };
   register(tokenDeleteLiveChannelUseCase, { useValue: useCase });
 

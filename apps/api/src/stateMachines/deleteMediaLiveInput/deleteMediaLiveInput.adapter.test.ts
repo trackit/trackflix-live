@@ -24,7 +24,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    deleteLiveInput: jest.fn(),
+    deleteLiveInput: vi.fn(),
   };
   register(tokenDeleteLiveInputUseCase, { useValue: useCase });
 

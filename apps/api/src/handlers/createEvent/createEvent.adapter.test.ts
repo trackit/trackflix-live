@@ -11,8 +11,8 @@ import { register, reset } from '@trackflix-live/di';
 import { CustomRequestContext } from '../types';
 
 describe('Create event adapter', () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2025-03-05T10:00:00.000Z'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2025-03-05T10:00:00.000Z'));
 
   it('should call use case', async () => {
     const { adapter, useCase } = setup();
@@ -407,7 +407,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    createEvent: jest.fn(),
+    createEvent: vi.fn(),
   };
   register(tokenCreateEventUseCase, { useValue: useCase });
 

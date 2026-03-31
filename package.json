@@ -17,7 +17,7 @@
     "@aws-sdk/client-dynamodb": "^3.734.0",
     "@aws-sdk/client-iot": "^3.750.0",
     "@aws-sdk/client-iot-data-plane": "^3.744.0",
-    "@aws-sdk/client-medialive": "^3.734.0",
+    "@aws-sdk/client-medialive": "^3.1018.0",
     "@aws-sdk/client-mediapackage": "^3.734.0",
     "@aws-sdk/client-s3": "^3.758.0",
     "@aws-sdk/client-scheduler": "^3.758.0",

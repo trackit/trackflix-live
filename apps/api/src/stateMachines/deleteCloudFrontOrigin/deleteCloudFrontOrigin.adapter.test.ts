@@ -21,7 +21,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    deleteCDNOrigin: jest.fn(),
+    deleteCDNOrigin: vi.fn(),
   };
   register(tokenDeleteCDNOriginUseCase, { useValue: useCase });
 

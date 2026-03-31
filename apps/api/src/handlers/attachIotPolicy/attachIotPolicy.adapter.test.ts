@@ -75,7 +75,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    attachIotPolicy: jest.fn(),
+    attachIotPolicy: vi.fn(),
   };
   register(tokenAttachIotPolicyUseCase, { useValue: useCase });
 

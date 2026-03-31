@@ -205,7 +205,7 @@ const setup = () => {
   reset();
 
   const useCase = {
-    deleteEvent: jest.fn(),
+    deleteEvent: vi.fn(),
   };
   register(tokenDeleteEventUseCase, { useValue: useCase });
 
