@@ -11,8 +11,8 @@ export const main = async (event: {
 }): Promise<{
   eventId: string;
   packageChannelId: string;
-  verticalPackageChannelId: string;
+  verticalPackageChannelId?: string;
   packageDomainName: string;
-  verticalPackageDomainName: string;
+  verticalPackageDomainName?: string;
   endpoints: EventEndpoint[];
 }> => adapter.handle(event);

@@ -8,9 +8,9 @@ export class CreateMediaPackageChannelAdapter {
   public async handle({ eventId }: { eventId: string }): Promise<{
     eventId: string;
     packageChannelId: string;
-    verticalPackageChannelId: string;
+    verticalPackageChannelId?: string;
     packageDomainName: string;
-    verticalPackageDomainName: string;
+    verticalPackageDomainName?: string;
     endpoints: EventEndpoint[];
   }> {
     const {
