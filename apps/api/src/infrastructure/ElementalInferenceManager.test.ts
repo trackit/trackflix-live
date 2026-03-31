@@ -16,7 +16,7 @@ describe('ElementalInference manager', () => {
   });
 
   describe('createFeed', () => {
-    it('should create a feed with cropping output and return feedArn and feedId', async () => {
+    it('should create a feed with empty outputs and return feedArn and feedId', async () => {
       const { elementalInferenceManager } = setup();
       const eventId = 'evt-123';
 
@@ -98,6 +98,59 @@ describe('ElementalInference manager', () => {
       ).rejects.toThrow('FeedNotFound');
     });
   });
+
+  describe('waitForFeedStatus (via createFeed)', () => {
+    it('should poll with exponential backoff until status matches', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(CreateFeedCommand).resolves({
+        arn: 'arn:aws:elementalinference:us-east-1:000000000000:feed/f1',
+        id: 'f1',
+      });
+      mock
+        .on(GetFeedCommand)
+        .resolvesOnce({ status: 'CREATING' })
+        .resolvesOnce({ status: 'CREATING' })
+        .resolvesOnce({ status: 'AVAILABLE' });
+
+      const result = await elementalInferenceManager.createFeed('evt-poll');
+
+      expect(result.feedId).toBe('f1');
+      expect(mock.commandCalls(GetFeedCommand)).toHaveLength(3);
+    });
+
+    it('should throw after max attempts if status never matches', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(CreateFeedCommand).resolves({
+        arn: 'arn:aws:elementalinference:us-east-1:000000000000:feed/f2',
+        id: 'f2',
+      });
+      mock.on(GetFeedCommand).resolves({ status: 'CREATING' });
+
+      await expect(
+        elementalInferenceManager.createFeed('evt-timeout')
+      ).rejects.toThrow('Feed f2 did not reach AVAILABLE within');
+    });
+  });
+
+  describe('waitForFeedStatus (via deleteFeed)', () => {
+    it('should poll until ARCHIVED before deleting', async () => {
+      const { elementalInferenceManager } = setup();
+
+      mock.on(DisassociateFeedCommand).resolves({});
+      mock
+        .on(GetFeedCommand)
+        .resolvesOnce({ status: 'ACTIVE' })
+        .resolvesOnce({ status: 'ARCHIVED' });
+      mock.on(DeleteFeedCommand).resolves({});
+
+      await elementalInferenceManager.deleteFeed('feed-poll');
+
+      expect(mock.commandCalls(GetFeedCommand)).toHaveLength(2);
+      expect(mock.commandCalls(DeleteFeedCommand)).toHaveLength(1);
+    });
+  });
 });
 
 const setup = () => {
@@ -110,7 +163,9 @@ const setup = () => {
 
   const elementalInferenceManager = new ElementalInferenceManager({
     client,
+    timeoutMs: 50,
+    initialDelayMs: 1,
   });
 
-  return { client, elementalInferenceManager };
+  return { elementalInferenceManager };
 };

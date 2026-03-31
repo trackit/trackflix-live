@@ -8,9 +8,21 @@ import {
 
 export class ElementalInferenceManager {
   private readonly client: ElementalInferenceClient;
+  private readonly timeoutMs: number;
+  private readonly initialDelayMs: number;
 
-  public constructor({ client }: { client: ElementalInferenceClient }) {
+  public constructor({
+    client,
+    timeoutMs = 5 * 60 * 1000,
+    initialDelayMs = 500,
+  }: {
+    client: ElementalInferenceClient;
+    timeoutMs?: number;
+    initialDelayMs?: number;
+  }) {
     this.client = client;
+    this.timeoutMs = timeoutMs;
+    this.initialDelayMs = initialDelayMs;
   }
 
   public async createFeed(
@@ -42,19 +54,28 @@ export class ElementalInferenceManager {
 
   private async waitForFeedStatus(
     feedId: string,
-    targetStatus: string,
-    maxAttempts = 30,
-    delayMs = 1000
+    targetStatus: string
   ): Promise<void> {
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    /**
+     * TODO: Refactor to an asynchronous Step Functions "Wait State" pattern.
+     * Current limitation: AWS Elemental Inference does not yet emit native EventBridge
+     * or CloudTrail events for feed status changes.
+     * WARNING: Synchronous polling within a Lambda is a temporary workaround.
+     * It is subject to the 15-minute execution limit and incurs "idle" compute costs.
+     */
+    const startTime = Date.now();
+    let attempt = 0;
+    while (Date.now() - startTime < this.timeoutMs) {
       const feed = await this.client.send(new GetFeedCommand({ id: feedId }));
       if (feed.status === targetStatus) {
         return;
       }
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      const delay = this.initialDelayMs * Math.pow(2, attempt);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      attempt++;
     }
     throw new Error(
-      `Feed ${feedId} did not reach ${targetStatus} after ${maxAttempts} attempts`
+      `Feed ${feedId} did not reach ${targetStatus} within ${this.timeoutMs}ms`
     );
   }
 }
