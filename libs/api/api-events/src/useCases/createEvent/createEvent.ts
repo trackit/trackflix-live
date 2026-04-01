@@ -13,7 +13,7 @@ import { AuthorizationError } from '../../utils';
 export type CreateEventArgs = Pick<
   Event,
   'name' | 'description' | 'onAirStartTime' | 'onAirEndTime' | 'source'
-> & { userGroups: string[] };
+> & { userGroups: string[]; smartCropping?: boolean };
 
 export class AssetNotFoundError extends Error {
   constructor() {
