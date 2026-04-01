@@ -25,7 +25,13 @@ describe('Create Package channel use case', () => {
 
     const response = await useCase.createPackageChannel(event.id);
 
-    expect(response).toEqual(packageChannelId);
+    expect(response).toEqual({
+      packageChannelId,
+      verticalPackageChannelId: undefined,
+      packageDomainName: '',
+      verticalPackageDomainName: undefined,
+      endpoints: [],
+    });
     expect(packageChannelsManager.createdChannels).toEqual([event.id]);
   });
 
@@ -60,10 +66,12 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
         type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
       },
     ]);
 
@@ -73,10 +81,12 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
         type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
       },
     ]);
   });
@@ -93,6 +103,7 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
       },
     ]);
 
@@ -100,6 +111,74 @@ describe('Create Package channel use case', () => {
 
     expect(eventsRepository.events[0].packageDomainName).toEqual(
       'trackflix-live.mediapackage.com'
+    );
+  });
+
+  it('should create vertical channel when smartCropping is enabled', async () => {
+    const { useCase, packageChannelsManager, eventsRepository } = setup();
+    const packageChannelId = '8123456';
+
+    const event = EventMother.basic()
+      .withEndpoints([])
+      .withSmartCropping(true)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    packageChannelsManager.setPackageChannelId(packageChannelId);
+    packageChannelsManager.setPackageChannelEndpoints([
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
+      },
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.mpd`,
+        type: EndpointType.DASH,
+        orientation: 'HORIZONTAL',
+      },
+      {
+        url: `https://trackflix-live-vert.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+        orientation: 'VERTICAL',
+      },
+    ]);
+
+    const response = await useCase.createPackageChannel(event.id);
+
+    expect(response.verticalPackageChannelId).toEqual(
+      `${packageChannelId}-vertical`
+    );
+    expect(response.verticalPackageDomainName).toEqual(
+      'trackflix-live-vert.mediapackage.com'
+    );
+  });
+
+  it('should store vertical package domain name when smartCropping is enabled', async () => {
+    const { useCase, packageChannelsManager, eventsRepository } = setup();
+
+    const event = EventMother.basic()
+      .withEndpoints([])
+      .withSmartCropping(true)
+      .build();
+    await eventsRepository.createEvent(event);
+
+    packageChannelsManager.setPackageChannelEndpoints([
+      {
+        url: `https://trackflix-live.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+        orientation: 'HORIZONTAL',
+      },
+      {
+        url: `https://trackflix-live-vert.mediapackage.com/${event.id}/index.m3u8`,
+        type: EndpointType.HLS,
+        orientation: 'VERTICAL',
+      },
+    ]);
+
+    await useCase.createPackageChannel(event.id);
+
+    expect(eventsRepository.events[0].verticalPackageDomainName).toEqual(
+      'trackflix-live-vert.mediapackage.com'
     );
   });
 

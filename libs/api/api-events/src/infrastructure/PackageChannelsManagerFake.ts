@@ -15,11 +15,15 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
   public readonly deletedChannels: string[] = [];
 
   public async createChannel(
-    eventId: string
+    eventId: string,
+    smartCropping?: boolean
   ): Promise<CreatePackageChannelResponse> {
     this.createdChannels.push(eventId);
     return {
-      channelId: this.packageChannelId,
+      mainChannelId: this.packageChannelId,
+      verticalChannelId: smartCropping
+        ? `${this.packageChannelId}-vertical`
+        : undefined,
       endpoints: this.returnedEndpoints,
     };
   }
@@ -32,7 +36,10 @@ export class PackageChannelsManagerFake implements PackageChannelsManager {
     this.returnedEndpoints = endpoints;
   }
 
-  public async deleteChannel(eventId: string): Promise<void> {
+  public async deleteChannel(
+    eventId: string,
+    smartCropping?: boolean
+  ): Promise<void> {
     this.deletedChannels.push(eventId);
   }
 }
