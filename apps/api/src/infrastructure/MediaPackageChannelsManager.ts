@@ -24,7 +24,6 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
   ): Promise<CreatePackageChannelResponse> {
     const mainChannelId = `TrackflixLiveMPC-${eventId}`;
 
-    // Create Main Channel
     await this.client.send(
       new CreateChannelCommand({
         Id: mainChannelId,
@@ -117,7 +116,6 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
   ): Promise<void> {
     const mainChannelId = `TrackflixLiveMPC-${eventId}`;
 
-    // Delete Main Channel resources
     await this.client.send(
       new DeleteOriginEndpointCommand({
         Id: `TrackflixLiveMPOE-DASH-${eventId}`,
