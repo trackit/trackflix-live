@@ -3,6 +3,7 @@ import {
   tokenEventsRepositoryInMemory,
   tokenEventUpdateSenderFake,
   tokenLiveChannelsManagerFake,
+  tokenElementalInferenceManagerFake,
 } from '../../infrastructure';
 import { DeleteLiveInputUseCaseImpl } from './deleteLiveInput';
 import { EventMother, LogType } from '@trackflix-live/types';
@@ -159,6 +160,38 @@ describe('Delete live input use case', () => {
       },
     ]);
   });
+  it('should delete feed when event has feedId', async () => {
+    const { eventsRepository, elementalInferenceManager, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveInputId('8626488')
+      .withLiveWaitingInputId('1234567')
+      .withFeedId('feed-123')
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.deleteLiveInput({ eventId });
+
+    expect(elementalInferenceManager.deleteFeedCalls).toEqual(['feed-123']);
+  });
+
+  it('should not delete feed when event has no feedId', async () => {
+    const { eventsRepository, elementalInferenceManager, useCase } = setup();
+    const eventId = '51b09cc5-4d24-452c-9198-216a2a06dd6d';
+
+    const event = EventMother.basic()
+      .withId(eventId)
+      .withLiveInputId('8626488')
+      .withLiveWaitingInputId('1234567')
+      .build();
+    await eventsRepository.createEvent(event);
+
+    await useCase.deleteLiveInput({ eventId });
+
+    expect(elementalInferenceManager.deleteFeedCalls).toEqual([]);
+  });
 });
 
 const setup = () => {
@@ -167,6 +200,7 @@ const setup = () => {
   const liveChannelsManager = inject(tokenLiveChannelsManagerFake);
   const eventsRepository = inject(tokenEventsRepositoryInMemory);
   const eventUpdateSender = inject(tokenEventUpdateSenderFake);
+  const elementalInferenceManager = inject(tokenElementalInferenceManagerFake);
 
   const useCase = new DeleteLiveInputUseCaseImpl();
 
@@ -174,6 +208,7 @@ const setup = () => {
     liveChannelsManager,
     eventsRepository,
     eventUpdateSender,
+    elementalInferenceManager,
     useCase,
   };
 };

@@ -458,6 +458,59 @@ describe('EventsDynamoDBRepository', () => {
     });
   });
 
+  describe('updateVerticalPackageDomainName', () => {
+    it('should update event vertical package domain name', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const verticalPackageDomainName = 'vert-domain.cloudfront.net';
+      await repository.createEvent(sampleEvent);
+
+      await repository.updateVerticalPackageDomainName(
+        sampleEvent.id,
+        verticalPackageDomainName
+      );
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        verticalPackageDomainName,
+      });
+    });
+  });
+
+  describe('updateFeedId', () => {
+    it('should update event feed id', async () => {
+      const { ddbClient, repository } = setup();
+
+      const sampleEvent = EventMother.basic().build();
+      const feedId = 'abc123feedid';
+      await repository.createEvent(sampleEvent);
+
+      await repository.updateFeedId(sampleEvent.id, feedId);
+
+      const command = new GetCommand({
+        TableName: 'EventsTable',
+        Key: {
+          id: sampleEvent.id,
+        },
+      });
+      const responseFromDB = await ddbClient.send(command);
+
+      expect(responseFromDB.Item).toMatchObject({
+        ...sampleEvent,
+        feedId,
+      });
+    });
+  });
+
   describe('updateEventEndpoints', () => {
     it('should update event endpoints', async () => {
       const { ddbClient, repository } = setup();
