@@ -175,6 +175,66 @@ describe('CloudFront distributions manager', () => {
         ],
       });
     });
+    it('should create origin with vertical endpoints', async () => {
+      const { cloudFrontDistributionsManager, distributionId } = setup();
+      const eventId = 'test-event-id';
+      const packageDomainName = 'test-domain-name';
+      const verticalPackageDomainName = 'test-vertical-domain-name';
+      const endpoints: EventEndpoint[] = [
+        {
+          url: 'https://amazonaws.com/hls/index.m3u8',
+          type: EndpointType.HLS,
+          orientation: 'HORIZONTAL',
+        },
+        {
+          url: 'https://amazonaws.com/dash/index.mpd',
+          type: EndpointType.DASH,
+          orientation: 'HORIZONTAL',
+        },
+        {
+          url: 'https://amazonaws.com/vert-hls/index.m3u8',
+          type: EndpointType.HLS,
+          orientation: 'VERTICAL',
+        },
+      ];
+
+      mock
+        .on(GetDistributionCommand)
+        .resolves(getMockDistribution(distributionId));
+      mock.on(UpdateDistributionCommand).resolves({});
+
+      await cloudFrontDistributionsManager.createOrigin({
+        eventId,
+        packageDomainName,
+        verticalPackageDomainName,
+        endpoints,
+      });
+
+      const updateCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof UpdateDistributionCommand);
+      const config = (
+        updateCall?.args[0].input as UpdateDistributionCommandInput
+      ).DistributionConfig;
+
+      // Should have main + vertical origins
+      const mainOrigin = config?.Origins?.Items?.find((o) => o.Id === eventId);
+      const verticalOrigin = config?.Origins?.Items?.find(
+        (o) => o.Id === `${eventId}-vertical`
+      );
+      expect(mainOrigin?.DomainName).toBe(packageDomainName);
+      expect(verticalOrigin?.DomainName).toBe(verticalPackageDomainName);
+
+      // Should have 3 cache behaviors (2 horizontal + 1 vertical)
+      const mainBehaviors = config?.CacheBehaviors?.Items?.filter(
+        (b) => b.TargetOriginId === eventId
+      );
+      const verticalBehaviors = config?.CacheBehaviors?.Items?.filter(
+        (b) => b.TargetOriginId === `${eventId}-vertical`
+      );
+      expect(mainBehaviors).toHaveLength(2);
+      expect(verticalBehaviors).toHaveLength(1);
+    });
   });
 
   describe('deleteOrigin', () => {
@@ -359,6 +419,130 @@ describe('CloudFront distributions manager', () => {
       expect(updateInput.DistributionConfig).toEqual(
         getMockDistribution(distributionId).Distribution?.DistributionConfig
       );
+    });
+
+    it('should delete both main and vertical origins', async () => {
+      const { cloudFrontDistributionsManager, distributionId } = setup();
+      const eventId = 'test-event-id';
+
+      const distWithVertical: GetDistributionCommandOutput = {
+        Distribution: {
+          ...getMockDistribution(distributionId).Distribution!,
+          DistributionConfig: {
+            ...getMockDistribution(distributionId).Distribution!
+              .DistributionConfig!,
+            Origins: {
+              Items: [
+                {
+                  Id: 'existing-origin',
+                  DomainName: 'existing-domain.com',
+                  CustomHeaders: { Items: [], Quantity: 0 },
+                  CustomOriginConfig: {
+                    OriginProtocolPolicy: 'https-only' as const,
+                    HTTPPort: 80,
+                    HTTPSPort: 443,
+                    OriginSslProtocols: {
+                      Items: ['TLSv1.2' as const],
+                      Quantity: 1,
+                    },
+                  },
+                  ConnectionAttempts: 3,
+                  ConnectionTimeout: 10,
+                  OriginShield: { Enabled: false },
+                  OriginAccessControlId: 'access-control-id',
+                },
+                {
+                  Id: eventId,
+                  DomainName: 'main-domain.com',
+                  CustomHeaders: { Items: [], Quantity: 0 },
+                  CustomOriginConfig: {
+                    OriginProtocolPolicy: 'https-only' as const,
+                    HTTPPort: 80,
+                    HTTPSPort: 443,
+                    OriginSslProtocols: {
+                      Items: ['TLSv1.2' as const],
+                      Quantity: 1,
+                    },
+                  },
+                },
+                {
+                  Id: `${eventId}-vertical`,
+                  DomainName: 'vertical-domain.com',
+                  CustomHeaders: { Items: [], Quantity: 0 },
+                  CustomOriginConfig: {
+                    OriginProtocolPolicy: 'https-only' as const,
+                    HTTPPort: 80,
+                    HTTPSPort: 443,
+                    OriginSslProtocols: {
+                      Items: ['TLSv1.2' as const],
+                      Quantity: 1,
+                    },
+                  },
+                },
+              ],
+              Quantity: 3,
+            },
+            CacheBehaviors: {
+              Items: [
+                {
+                  PathPattern: '/hls/*',
+                  TargetOriginId: eventId,
+                  ViewerProtocolPolicy: 'redirect-to-https' as const,
+                  CachePolicyId: 'test',
+                  SmoothStreaming: false,
+                  Compress: true,
+                  AllowedMethods: {
+                    Quantity: 2,
+                    Items: ['GET', 'HEAD'],
+                    CachedMethods: { Quantity: 2, Items: ['GET', 'HEAD'] },
+                  },
+                },
+                {
+                  PathPattern: '/vert-hls/*',
+                  TargetOriginId: `${eventId}-vertical`,
+                  ViewerProtocolPolicy: 'redirect-to-https' as const,
+                  CachePolicyId: 'test',
+                  SmoothStreaming: false,
+                  Compress: true,
+                  AllowedMethods: {
+                    Quantity: 2,
+                    Items: ['GET', 'HEAD'],
+                    CachedMethods: { Quantity: 2, Items: ['GET', 'HEAD'] },
+                  },
+                },
+              ],
+              Quantity: 2,
+            },
+          },
+        },
+        ETag: 'test-etag',
+        $metadata: {},
+      };
+
+      mock.on(GetDistributionCommand).resolves(distWithVertical);
+      mock.on(UpdateDistributionCommand).resolves({});
+
+      await cloudFrontDistributionsManager.deleteOrigin({ eventId });
+
+      const updateCall = mock
+        .calls()
+        .find((call) => call.args[0] instanceof UpdateDistributionCommand);
+      const config = (
+        updateCall?.args[0].input as UpdateDistributionCommandInput
+      ).DistributionConfig;
+
+      // Both main and vertical origins should be removed
+      expect(
+        config?.Origins?.Items?.find((o) => o.Id === eventId)
+      ).toBeUndefined();
+      expect(
+        config?.Origins?.Items?.find((o) => o.Id === `${eventId}-vertical`)
+      ).toBeUndefined();
+      expect(config?.Origins?.Quantity).toBe(1);
+
+      // Both cache behaviors should be removed
+      expect(config?.CacheBehaviors?.Items).toHaveLength(0);
+      expect(config?.CacheBehaviors?.Quantity).toBe(0);
     });
   });
 });
