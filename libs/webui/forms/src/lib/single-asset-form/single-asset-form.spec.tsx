@@ -91,6 +91,7 @@ describe('SingleAssetForm', () => {
       name: 'Test Event',
       description: 'Test Description',
       source: 's3://test-bucket/test-key',
+      smartCropping: false,
       onAirStartTime: DateTime.fromJSDate(fixedDate)
         .plus({ hours: 1 })
         .startOf('minute')
