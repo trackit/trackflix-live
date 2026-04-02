@@ -217,7 +217,6 @@ describe('CloudFront distributions manager', () => {
         updateCall?.args[0].input as UpdateDistributionCommandInput
       ).DistributionConfig;
 
-      // Should have main + vertical origins
       const mainOrigin = config?.Origins?.Items?.find((o) => o.Id === eventId);
       const verticalOrigin = config?.Origins?.Items?.find(
         (o) => o.Id === `${eventId}-vertical`
@@ -225,7 +224,6 @@ describe('CloudFront distributions manager', () => {
       expect(mainOrigin?.DomainName).toBe(packageDomainName);
       expect(verticalOrigin?.DomainName).toBe(verticalPackageDomainName);
 
-      // Should have 3 cache behaviors (2 horizontal + 1 vertical)
       const mainBehaviors = config?.CacheBehaviors?.Items?.filter(
         (b) => b.TargetOriginId === eventId
       );
@@ -531,7 +529,6 @@ describe('CloudFront distributions manager', () => {
         updateCall?.args[0].input as UpdateDistributionCommandInput
       ).DistributionConfig;
 
-      // Both main and vertical origins should be removed
       expect(
         config?.Origins?.Items?.find((o) => o.Id === eventId)
       ).toBeUndefined();
@@ -540,7 +537,6 @@ describe('CloudFront distributions manager', () => {
       ).toBeUndefined();
       expect(config?.Origins?.Quantity).toBe(1);
 
-      // Both cache behaviors should be removed
       expect(config?.CacheBehaviors?.Items).toHaveLength(0);
       expect(config?.CacheBehaviors?.Quantity).toBe(0);
     });
