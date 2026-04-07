@@ -401,6 +401,35 @@ describe('Create event adapter', () => {
       userGroups: [],
     });
   });
+  it('should accept smartCropping in the body', async () => {
+    const { adapter, useCase } = setup();
+    const createEventReq = CreateEventMother.basic()
+      .withOnAirStartTime('2025-03-10T10:00:00.000Z')
+      .build();
+
+    await adapter.handle({
+      body: JSON.stringify({
+        name: createEventReq.name,
+        description: createEventReq.description,
+        onAirStartTime: createEventReq.onAirStartTime,
+        onAirEndTime: createEventReq.onAirEndTime,
+        source: createEventReq.source,
+        smartCropping: true,
+      }),
+      requestContext: {
+        authorizer: {
+          claims: {
+            'cognito:groups': ['Creators'],
+          },
+        },
+      },
+    } as unknown as APIGatewayProxyEventV2WithRequestContext<CustomRequestContext>);
+
+    expect(useCase.createEvent).toHaveBeenCalledWith({
+      ...createEventReq,
+      smartCropping: true,
+    });
+  });
 });
 
 const setup = () => {

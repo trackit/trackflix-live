@@ -26,7 +26,11 @@ export class DeletePackageChannelUseCaseImpl
   public async deletePackageChannel({
     eventId,
   }: DeletePackageChannelParameters): Promise<void> {
-    await this.packageChannelsManager.deleteChannel(eventId);
+    const event = await this.eventsRepository.getEvent(eventId);
+    await this.packageChannelsManager.deleteChannel(
+      eventId,
+      event?.smartCropping
+    );
 
     await this.eventsRepository.updateEventStatus(eventId, EventStatus.ENDED);
     await this.eventsRepository.updateEventDestroyedTime(
