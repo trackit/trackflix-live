@@ -37,6 +37,7 @@ export interface EventLog {
 export interface EventEndpoint {
   url: string;
   type: EndpointType;
+  orientation?: 'HORIZONTAL' | 'VERTICAL';
 }
 
 export interface Event {
@@ -56,7 +57,10 @@ export interface Event {
   liveChannelArn?: string;
   liveInputId?: string;
   liveWaitingInputId?: string;
+  feedId?: string;
   packageDomainName?: string;
+  verticalPackageDomainName?: string;
+  smartCropping?: boolean;
 }
 
 export enum EventUpdateAction {

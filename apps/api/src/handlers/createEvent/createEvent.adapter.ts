@@ -29,6 +29,7 @@ const schema: JSONSchemaType<CreateEventRequest['body']> = {
     onAirStartTime: { type: 'string', format: 'date-time' },
     onAirEndTime: { type: 'string', format: 'date-time' },
     source: { type: 'string', pattern: '^s3:\\/\\/.+\\.mp4$' },
+    smartCropping: { type: 'boolean', nullable: true },
   },
   required: ['name', 'description', 'onAirStartTime', 'onAirEndTime', 'source'],
   additionalProperties: false,

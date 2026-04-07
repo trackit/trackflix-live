@@ -3,11 +3,21 @@ import {
   tokenEventUpdateSender,
   tokenPackageChannelsManager,
 } from '../../ports';
-import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventEndpoint,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 
 export interface CreatePackageChannelUseCase {
-  createPackageChannel(eventId: string): Promise<string>;
+  createPackageChannel(eventId: string): Promise<{
+    packageChannelId: string;
+    verticalPackageChannelId?: string;
+    packageDomainName: string;
+    verticalPackageDomainName?: string;
+    endpoints: EventEndpoint[];
+  }>;
 }
 
 export class CreatePackageChannelUseCaseImpl
@@ -19,32 +29,70 @@ export class CreatePackageChannelUseCaseImpl
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
-  public async createPackageChannel(eventId: string): Promise<string> {
-    const { channelId, endpoints } =
-      await this.packageChannelsManager.createChannel(eventId);
+  public async createPackageChannel(eventId: string): Promise<{
+    packageChannelId: string;
+    verticalPackageChannelId?: string;
+    packageDomainName: string;
+    verticalPackageDomainName?: string;
+    endpoints: EventEndpoint[];
+  }> {
+    const event = await this.eventsRepository.getEvent(eventId);
+
+    const { mainChannelId, verticalChannelId, endpoints } =
+      await this.packageChannelsManager.createChannel(
+        eventId,
+        event?.smartCropping
+      );
 
     await this.eventsRepository.updateEndpoints(eventId, endpoints);
 
     const packageDomainName =
-      endpoints.at(0)?.url.replace('https://', '').split('/')[0] ?? '';
+      endpoints
+        .find((e) => e.orientation === 'HORIZONTAL')
+        ?.url.replace('https://', '')
+        .split('/')[0] ?? '';
+
     await this.eventsRepository.updatePackageDomainName(
       eventId,
       packageDomainName
     );
 
-    const event = await this.eventsRepository.appendLogsToEvent(eventId, [
-      {
-        timestamp: Date.now(),
-        type: LogType.PACKAGE_CHANNEL_CREATED,
-      },
-    ]);
+    let verticalPackageDomainName: string | undefined;
+    if (event?.smartCropping && verticalChannelId) {
+      verticalPackageDomainName =
+        endpoints
+          .find((e) => e.orientation === 'VERTICAL')
+          ?.url.replace('https://', '')
+          .split('/')[0] ?? '';
+
+      await this.eventsRepository.updateVerticalPackageDomainName(
+        eventId,
+        verticalPackageDomainName
+      );
+    }
+
+    const updatedEvent = await this.eventsRepository.appendLogsToEvent(
+      eventId,
+      [
+        {
+          timestamp: Date.now(),
+          type: LogType.PACKAGE_CHANNEL_CREATED,
+        },
+      ]
+    );
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
-      value: event,
+      value: updatedEvent,
     });
 
-    return channelId;
+    return {
+      packageChannelId: mainChannelId,
+      verticalPackageChannelId: verticalChannelId,
+      packageDomainName,
+      verticalPackageDomainName,
+      endpoints,
+    };
   }
 }
 
