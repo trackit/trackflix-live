@@ -11,6 +11,7 @@ import {
   tokenEventSchedulerDelete,
   tokenAssetsService,
   tokenCDNDistributionsManager,
+  tokenElementalInferenceManager,
 } from '@trackflix-live/api-events';
 import { EventsIotUpdateSender } from './EventsIotUpdateSender';
 import { IoTDataPlaneClient } from '@aws-sdk/client-iot-data-plane';
@@ -31,6 +32,8 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { S3AssetsService } from './S3AssetsService';
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
 import { CloudFrontDistributionsManager } from './CloudFrontDistributionsManager';
+import { ElementalInferenceClient } from '@aws-sdk/client-elementalinference';
+import { ElementalInferenceManager } from './ElementalInferenceManager';
 
 export const registerProductionInfrastructure = () => {
   const schedulerClient = new SchedulerClient();
@@ -43,6 +46,7 @@ export const registerProductionInfrastructure = () => {
   const cloudFrontClient = new CloudFrontClient();
   const sfnClient = new SFNClient();
   const s3Client = new S3Client();
+  const elementalInferenceClient = new ElementalInferenceClient({});
 
   register(tokenAssetsService, {
     useFactory: () => {
@@ -132,6 +136,13 @@ export const registerProductionInfrastructure = () => {
           process.env.START_TX_STATE_MACHINE || '',
         stopTransmissionStateMachineArn:
           process.env.STOP_TX_STATE_MACHINE || '',
+      });
+    },
+  });
+  register(tokenElementalInferenceManager, {
+    useFactory: () => {
+      return new ElementalInferenceManager({
+        client: elementalInferenceClient,
       });
     },
   });

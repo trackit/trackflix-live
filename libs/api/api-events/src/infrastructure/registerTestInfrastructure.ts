@@ -10,6 +10,7 @@ import {
   tokenTaskTokensRepositoryInMemory,
   tokenTransmissionsManagerFake,
   tokenCDNDistributionsManagerFake,
+  tokenElementalInferenceManagerFake,
 } from '.';
 import {
   tokenAssetsService,
@@ -23,6 +24,7 @@ import {
   tokenPackageChannelsManager,
   tokenTaskTokensRepository,
   tokenTransmissionsManager,
+  tokenElementalInferenceManager,
 } from '../ports';
 import { tokenAssetsServiceFake } from './AssetsServiceFake';
 
@@ -59,5 +61,8 @@ export const registerTestInfrastructure = () => {
   });
   register(tokenCDNDistributionsManager, {
     useFactory: () => inject(tokenCDNDistributionsManagerFake),
+  });
+  register(tokenElementalInferenceManager, {
+    useFactory: () => inject(tokenElementalInferenceManagerFake),
   });
 };
