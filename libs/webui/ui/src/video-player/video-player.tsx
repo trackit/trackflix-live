@@ -48,6 +48,7 @@ export function VideoPlayer({ src, vertical }: VideoPlayerProps) {
       hls.attachMedia(videoRef.current);
 
       // Auto-recover from fatal errors.
+      // I added it because my network is unstable, feel free to delete it if it's no more needed
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
           switch (data.type) {
