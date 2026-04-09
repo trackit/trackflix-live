@@ -4,6 +4,8 @@ export interface CreateChannelParameters {
   eventId: string;
   source: string;
   packageChannelId: string;
+  verticalPackageChannelId?: string;
+  feedArn?: string;
 }
 
 export interface CreateChannelResponse {

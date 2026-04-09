@@ -101,6 +101,112 @@ describe('MediaLive channels manager', () => {
       expect(commandCalls).toHaveLength(1);
       expect(commandCalls[0].args[0].input).toMatchSnapshot();
     });
+
+    it('should create vertical channel', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const eventId = 'dbb682ee-1dd6-4ec6-a666-03b04ace1f9d';
+      const packageChannelId = '456789';
+      const verticalPackageChannelId = '987654';
+      const source = 's3://trackflix-live-demo-videos/oss117.mp4';
+      const inputId = '9876543';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+      const liveChannelId = '8626488';
+
+      mock.on(CreateInputCommand).resolves({
+        Input: {
+          Id: inputId,
+        },
+      });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: {
+          Arn: liveChannelArn,
+          Id: liveChannelId,
+        },
+      });
+
+      await mediaLiveChannelsManager.createChannel({
+        eventId,
+        packageChannelId,
+        verticalPackageChannelId,
+        source,
+      });
+
+      const commandCalls = mock.commandCalls(CreateChannelCommand);
+      expect(commandCalls).toHaveLength(1);
+      expect(commandCalls[0].args[0].input).toMatchSnapshot();
+    });
+    it('should include InferenceSettings when feedArn is provided', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const inputId = '9876543';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+      const liveChannelId = '8626488';
+
+      mock.on(CreateInputCommand).resolves({ Input: { Id: inputId } });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: { Arn: liveChannelArn, Id: liveChannelId },
+      });
+
+      await mediaLiveChannelsManager.createChannel({
+        eventId: 'evt-1',
+        packageChannelId: '456',
+        source: 's3://bucket/video.mp4',
+        feedArn: 'arn:aws:elementalinference:us-east-1:000:feed/abc',
+      });
+
+      const input = mock.commandCalls(CreateChannelCommand)[0].args[0].input;
+      expect(input?.InferenceSettings).toEqual({
+        FeedArn: 'arn:aws:elementalinference:us-east-1:000:feed/abc',
+      });
+    });
+
+    it('should not include InferenceSettings when feedArn is not provided', async () => {
+      const { mediaLiveChannelsManager } = setup();
+      const inputId = '9876543';
+      const liveChannelArn =
+        'arn:aws:medialive:us-west-2:000000000000:channel:8626488';
+      const liveChannelId = '8626488';
+
+      mock.on(CreateInputCommand).resolves({ Input: { Id: inputId } });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: { Arn: liveChannelArn, Id: liveChannelId },
+      });
+
+      await mediaLiveChannelsManager.createChannel({
+        eventId: 'evt-2',
+        packageChannelId: '456',
+        source: 's3://bucket/video.mp4',
+      });
+
+      const input = mock.commandCalls(CreateChannelCommand)[0].args[0].input;
+      expect(input?.InferenceSettings).toBeUndefined();
+    });
+
+    it('should return channel details and input ids', async () => {
+      const { mediaLiveChannelsManager } = setup();
+
+      mock
+        .on(CreateInputCommand)
+        .resolvesOnce({ Input: { Id: 'waiting-id' } })
+        .resolvesOnce({ Input: { Id: 'source-id' } });
+      mock.on(CreateChannelCommand).resolves({
+        Channel: { Arn: 'arn:channel:1', Id: 'ch-1' },
+      });
+
+      const result = await mediaLiveChannelsManager.createChannel({
+        eventId: 'evt-3',
+        packageChannelId: '456',
+        source: 's3://bucket/video.mp4',
+      });
+
+      expect(result).toEqual({
+        channelArn: 'arn:channel:1',
+        channelId: 'ch-1',
+        inputId: 'source-id',
+        waitingInputId: 'waiting-id',
+      });
+    });
   });
 
   describe('startChannel', () => {

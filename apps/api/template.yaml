@@ -383,6 +383,18 @@ Resources:
                 Action:
                   - 'iot:Publish'
                 Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${AWS::StackName}'
+        - PolicyName: !Sub '${AWS::StackName}-ElementalInference-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'elemental-inference:CreateFeed'
+                  - 'elemental-inference:AssociateFeed'
+                  - 'elemental-inference:DisassociateFeed'
+                  - 'elemental-inference:GetFeed'
+                  - 'elemental-inference:DeleteFeed'
+                Resource: '*'
   SchedulerExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -1056,12 +1068,6 @@ Resources:
                   "Next": "Set error status"
                 }
               ],
-              "Parameters": {
-                "eventId.$": "$.eventId",
-                "liveChannelArn.$": "$.liveChannelArn",
-                "liveChannelId.$": "$.liveChannelId",
-                "packageChannelId.$": "$.packageChannelId"
-              },
               "Next": "Start MediaLive channel"
             },
             "Start MediaLive channel": {

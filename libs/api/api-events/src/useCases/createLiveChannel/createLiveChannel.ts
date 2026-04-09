@@ -3,20 +3,31 @@ import {
   tokenEventUpdateSender,
   tokenLiveChannelsManager,
   tokenTaskTokensRepository,
+  tokenElementalInferenceManager,
 } from '../../ports';
-import { EventUpdateAction, LogType } from '@trackflix-live/types';
+import {
+  EventEndpoint,
+  EventUpdateAction,
+  LogType,
+} from '@trackflix-live/types';
 import { createInjectionToken, inject } from '@trackflix-live/di';
 import { EventDoesNotExistError } from '../../utils';
 
 export interface CreateLiveChannelParameters {
   eventId: string;
   packageChannelId: string;
+  verticalPackageChannelId?: string;
+  packageDomainName: string;
+  verticalPackageDomainName?: string;
   taskToken: string;
+  endpoints: EventEndpoint[];
 }
 
 export interface CreateLiveChannelResponse {
   channelId: string;
   channelArn: string;
+  inputId: string;
+  waitingInputId: string;
 }
 
 export interface CreateLiveChannelUseCase {
@@ -34,20 +45,39 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
 
+  private readonly elementalInferenceManager = inject(
+    tokenElementalInferenceManager
+  );
+
   public async createLiveChannel({
     eventId,
     packageChannelId,
+    verticalPackageChannelId,
+    packageDomainName,
+    verticalPackageDomainName,
     taskToken,
+    endpoints,
   }: CreateLiveChannelParameters): Promise<CreateLiveChannelResponse> {
     const event = await this.eventsRepository.getEvent(eventId);
     if (event === undefined) {
       throw new EventDoesNotExistError();
     }
 
+    // Create Elemental Inference feed if smart cropping is enabled
+    let feedArn: string | undefined;
+    let feedId: string | undefined;
+    if (event.smartCropping) {
+      const feed = await this.elementalInferenceManager.createFeed(eventId);
+      feedArn = feed.feedArn;
+      feedId = feed.feedId;
+    }
+
     const liveChannel = await this.liveChannelsManager.createChannel({
       eventId: eventId,
       source: event.source,
       packageChannelId,
+      verticalPackageChannelId,
+      feedArn,
     });
 
     const currentTimestamp = Date.now();
@@ -73,6 +103,10 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
         liveChannel.waitingInputId
       );
 
+    if (feedId) {
+      await this.eventsRepository.updateFeedId(eventId, feedId);
+    }
+
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
       value: eventAfterUpdate,
@@ -85,8 +119,12 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       output: {
         eventId,
         packageChannelId,
+        verticalPackageChannelId,
+        packageDomainName,
+        verticalPackageDomainName,
         liveChannelId: liveChannel.channelId,
         liveChannelArn: liveChannel.channelArn,
+        endpoints,
       },
     });
 

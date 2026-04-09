@@ -1,4 +1,5 @@
 import {
+  tokenElementalInferenceManager,
   tokenEventsRepository,
   tokenEventUpdateSender,
   tokenLiveChannelsManager,
@@ -20,6 +21,10 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
   private readonly eventsRepository = inject(tokenEventsRepository);
 
   private readonly eventUpdateSender = inject(tokenEventUpdateSender);
+
+  private readonly elementalInferenceManager = inject(
+    tokenElementalInferenceManager
+  );
 
   public async deleteLiveInput({
     eventId,
@@ -49,6 +54,10 @@ export class DeleteLiveInputUseCaseImpl implements DeleteLiveInputUseCase {
 
     await this.liveChannelsManager.deleteInput(liveInputId);
     await this.liveChannelsManager.deleteInput(liveWaitingInputId);
+
+    if (event.feedId) {
+      await this.elementalInferenceManager.deleteFeed(event.feedId);
+    }
 
     await this.eventUpdateSender.send({
       action: EventUpdateAction.EVENT_UPDATE_UPDATE,
