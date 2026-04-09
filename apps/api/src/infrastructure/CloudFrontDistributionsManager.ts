@@ -11,7 +11,6 @@ import {
   GetDistributionCommand,
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
-import { EndpointType } from '@trackflix-live/types';
 
 export class CloudFrontDistributionsManager implements CDNDistributionsManager {
   private readonly client: CloudFrontClient;
@@ -71,6 +70,7 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
   public async createOrigin({
     eventId,
     packageDomainName,
+    verticalPackageDomainName,
     endpoints,
   }: CreateCDNOriginParameters): Promise<CreateCDNOriginResponse> {
     const distributionData = await this.getDistribution();
@@ -86,28 +86,6 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       };
     }
 
-    distributionData.distribution.DistributionConfig.Origins.Items?.push({
-      Id: eventId,
-      DomainName: packageDomainName,
-      CustomHeaders: { Quantity: 0 },
-      OriginPath: '',
-      CustomOriginConfig: {
-        HTTPPort: 80,
-        HTTPSPort: 443,
-        OriginProtocolPolicy: 'match-viewer',
-        OriginSslProtocols: { Quantity: 2, Items: ['SSLv3', 'TLSv1'] },
-        OriginReadTimeout: 30,
-        OriginKeepaliveTimeout: 5,
-      },
-      ConnectionAttempts: 3,
-      ConnectionTimeout: 10,
-      OriginShield: { Enabled: false },
-      OriginAccessControlId: '',
-    });
-    distributionData.distribution.DistributionConfig.Origins.Quantity =
-      distributionData.distribution.DistributionConfig.Origins.Items?.length ??
-      0;
-
     if (
       !distributionData.distribution.DistributionConfig.CacheBehaviors ||
       !distributionData.distribution.DistributionConfig.CacheBehaviors.Items
@@ -118,31 +96,58 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       };
     }
 
-    const hlsEndpoint = endpoints.find(
-      (endpoint) => endpoint.type === EndpointType.HLS
-    );
-    if (!hlsEndpoint) {
-      throw new Error('HLS endpoint not found');
-    }
-    const hlsPathPattern = hlsEndpoint.url.split('amazonaws.com')[1];
-    const hlsPathPatternWithoutLastSlash =
-      hlsPathPattern.split('/').slice(0, -1).join('/') + '/*';
-    distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
-      this.getCacheBehaviorsConfig(eventId, hlsPathPatternWithoutLastSlash)
-    );
+    const orientations = [...new Set(endpoints.map((e) => e.orientation))];
 
-    const dashEndpoint = endpoints.find(
-      (endpoint) => endpoint.type === EndpointType.DASH
-    );
-    if (!dashEndpoint) {
-      throw new Error('Dash endpoint not found');
+    for (const orientation of orientations) {
+      const isVertical = orientation === 'VERTICAL';
+      const originId = isVertical ? `${eventId}-vertical` : eventId;
+      const domainName =
+        isVertical && verticalPackageDomainName
+          ? verticalPackageDomainName
+          : packageDomainName;
+
+      distributionData.distribution.DistributionConfig.Origins.Items?.push({
+        Id: originId,
+        DomainName: domainName,
+        CustomHeaders: { Quantity: 0 },
+        OriginPath: '',
+        CustomOriginConfig: {
+          HTTPPort: 80,
+          HTTPSPort: 443,
+          OriginProtocolPolicy: 'match-viewer',
+          OriginSslProtocols: { Quantity: 2, Items: ['SSLv3', 'TLSv1'] },
+          OriginReadTimeout: 30,
+          OriginKeepaliveTimeout: 5,
+        },
+        ConnectionAttempts: 3,
+        ConnectionTimeout: 10,
+        OriginShield: { Enabled: false },
+        OriginAccessControlId: '',
+      });
+
+      // Add Cache Behaviors for this orientation
+      const orientationEndpoints = endpoints.filter(
+        (e) => e.orientation === orientation
+      );
+
+      for (const endpoint of orientationEndpoints) {
+        const pathPattern = endpoint.url.split('amazonaws.com')[1];
+        const pathPatternWithoutLastSlash =
+          pathPattern.split('/').slice(0, -1).join('/') + '/*';
+
+        distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
+          this.getCacheBehaviorsConfig(originId, pathPatternWithoutLastSlash)
+        );
+
+        // Update endpoint URL to use CloudFront domain
+        endpoint.url =
+          'https://' + distributionData.distribution.DomainName + pathPattern;
+      }
     }
-    const dashPathPattern = dashEndpoint.url.split('amazonaws.com')[1];
-    const dashPathPatternWithoutLastSlash =
-      dashPathPattern.split('/').slice(0, -1).join('/') + '/*';
-    distributionData.distribution.DistributionConfig.CacheBehaviors.Items?.push(
-      this.getCacheBehaviorsConfig(eventId, dashPathPatternWithoutLastSlash)
-    );
+
+    distributionData.distribution.DistributionConfig.Origins.Quantity =
+      distributionData.distribution.DistributionConfig.Origins.Items?.length ??
+      0;
     distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items
         ?.length ?? 0;
@@ -155,22 +160,9 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       })
     );
 
-    if (hlsEndpoint) {
-      hlsEndpoint.url =
-        'https://' + distributionData.distribution.DomainName + hlsPathPattern;
-    }
-    if (dashEndpoint) {
-      dashEndpoint.url =
-        'https://' + distributionData.distribution.DomainName + dashPathPattern;
-    }
-
-    if (!hlsEndpoint || !dashEndpoint) {
-      throw new Error('Failed to create CloudFront endpoints');
-    }
-
     return {
       eventId,
-      endpoints: [hlsEndpoint, dashEndpoint],
+      endpoints,
     };
   }
 
@@ -183,10 +175,12 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
       throw new Error('Distribution has no origins');
     }
 
-    const items =
+    const origins =
       distributionData.distribution.DistributionConfig.Origins.Items;
     distributionData.distribution.DistributionConfig.Origins.Items =
-      items.filter((origin) => origin.Id !== eventId);
+      origins.filter(
+        (origin) => origin.Id !== eventId && origin.Id !== `${eventId}-vertical`
+      );
     distributionData.distribution.DistributionConfig.Origins.Quantity =
       distributionData.distribution.DistributionConfig.Origins.Items.length;
 
@@ -198,7 +192,9 @@ export class CloudFrontDistributionsManager implements CDNDistributionsManager {
 
     distributionData.distribution.DistributionConfig.CacheBehaviors.Items =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items.filter(
-        (behavior) => behavior.TargetOriginId !== eventId
+        (behavior) =>
+          behavior.TargetOriginId !== eventId &&
+          behavior.TargetOriginId !== `${eventId}-vertical`
       );
     distributionData.distribution.DistributionConfig.CacheBehaviors.Quantity =
       distributionData.distribution.DistributionConfig.CacheBehaviors.Items.length;
