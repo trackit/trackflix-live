@@ -119,12 +119,12 @@ export class CreateLiveChannelUseCaseImpl implements CreateLiveChannelUseCase {
       output: {
         eventId,
         packageChannelId,
-        verticalPackageChannelId,
         packageDomainName,
-        verticalPackageDomainName,
         liveChannelId: liveChannel.channelId,
         liveChannelArn: liveChannel.channelArn,
         endpoints,
+        ...(verticalPackageChannelId && { verticalPackageChannelId }),
+        ...(verticalPackageDomainName && { verticalPackageDomainName }),
       },
     });
 

@@ -105,8 +105,6 @@ describe('Create live channel use case', () => {
           packageChannelId,
           packageDomainName: 'example.com',
           endpoints: [],
-          verticalPackageChannelId: undefined,
-          verticalPackageDomainName: undefined,
         },
         taskToken,
       },
