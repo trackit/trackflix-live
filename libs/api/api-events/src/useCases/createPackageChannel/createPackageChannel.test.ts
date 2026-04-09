@@ -141,6 +141,11 @@ describe('Create Package channel use case', () => {
         type: EndpointType.HLS,
         orientation: 'VERTICAL',
       },
+      {
+        url: `https://trackflix-live-vert.mediapackage.com/${event.id}/index.mpd`,
+        type: EndpointType.DASH,
+        orientation: 'VERTICAL',
+      },
     ]);
 
     const response = await useCase.createPackageChannel(event.id);
@@ -171,6 +176,11 @@ describe('Create Package channel use case', () => {
       {
         url: `https://trackflix-live-vert.mediapackage.com/${event.id}/index.m3u8`,
         type: EndpointType.HLS,
+        orientation: 'VERTICAL',
+      },
+      {
+        url: `https://trackflix-live-vert.mediapackage.com/${event.id}/index.mpd`,
+        type: EndpointType.DASH,
         orientation: 'VERTICAL',
       },
     ]);
