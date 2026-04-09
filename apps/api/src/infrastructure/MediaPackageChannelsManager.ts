@@ -92,15 +92,30 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
         })
       );
 
-      if (!hlsVert.Url) {
-        throw new Error('Failed to create vertical MediaPackage endpoint');
+      const dashVert = await this.client.send(
+        new CreateOriginEndpointCommand({
+          ChannelId: verticalChannelId,
+          Id: `TrackflixLiveMPOE-DASH-Vert-${eventId}`,
+          DashPackage: {},
+        })
+      );
+
+      if (!hlsVert.Url || !dashVert.Url) {
+        throw new Error('Failed to create vertical MediaPackage endpoints');
       }
 
-      endpoints.push({
-        url: hlsVert.Url,
-        type: EndpointType.HLS,
-        orientation: 'VERTICAL',
-      });
+      endpoints.push(
+        {
+          url: hlsVert.Url,
+          type: EndpointType.HLS,
+          orientation: 'VERTICAL',
+        },
+        {
+          url: dashVert.Url,
+          type: EndpointType.DASH,
+          orientation: 'VERTICAL',
+        }
+      );
     }
 
     return {
@@ -137,6 +152,11 @@ export class MediaPackageChannelsManager implements PackageChannelsManager {
       await this.client.send(
         new DeleteOriginEndpointCommand({
           Id: `TrackflixLiveMPOE-HLS-Vert-${eventId}`,
+        })
+      );
+      await this.client.send(
+        new DeleteOriginEndpointCommand({
+          Id: `TrackflixLiveMPOE-DASH-Vert-${eventId}`,
         })
       );
       await this.client.send(
