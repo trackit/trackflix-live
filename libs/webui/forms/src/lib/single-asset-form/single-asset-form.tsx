@@ -18,6 +18,7 @@ export interface SingleAssetFormProps {
     source: string;
     onAirStartTime: string;
     onAirEndTime: string;
+    smartCropping?: boolean;
   }) => void;
   disabled?: boolean;
 }
@@ -38,6 +39,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
         ),
       onAirStartTime: z.coerce.date(),
       onAirEndTime: z.coerce.date(),
+      smartCropping: z.boolean().optional(),
     })
     .refine((data) => data.onAirEndTime > data.onAirStartTime, {
       message: 'End date must be after start date',
@@ -62,6 +64,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
       onAirEndTime: DateTime.now()
         .set({ hour: DateTime.now().hour + 2 })
         .toJSDate(),
+      smartCropping: false,
     },
   });
 
@@ -98,6 +101,7 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
           ...data,
           onAirStartTime: data.onAirStartTime.toISOString(),
           onAirEndTime: data.onAirEndTime.toISOString(),
+          smartCropping: data.smartCropping,
         });
       })}
     >
@@ -212,6 +216,18 @@ export function SingleAssetForm({ onSubmit, disabled }: SingleAssetFormProps) {
             {errors.onAirStartTime?.message}
           </span>
         </div>
+      </div>
+      <div className="flex items-center gap-3 mb-4">
+        <label className="label cursor-pointer gap-2">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-primary"
+            {...register('smartCropping')}
+          />
+          <span className="label-text">
+            Enable Smart Cropping (9:16 vertical output)
+          </span>
+        </label>
       </div>
       <div className="flex justify-end">
         <button type="submit" className="btn btn-primary" disabled={disabled}>

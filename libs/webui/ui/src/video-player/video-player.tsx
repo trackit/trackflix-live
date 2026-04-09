@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 
 interface VideoPlayerProps {
   src: string;
+  vertical?: boolean;
 }
 
 interface QualityLevel {
@@ -18,7 +19,7 @@ interface HlsStats {
   maxBitrate: number;
 }
 
-export function VideoPlayer({ src }: VideoPlayerProps) {
+export function VideoPlayer({ src, vertical }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [qualities, setQualities] = useState<QualityLevel[]>([]);
@@ -45,6 +46,27 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
 
       hls.loadSource(src);
       hls.attachMedia(videoRef.current);
+
+      // Auto-recover from fatal errors.
+      // I added it because my network is unstable, feel free to delete it if it's no more needed
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              // Corrupted segment or decode error — flush buffers and retry
+              hls.recoverMediaError();
+              break;
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              // Segment download failed — retry loading from where it left off
+              hls.startLoad();
+              break;
+            default:
+              // Unrecoverable error — destroy the player
+              hls.destroy();
+              break;
+          }
+        }
+      });
 
       hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
         const levels = data.levels.map((level, index) => ({
@@ -135,7 +157,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
         controls
         autoPlay
         muted
-        className="w-full mx-auto"
+        className={vertical ? 'max-w-[300px] mx-auto' : 'w-full mx-auto'}
       />
     </div>
   );

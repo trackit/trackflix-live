@@ -183,6 +183,7 @@ export function StatusView() {
   );
   const [displayPlayer, setDisplayPlayer] = useState(false);
   const [displayLinks, setDisplayLinks] = useState(false);
+  const [isVertical, setIsVertical] = useState(false);
   const [now, setNow] = useState<DateTime | null>(null);
   const [canDelete, setCanDelete] = useState(false);
   const deleteMutation = useMutation({
@@ -344,9 +345,16 @@ export function StatusView() {
                     className={'w-full mb-2'}
                     text={endpoint.url}
                     icon={
-                      <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
-                        <Link className="w-3 h-3" />
-                        {endpoint.type}
+                      <div className="flex items-center gap-1">
+                        <div className="badge badge-primary badge-outline flex items-center gap-2 w-[80px]">
+                          <Link className="w-3 h-3" />
+                          {endpoint.type}
+                        </div>
+                        {endpoint.orientation === 'VERTICAL' && (
+                          <div className="badge badge-secondary badge-outline text-xs">
+                            9:16
+                          </div>
+                        )}
                       </div>
                     }
                   />
@@ -360,13 +368,39 @@ export function StatusView() {
               </div>
               <div className={'flex-grow w-full md:w-1/2 lg:w-2/3 '}>
                 {displayPlayer ? (
-                  <VideoPlayer
-                    src={
-                      event?.endpoints.find(
-                        (endpoint) => endpoint.type === 'HLS'
-                      )?.url || ''
-                    }
-                  />
+                  <>
+                    {event?.endpoints.some(
+                      (e) => e.type === 'HLS' && e.orientation === 'VERTICAL'
+                    ) && (
+                      <div className="flex justify-end mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <span className="text-xs">16:9</span>
+                          <input
+                            type="checkbox"
+                            className="toggle toggle-sm toggle-primary"
+                            checked={isVertical}
+                            onChange={() => setIsVertical(!isVertical)}
+                          />
+                          <span className="text-xs">9:16 Smart Crop</span>
+                        </label>
+                      </div>
+                    )}
+                    <VideoPlayer
+                      vertical={isVertical}
+                      src={
+                        event?.endpoints.find(
+                          (endpoint) =>
+                            endpoint.type === 'HLS' &&
+                            endpoint.orientation ===
+                              (isVertical ? 'VERTICAL' : 'HORIZONTAL')
+                        )?.url ||
+                        event?.endpoints.find(
+                          (endpoint) => endpoint.type === 'HLS'
+                        )?.url ||
+                        ''
+                      }
+                    />
+                  </>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full bg-base-200 rounded-lg p-4 shadow-inner text-base-content/40">
                     <SquarePlay className="w-12 h-12" />
