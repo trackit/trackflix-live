@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'demo-v*'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Deploy_backend:
+    runs-on: ubuntu-latest
+    env:
+      STAGE: ${{ secrets.STAGE }}
+      WAITING_SOURCE: ${{ secrets.WAITING_SOURCE }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      - run: npm ci
+      - run: npx nx run api:deploy
+  
+  Deploy_frontend:
+    runs-on: ubuntu-latest
+    needs: Deploy_backend
+    env:
+      STAGE: ${{ secrets.STAGE }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      - run: npm ci
+      - run: npx nx run webui:upload
