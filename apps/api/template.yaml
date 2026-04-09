@@ -282,6 +282,12 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'elemental-inference:PutMedia'
+                  - 'elemental-inference:GetMetadata'
+                  - 'elemental-inference:GetFeed'
+                Resource: '*'
   StateMachineLambdaRole:
     Type: 'AWS::IAM::Role'
     Properties:
