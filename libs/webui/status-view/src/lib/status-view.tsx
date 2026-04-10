@@ -366,6 +366,7 @@ export function StatusView() {
               <div className={'w-full md:w-1/2 lg:w-1/3 px-4 pb-4 md:pb-0'}>
                 <Timeline steps={timelineSteps} />
               </div>
+              <div className="hidden md:block w-px bg-base-content/30 mx-4 self-stretch"></div>
               <div className={'flex-grow w-full md:w-1/2 lg:w-2/3 '}>
                 {displayPlayer ? (
                   <>
