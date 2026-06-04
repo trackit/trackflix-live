@@ -12,7 +12,7 @@ Globals:
     MemorySize: 256
     Architectures:
       - x86_64
-    Runtime: nodejs20.x
+    Runtime: nodejs24.x
     LoggingConfig:
       LogFormat: JSON
 

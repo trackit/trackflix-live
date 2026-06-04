@@ -7,16 +7,16 @@ This library represents the core business logic related to Events.
 Ports are interfaces used by the use cases to interact with external infrastructures:  
 They can represent external APIs, databases and other services.
 
-| **Port**                 | **Description**                                                                               |
-| ------------------------ | --------------------------------------------------------------------------------------------- |
+| **Port**                  | **Description**                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
 | ElementalInferenceManager | Allows to manage AWS Elemental Inference feeds used for the smart cropping (vertical output) feature. |
-| EventScheduler           | Allows to execute code at a pre-defined later date and time.                                  |
-| EventsRepository       | Allows to manipulate events in database.                                                      |
-| EventUpdateSender      | Allows to send live updates related to events to the web application.                         |
-| LiveChannelsManager    | Allows to manage live channels.                                                               |
-| PackageChannelsManager | Allows to manage package channels.                                                            |
-| TaskTokensRepository   | Allows to create and consume task tokens to resume workflows when notifications are received. |
-| TransmissionsManager   | Allows to trigger and resume workflows.                                                       |
+| EventScheduler            | Allows to execute code at a pre-defined later date and time.                                          |
+| EventsRepository          | Allows to manipulate events in database.                                                              |
+| EventUpdateSender         | Allows to send live updates related to events to the web application.                                 |
+| LiveChannelsManager       | Allows to manage live channels.                                                                       |
+| PackageChannelsManager    | Allows to manage package channels.                                                                    |
+| TaskTokensRepository      | Allows to create and consume task tokens to resume workflows when notifications are received.         |
+| TransmissionsManager      | Allows to trigger and resume workflows.                                                               |
 
 ## Infrastructure
 

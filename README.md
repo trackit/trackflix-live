@@ -19,7 +19,7 @@ horizontal (16:9) stream into a vertical (9:16) format, keeping the region of in
 This produces a portrait-oriented stream suited to mobile and social platforms, delivered through a dedicated MediaPackage endpoint
 and CloudFront distribution, alongside the standard horizontal output.
 
-Concretely, when an event has smart cropping enabled, the back-end creates an Elemental Inference *feed* before starting the MediaLive
+Concretely, when an event has smart cropping enabled, the back-end creates an Elemental Inference _feed_ before starting the MediaLive
 channel, wires it into the channel, and deletes the feed when the transmission ends.
 
 This project is a mono-repo using [Nx](https://nx.dev/) as its build system.
