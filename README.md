@@ -11,6 +11,17 @@ MediaPackage ensures secure and reliable delivery of the live stream across mult
 By leveraging AWS serverless architecture, the solution scales automatically,
 minimizing operational overhead and providing a cost-efficient, high-quality live streaming experience for global audiences.
 
+## Smart cropping
+
+The solution also offers an optional **smart cropping** feature powered by [AWS Elemental Inference](https://docs.aws.amazon.com/elemental-inference/).
+When smart cropping is enabled for an event, Elemental Inference analyzes the source video in real time and automatically reframes the
+horizontal (16:9) stream into a vertical (9:16) format, keeping the region of interest (speakers, action, etc.) centered.
+This produces a portrait-oriented stream suited to mobile and social platforms, delivered through a dedicated MediaPackage endpoint
+and CloudFront distribution, alongside the standard horizontal output.
+
+Concretely, when an event has smart cropping enabled, the back-end creates an Elemental Inference *feed* before starting the MediaLive
+channel, wires it into the channel, and deletes the feed when the transmission ends.
+
 This project is a mono-repo using [Nx](https://nx.dev/) as its build system.
 
 # Code quality and Unit tests
