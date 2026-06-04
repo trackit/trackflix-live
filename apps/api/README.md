@@ -73,6 +73,7 @@ An HLS endpoint and a DASH endpoint are also created.
 
 This handler calls the `createLiveChannel` use case which creates the MediaLive channel as well as two inputs:
 one for the waiting screen and one for the actual content.  
+If smart cropping is enabled for the event, it first creates an AWS Elemental Inference feed and wires its ARN into the MediaLive channel so the vertical (9:16) output can be produced.  
 It also creates a task token in the database: this will allow the `handleMediaLiveChannelStateChange` lambda function to resume the state machine once the channel is created.
 
 #### 3. Start MediaLive channel
@@ -117,6 +118,7 @@ It also creates a task token to resume the state machine once the MediaLive chan
 #### 3. Delete MediaLive input
 
 This handler calls the `deleteLiveInput` use case which deletes both MediaLive inputs.
+If an AWS Elemental Inference feed was created for the event, it is also deleted at this step.
 
 #### 4. Delete MediaPackage channel
 
@@ -129,3 +131,4 @@ This handler calls the `setErrorStatus` use case which updates some values in th
 ## Infrastructure
 
 In the `src/infrastructure` folder, you will find implementations for the core's ports: they tie the infrastructure to the core business logic.
+This includes the `ElementalInferenceManager`, which manages the AWS Elemental Inference feeds used for the smart cropping feature.

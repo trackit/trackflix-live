@@ -20,6 +20,7 @@ import {
   BatchUpdateScheduleCommand,
   VideoDescription,
   AudioDescription,
+  InputSourceEndBehavior,
 } from '@aws-sdk/client-medialive';
 
 export class MediaLiveChannelsManager implements LiveChannelsManager {
@@ -1317,6 +1318,9 @@ export class MediaLiveChannelsManager implements LiveChannelsManager {
           {
             InputId: input.Input.Id,
             InputAttachmentName: inputName,
+            InputSettings: {
+              SourceEndBehavior: InputSourceEndBehavior.LOOP,
+            },
           },
         ],
         ...(feedArn && { InferenceSettings: { FeedArn: feedArn } }),
