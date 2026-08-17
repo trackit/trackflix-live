@@ -5,6 +5,8 @@ interface MultiviewCanvasProps {
   layout: MultiviewLayout;
   tiles: (MultiviewSource | null)[];
   streamUrl: string;
+  activeTile?: number;
+  onSelectTile?: (index: number) => void;
 }
 
 // Client-side preview of the multiview composition: one video per tile, positioned per the
@@ -16,6 +18,8 @@ export function MultiviewCanvas({
   layout,
   tiles,
   streamUrl,
+  activeTile,
+  onSelectTile,
 }: MultiviewCanvasProps) {
   const hasStream = Boolean(streamUrl);
 
@@ -39,6 +43,8 @@ export function MultiviewCanvas({
                 src={streamUrl}
                 label={source.label}
                 tileNumber={index + 1}
+                active={index === activeTile}
+                onSelect={onSelectTile ? () => onSelectTile(index) : undefined}
               />
             ) : (
               <div className="w-full h-full rounded border border-dashed border-white/20 flex items-center justify-center text-white/40 text-xs">

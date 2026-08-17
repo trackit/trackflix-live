@@ -1,12 +1,30 @@
-import { buildMultiviewManifestUrl } from './manifest-url';
+import {
+  buildMultiviewManifestUrl,
+  buildSingleViewManifestUrl,
+} from './manifest-url';
+
+const config = {
+  egressDomain: 'abc123.egress.mediapackagev2.us-west-2.amazonaws.com',
+  channelGroup: 'MultiView-Preview-trackflix',
+  endpointName: 'cmaf-mv-endpoint',
+};
+
+describe('buildSingleViewManifestUrl', () => {
+  it('builds the single-feed endpoint url without the aws.multiview query', () => {
+    const url = buildSingleViewManifestUrl(config, 'soccer');
+
+    expect(url).toBe(
+      'https://abc123.egress.mediapackagev2.us-west-2.amazonaws.com/out/v1/MultiView-Preview-trackflix/soccer/cmaf-mv-endpoint/index.m3u8'
+    );
+    expect(url).not.toContain('aws.multiview');
+  });
+
+  it('returns an empty string without a channel', () => {
+    expect(buildSingleViewManifestUrl(config, '')).toBe('');
+  });
+});
 
 describe('buildMultiviewManifestUrl', () => {
-  const config = {
-    egressDomain: 'abc123.egress.mediapackagev2.us-west-2.amazonaws.com',
-    channelGroup: 'MultiView-Preview-trackflix',
-    endpointName: 'cmaf-mv-endpoint',
-  };
-
   it('routes the path through the first source channel', () => {
     const url = buildMultiviewManifestUrl(config, '3EL', [
       'soccer',

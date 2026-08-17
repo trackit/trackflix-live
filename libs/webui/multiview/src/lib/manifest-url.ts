@@ -29,3 +29,16 @@ export const buildMultiviewManifestUrl = (
 
   return `${base}?aws.multiview=${value.replace(/;/g, '%3B')}`;
 };
+
+// Single-feed manifest for one channel: the same endpoint URL without the aws.multiview query, used
+// to play one source full screen (solo).
+export const buildSingleViewManifestUrl = (
+  config: MultiviewEndpointConfig,
+  channel: string
+): string => {
+  if (!channel) {
+    return '';
+  }
+  const manifest = config.manifestName ?? 'index';
+  return `https://${config.egressDomain}/out/v1/${config.channelGroup}/${channel}/${config.endpointName}/${manifest}.m3u8`;
+};

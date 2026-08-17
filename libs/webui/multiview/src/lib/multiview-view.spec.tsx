@@ -2,8 +2,24 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MultiviewView } from './multiview-view';
 
 vi.mock('./multiview-player', () => ({
-  MultiviewPlayer: ({ src }: { src: string }) => (
-    <div data-testid="player-src">{src}</div>
+  MultiviewPlayer: ({
+    src,
+    onFocusTile,
+    onSoloTile,
+  }: {
+    src: string;
+    onFocusTile?: (index: number) => void;
+    onSoloTile?: (index: number) => void;
+  }) => (
+    <div>
+      <div data-testid="player-src">{src}</div>
+      <button data-testid="focus-tile-1" onClick={() => onFocusTile?.(1)}>
+        focus
+      </button>
+      <button data-testid="solo-tile-1" onClick={() => onSoloTile?.(1)}>
+        solo
+      </button>
+    </div>
   ),
 }));
 
@@ -65,6 +81,30 @@ describe('MultiviewView', () => {
     fireEvent.click(screen.getByRole('button', { name: /soccer/i }));
 
     expect(playerSrc()).toBe('');
+  });
+
+  it('promotes a tile to the primary view on focus', () => {
+    render(<MultiviewView />);
+
+    fireEvent.click(screen.getByTestId('focus-tile-1'));
+
+    const src = playerSrc();
+    expect(src).toContain('/motorsport/cmaf-mv-endpoint/index.m3u8');
+    expect(src).toContain(
+      'aws.multiview=layout:3PL%3Bsources:motorsport,soccer,basketball'
+    );
+  });
+
+  it('plays a single feed without the multiview query on solo', () => {
+    render(<MultiviewView />);
+
+    fireEvent.click(screen.getByTestId('solo-tile-1'));
+
+    const src = playerSrc();
+    expect(src).toBe(
+      'https://egress.example.com/out/v1/MultiView-Preview-test/motorsport/cmaf-mv-endpoint/index.m3u8'
+    );
+    expect(src).not.toContain('aws.multiview');
   });
 
   it('disables unselected feeds when every tile is filled', () => {

@@ -4,8 +4,11 @@ import { LayoutPicker } from './layout-picker';
 import { SourceFeedGrid } from './source-feed-grid';
 import { MultiviewCanvas } from './multiview-canvas';
 import { MultiviewPlayer } from './multiview-player';
-import { buildMultiviewManifestUrl } from './manifest-url';
-import { DEFAULT_LAYOUT_ID, findLayout } from './layouts';
+import {
+  buildMultiviewManifestUrl,
+  buildSingleViewManifestUrl,
+} from './manifest-url';
+import { DEFAULT_LAYOUT_ID, findLayout, primaryLayoutFor } from './layouts';
 import { SOURCES, findSource } from './sources';
 import { SourceId } from './types';
 
@@ -41,11 +44,26 @@ const initialTiles = (tileCount: number): (SourceId | null)[] =>
     tileCount
   );
 
+// Move the tile at `index` to position 0 (the primary/large view, which must also be the URL path
+// channel), keeping the other tiles in order.
+const promoteToPrimary = (
+  tiles: (SourceId | null)[],
+  index: number
+): (SourceId | null)[] => {
+  const target = tiles[index];
+  if (target == null) {
+    return tiles;
+  }
+  return [target, ...tiles.filter((_, position) => position !== index)];
+};
+
 export function MultiviewView() {
   const [selectedLayoutId, setSelectedLayoutId] = useState(DEFAULT_LAYOUT_ID);
   const [tiles, setTiles] = useState<(SourceId | null)[]>(() =>
     initialTiles(findLayout(DEFAULT_LAYOUT_ID).tileCount)
   );
+  const [activeTile, setActiveTile] = useState(0);
+  const [soloSource, setSoloSource] = useState<SourceId | null>(null);
 
   const layout = findLayout(selectedLayoutId);
 
@@ -58,6 +76,22 @@ export function MultiviewView() {
   const selectLayout = (id: string) => {
     setSelectedLayoutId(id);
     setTiles((previous) => resizeAndFill(previous, findLayout(id).tileCount));
+    setActiveTile(0);
+  };
+
+  const focusTile = (index: number) => {
+    setTiles((previous) => promoteToPrimary(previous, index));
+    setSelectedLayoutId(primaryLayoutFor(layout.tileCount));
+    setActiveTile(0);
+  };
+
+  const soloTile = (index: number) => {
+    const source = tiles[index]
+      ? findSource(tiles[index] as string)
+      : undefined;
+    if (source) {
+      setSoloSource(source.id);
+    }
   };
 
   const toggleSource = (id: SourceId) => {
@@ -99,6 +133,15 @@ export function MultiviewView() {
   }, [egressDomain, channelGroup, endpointName, selectedLayoutId, tiles]);
 
   const tileSources = tiles.map((id) => (id ? findSource(id) ?? null : null));
+  const safeActiveTile = activeTile < tiles.length ? activeTile : 0;
+
+  const soloSourceRef = soloSource ? findSource(soloSource) : undefined;
+  const playerSrc = soloSourceRef
+    ? buildSingleViewManifestUrl(
+        { egressDomain, channelGroup, endpointName },
+        soloSourceRef.channelRef
+      )
+    : composedUrl;
 
   return (
     <div className="flex justify-center w-full h-full p-4 lg:p-8 relative">
@@ -144,12 +187,25 @@ export function MultiviewView() {
                 </span>
               </div>
               {hasRealEndpoint ? (
-                <MultiviewPlayer src={composedUrl} />
+                <MultiviewPlayer
+                  src={playerSrc}
+                  layout={layout}
+                  tiles={tileSources}
+                  activeTile={safeActiveTile}
+                  isSolo={Boolean(soloSourceRef)}
+                  soloLabel={soloSourceRef?.label}
+                  onSelectTile={setActiveTile}
+                  onFocusTile={focusTile}
+                  onSoloTile={soloTile}
+                  onExitSolo={() => setSoloSource(null)}
+                />
               ) : (
                 <MultiviewCanvas
                   layout={layout}
                   tiles={tileSources}
                   streamUrl={previewStreamUrl}
+                  activeTile={safeActiveTile}
+                  onSelectTile={setActiveTile}
                 />
               )}
               {!hasRealEndpoint && (

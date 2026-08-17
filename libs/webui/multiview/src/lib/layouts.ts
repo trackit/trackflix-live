@@ -71,3 +71,18 @@ export const DEFAULT_LAYOUT_ID = '3EL';
 
 export const findLayout = (id: string): MultiviewLayout =>
   LAYOUTS.find((layout) => layout.id === id) ?? LAYOUTS[0];
+
+// The primary-view layout (one large tile + secondaries) for a given tile count, used when a viewer
+// focuses a tile to make it the featured/large view.
+export const primaryLayoutFor = (tileCount: number): string => {
+  switch (tileCount) {
+    case 2:
+      return '2PL';
+    case 3:
+      return '3PL';
+    case 4:
+      return '4PL';
+    default:
+      return DEFAULT_LAYOUT_ID;
+  }
+};
