@@ -1,4 +1,4 @@
-# MultiView — IBC integration and deployment plan
+# MultiView: IBC integration and deployment plan
 
 ## Context
 
@@ -28,7 +28,7 @@ End to end on trackit-demo, confirmed a real composited 4E/3EL stream playing in
 1. MediaPackage V2 channel group whose name starts with `MultiView-Preview` (this prefix + the
    allowlisted account is what routes to the beta origination).
 2. One MP V2 channel per source (`--input-type CMAF`) + one origin endpoint per channel
-   (`SegmentDurationSeconds: 2`, HLS manifest with `UrlEncodeChildManifest: true` — required so the
+   (`SegmentDurationSeconds: 2`, HLS manifest with `UrlEncodeChildManifest: true`, required so the
    `aws.multiview` param survives into child-manifest URIs).
 3. A channel policy per channel granting the MediaLive role `mediapackagev2:PutObject`.
 4. One MediaLive channel per source with the multiview renditions: AVC 1024x576@5M, 512x288@1.25M,
@@ -46,7 +46,7 @@ Sources must be H.264/AAC.
 
 Two paths, and we should do the first for IBC and the second after.
 
-### A. IBC path — a dedicated, mostly-static demo stack (recommended now)
+### A. IBC path: a dedicated, mostly-static demo stack (recommended now)
 
 The multiview demo is a fixed set of sources feeding one channel group behind one CloudFront
 distribution. That is infrastructure, not a per-viewer event, so declare it as IaC and just start the
@@ -64,8 +64,9 @@ schemas (MediaLive/MediaPackageV2/CloudFront) validate clean. `AWS::MediaPackage
 OAC (`OriginAccessControlOriginType: mediapackagev2`) are fully CFN-supported.
 
 **Resources the stack declares (per stage):**
+
 - `MediaPackageV2::ChannelGroup` named `MultiView-Preview-trackflix-<stage>` (prefix is mandatory).
-- N `MediaPackageV2::Channel` (`InputType: CMAF`) — one per source (soccer, motorsport, …).
+- N `MediaPackageV2::Channel` (`InputType: CMAF`), one per source (soccer, motorsport, …).
 - N `MediaPackageV2::OriginEndpoint` (`ContainerType: CMAF`, 2s segments, HLS manifest
   `UrlEncodeChildManifest: true`, root URI path type).
 - N `MediaPackageV2::ChannelPolicy` granting the MediaLive role `mediapackagev2:PutObject`.
@@ -79,14 +80,15 @@ OAC (`OriginAccessControlOriginType: mediapackagev2`) are fully CFN-supported.
 Note: MediaLive channels are the only meaningful cost, and they bill only while running. Keep the
 stack deployed; start/stop the encoders around the demo (runbook below).
 
-### B. Productization path — a native multiview event type (after IBC)
+### B. Productization path: a native multiview event type (after IBC)
 
 Mirror the smart-cropping slice so multiview becomes a first-class trackflix event:
+
 - `libs/shared/types`: add `EventType.MULTIVIEW` and a `multiview` payload (sources[], layouts[]).
 - `libs/api/api-events`: new port `MultiviewPackageManager` + use case `createMultiviewChannels`
   (fan-out N channels into one MP V2 channel group), with in-memory fakes and tests.
 - `apps/api/src/infrastructure`: a real `MediaPackageV2ChannelsManager` adapter
-  (`@aws-sdk/client-mediapackagev2` — the repo is on v1 today) + MediaLive multiview encoder profile.
+  (`@aws-sdk/client-mediapackagev2`, the repo is on v1 today) + MediaLive multiview encoder profile.
 - `apps/api/src/stateMachines` + `template.yaml`: a `Map` state that fans out channel creation; IAM
   `mediapackagev2:*` on the MediaLive/step roles.
 - Webui: promote `/multiview` from static catalogue to reading the event's real sources/endpoint.
