@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import '@aws-amplify/ui-react/styles.css';
 import { Amplify } from 'aws-amplify';
-import { AuthStyle } from './app/amplify-auth-theme';
 import App from './app/app';
 import { amplifyConfig } from './amplify.config';
 
@@ -21,9 +20,7 @@ root.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthStyle>
-          <App />
-        </AuthStyle>
+        <App />
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>
