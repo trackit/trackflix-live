@@ -36,26 +36,28 @@ describe('MultiviewPlayer', () => {
     vi.clearAllMocks();
   });
 
-  it('creates a single hls instance and swaps the source without tearing it down', () => {
+  it('recreates a fresh hls instance and loads the new source on switch', () => {
     const { rerender } = render(<MultiviewPlayer src="https://host/a.m3u8" />);
 
     expect(construct).toHaveBeenCalledTimes(1);
-    expect(attachMedia).toHaveBeenCalledTimes(1);
     expect(loadSource).toHaveBeenLastCalledWith('https://host/a.m3u8');
 
     rerender(<MultiviewPlayer src="https://host/b.m3u8" />);
 
-    expect(construct).toHaveBeenCalledTimes(1);
-    expect(attachMedia).toHaveBeenCalledTimes(1);
-    expect(destroy).not.toHaveBeenCalled();
+    // The previous instance is torn down and a fresh one loads the new source. This is what makes a
+    // multiview -> single-feed (solo) switch reliable.
+    expect(destroy).toHaveBeenCalled();
+    expect(construct).toHaveBeenCalledTimes(2);
     expect(loadSource).toHaveBeenLastCalledWith('https://host/b.m3u8');
   });
 
-  it('stops loading when the source is cleared', () => {
+  it('tears down and creates no instance when the source is cleared', () => {
     const { rerender } = render(<MultiviewPlayer src="https://host/a.m3u8" />);
+    const created = construct.mock.calls.length;
 
     rerender(<MultiviewPlayer src="" />);
 
-    expect(stopLoad).toHaveBeenCalled();
+    expect(destroy).toHaveBeenCalled();
+    expect(construct.mock.calls.length).toBe(created);
   });
 });

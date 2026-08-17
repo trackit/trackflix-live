@@ -4,6 +4,7 @@ import { LayoutPicker } from './layout-picker';
 import { SourceFeedGrid } from './source-feed-grid';
 import { MultiviewCanvas } from './multiview-canvas';
 import { MultiviewPlayer } from './multiview-player';
+import { TileControls } from './tile-controls';
 import {
   buildMultiviewManifestUrl,
   buildSingleViewManifestUrl,
@@ -185,12 +186,8 @@ export function MultiviewView() {
               {hasRealEndpoint ? (
                 <MultiviewPlayer
                   src={playerSrc}
-                  layout={layout}
-                  tiles={tileSources}
                   isSolo={Boolean(soloSourceRef)}
                   soloLabel={soloSourceRef?.label}
-                  onFocusTile={focusTile}
-                  onSoloTile={soloTile}
                   onExitSolo={() => setSoloSource(null)}
                 />
               ) : (
@@ -201,6 +198,15 @@ export function MultiviewView() {
                   onFocusTile={focusTile}
                   onSoloTile={soloTile}
                 />
+              )}
+              {hasRealEndpoint && !soloSourceRef && composedUrl && (
+                <div className="mt-3 px-1">
+                  <TileControls
+                    tiles={tileSources}
+                    onFocus={focusTile}
+                    onSolo={soloTile}
+                  />
+                </div>
               )}
               {!hasRealEndpoint && (
                 <p className="text-xs text-base-content/40 px-4 pt-3">

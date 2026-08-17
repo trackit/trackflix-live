@@ -26,6 +26,7 @@ export function SourceFeedGrid({
             onClick={() => onToggle(source.id)}
             disabled={isDisabled}
             aria-pressed={isSelected}
+            aria-label={source.label}
             className={`relative rounded-lg overflow-hidden border-2 transition-all ${
               isSelected
                 ? 'border-primary shadow'

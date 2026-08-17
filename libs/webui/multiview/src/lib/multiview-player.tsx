@@ -10,50 +10,52 @@ import {
   VolumeX,
 } from 'lucide-react';
 
-import { MultiviewLayout, MultiviewSource } from './types';
-import { TileOverlay } from './tile-overlay';
-
 interface MultiviewPlayerProps {
   src: string;
-  layout?: MultiviewLayout;
-  tiles?: (MultiviewSource | null)[];
   isSolo?: boolean;
   soloLabel?: string;
-  onFocusTile?: (index: number) => void;
-  onSoloTile?: (index: number) => void;
   onExitSolo?: () => void;
 }
 
 export function MultiviewPlayer({
   src,
-  layout,
-  tiles,
   isSolo = false,
   soloLabel,
-  onFocusTile,
-  onSoloTile,
   onExitSolo,
 }: MultiviewPlayerProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
 
-  // `live` = the current composition is buffered and playing. `hasPlayed` stays true once anything
-  // has played, so a composition switch shows a spinner over the last frame instead of the big
-  // "no feed" placeholder.
+  // `live` = the current stream is buffered and playing. `hasPlayed` stays true once anything has
+  // played, so a switch shows a spinner instead of the big "no feed" placeholder.
   const [live, setLive] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [muted, setMuted] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Recreate hls.js for each source. Switching a live stream in place (loadSource) can stall,
+  // especially between a multiview composition and a single-feed (solo) manifest, which have
+  // unrelated media sequences. A fresh instance guarantees clean playback on every switch.
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !Hls.isSupported()) {
+    if (!video) {
+      return;
+    }
+    setLive(false);
+
+    if (!src) {
+      video.removeAttribute('src');
+      setHasPlayed(false);
       return;
     }
 
-    // Not true LL-HLS (the beta serves standard 2s segments), so lowLatencyMode only adds aggressive
-    // manifest polling. A small live sync window makes composition switches start playing quickly.
+    if (!Hls.isSupported()) {
+      video.src = src;
+      return;
+    }
+
+    // Not true LL-HLS (the beta serves standard 2s segments), so a small live sync window makes a
+    // switch start playing quickly.
     const hls = new Hls({
       liveSyncDurationCount: 3,
       liveMaxLatencyDurationCount: 6,
@@ -61,9 +63,7 @@ export function MultiviewPlayer({
       backBufferLength: 10,
       liveDurationInfinity: true,
     });
-    hlsRef.current = hls;
     hls.attachMedia(video);
-
     hls.on(Hls.Events.FRAG_BUFFERED, () => {
       setLive(true);
       setHasPlayed(true);
@@ -83,39 +83,14 @@ export function MultiviewPlayer({
           details: data.details,
         });
         hls.destroy();
-        hlsRef.current = null;
       }
     });
+    hls.loadSource(src);
+    hls.startLoad();
 
     return () => {
       hls.destroy();
-      hlsRef.current = null;
     };
-  }, []);
-
-  // Switch the composed manifest in place. stopLoad + loadSource + startLoad gives hls.js a clean
-  // reset so it fetches the new composition's segments (a plain loadSource can stall on a live swap).
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-    setLive(false);
-
-    if (!src) {
-      hlsRef.current?.stopLoad();
-      video.removeAttribute('src');
-      setHasPlayed(false);
-      return;
-    }
-
-    if (Hls.isSupported() && hlsRef.current) {
-      hlsRef.current.stopLoad();
-      hlsRef.current.loadSource(src);
-      hlsRef.current.startLoad();
-    } else {
-      video.src = src;
-    }
   }, [src]);
 
   useEffect(() => {
@@ -138,13 +113,6 @@ export function MultiviewPlayer({
     }
   };
 
-  const showOverlay =
-    !isSolo &&
-    layout !== undefined &&
-    tiles !== undefined &&
-    onFocusTile !== undefined &&
-    onSoloTile !== undefined;
-
   return (
     <div
       ref={wrapperRef}
@@ -157,15 +125,6 @@ export function MultiviewPlayer({
         playsInline
         className="w-full h-full"
       />
-
-      {showOverlay && (
-        <TileOverlay
-          layout={layout}
-          tiles={tiles}
-          onFocusTile={onFocusTile}
-          onSoloTile={onSoloTile}
-        />
-      )}
 
       <div className="absolute bottom-2 right-2 flex gap-2">
         <button

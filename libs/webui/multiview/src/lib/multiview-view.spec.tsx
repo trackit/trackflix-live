@@ -5,33 +5,15 @@ vi.mock('./multiview-player', () => ({
   MultiviewPlayer: ({
     src,
     isSolo,
-    onFocusTile,
-    onSoloTile,
     onExitSolo,
   }: {
     src: string;
     isSolo?: boolean;
-    onFocusTile?: (index: number) => void;
-    onSoloTile?: (index: number) => void;
     onExitSolo?: () => void;
   }) => (
     <div>
       <div data-testid="player-src">{src}</div>
       <div data-testid="is-solo">{String(Boolean(isSolo))}</div>
-      {[0, 1, 2, 3].map((i) => (
-        <button
-          key={`f${i}`}
-          data-testid={`focus-${i}`}
-          onClick={() => onFocusTile?.(i)}
-        />
-      ))}
-      {[0, 1, 2, 3].map((i) => (
-        <button
-          key={`s${i}`}
-          data-testid={`solo-${i}`}
-          onClick={() => onSoloTile?.(i)}
-        />
-      ))}
       <button data-testid="exit-solo" onClick={() => onExitSolo?.()} />
     </div>
   ),
@@ -49,6 +31,16 @@ const parse = (url: string) => ({
 
 const clickLayout = (code: string) =>
   fireEvent.click(screen.getByRole('button', { name: new RegExp(code, 'i') }));
+const clickFeature = (label: string) =>
+  fireEvent.click(
+    screen.getByRole('button', { name: new RegExp(`feature ${label}`, 'i') })
+  );
+const clickSolo = (label: string) =>
+  fireEvent.click(
+    screen.getByRole('button', {
+      name: new RegExp(`full screen ${label}`, 'i'),
+    })
+  );
 
 describe('MultiviewView', () => {
   beforeEach(() => {
@@ -87,7 +79,7 @@ describe('MultiviewView', () => {
   it('promotes the focused tile to the primary layout and reorders sources', () => {
     render(<MultiviewView />);
 
-    fireEvent.click(screen.getByTestId('focus-1')); // motorsport
+    clickFeature('motorsport');
     const p = parse(src());
 
     expect(p.layout).toBe('3PL');
@@ -99,7 +91,7 @@ describe('MultiviewView', () => {
     render(<MultiviewView />);
     clickLayout('4E');
 
-    fireEvent.click(screen.getByTestId('focus-2')); // basketball
+    clickFeature('basketball');
     const p = parse(src());
 
     expect(p.layout).toBe('4PL');
@@ -115,7 +107,7 @@ describe('MultiviewView', () => {
     render(<MultiviewView />);
     const before = src();
 
-    fireEvent.click(screen.getByTestId('solo-1')); // motorsport
+    clickSolo('motorsport');
     expect(isSolo()).toBe(true);
     const solo = parse(src());
     expect(solo.isMultiview).toBe(false);
@@ -131,7 +123,7 @@ describe('MultiviewView', () => {
     clickLayout('4E');
     const before = src();
 
-    fireEvent.click(screen.getByTestId('solo-1'));
+    clickSolo('motorsport');
     fireEvent.click(screen.getByTestId('exit-solo'));
 
     expect(src()).toBe(before);
@@ -141,11 +133,11 @@ describe('MultiviewView', () => {
   it('back after a focus returns to the focused composition, not a further change', () => {
     render(<MultiviewView />);
     clickLayout('4E');
-    fireEvent.click(screen.getByTestId('focus-0')); // explicit focus -> 4PL
+    clickFeature('soccer'); // explicit focus -> 4PL
     const focused = src();
     expect(parse(focused).layout).toBe('4PL');
 
-    fireEvent.click(screen.getByTestId('solo-2'));
+    clickSolo('basketball');
     fireEvent.click(screen.getByTestId('exit-solo'));
 
     expect(src()).toBe(focused);
@@ -166,10 +158,10 @@ describe('MultiviewView', () => {
   it('drops the composition when a tile is unassigned and restores it when reassigned', () => {
     render(<MultiviewView />);
 
-    fireEvent.click(screen.getByRole('button', { name: /soccer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^soccer$/i }));
     expect(src()).toBe('');
 
-    fireEvent.click(screen.getByRole('button', { name: /soccer/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^soccer$/i }));
     expect(parse(src()).sources).toEqual([
       'soccer',
       'motorsport',
@@ -181,7 +173,7 @@ describe('MultiviewView', () => {
     render(<MultiviewView />);
 
     const football = screen.getByRole('button', {
-      name: /football/i,
+      name: /^football$/i,
     }) as HTMLButtonElement;
 
     expect(football.disabled).toBe(true);
