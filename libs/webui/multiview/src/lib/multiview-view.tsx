@@ -165,6 +165,11 @@ export function MultiviewView() {
                 sources={SOURCES}
                 tiles={tiles}
                 onToggle={toggleSource}
+                endpoint={
+                  hasRealEndpoint
+                    ? { egressDomain, channelGroup, endpointName }
+                    : undefined
+                }
               />
             </Panel>
 

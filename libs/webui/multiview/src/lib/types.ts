@@ -6,7 +6,8 @@ export interface MultiviewSource {
   id: SourceId;
   label: string;
   channelRef: string;
-  thumbnail: string;
+  // Fallback tile colour used when no live preview is available (no real endpoint configured).
+  color: string;
 }
 
 export interface LayoutTile {

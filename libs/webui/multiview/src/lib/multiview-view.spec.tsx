@@ -19,6 +19,11 @@ vi.mock('./multiview-player', () => ({
   ),
 }));
 
+// Live source previews use hls.js; stub it out for the grid.
+vi.mock('./live-preview', () => ({
+  LivePreview: () => <div data-testid="live-preview" />,
+}));
+
 const src = () => screen.getByTestId('player-src').textContent ?? '';
 const isSolo = () => screen.getByTestId('is-solo').textContent === 'true';
 
@@ -55,8 +60,8 @@ describe('MultiviewView', () => {
     const p = parse(src());
 
     expect(p.layout).toBe('3EL');
-    expect(p.sources).toEqual(['soccer', 'motorsport', 'basketball']);
-    expect(p.path).toBe('soccer');
+    expect(p.sources).toEqual(['f1', 'nascar', 'football']);
+    expect(p.path).toBe('f1');
   });
 
   it.each([
@@ -79,51 +84,46 @@ describe('MultiviewView', () => {
   it('moves the featured feed to the primary position without changing the layout', () => {
     render(<MultiviewView />);
 
-    clickFeature('motorsport');
+    clickFeature('nascar');
     const p = parse(src());
 
     expect(p.layout).toBe('3EL');
-    expect(p.sources).toEqual(['motorsport', 'soccer', 'basketball']);
-    expect(p.path).toBe('motorsport');
+    expect(p.sources).toEqual(['nascar', 'f1', 'football']);
+    expect(p.path).toBe('nascar');
   });
 
   it('keeps an equal layout when featuring a feed (2EH stays 2EH)', () => {
     render(<MultiviewView />);
     clickLayout('2EH');
 
-    clickFeature('motorsport');
+    clickFeature('nascar');
     const p = parse(src());
 
     expect(p.layout).toBe('2EH');
-    expect(p.sources).toEqual(['motorsport', 'soccer']);
-    expect(p.path).toBe('motorsport');
+    expect(p.sources).toEqual(['nascar', 'f1']);
+    expect(p.path).toBe('nascar');
   });
 
   it('features a feed inside a grid layout without switching to primary', () => {
     render(<MultiviewView />);
     clickLayout('4E');
 
-    clickFeature('basketball');
+    clickFeature('football');
     const p = parse(src());
 
     expect(p.layout).toBe('4E');
-    expect(p.sources).toEqual([
-      'basketball',
-      'soccer',
-      'motorsport',
-      'football',
-    ]);
+    expect(p.sources).toEqual(['football', 'f1', 'nascar', 'tennis']);
   });
 
   it('solos a feed (single-view, no multiview query) and back restores the composition', () => {
     render(<MultiviewView />);
     const before = src();
 
-    clickSolo('motorsport');
+    clickSolo('nascar');
     expect(isSolo()).toBe(true);
     const solo = parse(src());
     expect(solo.isMultiview).toBe(false);
-    expect(solo.path).toBe('motorsport');
+    expect(solo.path).toBe('nascar');
 
     fireEvent.click(screen.getByTestId('exit-solo'));
     expect(isSolo()).toBe(false);
@@ -135,7 +135,7 @@ describe('MultiviewView', () => {
     clickLayout('4E');
     const before = src();
 
-    clickSolo('motorsport');
+    clickSolo('nascar');
     fireEvent.click(screen.getByTestId('exit-solo'));
 
     expect(src()).toBe(before);
@@ -145,17 +145,17 @@ describe('MultiviewView', () => {
   it('back after a focus returns to the focused composition, not a further change', () => {
     render(<MultiviewView />);
     clickLayout('4E');
-    clickFeature('motorsport'); // reorders within 4E, no layout change
+    clickFeature('nascar'); // reorders within 4E, no layout change
     const focused = src();
     expect(parse(focused).layout).toBe('4E');
     expect(parse(focused).sources).toEqual([
-      'motorsport',
-      'soccer',
-      'basketball',
+      'nascar',
+      'f1',
       'football',
+      'tennis',
     ]);
 
-    clickSolo('basketball');
+    clickSolo('football');
     fireEvent.click(screen.getByTestId('exit-solo'));
 
     expect(src()).toBe(focused);
@@ -166,34 +166,30 @@ describe('MultiviewView', () => {
     clickLayout('4E');
 
     expect(parse(src()).sources).toEqual([
-      'soccer',
-      'motorsport',
-      'basketball',
+      'f1',
+      'nascar',
       'football',
+      'tennis',
     ]);
   });
 
   it('drops the composition when a tile is unassigned and restores it when reassigned', () => {
     render(<MultiviewView />);
 
-    fireEvent.click(screen.getByRole('button', { name: /^soccer$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^f1$/i }));
     expect(src()).toBe('');
 
-    fireEvent.click(screen.getByRole('button', { name: /^soccer$/i }));
-    expect(parse(src()).sources).toEqual([
-      'soccer',
-      'motorsport',
-      'basketball',
-    ]);
+    fireEvent.click(screen.getByRole('button', { name: /^f1$/i }));
+    expect(parse(src()).sources).toEqual(['f1', 'nascar', 'football']);
   });
 
   it('disables unselected feeds when every tile is filled', () => {
     render(<MultiviewView />);
 
-    const football = screen.getByRole('button', {
-      name: /^football$/i,
+    const tennis = screen.getByRole('button', {
+      name: /^tennis$/i,
     }) as HTMLButtonElement;
 
-    expect(football.disabled).toBe(true);
+    expect(tennis.disabled).toBe(true);
   });
 });

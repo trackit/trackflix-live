@@ -20,7 +20,7 @@ Parameters:
     Description: Stage suffix; the stack and channel-group names are derived from it.
   Sources:
     Type: CommaDelimitedList
-    Default: soccer,motorsport,basketball,football
+    Default: f1,nascar,football,tennis,cyclisme
     Description: Source feed names. Each becomes one MediaPackage V2 channel and one MediaLive channel.
   SourceBucket:
     Type: String
@@ -33,10 +33,11 @@ Parameters:
 # Per-source S3 object keys. Keep in sync with the Sources parameter and prepareMultiviewSources.sh.
 Mappings:
   SourceKeys:
-    soccer: { Key: mv-soccer.mp4 }
-    motorsport: { Key: mv-motorsport.mp4 }
-    basketball: { Key: mv-basketball.mp4 }
+    f1: { Key: mv-f1.mp4 }
+    nascar: { Key: mv-nascar.mp4 }
     football: { Key: mv-football.mp4 }
+    tennis: { Key: mv-tennis.mp4 }
+    cyclisme: { Key: mv-cyclisme.mp4 }
 
 Resources:
   # ------------------------------------------------------------------ IAM
@@ -177,8 +178,6 @@ Resources:
           HlsManifests:
             - ManifestName: index
               UrlEncodeChildManifest: true
-        DependsOn:
-          - 'MpChannel${SourceName}'
 
       MpChannelPolicy${SourceName}:
         Type: AWS::MediaPackageV2::ChannelPolicy
@@ -194,8 +193,6 @@ Resources:
                   AWS: !GetAtt MediaLiveRole.Arn
                 Action: mediapackagev2:PutObject
                 Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/MultiView-Preview-trackflix-${Stage}/channel/${SourceName}'
-        DependsOn:
-          - 'MpChannel${SourceName}'
 
       MpEndpointPolicy${SourceName}:
         Type: AWS::MediaPackageV2::OriginEndpointPolicy
@@ -215,8 +212,6 @@ Resources:
                 Condition:
                   StringEquals:
                     AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
-        DependsOn:
-          - 'MpEndpoint${SourceName}'
 
       MvInput${SourceName}:
         Type: AWS::MediaLive::Input
@@ -230,8 +225,6 @@ Resources:
 
       MvChannel${SourceName}:
         Type: AWS::MediaLive::Channel
-        DependsOn:
-          - 'MpChannelPolicy${SourceName}'
         Properties:
           Name: !Sub 'mv-${SourceName}-${Stage}'
           ChannelClass: SINGLE_PIPELINE

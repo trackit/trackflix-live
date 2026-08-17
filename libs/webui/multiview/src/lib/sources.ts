@@ -1,39 +1,24 @@
 import { MultiviewSource } from './types';
-import soccer from '../assets/soccer.svg';
-import motorsport from '../assets/motorsport.svg';
-import basketball from '../assets/basketball.svg';
-import football from '../assets/football.svg';
-import adventure from '../assets/adventure.svg';
 
 // Demo source catalogue. Each source maps to one MediaLive channel encoded into the shared
 // MediaPackage V2 channel group; `channelRef` is the MediaPackage channel name used in the
 // `sources` list of the multiview manifest query (see manifest-url.ts). These names must match
 // the channels created in the MultiView-Preview channel group.
 export const SOURCES: MultiviewSource[] = [
-  { id: 'soccer', label: 'Soccer', channelRef: 'soccer', thumbnail: soccer },
-  {
-    id: 'motorsport',
-    label: 'Motorsport',
-    channelRef: 'motorsport',
-    thumbnail: motorsport,
-  },
-  {
-    id: 'basketball',
-    label: 'Basketball',
-    channelRef: 'basketball',
-    thumbnail: basketball,
-  },
+  { id: 'f1', label: 'F1', channelRef: 'f1', color: '#e10600' },
+  { id: 'nascar', label: 'NASCAR', channelRef: 'nascar', color: '#ffd200' },
   {
     id: 'football',
     label: 'Football',
     channelRef: 'football',
-    thumbnail: football,
+    color: '#1e7a46',
   },
+  { id: 'tennis', label: 'Tennis', channelRef: 'tennis', color: '#1f6fb2' },
   {
-    id: 'adventure',
-    label: 'Adventure',
-    channelRef: 'adventure',
-    thumbnail: adventure,
+    id: 'cyclisme',
+    label: 'Cyclisme',
+    channelRef: 'cyclisme',
+    color: '#f4a300',
   },
 ];
 

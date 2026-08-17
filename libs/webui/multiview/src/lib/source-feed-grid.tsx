@@ -1,15 +1,23 @@
+import {
+  MultiviewEndpointConfig,
+  buildSingleViewManifestUrl,
+} from './manifest-url';
+import { LivePreview } from './live-preview';
 import { MultiviewSource, SourceId } from './types';
 
 interface SourceFeedGridProps {
   sources: MultiviewSource[];
   tiles: (SourceId | null)[];
   onToggle: (id: SourceId) => void;
+  // When set, each feed shows a live preview of its own single-view stream instead of a flat colour.
+  endpoint?: MultiviewEndpointConfig;
 }
 
 export function SourceFeedGrid({
   sources,
   tiles,
   onToggle,
+  endpoint,
 }: SourceFeedGridProps) {
   const isFull = !tiles.includes(null);
 
@@ -19,6 +27,9 @@ export function SourceFeedGrid({
         const tileIndex = tiles.indexOf(source.id);
         const isSelected = tileIndex >= 0;
         const isDisabled = !isSelected && isFull;
+        const previewUrl = endpoint
+          ? buildSingleViewManifestUrl(endpoint, source.channelRef)
+          : '';
         return (
           <button
             key={source.id}
@@ -33,11 +44,17 @@ export function SourceFeedGrid({
                 : 'border-transparent hover:border-primary/40'
             } ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
-            <img
-              src={source.thumbnail}
-              alt={source.label}
-              className="w-full aspect-video object-cover"
-            />
+            {previewUrl ? (
+              <LivePreview
+                src={previewUrl}
+                className="w-full aspect-video object-cover bg-black"
+              />
+            ) : (
+              <div
+                className="w-full aspect-video"
+                style={{ backgroundColor: source.color }}
+              />
+            )}
             {isSelected && (
               <span className="absolute top-1 right-1 badge badge-primary badge-sm font-bold">
                 {tileIndex + 1}
