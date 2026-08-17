@@ -76,25 +76,37 @@ describe('MultiviewView', () => {
     expect(p.path).toBe(p.sources?.[0]);
   });
 
-  it('promotes the focused tile to the primary layout and reorders sources', () => {
+  it('moves the featured feed to the primary position without changing the layout', () => {
     render(<MultiviewView />);
 
     clickFeature('motorsport');
     const p = parse(src());
 
-    expect(p.layout).toBe('3PL');
+    expect(p.layout).toBe('3EL');
     expect(p.sources).toEqual(['motorsport', 'soccer', 'basketball']);
     expect(p.path).toBe('motorsport');
   });
 
-  it('focuses within a four-tile layout to 4PL', () => {
+  it('keeps an equal layout when featuring a feed (2EH stays 2EH)', () => {
+    render(<MultiviewView />);
+    clickLayout('2EH');
+
+    clickFeature('motorsport');
+    const p = parse(src());
+
+    expect(p.layout).toBe('2EH');
+    expect(p.sources).toEqual(['motorsport', 'soccer']);
+    expect(p.path).toBe('motorsport');
+  });
+
+  it('features a feed inside a grid layout without switching to primary', () => {
     render(<MultiviewView />);
     clickLayout('4E');
 
     clickFeature('basketball');
     const p = parse(src());
 
-    expect(p.layout).toBe('4PL');
+    expect(p.layout).toBe('4E');
     expect(p.sources).toEqual([
       'basketball',
       'soccer',
@@ -133,9 +145,15 @@ describe('MultiviewView', () => {
   it('back after a focus returns to the focused composition, not a further change', () => {
     render(<MultiviewView />);
     clickLayout('4E');
-    clickFeature('soccer'); // explicit focus -> 4PL
+    clickFeature('motorsport'); // reorders within 4E, no layout change
     const focused = src();
-    expect(parse(focused).layout).toBe('4PL');
+    expect(parse(focused).layout).toBe('4E');
+    expect(parse(focused).sources).toEqual([
+      'motorsport',
+      'soccer',
+      'basketball',
+      'football',
+    ]);
 
     clickSolo('basketball');
     fireEvent.click(screen.getByTestId('exit-solo'));

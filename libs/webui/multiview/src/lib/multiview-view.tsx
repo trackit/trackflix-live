@@ -9,7 +9,7 @@ import {
   buildMultiviewManifestUrl,
   buildSingleViewManifestUrl,
 } from './manifest-url';
-import { DEFAULT_LAYOUT_ID, findLayout, primaryLayoutFor } from './layouts';
+import { DEFAULT_LAYOUT_ID, findLayout } from './layouts';
 import { SOURCES, findSource } from './sources';
 import { SourceId } from './types';
 
@@ -78,9 +78,11 @@ export function MultiviewView() {
     setTiles((previous) => resizeAndFill(previous, findLayout(id).tileCount));
   };
 
+  // Move a feed to the primary position (V1) while keeping the current layout. In a primary layout
+  // (2PL/3PL/4PL) V1 is the large tile; in an equal layout it is the first position. The layout only
+  // changes when the viewer picks one, never as a side effect of featuring a feed.
   const focusTile = (index: number) => {
     setTiles((previous) => promoteToPrimary(previous, index));
-    setSelectedLayoutId(primaryLayoutFor(layout.tileCount));
   };
 
   const soloTile = (index: number) => {

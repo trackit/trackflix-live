@@ -57,7 +57,7 @@ export function TilePlayer({
         {onFocus && (
           <button
             type="button"
-            title="Make this the primary view"
+            title="Set as the primary feed"
             onClick={onFocus}
             className="btn btn-xs btn-circle btn-neutral"
           >

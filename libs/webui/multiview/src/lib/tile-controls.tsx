@@ -24,7 +24,7 @@ export function TileControls({ tiles, onFocus, onSolo }: TileControlsProps) {
             <button
               type="button"
               aria-label={`Feature ${source.label}`}
-              title="Make this the primary view"
+              title="Set as the primary feed"
               onClick={() => onFocus(index)}
               className="btn btn-xs btn-ghost btn-circle"
             >
