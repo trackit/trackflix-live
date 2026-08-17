@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
-# Pure CloudFormation (no SAM resources). AWS::LanguageExtensions enables Fn::ForEach so the N
-# per-source resources come from one loop. NOTE: the SAM CLI cannot parse Fn::ForEach (sam
-# build/validate crash on the list-valued loop entry), so this stack deploys with
-# `aws cloudformation deploy` and is linted with cfn-lint (see project.json). cfn-lint raises
-# E1020/E3005 false positives on ForEach intra-loop refs (Ref/DependsOn); real CloudFormation
-# resolves them (documented `!Ref '<Name>${Id}'` pattern), so those two checks are ignored.
-Transform: AWS::LanguageExtensions
+# Parent stack. Shared resources (IAM role, MediaPackage V2 channel group, CloudFront) plus one nested
+# stack per source feed (source.yaml). This replaces the earlier single-template Fn::ForEach loop:
+# Fn::ForEach does not substitute the loop variable inside DependsOn or a cross-resource !Ref, so the
+# per-source MediaLive channel could never reference its own input. Nested stacks keep the (large)
+# EncoderSettings defined once in the child while giving each source its own static references.
+#
+# Deploy with `aws cloudformation package` (uploads source.yaml, rewrites the TemplateURLs) then
+# `aws cloudformation deploy` (see project.json). Nested stacks need CAPABILITY_AUTO_EXPAND.
 Description: >-
   TrackFlix MultiView demo. AWS Elemental Dynamic MultiView (MediaPackage V2 private beta):
-  N MediaLive channels (one per source, multiview renditions) feed one MediaPackage V2 channel
+  one MediaLive channel per source (multiview renditions) feeding a single MediaPackage V2 channel
   group whose name starts with MultiView-Preview, fronted by CloudFront. The webui composes the
   aws.multiview manifest query to play a server-composited mosaic. Deployed as its own stack
   alongside trackflix-live api + webui.
@@ -18,10 +19,6 @@ Parameters:
     Type: String
     Default: demo
     Description: Stage suffix; the stack and channel-group names are derived from it.
-  Sources:
-    Type: CommaDelimitedList
-    Default: f1,nascar,football,tennis,cyclisme
-    Description: Source feed names. Each becomes one MediaPackage V2 channel and one MediaLive channel.
   SourceBucket:
     Type: String
     Default: demo-videos-trackflix-live
@@ -29,15 +26,6 @@ Parameters:
   SegmentSeconds:
     Type: Number
     Default: 2
-
-# Per-source S3 object keys. Keep in sync with the Sources parameter and prepareMultiviewSources.sh.
-Mappings:
-  SourceKeys:
-    f1: { Key: mv-f1.mp4 }
-    nascar: { Key: mv-nascar.mp4 }
-    football: { Key: mv-football.mp4 }
-    tennis: { Key: mv-tennis.mp4 }
-    cyclisme: { Key: mv-cyclisme.mp4 }
 
 Resources:
   # ------------------------------------------------------------------ IAM
@@ -154,271 +142,83 @@ Resources:
           CachePolicyId: !Ref CachePolicy
           ResponseHeadersPolicyId: !Ref CorsPolicy
 
-  # ------------------------------------------------------------------ Per source (one loop)
-  Fn::ForEach::PerSource:
-    - SourceName
-    - !Ref Sources
-    - MpChannel${SourceName}:
-        Type: AWS::MediaPackageV2::Channel
-        DependsOn: ChannelGroup
-        Properties:
-          ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
-          ChannelName: !Ref SourceName
-          InputType: CMAF
+  # ------------------------------------------------------------------ Per source (one nested stack each)
+  # To add or rename a feed: add a nested stack here and its S3 key, and keep it in sync with the webui
+  # catalogue (libs/webui/multiview/src/lib/sources.ts) and scripts/prepareMultiviewSources.sh.
+  SourceF1:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: f1
+        SourceKey: mv-f1.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
-      MpEndpoint${SourceName}:
-        Type: AWS::MediaPackageV2::OriginEndpoint
-        Properties:
-          ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
-          ChannelName: !Ref SourceName
-          OriginEndpointName: cmaf-mv-endpoint
-          ContainerType: CMAF
-          Segment:
-            SegmentDurationSeconds: !Ref SegmentSeconds
-          HlsManifests:
-            - ManifestName: index
-              UrlEncodeChildManifest: true
+  SourceNascar:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: nascar
+        SourceKey: mv-nascar.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
-      MpChannelPolicy${SourceName}:
-        Type: AWS::MediaPackageV2::ChannelPolicy
-        Properties:
-          ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
-          ChannelName: !Ref SourceName
-          Policy:
-            Version: '2012-10-17'
-            Statement:
-              - Sid: AllowMediaLiveIngest
-                Effect: Allow
-                Principal:
-                  AWS: !GetAtt MediaLiveRole.Arn
-                Action: mediapackagev2:PutObject
-                Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/MultiView-Preview-trackflix-${Stage}/channel/${SourceName}'
+  SourceFootball:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: football
+        SourceKey: mv-football.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
-      MpEndpointPolicy${SourceName}:
-        Type: AWS::MediaPackageV2::OriginEndpointPolicy
-        Properties:
-          ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
-          ChannelName: !Ref SourceName
-          OriginEndpointName: cmaf-mv-endpoint
-          Policy:
-            Version: '2012-10-17'
-            Statement:
-              - Sid: AllowCloudFront
-                Effect: Allow
-                Principal:
-                  Service: cloudfront.amazonaws.com
-                Action: mediapackagev2:GetObject
-                Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/MultiView-Preview-trackflix-${Stage}/channel/${SourceName}/originEndpoint/cmaf-mv-endpoint'
-                Condition:
-                  StringEquals:
-                    AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+  SourceTennis:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: tennis
+        SourceKey: mv-tennis.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
-      MvInput${SourceName}:
-        Type: AWS::MediaLive::Input
-        Properties:
-          Name: !Sub 'mv-${SourceName}-${Stage}'
-          Type: MP4_FILE
-          Sources:
-            - Url: !Sub
-                - 's3://${SourceBucket}/${Key}'
-                - Key: !FindInMap [SourceKeys, !Ref SourceName, Key]
-
-      MvChannel${SourceName}:
-        Type: AWS::MediaLive::Channel
-        Properties:
-          Name: !Sub 'mv-${SourceName}-${Stage}'
-          ChannelClass: SINGLE_PIPELINE
-          RoleArn: !GetAtt MediaLiveRole.Arn
-          InputSpecification:
-            Codec: AVC
-            MaximumBitrate: MAX_20_MBPS
-            Resolution: HD
-          InputAttachments:
-            - InputAttachmentName: !Ref SourceName
-              InputId: !Ref 'MvInput${SourceName}'
-              InputSettings:
-                SourceEndBehavior: LOOP
-                InputFilter: AUTO
-                FilterStrength: 1
-                DeblockFilter: DISABLED
-                DenoiseFilter: DISABLED
-                Smpte2038DataPreference: IGNORE
-          Destinations:
-            - Id: mp2-dest
-              MediaPackageSettings:
-                - ChannelGroup: !Sub 'MultiView-Preview-trackflix-${Stage}'
-                  ChannelName: !Ref SourceName
-          EncoderSettings:
-            TimecodeConfig:
-              Source: EMBEDDED
-            AudioDescriptions:
-              - Name: audio
-                AudioSelectorName: default
-                AudioTypeControl: FOLLOW_INPUT
-                LanguageCodeControl: FOLLOW_INPUT
-            GlobalConfiguration:
-              InputEndAction: NONE
-              OutputLockingMode: PIPELINE_LOCKING
-              OutputTimingSource: INPUT_CLOCK
-              SupportLowFramerateInputs: DISABLED
-            FeatureActivations:
-              InputPrepareScheduleActions: DISABLED
-              OutputStaticImageOverlayScheduleActions: ENABLED
-            VideoDescriptions:
-              - Name: 1024x576
-                Width: 1024
-                Height: 576
-                RespondToAfd: NONE
-                ScalingBehavior: STRETCH_TO_OUTPUT
-                Sharpness: 50
-                CodecSettings:
-                  H264Settings:
-                    Bitrate: 5000000
-                    RateControlMode: CBR
-                    Profile: MAIN
-                    Level: H264_LEVEL_AUTO
-                    GopSize: 60
-                    GopSizeUnits: FRAMES
-                    GopClosedCadence: 1
-                    GopBReference: DISABLED
-                    NumRefFrames: 1
-                    ScanType: PROGRESSIVE
-                    FramerateControl: SPECIFIED
-                    FramerateNumerator: 30
-                    FramerateDenominator: 1
-                    ParControl: SPECIFIED
-                    ParNumerator: 1
-                    ParDenominator: 1
-                    EntropyEncoding: CABAC
-                    AdaptiveQuantization: AUTO
-                    SpatialAq: ENABLED
-                    TemporalAq: ENABLED
-                    FlickerAq: ENABLED
-                    SceneChangeDetect: DISABLED
-                    SubgopLength: FIXED
-                    AfdSignaling: NONE
-                    ColorMetadata: INSERT
-                    TimecodeInsertion: DISABLED
-                    ForceFieldPictures: DISABLED
-                    LookAheadRateControl: MEDIUM
-                    QualityLevel: ENHANCED_QUALITY
-                    Syntax: DEFAULT
-              - Name: 512x288
-                Width: 512
-                Height: 288
-                RespondToAfd: NONE
-                ScalingBehavior: STRETCH_TO_OUTPUT
-                Sharpness: 50
-                CodecSettings:
-                  H264Settings:
-                    Bitrate: 1250000
-                    RateControlMode: CBR
-                    Profile: MAIN
-                    Level: H264_LEVEL_AUTO
-                    GopSize: 60
-                    GopSizeUnits: FRAMES
-                    GopClosedCadence: 1
-                    GopBReference: DISABLED
-                    NumRefFrames: 1
-                    ScanType: PROGRESSIVE
-                    FramerateControl: SPECIFIED
-                    FramerateNumerator: 30
-                    FramerateDenominator: 1
-                    ParControl: SPECIFIED
-                    ParNumerator: 1
-                    ParDenominator: 1
-                    EntropyEncoding: CABAC
-                    AdaptiveQuantization: AUTO
-                    SpatialAq: ENABLED
-                    TemporalAq: ENABLED
-                    FlickerAq: ENABLED
-                    SceneChangeDetect: DISABLED
-                    SubgopLength: FIXED
-                    AfdSignaling: NONE
-                    ColorMetadata: INSERT
-                    TimecodeInsertion: DISABLED
-                    ForceFieldPictures: DISABLED
-                    LookAheadRateControl: MEDIUM
-                    QualityLevel: ENHANCED_QUALITY
-                    Syntax: DEFAULT
-              - Name: 256x144
-                Width: 256
-                Height: 144
-                RespondToAfd: NONE
-                ScalingBehavior: STRETCH_TO_OUTPUT
-                Sharpness: 50
-                CodecSettings:
-                  H264Settings:
-                    Bitrate: 500000
-                    RateControlMode: CBR
-                    Profile: MAIN
-                    Level: H264_LEVEL_AUTO
-                    GopSize: 60
-                    GopSizeUnits: FRAMES
-                    GopClosedCadence: 1
-                    GopBReference: DISABLED
-                    NumRefFrames: 1
-                    ScanType: PROGRESSIVE
-                    FramerateControl: SPECIFIED
-                    FramerateNumerator: 30
-                    FramerateDenominator: 1
-                    ParControl: SPECIFIED
-                    ParNumerator: 1
-                    ParDenominator: 1
-                    EntropyEncoding: CABAC
-                    AdaptiveQuantization: AUTO
-                    SpatialAq: ENABLED
-                    TemporalAq: ENABLED
-                    FlickerAq: ENABLED
-                    SceneChangeDetect: DISABLED
-                    SubgopLength: FIXED
-                    AfdSignaling: NONE
-                    ColorMetadata: INSERT
-                    TimecodeInsertion: DISABLED
-                    ForceFieldPictures: DISABLED
-                    LookAheadRateControl: MEDIUM
-                    QualityLevel: ENHANCED_QUALITY
-                    Syntax: DEFAULT
-            OutputGroups:
-              - Name: Multiview Preview
-                OutputGroupSettings:
-                  MediaPackageGroupSettings:
-                    Destination:
-                      DestinationRefId: mp2-dest
-                    MediapackageV2GroupSettings:
-                      SegmentLength: !Ref SegmentSeconds
-                      SegmentLengthUnits: SECONDS
-                      Scte35Type: NONE
-                      NielsenId3Behavior: NO_PASSTHROUGH
-                      KlvBehavior: NO_PASSTHROUGH
-                      Id3Behavior: DISABLED
-                      TimedMetadataPassthrough: DISABLED
-                      TimedMetadataId3Frame: NONE
-                      TimedMetadataId3Period: 10
-                Outputs:
-                  - OutputName: 1024x576
-                    VideoDescriptionName: 1024x576
-                    AudioDescriptionNames: []
-                    CaptionDescriptionNames: []
-                    OutputSettings:
-                      MediaPackageOutputSettings: {}
-                  - OutputName: 512x288
-                    VideoDescriptionName: 512x288
-                    AudioDescriptionNames: []
-                    CaptionDescriptionNames: []
-                    OutputSettings:
-                      MediaPackageOutputSettings: {}
-                  - OutputName: 256x144
-                    VideoDescriptionName: 256x144
-                    AudioDescriptionNames: []
-                    CaptionDescriptionNames: []
-                    OutputSettings:
-                      MediaPackageOutputSettings: {}
-                  - OutputName: audio
-                    AudioDescriptionNames: [audio]
-                    CaptionDescriptionNames: []
-                    OutputSettings:
-                      MediaPackageOutputSettings: {}
+  SourceCyclisme:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: cyclisme
+        SourceKey: mv-cyclisme.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
 Outputs:
   EgressDomain:
