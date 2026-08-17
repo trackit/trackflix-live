@@ -1,0 +1,37 @@
+{
+  "name": "multiview-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/multiview-demo",
+  "projectType": "application",
+  "tags": ["scope:multiview", "type:app"],
+  "// targets": "MediaPackage V2 Dynamic MultiView demo stack. Pure CloudFormation (Fn::ForEach), so it deploys with aws cloudformation deploy and lints with cfn-lint (the SAM CLI cannot parse Fn::ForEach).",
+  "targets": {
+    "validate": {
+      "command": "uvx cfn-lint template.yaml --ignore-checks E1020 E3005",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
+    },
+    "deploy": {
+      "command": "aws cloudformation deploy --template-file template.yaml --stack-name \"trackflix-multiview-$STAGE\" --parameter-overrides Stage=\"$STAGE\" --capabilities CAPABILITY_IAM --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-multiview-$STAGE\" --region us-west-2 --no-fail-on-empty-changeset",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
+    },
+    "prepare-sources": {
+      "command": "sh scripts/prepareMultiviewSources.sh"
+    },
+    "start": {
+      "command": "sh scripts/multiviewChannels.sh start"
+    },
+    "stop": {
+      "command": "sh scripts/multiviewChannels.sh stop"
+    },
+    "status": {
+      "command": "sh scripts/multiviewChannels.sh status"
+    },
+    "destroy": {
+      "command": "aws cloudformation delete-stack --stack-name \"trackflix-multiview-$STAGE\" --region us-west-2"
+    }
+  }
+}

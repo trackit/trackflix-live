@@ -11,6 +11,13 @@ iot_endpoint=$(aws iot describe-endpoint --endpoint-type "iot:Data-ATS" --output
 
 aws_region=$(aws configure list | grep region | awk '{print $2}')
 
+# MultiView demo stack outputs (optional: empty when the stack is not deployed, in which case the
+# /multiview page falls back to its client-side preview).
+mv_outputs=$(aws cloudformation describe-stacks --stack-name "trackflix-multiview-$STAGE" --query "Stacks[0].Outputs" --output json 2>/dev/null || echo '[]')
+mv_cf_domain=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="CloudFrontDomain") | .OutputValue')
+mv_channel_group=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="ChannelGroupName") | .OutputValue')
+mv_endpoint=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="EndpointName") | .OutputValue')
+
 {
   echo "VITE_AWS_REGION=$aws_region"
   echo "VITE_USER_POOL_ID=$user_pool_id"
@@ -19,4 +26,7 @@ aws_region=$(aws configure list | grep region | awk '{print $2}')
   echo "VITE_API_URL=$api_endpoint"
   echo "VITE_IOT_DOMAIN_NAME=$iot_endpoint"
   echo "VITE_IOT_TOPIC=$iot_topic"
+  echo "VITE_MULTIVIEW_EGRESS_DOMAIN=$mv_cf_domain"
+  echo "VITE_MULTIVIEW_CHANNEL_GROUP=$mv_channel_group"
+  echo "VITE_MULTIVIEW_ENDPOINT_NAME=$mv_endpoint"
 } > apps/webui/.env
