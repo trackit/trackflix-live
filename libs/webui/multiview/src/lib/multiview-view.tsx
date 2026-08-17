@@ -148,7 +148,7 @@ export function MultiviewView() {
         <div>
           <PageTitle title="MultiView" />
           <p className="text-sm lg:text-base text-base-content/60">
-            Viewers select their feeds. MediaPackage assembles the multiview on
+            Viewers select their feeds. MediaPackage assembles the MultiView on
             demand: one standard stream, one decoder, any device, codec
             agnostic, no re-encoding.
           </p>
@@ -219,7 +219,7 @@ export function MultiviewView() {
                 <p className="text-xs text-base-content/40 px-4 pt-3">
                   In production, MediaPackage returns a single server-composited
                   stream rendered by one player. This preview composes the tiles
-                  client-side until the multiview endpoint is configured.
+                  client-side until the MultiView endpoint is configured.
                 </p>
               )}
             </Panel>
@@ -227,7 +227,7 @@ export function MultiviewView() {
               <CopyText text={composedUrl} className="w-full" />
             ) : hasRealEndpoint ? (
               <p className="text-xs text-base-content/50 px-1">
-                Assign a feed to every tile to compose the multiview manifest.
+                Assign a feed to every tile to compose the MultiView manifest.
               </p>
             ) : null}
           </div>

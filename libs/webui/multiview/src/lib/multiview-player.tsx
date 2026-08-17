@@ -78,7 +78,7 @@ export function MultiviewPlayer({
       } else if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
         hls.startLoad();
       } else {
-        console.error('Fatal multiview player error', {
+        console.error('Fatal MultiView player error', {
           type: data.type,
           details: data.details,
         });
@@ -160,7 +160,7 @@ export function MultiviewPlayer({
           className="absolute top-2 left-2 btn btn-sm btn-neutral gap-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          {soloLabel ? `Back (${soloLabel})` : 'Back to multiview'}
+          {soloLabel ? `Back (${soloLabel})` : 'Back to MultiView'}
         </button>
       )}
 
@@ -179,7 +179,7 @@ export function MultiviewPlayer({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 text-white/80">
           <Radio className="w-8 h-8 sm:w-10 sm:h-10 opacity-60" />
           <p className="text-sm sm:text-base font-medium">
-            Select your source feeds to compose the multiview.
+            Select your source feeds to compose the MultiView.
           </p>
         </div>
       )}
