@@ -15,6 +15,26 @@ const buildTiles = (
 ): (SourceId | null)[] =>
   Array.from({ length: tileCount }, (_, index) => previous[index] ?? null);
 
+// Resize to the layout's tile count, then fill any empty tiles with feeds that are not yet
+// assigned. This keeps the composition complete (and the manifest URL visible) when switching to a
+// layout with more tiles than the current selection.
+const resizeAndFill = (
+  previous: (SourceId | null)[],
+  tileCount: number
+): (SourceId | null)[] => {
+  const resized = buildTiles(previous, tileCount);
+  const used = new Set(
+    resized.filter((tile): tile is SourceId => tile !== null)
+  );
+  const available = SOURCES.map((source) => source.id).filter(
+    (id) => !used.has(id)
+  );
+  let next = 0;
+  return resized.map((tile) =>
+    tile !== null ? tile : available[next++] ?? null
+  );
+};
+
 const initialTiles = (tileCount: number): (SourceId | null)[] =>
   buildTiles(
     SOURCES.map((source) => source.id),
@@ -37,7 +57,7 @@ export function MultiviewView() {
 
   const selectLayout = (id: string) => {
     setSelectedLayoutId(id);
-    setTiles((previous) => buildTiles(previous, findLayout(id).tileCount));
+    setTiles((previous) => resizeAndFill(previous, findLayout(id).tileCount));
   };
 
   const toggleSource = (id: SourceId) => {
@@ -140,7 +160,13 @@ export function MultiviewView() {
                 </p>
               )}
             </Panel>
-            {composedUrl && <CopyText text={composedUrl} className="w-full" />}
+            {composedUrl ? (
+              <CopyText text={composedUrl} className="w-full" />
+            ) : hasRealEndpoint ? (
+              <p className="text-xs text-base-content/50 px-1">
+                Assign a feed to every tile to compose the multiview manifest.
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

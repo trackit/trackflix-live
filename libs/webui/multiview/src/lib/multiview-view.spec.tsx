@@ -49,6 +49,16 @@ describe('MultiviewView', () => {
     );
   });
 
+  it('auto-fills the new tile with an unused feed when a larger layout is selected', () => {
+    render(<MultiviewView />);
+
+    fireEvent.click(screen.getByRole('button', { name: /4E/i }));
+
+    expect(playerSrc()).toContain(
+      'aws.multiview=layout:4E%3Bsources:soccer,motorsport,basketball,football'
+    );
+  });
+
   it('produces no composition while a tile is left unassigned', () => {
     render(<MultiviewView />);
 
