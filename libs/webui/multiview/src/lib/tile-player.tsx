@@ -1,21 +1,23 @@
 import { useEffect, useRef } from 'react';
 import Hls from 'hls.js';
-import { Volume2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 
 interface TilePlayerProps {
   src: string;
   label: string;
   tileNumber: number;
-  active?: boolean;
+  featured?: boolean;
   onSelect?: () => void;
+  onSolo?: () => void;
 }
 
 export function TilePlayer({
   src,
   label,
   tileNumber,
-  active = false,
+  featured = false,
   onSelect,
+  onSolo,
 }: TilePlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -40,39 +42,47 @@ export function TilePlayer({
 
   return (
     <div
-      role={onSelect ? 'button' : undefined}
-      tabIndex={onSelect ? 0 : undefined}
-      onClick={onSelect}
-      onKeyDown={(event) => {
-        if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
-          event.preventDefault();
-          onSelect();
-        }
-      }}
-      className={`relative w-full h-full bg-black rounded overflow-hidden ${
-        active ? 'ring-2 ring-success' : ''
-      } ${onSelect ? 'cursor-pointer' : ''}`}
+      className={`relative w-full h-full bg-black rounded overflow-hidden group ${
+        featured ? 'ring-2 ring-primary' : ''
+      }`}
     >
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-label={`Feature ${label}`}
+        className={`absolute inset-0 w-full h-full ${
+          onSelect ? 'cursor-pointer' : ''
+        }`}
+      />
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover pointer-events-none"
       />
-      {active ? (
-        <span className="absolute top-1 left-1 badge badge-success badge-sm gap-1">
-          <Volume2 className="w-3 h-3" />
-          {tileNumber}
+      {featured ? (
+        <span className="pointer-events-none absolute top-1 left-1 badge badge-primary badge-sm">
+          Featured
         </span>
       ) : (
-        <span className="absolute top-1 left-1 badge badge-primary badge-sm font-bold">
+        <span className="pointer-events-none absolute top-1 left-1 badge badge-neutral badge-sm font-bold">
           {tileNumber}
         </span>
       )}
-      <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-0.5">
+      <span className="pointer-events-none absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-0.5">
         {label}
       </span>
+      {onSolo && (
+        <button
+          type="button"
+          title="Play this feed full screen"
+          onClick={onSolo}
+          className="absolute top-1 right-1 btn btn-xs btn-circle btn-neutral opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Maximize2 className="w-3 h-3" />
+        </button>
+      )}
     </div>
   );
 }

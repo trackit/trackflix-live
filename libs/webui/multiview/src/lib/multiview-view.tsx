@@ -62,7 +62,6 @@ export function MultiviewView() {
   const [tiles, setTiles] = useState<(SourceId | null)[]>(() =>
     initialTiles(findLayout(DEFAULT_LAYOUT_ID).tileCount)
   );
-  const [activeTile, setActiveTile] = useState(0);
   const [soloSource, setSoloSource] = useState<SourceId | null>(null);
 
   const layout = findLayout(selectedLayoutId);
@@ -76,13 +75,11 @@ export function MultiviewView() {
   const selectLayout = (id: string) => {
     setSelectedLayoutId(id);
     setTiles((previous) => resizeAndFill(previous, findLayout(id).tileCount));
-    setActiveTile(0);
   };
 
   const focusTile = (index: number) => {
     setTiles((previous) => promoteToPrimary(previous, index));
     setSelectedLayoutId(primaryLayoutFor(layout.tileCount));
-    setActiveTile(0);
   };
 
   const soloTile = (index: number) => {
@@ -133,7 +130,6 @@ export function MultiviewView() {
   }, [egressDomain, channelGroup, endpointName, selectedLayoutId, tiles]);
 
   const tileSources = tiles.map((id) => (id ? findSource(id) ?? null : null));
-  const safeActiveTile = activeTile < tiles.length ? activeTile : 0;
 
   const soloSourceRef = soloSource ? findSource(soloSource) : undefined;
   const playerSrc = soloSourceRef
@@ -191,10 +187,8 @@ export function MultiviewView() {
                   src={playerSrc}
                   layout={layout}
                   tiles={tileSources}
-                  activeTile={safeActiveTile}
                   isSolo={Boolean(soloSourceRef)}
                   soloLabel={soloSourceRef?.label}
-                  onSelectTile={setActiveTile}
                   onFocusTile={focusTile}
                   onSoloTile={soloTile}
                   onExitSolo={() => setSoloSource(null)}
@@ -204,8 +198,8 @@ export function MultiviewView() {
                   layout={layout}
                   tiles={tileSources}
                   streamUrl={previewStreamUrl}
-                  activeTile={safeActiveTile}
-                  onSelectTile={setActiveTile}
+                  onFocusTile={focusTile}
+                  onSoloTile={soloTile}
                 />
               )}
               {!hasRealEndpoint && (

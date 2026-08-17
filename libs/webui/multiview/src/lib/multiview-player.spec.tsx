@@ -5,6 +5,7 @@ const construct = vi.fn();
 const attachMedia = vi.fn();
 const loadSource = vi.fn();
 const stopLoad = vi.fn();
+const startLoad = vi.fn();
 const destroy = vi.fn();
 
 vi.mock('hls.js', () => {
@@ -20,6 +21,7 @@ vi.mock('hls.js', () => {
     attachMedia = attachMedia;
     loadSource = loadSource;
     stopLoad = stopLoad;
+    startLoad = startLoad;
     destroy = destroy;
     on = vi.fn();
     constructor(config: unknown) {

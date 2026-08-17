@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import {
   ArrowLeft,
+  Loader,
   Maximize,
   Minimize,
   Radio,
@@ -10,17 +11,14 @@ import {
 } from 'lucide-react';
 
 import { MultiviewLayout, MultiviewSource } from './types';
-import { audioTrackIndexForTile } from './audio';
 import { TileOverlay } from './tile-overlay';
 
 interface MultiviewPlayerProps {
   src: string;
   layout?: MultiviewLayout;
   tiles?: (MultiviewSource | null)[];
-  activeTile?: number;
   isSolo?: boolean;
   soloLabel?: string;
-  onSelectTile?: (index: number) => void;
   onFocusTile?: (index: number) => void;
   onSoloTile?: (index: number) => void;
   onExitSolo?: () => void;
@@ -30,10 +28,8 @@ export function MultiviewPlayer({
   src,
   layout,
   tiles,
-  activeTile = 0,
   isSolo = false,
   soloLabel,
-  onSelectTile,
   onFocusTile,
   onSoloTile,
   onExitSolo,
@@ -41,26 +37,14 @@ export function MultiviewPlayer({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const activeTileRef = useRef(activeTile);
-  activeTileRef.current = activeTile;
-  const initialisedRef = useRef(false);
 
-  // "No stream" covers both no selection and a configured endpoint that is not live yet.
+  // `live` = the current composition is buffered and playing. `hasPlayed` stays true once anything
+  // has played, so a composition switch shows a spinner over the last frame instead of the big
+  // "no feed" placeholder.
   const [live, setLive] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
   const [muted, setMuted] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const applyActiveAudio = () => {
-    const hls = hlsRef.current;
-    const tracks = hls?.audioTracks ?? [];
-    if (!hls || tracks.length === 0) {
-      return;
-    }
-    const index = audioTrackIndexForTile(tracks, activeTileRef.current);
-    if (index >= 0) {
-      hls.audioTrack = index;
-    }
-  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -77,8 +61,10 @@ export function MultiviewPlayer({
     hlsRef.current = hls;
     hls.attachMedia(video);
 
-    hls.on(Hls.Events.FRAG_BUFFERED, () => setLive(true));
-    hls.on(Hls.Events.MANIFEST_PARSED, () => applyActiveAudio());
+    hls.on(Hls.Events.FRAG_BUFFERED, () => {
+      setLive(true);
+      setHasPlayed(true);
+    });
     hls.on(Hls.Events.ERROR, (event, data) => {
       if (!data.fatal) {
         return;
@@ -104,7 +90,8 @@ export function MultiviewPlayer({
     };
   }, []);
 
-  // Swap the composed manifest in place, without tearing down the player.
+  // Switch the composed manifest in place. stopLoad + loadSource + startLoad gives hls.js a clean
+  // reset so it fetches the new composition's segments (a plain loadSource can stall on a live swap).
   useEffect(() => {
     const video = videoRef.current;
     if (!video) {
@@ -115,26 +102,18 @@ export function MultiviewPlayer({
     if (!src) {
       hlsRef.current?.stopLoad();
       video.removeAttribute('src');
+      setHasPlayed(false);
       return;
     }
 
     if (Hls.isSupported() && hlsRef.current) {
+      hlsRef.current.stopLoad();
       hlsRef.current.loadSource(src);
+      hlsRef.current.startLoad();
     } else {
       video.src = src;
     }
   }, [src]);
-
-  // Switch audio to the active tile. Selecting a tile is a user gesture, so it is allowed to unmute
-  // (the initial mount stays muted for autoplay).
-  useEffect(() => {
-    applyActiveAudio();
-    if (initialisedRef.current) {
-      setMuted(false);
-    } else {
-      initialisedRef.current = true;
-    }
-  }, [activeTile]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -157,11 +136,9 @@ export function MultiviewPlayer({
   };
 
   const showOverlay =
-    live &&
     !isSolo &&
     layout !== undefined &&
     tiles !== undefined &&
-    onSelectTile !== undefined &&
     onFocusTile !== undefined &&
     onSoloTile !== undefined;
 
@@ -175,50 +152,46 @@ export function MultiviewPlayer({
         autoPlay
         muted
         playsInline
-        className={`w-full h-full ${live ? '' : 'invisible'}`}
+        className="w-full h-full"
       />
 
       {showOverlay && (
         <TileOverlay
           layout={layout}
           tiles={tiles}
-          activeTile={activeTile}
-          onSelectTile={onSelectTile}
           onFocusTile={onFocusTile}
           onSoloTile={onSoloTile}
         />
       )}
 
-      {live && (
-        <div className="absolute bottom-2 right-2 flex gap-2">
-          <button
-            type="button"
-            title={muted ? 'Unmute' : 'Mute'}
-            onClick={() => setMuted((value) => !value)}
-            className="btn btn-sm btn-circle btn-neutral"
-          >
-            {muted ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4" />
-            )}
-          </button>
-          <button
-            type="button"
-            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-            onClick={toggleFullscreen}
-            className="btn btn-sm btn-circle btn-neutral"
-          >
-            {isFullscreen ? (
-              <Minimize className="w-4 h-4" />
-            ) : (
-              <Maximize className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-      )}
+      <div className="absolute bottom-2 right-2 flex gap-2">
+        <button
+          type="button"
+          title={muted ? 'Unmute' : 'Mute'}
+          onClick={() => setMuted((value) => !value)}
+          className="btn btn-sm btn-circle btn-neutral"
+        >
+          {muted ? (
+            <VolumeX className="w-4 h-4" />
+          ) : (
+            <Volume2 className="w-4 h-4" />
+          )}
+        </button>
+        <button
+          type="button"
+          title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          onClick={toggleFullscreen}
+          className="btn btn-sm btn-circle btn-neutral"
+        >
+          {isFullscreen ? (
+            <Minimize className="w-4 h-4" />
+          ) : (
+            <Maximize className="w-4 h-4" />
+          )}
+        </button>
+      </div>
 
-      {live && isSolo && (
+      {isSolo && (
         <button
           type="button"
           onClick={onExitSolo}
@@ -229,19 +202,23 @@ export function MultiviewPlayer({
         </button>
       )}
 
-      {!live && (
+      {src && !live && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-6 text-white/80 bg-black/30 pointer-events-none">
+          <Loader className="w-7 h-7 animate-spin opacity-70" />
+          {!hasPlayed && (
+            <p className="text-sm opacity-80">
+              Waiting for the live feed… it starts automatically once live.
+            </p>
+          )}
+        </div>
+      )}
+
+      {!src && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 text-white/80">
           <Radio className="w-8 h-8 sm:w-10 sm:h-10 opacity-60" />
           <p className="text-sm sm:text-base font-medium">
-            {src
-              ? 'Waiting for the live feed…'
-              : 'Select your source feeds to compose the multiview.'}
+            Select your source feeds to compose the multiview.
           </p>
-          {src && (
-            <p className="text-xs opacity-60">
-              The stream will start automatically once it is live.
-            </p>
-          )}
         </div>
       )}
     </div>
