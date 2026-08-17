@@ -148,9 +148,12 @@ export function MultiviewView() {
         <div>
           <PageTitle title="AWS Elemental Dynamic MultiView" />
           <p className="text-sm lg:text-base text-base-content/60">
-            Viewers select their feeds. MediaPackage assembles the MultiView on
-            demand: one standard stream, one decoder, any device, codec
-            agnostic, no re-encoding.
+            Watch multiple live feeds at once in a single stream. Viewers select
+            which feeds to combine and how to arrange them, and MediaPackage
+            assembles it on demand. Each feed is encoded once through MediaLive
+            and combined in the compressed domain (no decoding, no re-encoding
+            per combination), so it plays as a standard HLS or DASH stream on
+            any device.
           </p>
         </div>
 
