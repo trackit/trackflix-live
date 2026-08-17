@@ -146,7 +146,7 @@ export function MultiviewView() {
     <div className="flex justify-center w-full h-full p-4 lg:p-8 relative">
       <div className="w-full container flex flex-col gap-5 lg:gap-8">
         <div>
-          <PageTitle title="MultiView" />
+          <PageTitle title="AWS Elemental Dynamic MultiView" />
           <p className="text-sm lg:text-base text-base-content/60">
             Viewers select their feeds. MediaPackage assembles the MultiView on
             demand: one standard stream, one decoder, any device, codec

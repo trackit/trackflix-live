@@ -16,7 +16,7 @@ export const SOURCES: MultiviewSource[] = [
   { id: 'tennis', label: 'Tennis', channelRef: 'tennis', color: '#1f6fb2' },
   {
     id: 'cyclisme',
-    label: 'Cyclisme',
+    label: 'Cycling',
     channelRef: 'cyclisme',
     color: '#f4a300',
   },
