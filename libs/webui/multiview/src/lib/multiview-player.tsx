@@ -52,10 +52,13 @@ export function MultiviewPlayer({
       return;
     }
 
+    // Not true LL-HLS (the beta serves standard 2s segments), so lowLatencyMode only adds aggressive
+    // manifest polling. A small live sync window makes composition switches start playing quickly.
     const hls = new Hls({
-      lowLatencyMode: true,
-      liveSyncDurationCount: 5,
-      liveMaxLatencyDurationCount: 10,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 6,
+      maxBufferLength: 20,
+      backBufferLength: 10,
       liveDurationInfinity: true,
     });
     hlsRef.current = hls;

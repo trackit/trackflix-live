@@ -43,8 +43,7 @@ export function MultiviewCanvas({
                 src={streamUrl}
                 label={source.label}
                 tileNumber={index + 1}
-                featured={index === 0}
-                onSelect={onFocusTile ? () => onFocusTile(index) : undefined}
+                onFocus={onFocusTile ? () => onFocusTile(index) : undefined}
                 onSolo={onSoloTile ? () => onSoloTile(index) : undefined}
               />
             ) : (

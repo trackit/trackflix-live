@@ -1,4 +1,4 @@
-import { Maximize2 } from 'lucide-react';
+import { Maximize2, Scan } from 'lucide-react';
 import { MultiviewLayout, MultiviewSource } from './types';
 
 interface TileOverlayProps {
@@ -9,8 +9,8 @@ interface TileOverlayProps {
 }
 
 // Interactive layer over the single composited video: one region per layout tile (positioned from
-// the tile geometry). Click a region to make that feed the primary/large view; the solo button plays
-// that feed full screen (with its own audio). Tile 0 is the current primary and is highlighted.
+// the tile geometry). Each tile has two explicit actions (no whole-tile click, to avoid surprising
+// layout changes): focus makes that feed the primary/large view, solo plays it full screen.
 export function TileOverlay({
   layout,
   tiles,
@@ -21,7 +21,6 @@ export function TileOverlay({
     <div className="absolute inset-0">
       {layout.tiles.map((geometry, index) => {
         const source = tiles[index] ?? null;
-        const isPrimary = index === 0;
         return (
           <div
             key={index}
@@ -33,42 +32,30 @@ export function TileOverlay({
               height: `${geometry.height * 100}%`,
             }}
           >
-            <div
-              className={`relative w-full h-full rounded overflow-hidden group ${
-                isPrimary
-                  ? 'ring-2 ring-primary'
-                  : 'ring-1 ring-transparent hover:ring-white/50'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => onFocusTile(index)}
-                aria-label={
-                  source
-                    ? `Feature ${source.label}`
-                    : `Feature tile ${index + 1}`
-                }
-                title={source ? `Feature ${source.label}` : undefined}
-                className="absolute inset-0 w-full h-full cursor-pointer"
-              />
+            <div className="relative w-full h-full group">
               {source && (
-                <span className="pointer-events-none absolute bottom-1 left-1 text-xs text-white bg-black/50 px-1.5 py-0.5 rounded">
+                <span className="absolute bottom-1 left-1 text-xs text-white bg-black/50 px-1.5 py-0.5 rounded">
                   {source.label}
                 </span>
               )}
-              {isPrimary && (
-                <span className="pointer-events-none absolute top-1 left-1 badge badge-primary badge-sm">
-                  Featured
-                </span>
-              )}
-              <button
-                type="button"
-                title="Play this feed full screen"
-                onClick={() => onSoloTile(index)}
-                className="absolute top-1 right-1 btn btn-xs btn-circle btn-neutral opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Maximize2 className="w-3 h-3" />
-              </button>
+              <div className="absolute top-1 right-1 flex gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  title="Make this the primary view"
+                  onClick={() => onFocusTile(index)}
+                  className="btn btn-xs btn-circle btn-neutral"
+                >
+                  <Scan className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  title="Play this feed full screen"
+                  onClick={() => onSoloTile(index)}
+                  className="btn btn-xs btn-circle btn-neutral"
+                >
+                  <Maximize2 className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
         );
