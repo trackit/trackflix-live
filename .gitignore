@@ -49,6 +49,3 @@ vitest.config.*.timestamp*
 
 # AWS SAM files
 .aws-sam
-
-# CloudFormation packaged output (aws cloudformation package)
-.packaged.yaml

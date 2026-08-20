@@ -4,7 +4,7 @@
   "sourceRoot": "apps/multiview-demo",
   "projectType": "application",
   "tags": ["scope:multiview", "type:app"],
-  "// targets": "MediaPackage V2 Dynamic MultiView demo stack. Parent template.yaml + one nested stack per source (source.yaml). Deploys with aws cloudformation package (uploads the child template) then deploy; linted with cfn-lint (W3002 is expected: the parent's nested-stack TemplateURLs are resolved by package).",
+  "// targets": "MediaPackage V2 Dynamic MultiView demo stack. Parent template.yaml + one nested stack per source (source.yaml). Deploys with sam deploy like the api and webui apps (capabilities and resolve_s3 live in samconfig.toml; SAM packages the nested source.yaml). Linted with cfn-lint on both files (W3002 expected, ignored).",
   "targets": {
     "validate": {
       "command": "uvx cfn-lint template.yaml source.yaml --ignore-checks W3002",
@@ -13,7 +13,7 @@
       }
     },
     "deploy": {
-      "command": "aws cloudformation package --template-file template.yaml --s3-bucket \"${MULTIVIEW_ARTIFACTS_BUCKET:-demo-videos-trackflix-live}\" --s3-prefix cfn-multiview --output-template-file .packaged.yaml --region us-west-2 && aws cloudformation deploy --template-file .packaged.yaml --stack-name \"trackflix-multiview-$STAGE\" --parameter-overrides Stage=\"$STAGE\" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-multiview-$STAGE\" --region us-west-2 --no-fail-on-empty-changeset",
+      "command": "sam deploy --stack-name=\"trackflix-multiview-$STAGE\" --parameter-overrides Stage=\"$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-multiview-$STAGE\" --no-fail-on-empty-changeset",
       "options": {
         "cwd": "apps/multiview-demo"
       }
@@ -31,7 +31,10 @@
       "command": "sh scripts/multiviewChannels.sh status"
     },
     "destroy": {
-      "command": "aws cloudformation delete-stack --stack-name \"trackflix-multiview-$STAGE\" --region us-west-2"
+      "command": "sam delete --stack-name \"trackflix-multiview-$STAGE\" --no-prompts",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
     }
   }
 }
