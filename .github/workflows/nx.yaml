@@ -1,6 +1,8 @@
 name: Nx
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   Lint:
@@ -68,3 +70,88 @@ jobs:
           node-version: '20.x'
       - run: npm ci
       - run: npx nx run multiview-demo:validate
+
+  # ---- Deploy (main only, after all checks pass; OIDC into the shared Github role) ----
+  Deploy_API:
+    needs:
+      [
+        Lint,
+        Prettier,
+        Test,
+        Typecheck,
+        Validate_API_template,
+        Validate_MultiView_template,
+      ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - run: npx nx run api:deploy
+        env:
+          STAGE: ${{ vars.STAGE }}
+          WAITING_SOURCE: ${{ vars.WAITING_SOURCE }}
+
+  Deploy_MultiView:
+    needs:
+      [
+        Lint,
+        Prettier,
+        Test,
+        Typecheck,
+        Validate_API_template,
+        Validate_MultiView_template,
+      ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - run: npx nx run multiview-demo:deploy
+        env:
+          STAGE: ${{ vars.STAGE }}
+
+  # WebUI is deployed last: its build reads the api + multiview stack outputs.
+  Deploy_WebUI:
+    needs: [Deploy_API, Deploy_MultiView]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - run: npx nx run webui:upload
+        env:
+          STAGE: ${{ vars.STAGE }}
