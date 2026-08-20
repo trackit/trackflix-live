@@ -1,0 +1,17 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "trackflix-multiview"
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+# NAMED_IAM: the MediaLive role has a named inline policy. AUTO_EXPAND: the template uses nested stacks.
+capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
+confirm_changeset = false
+# SAM manages the artifacts bucket and uploads the nested source.yaml, so no explicit package step.
+resolve_s3 = true
+
+[default.package.parameters]
+resolve_s3 = true

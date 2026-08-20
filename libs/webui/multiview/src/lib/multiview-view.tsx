@@ -1,0 +1,243 @@
+import { useMemo, useState } from 'react';
+import { CopyText, PageTitle, Panel } from '@trackflix-live/ui';
+import { LayoutPicker } from './layout-picker';
+import { SourceFeedGrid } from './source-feed-grid';
+import { MultiviewCanvas } from './multiview-canvas';
+import { MultiviewPlayer } from './multiview-player';
+import { TileControls } from './tile-controls';
+import {
+  buildMultiviewManifestUrl,
+  buildSingleViewManifestUrl,
+} from './manifest-url';
+import { DEFAULT_LAYOUT_ID, findLayout } from './layouts';
+import { SOURCES, findSource } from './sources';
+import { SourceId } from './types';
+
+const buildTiles = (
+  previous: (SourceId | null)[],
+  tileCount: number
+): (SourceId | null)[] =>
+  Array.from({ length: tileCount }, (_, index) => previous[index] ?? null);
+
+// Resize to the layout's tile count, then fill any empty tiles with feeds that are not yet
+// assigned. This keeps the composition complete (and the manifest URL visible) when switching to a
+// layout with more tiles than the current selection.
+const resizeAndFill = (
+  previous: (SourceId | null)[],
+  tileCount: number
+): (SourceId | null)[] => {
+  const resized = buildTiles(previous, tileCount);
+  const used = new Set(
+    resized.filter((tile): tile is SourceId => tile !== null)
+  );
+  const available = SOURCES.map((source) => source.id).filter(
+    (id) => !used.has(id)
+  );
+  let next = 0;
+  return resized.map((tile) =>
+    tile !== null ? tile : available[next++] ?? null
+  );
+};
+
+const initialTiles = (tileCount: number): (SourceId | null)[] =>
+  buildTiles(
+    SOURCES.map((source) => source.id),
+    tileCount
+  );
+
+// Move the tile at `index` to position 0 (the primary/large view, which must also be the URL path
+// channel), keeping the other tiles in order.
+const promoteToPrimary = (
+  tiles: (SourceId | null)[],
+  index: number
+): (SourceId | null)[] => {
+  const target = tiles[index];
+  if (target == null) {
+    return tiles;
+  }
+  return [target, ...tiles.filter((_, position) => position !== index)];
+};
+
+export function MultiviewView() {
+  const [selectedLayoutId, setSelectedLayoutId] = useState(DEFAULT_LAYOUT_ID);
+  const [tiles, setTiles] = useState<(SourceId | null)[]>(() =>
+    initialTiles(findLayout(DEFAULT_LAYOUT_ID).tileCount)
+  );
+  const [soloSource, setSoloSource] = useState<SourceId | null>(null);
+
+  const layout = findLayout(selectedLayoutId);
+
+  const egressDomain = import.meta.env.VITE_MULTIVIEW_EGRESS_DOMAIN ?? '';
+  const channelGroup = import.meta.env.VITE_MULTIVIEW_CHANNEL_GROUP ?? '';
+  const endpointName = import.meta.env.VITE_MULTIVIEW_ENDPOINT_NAME ?? '';
+  const previewStreamUrl = import.meta.env.VITE_MULTIVIEW_MANIFEST_URL ?? '';
+  const hasRealEndpoint = Boolean(egressDomain && channelGroup && endpointName);
+
+  const selectLayout = (id: string) => {
+    setSelectedLayoutId(id);
+    setTiles((previous) => resizeAndFill(previous, findLayout(id).tileCount));
+  };
+
+  // Move a feed to the primary position (V1) while keeping the current layout. In a primary layout
+  // (2PL/3PL/4PL) V1 is the large tile; in an equal layout it is the first position. The layout only
+  // changes when the viewer picks one, never as a side effect of featuring a feed.
+  const focusTile = (index: number) => {
+    setTiles((previous) => promoteToPrimary(previous, index));
+  };
+
+  const soloTile = (index: number) => {
+    const source = tiles[index]
+      ? findSource(tiles[index] as string)
+      : undefined;
+    if (source) {
+      setSoloSource(source.id);
+    }
+  };
+
+  const toggleSource = (id: SourceId) => {
+    setTiles((previous) => {
+      const assignedIndex = previous.indexOf(id);
+      if (assignedIndex >= 0) {
+        return previous.map((tile, index) =>
+          index === assignedIndex ? null : tile
+        );
+      }
+      const freeIndex = previous.indexOf(null);
+      if (freeIndex < 0) {
+        return previous;
+      }
+      return previous.map((tile, index) => (index === freeIndex ? id : tile));
+    });
+  };
+
+  // A multiview is only composable when every tile of the layout is filled (MediaPackage needs
+  // exactly N sources for an N-tile layout) and a real beta endpoint is configured.
+  const composedUrl = useMemo(() => {
+    if (!egressDomain || !channelGroup || !endpointName) {
+      return '';
+    }
+    if (!tiles.every((tile) => tile !== null)) {
+      return '';
+    }
+    const channels = tiles.map(
+      (id) => findSource(id as string)?.channelRef ?? ''
+    );
+    if (channels.some((channel) => !channel)) {
+      return '';
+    }
+    return buildMultiviewManifestUrl(
+      { egressDomain, channelGroup, endpointName },
+      selectedLayoutId,
+      channels
+    );
+  }, [egressDomain, channelGroup, endpointName, selectedLayoutId, tiles]);
+
+  const tileSources = tiles.map((id) => (id ? findSource(id) ?? null : null));
+
+  const soloSourceRef = soloSource ? findSource(soloSource) : undefined;
+  const playerSrc = soloSourceRef
+    ? buildSingleViewManifestUrl(
+        { egressDomain, channelGroup, endpointName },
+        soloSourceRef.channelRef
+      )
+    : composedUrl;
+
+  return (
+    <div className="flex justify-center w-full h-full p-4 lg:p-8 relative">
+      <div className="w-full container flex flex-col gap-5 lg:gap-8">
+        <div>
+          <PageTitle title="AWS Elemental Dynamic MultiView" />
+          <p className="text-sm lg:text-base text-base-content/60">
+            Watch multiple live feeds at once in a single stream. Viewers select
+            which feeds to combine and how to arrange them, and MediaPackage
+            assembles it on demand. Each feed is encoded once through MediaLive
+            and combined in the compressed domain (no decoding, no re-encoding
+            per combination), so it plays as a standard HLS or DASH stream on
+            any device.
+          </p>
+        </div>
+
+        <div className="flex flex-col-reverse lg:flex-row gap-5 lg:gap-8">
+          <div className="w-full lg:w-96 lg:shrink-0 flex flex-col gap-8">
+            <Panel>
+              <h2 className="font-bold mb-1">Source feeds</h2>
+              <p className="text-sm text-base-content/60 mb-4">
+                Encode once on MediaLive. Select {layout.tileCount} feeds.
+              </p>
+              <SourceFeedGrid
+                sources={SOURCES}
+                tiles={tiles}
+                onToggle={toggleSource}
+                endpoint={
+                  hasRealEndpoint
+                    ? { egressDomain, channelGroup, endpointName }
+                    : undefined
+                }
+              />
+            </Panel>
+
+            <Panel>
+              <h2 className="font-bold mb-4">Layout</h2>
+              <LayoutPicker
+                selected={selectedLayoutId}
+                onSelect={selectLayout}
+              />
+            </Panel>
+          </div>
+
+          <div className="flex-1 min-w-0 flex flex-col gap-4">
+            <Panel className="!p-4">
+              <div className="flex items-baseline justify-between mb-4 px-4 pt-2">
+                <h2 className="font-bold">Live MultiView output</h2>
+                <span className="text-xs text-base-content/40">
+                  {hasRealEndpoint ? 'MediaPackage V2' : 'Client-side preview'}
+                </span>
+              </div>
+              {hasRealEndpoint ? (
+                <MultiviewPlayer
+                  src={playerSrc}
+                  isSolo={Boolean(soloSourceRef)}
+                  soloLabel={soloSourceRef?.label}
+                  onExitSolo={() => setSoloSource(null)}
+                />
+              ) : (
+                <MultiviewCanvas
+                  layout={layout}
+                  tiles={tileSources}
+                  streamUrl={previewStreamUrl}
+                  onFocusTile={focusTile}
+                  onSoloTile={soloTile}
+                />
+              )}
+              {hasRealEndpoint && !soloSourceRef && composedUrl && (
+                <div className="mt-3 px-1">
+                  <TileControls
+                    tiles={tileSources}
+                    onFocus={focusTile}
+                    onSolo={soloTile}
+                  />
+                </div>
+              )}
+              {!hasRealEndpoint && (
+                <p className="text-xs text-base-content/40 px-4 pt-3">
+                  In production, MediaPackage returns a single server-composited
+                  stream rendered by one player. This preview composes the tiles
+                  client-side until the MultiView endpoint is configured.
+                </p>
+              )}
+            </Panel>
+            {composedUrl ? (
+              <CopyText text={composedUrl} className="w-full" />
+            ) : hasRealEndpoint ? (
+              <p className="text-xs text-base-content/50 px-1">
+                Assign a feed to every tile to compose the MultiView manifest.
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default MultiviewView;

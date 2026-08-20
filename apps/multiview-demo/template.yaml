@@ -1,0 +1,235 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# Parent stack. Shared resources (IAM role, MediaPackage V2 channel group, CloudFront) plus one nested
+# stack per source feed (source.yaml). This replaces the earlier single-template Fn::ForEach loop:
+# Fn::ForEach does not substitute the loop variable inside DependsOn or a cross-resource !Ref, so the
+# per-source MediaLive channel could never reference its own input. Nested stacks keep the (large)
+# EncoderSettings defined once in the child while giving each source its own static references.
+#
+# Deploy with `aws cloudformation package` (uploads source.yaml, rewrites the TemplateURLs) then
+# `aws cloudformation deploy` (see project.json). Nested stacks need CAPABILITY_AUTO_EXPAND.
+Description: >-
+  TrackFlix MultiView demo. AWS Elemental Dynamic MultiView (MediaPackage V2 private beta):
+  one MediaLive channel per source (multiview renditions) feeding a single MediaPackage V2 channel
+  group whose name starts with MultiView-Preview, fronted by CloudFront. The webui composes the
+  aws.multiview manifest query to play a server-composited mosaic. Deployed as its own stack
+  alongside trackflix-live api + webui.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: demo
+    Description: Stage suffix; the stack and channel-group names are derived from it.
+  SourceBucket:
+    Type: String
+    Default: demo-videos-trackflix-live
+    Description: S3 bucket holding the H.264/AAC source MP4s (MediaLive cannot decode AV1/Opus).
+  SegmentSeconds:
+    Type: Number
+    Default: 2
+
+Resources:
+  # ------------------------------------------------------------------ IAM
+  MediaLiveRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: medialive.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MultiViewMediaLivePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${SourceBucket}'
+                  - !Sub 'arn:aws:s3:::${SourceBucket}/*'
+              - Effect: Allow
+                Action:
+                  - mediapackagev2:PutObject
+                  - mediapackagev2:GetChannel
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroups
+                Resource: arn:aws:logs:*:*:*
+
+  # ------------------------------------------------------------------ MediaPackage V2 channel group
+  # The MultiView-Preview prefix + an allowlisted account is what routes to the beta origination.
+  ChannelGroup:
+    Type: AWS::MediaPackageV2::ChannelGroup
+    Properties:
+      ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+      Description: !Sub 'TrackFlix MultiView demo (${Stage})'
+
+  # ------------------------------------------------------------------ CloudFront
+  Oac:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub 'trackflix-multiview-${Stage}'
+        OriginAccessControlOriginType: mediapackagev2
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub 'trackflix-multiview-cache-${Stage}'
+        Comment: Live, vary on and forward all query strings (aws.multiview).
+        DefaultTTL: 6
+        MaxTTL: 60
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingGzip: false
+          EnableAcceptEncodingBrotli: false
+          HeadersConfig:
+            HeaderBehavior: none
+          CookiesConfig:
+            CookieBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: all
+
+  CorsPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub 'trackflix-multiview-cors-${Stage}'
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items: ['*']
+          AccessControlAllowMethods:
+            Items: [GET, HEAD, OPTIONS]
+          AccessControlAllowOrigins:
+            Items: ['*']
+          AccessControlExposeHeaders:
+            Items: ['*']
+          OriginOverride: true
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'TrackFlix MultiView ${Stage}'
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: mp-origin
+            DomainName: !GetAtt ChannelGroup.EgressDomain
+            OriginAccessControlId: !GetAtt Oac.Id
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+        DefaultCacheBehavior:
+          TargetOriginId: mp-origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: false
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          CachePolicyId: !Ref CachePolicy
+          ResponseHeadersPolicyId: !Ref CorsPolicy
+
+  # ------------------------------------------------------------------ Per source (one nested stack each)
+  # To add or rename a feed: add a nested stack here and its S3 key, and keep it in sync with the webui
+  # catalogue (libs/webui/multiview/src/lib/sources.ts) and scripts/prepareMultiviewSources.sh.
+  SourceF1:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: f1
+        SourceKey: mv-f1.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  SourceNascar:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: nascar
+        SourceKey: mv-nascar.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  SourceFootball:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: football
+        SourceKey: mv-football.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  SourceTennis:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: tennis
+        SourceKey: mv-tennis.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  SourceCyclisme:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ChannelGroup
+    Properties:
+      TemplateURL: source.yaml
+      Parameters:
+        Stage: !Ref Stage
+        SourceName: cyclisme
+        SourceKey: mv-cyclisme.mp4
+        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
+        SourceBucket: !Ref SourceBucket
+        SegmentSeconds: !Ref SegmentSeconds
+        DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+Outputs:
+  EgressDomain:
+    Description: MediaPackage V2 egress domain (origin behind CloudFront).
+    Value: !GetAtt ChannelGroup.EgressDomain
+  CloudFrontDomain:
+    Description: CloudFront domain the webui plays from (VITE_MULTIVIEW_EGRESS_DOMAIN).
+    Value: !GetAtt Distribution.DomainName
+  ChannelGroupName:
+    Description: VITE_MULTIVIEW_CHANNEL_GROUP.
+    Value: !Sub 'MultiView-Preview-trackflix-${Stage}'
+  EndpointName:
+    Description: VITE_MULTIVIEW_ENDPOINT_NAME.
+    Value: cmaf-mv-endpoint

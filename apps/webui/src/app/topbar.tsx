@@ -40,6 +40,12 @@ const Topbar = () => {
         </div>
       </Link>
       <div className="flex items-center gap-4 mr-8">
+        <Link
+          to="/multiview"
+          className="btn btn-link btn-sm text-black dark:text-white"
+        >
+          MultiView
+        </Link>
         <ThemeSwitcher />
 
         <div className="dropdown dropdown-end">

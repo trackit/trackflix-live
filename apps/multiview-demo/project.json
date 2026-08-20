@@ -1,0 +1,40 @@
+{
+  "name": "multiview-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/multiview-demo",
+  "projectType": "application",
+  "tags": ["scope:multiview", "type:app"],
+  "// targets": "MediaPackage V2 Dynamic MultiView demo stack. Parent template.yaml + one nested stack per source (source.yaml). Deploys with sam deploy like the api and webui apps (capabilities and resolve_s3 live in samconfig.toml; SAM packages the nested source.yaml). Linted with cfn-lint on both files (W3002 expected, ignored).",
+  "targets": {
+    "validate": {
+      "command": "uvx cfn-lint template.yaml source.yaml --ignore-checks W3002",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
+    },
+    "deploy": {
+      "command": "sam deploy --stack-name=\"trackflix-multiview-$STAGE\" --parameter-overrides Stage=\"$STAGE\" --tags Project=trackflix-live Owner=\"$STAGE\" Name=\"trackflix-multiview-$STAGE\" --no-fail-on-empty-changeset",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
+    },
+    "prepare-sources": {
+      "command": "sh scripts/prepareMultiviewSources.sh"
+    },
+    "start": {
+      "command": "sh scripts/multiviewChannels.sh start"
+    },
+    "stop": {
+      "command": "sh scripts/multiviewChannels.sh stop"
+    },
+    "status": {
+      "command": "sh scripts/multiviewChannels.sh status"
+    },
+    "destroy": {
+      "command": "sam delete --stack-name \"trackflix-multiview-$STAGE\" --no-prompts",
+      "options": {
+        "cwd": "apps/multiview-demo"
+      }
+    }
+  }
+}

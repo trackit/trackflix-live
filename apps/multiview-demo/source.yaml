@@ -1,0 +1,301 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  TrackFlix MultiView demo, one source feed. Nested (child) stack instantiated once per source by
+  template.yaml. Creates one MediaPackage V2 channel (+ endpoint + policies) and one MediaLive channel
+  with the three multiview renditions. This is a de-ForEach of the former single-template loop:
+  Fn::ForEach does not substitute the loop variable inside DependsOn or a cross-resource !Ref, so the
+  per-source resources (MediaLive channel -> its input) live here where the references are static.
+
+Parameters:
+  Stage:
+    Type: String
+  SourceName:
+    Type: String
+    Description: Feed name; becomes the MediaPackage channel name and the tile/source token in the manifest.
+  SourceKey:
+    Type: String
+    Description: S3 object key of the H.264/AAC source MP4 in SourceBucket.
+  ChannelGroupName:
+    Type: String
+    Description: Name of the shared MediaPackage V2 channel group (created by the parent stack).
+  MediaLiveRoleArn:
+    Type: String
+  SourceBucket:
+    Type: String
+  SegmentSeconds:
+    Type: Number
+    Default: 2
+  DistributionArn:
+    Type: String
+    Description: CloudFront distribution ARN allowed to read the origin endpoint.
+
+Resources:
+  MpChannel:
+    Type: AWS::MediaPackageV2::Channel
+    Properties:
+      ChannelGroupName: !Ref ChannelGroupName
+      ChannelName: !Ref SourceName
+      InputType: CMAF
+
+  MpEndpoint:
+    Type: AWS::MediaPackageV2::OriginEndpoint
+    DependsOn: MpChannel
+    Properties:
+      ChannelGroupName: !Ref ChannelGroupName
+      ChannelName: !Ref SourceName
+      OriginEndpointName: cmaf-mv-endpoint
+      ContainerType: CMAF
+      Segment:
+        SegmentDurationSeconds: !Ref SegmentSeconds
+      HlsManifests:
+        - ManifestName: index
+          UrlEncodeChildManifest: true
+
+  MpChannelPolicy:
+    Type: AWS::MediaPackageV2::ChannelPolicy
+    DependsOn: MpChannel
+    Properties:
+      ChannelGroupName: !Ref ChannelGroupName
+      ChannelName: !Ref SourceName
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowMediaLiveIngest
+            Effect: Allow
+            Principal:
+              AWS: !Ref MediaLiveRoleArn
+            Action: mediapackagev2:PutObject
+            Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/${ChannelGroupName}/channel/${SourceName}'
+
+  MpEndpointPolicy:
+    Type: AWS::MediaPackageV2::OriginEndpointPolicy
+    DependsOn: MpEndpoint
+    Properties:
+      ChannelGroupName: !Ref ChannelGroupName
+      ChannelName: !Ref SourceName
+      OriginEndpointName: cmaf-mv-endpoint
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFront
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: mediapackagev2:GetObject
+            Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/${ChannelGroupName}/channel/${SourceName}/originEndpoint/cmaf-mv-endpoint'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Ref DistributionArn
+
+  MvInput:
+    Type: AWS::MediaLive::Input
+    Properties:
+      Name: !Sub 'mv-${SourceName}-${Stage}'
+      Type: MP4_FILE
+      Sources:
+        - Url: !Sub 's3://${SourceBucket}/${SourceKey}'
+
+  MvChannel:
+    Type: AWS::MediaLive::Channel
+    Properties:
+      Name: !Sub 'mv-${SourceName}-${Stage}'
+      ChannelClass: SINGLE_PIPELINE
+      RoleArn: !Ref MediaLiveRoleArn
+      InputSpecification:
+        Codec: AVC
+        MaximumBitrate: MAX_20_MBPS
+        Resolution: HD
+      InputAttachments:
+        - InputAttachmentName: !Ref SourceName
+          InputId: !Ref MvInput
+          InputSettings:
+            SourceEndBehavior: LOOP
+            InputFilter: AUTO
+            FilterStrength: 1
+            DeblockFilter: DISABLED
+            DenoiseFilter: DISABLED
+            Smpte2038DataPreference: IGNORE
+      Destinations:
+        - Id: mp2-dest
+          MediaPackageSettings:
+            - ChannelGroup: !Ref ChannelGroupName
+              ChannelName: !Ref SourceName
+      EncoderSettings:
+        TimecodeConfig:
+          Source: EMBEDDED
+        AudioDescriptions:
+          - Name: audio
+            AudioSelectorName: default
+            AudioTypeControl: FOLLOW_INPUT
+            LanguageCodeControl: FOLLOW_INPUT
+        GlobalConfiguration:
+          InputEndAction: NONE
+          OutputLockingMode: PIPELINE_LOCKING
+          OutputTimingSource: INPUT_CLOCK
+          SupportLowFramerateInputs: DISABLED
+        FeatureActivations:
+          InputPrepareScheduleActions: DISABLED
+          OutputStaticImageOverlayScheduleActions: ENABLED
+        VideoDescriptions:
+          - Name: 1024x576
+            Width: 1024
+            Height: 576
+            RespondToAfd: NONE
+            ScalingBehavior: STRETCH_TO_OUTPUT
+            Sharpness: 50
+            CodecSettings:
+              H264Settings:
+                Bitrate: 5000000
+                RateControlMode: CBR
+                Profile: MAIN
+                Level: H264_LEVEL_AUTO
+                GopSize: 60
+                GopSizeUnits: FRAMES
+                GopClosedCadence: 1
+                GopBReference: DISABLED
+                NumRefFrames: 1
+                ScanType: PROGRESSIVE
+                FramerateControl: SPECIFIED
+                FramerateNumerator: 30
+                FramerateDenominator: 1
+                ParControl: SPECIFIED
+                ParNumerator: 1
+                ParDenominator: 1
+                EntropyEncoding: CABAC
+                AdaptiveQuantization: AUTO
+                SpatialAq: ENABLED
+                TemporalAq: ENABLED
+                FlickerAq: ENABLED
+                SceneChangeDetect: DISABLED
+                SubgopLength: FIXED
+                AfdSignaling: NONE
+                ColorMetadata: INSERT
+                TimecodeInsertion: DISABLED
+                ForceFieldPictures: DISABLED
+                LookAheadRateControl: MEDIUM
+                QualityLevel: ENHANCED_QUALITY
+                Syntax: DEFAULT
+          - Name: 512x288
+            Width: 512
+            Height: 288
+            RespondToAfd: NONE
+            ScalingBehavior: STRETCH_TO_OUTPUT
+            Sharpness: 50
+            CodecSettings:
+              H264Settings:
+                Bitrate: 1250000
+                RateControlMode: CBR
+                Profile: MAIN
+                Level: H264_LEVEL_AUTO
+                GopSize: 60
+                GopSizeUnits: FRAMES
+                GopClosedCadence: 1
+                GopBReference: DISABLED
+                NumRefFrames: 1
+                ScanType: PROGRESSIVE
+                FramerateControl: SPECIFIED
+                FramerateNumerator: 30
+                FramerateDenominator: 1
+                ParControl: SPECIFIED
+                ParNumerator: 1
+                ParDenominator: 1
+                EntropyEncoding: CABAC
+                AdaptiveQuantization: AUTO
+                SpatialAq: ENABLED
+                TemporalAq: ENABLED
+                FlickerAq: ENABLED
+                SceneChangeDetect: DISABLED
+                SubgopLength: FIXED
+                AfdSignaling: NONE
+                ColorMetadata: INSERT
+                TimecodeInsertion: DISABLED
+                ForceFieldPictures: DISABLED
+                LookAheadRateControl: MEDIUM
+                QualityLevel: ENHANCED_QUALITY
+                Syntax: DEFAULT
+          - Name: 256x144
+            Width: 256
+            Height: 144
+            RespondToAfd: NONE
+            ScalingBehavior: STRETCH_TO_OUTPUT
+            Sharpness: 50
+            CodecSettings:
+              H264Settings:
+                Bitrate: 500000
+                RateControlMode: CBR
+                Profile: MAIN
+                Level: H264_LEVEL_AUTO
+                GopSize: 60
+                GopSizeUnits: FRAMES
+                GopClosedCadence: 1
+                GopBReference: DISABLED
+                NumRefFrames: 1
+                ScanType: PROGRESSIVE
+                FramerateControl: SPECIFIED
+                FramerateNumerator: 30
+                FramerateDenominator: 1
+                ParControl: SPECIFIED
+                ParNumerator: 1
+                ParDenominator: 1
+                EntropyEncoding: CABAC
+                AdaptiveQuantization: AUTO
+                SpatialAq: ENABLED
+                TemporalAq: ENABLED
+                FlickerAq: ENABLED
+                SceneChangeDetect: DISABLED
+                SubgopLength: FIXED
+                AfdSignaling: NONE
+                ColorMetadata: INSERT
+                TimecodeInsertion: DISABLED
+                ForceFieldPictures: DISABLED
+                LookAheadRateControl: MEDIUM
+                QualityLevel: ENHANCED_QUALITY
+                Syntax: DEFAULT
+        OutputGroups:
+          - Name: Multiview Preview
+            OutputGroupSettings:
+              MediaPackageGroupSettings:
+                Destination:
+                  DestinationRefId: mp2-dest
+                MediapackageV2GroupSettings:
+                  SegmentLength: !Ref SegmentSeconds
+                  SegmentLengthUnits: SECONDS
+                  Scte35Type: NONE
+                  NielsenId3Behavior: NO_PASSTHROUGH
+                  KlvBehavior: NO_PASSTHROUGH
+                  Id3Behavior: DISABLED
+                  TimedMetadataPassthrough: DISABLED
+                  TimedMetadataId3Frame: NONE
+                  TimedMetadataId3Period: 10
+            Outputs:
+              - OutputName: 1024x576
+                VideoDescriptionName: 1024x576
+                AudioDescriptionNames: []
+                CaptionDescriptionNames: []
+                OutputSettings:
+                  MediaPackageOutputSettings: {}
+              - OutputName: 512x288
+                VideoDescriptionName: 512x288
+                AudioDescriptionNames: []
+                CaptionDescriptionNames: []
+                OutputSettings:
+                  MediaPackageOutputSettings: {}
+              - OutputName: 256x144
+                VideoDescriptionName: 256x144
+                AudioDescriptionNames: []
+                CaptionDescriptionNames: []
+                OutputSettings:
+                  MediaPackageOutputSettings: {}
+              - OutputName: audio
+                AudioDescriptionNames: [audio]
+                CaptionDescriptionNames: []
+                OutputSettings:
+                  MediaPackageOutputSettings: {}
+
+Outputs:
+  MpChannelName:
+    Description: MediaPackage V2 channel / source token for this feed.
+    Value: !Ref SourceName
+  MediaLiveChannelId:
+    Description: MediaLive channel id (use with start-channel / stop-channel).
+    Value: !Ref MvChannel
