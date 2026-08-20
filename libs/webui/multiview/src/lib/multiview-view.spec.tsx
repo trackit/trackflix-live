@@ -192,4 +192,16 @@ describe('MultiviewView', () => {
 
     expect(tennis.disabled).toBe(true);
   });
+
+  it('shows a Connect With TrackIt CTA linking to the contact page in a new tab', () => {
+    render(<MultiviewView />);
+
+    const cta = screen.getByRole('link', {
+      name: /connect with trackit/i,
+    }) as HTMLAnchorElement;
+
+    expect(cta.getAttribute('href')).toContain('trackit.io/contact');
+    expect(cta.getAttribute('target')).toBe('_blank');
+    expect(cta.getAttribute('rel')).toContain('noopener');
+  });
 });

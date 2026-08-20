@@ -155,6 +155,24 @@ export function MultiviewView() {
             per combination), so it plays as a standard HLS or DASH stream on
             any device.
           </p>
+          <p className="text-sm lg:text-base text-base-content/60 mt-3">
+            If you would like to learn more about TrackFlix, or how TrackIt can
+            help you deploy AWS Elemental services, click the button below to
+            schedule a meeting.
+          </p>
+          <a
+            href="https://trackit.io/contact?utm_source=trackflix-demo&utm_medium=qr&utm_campaign=ibc-multiview"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              window.gtag?.('event', 'connect_with_trackit', {
+                placement: 'multiview_header',
+              })
+            }
+            className="btn btn-error text-white mt-4 w-full sm:w-auto"
+          >
+            Connect With TrackIt
+          </a>
         </div>
 
         <div className="flex flex-col-reverse lg:flex-row gap-5 lg:gap-8">
