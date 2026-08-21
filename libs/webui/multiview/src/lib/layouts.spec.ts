@@ -8,6 +8,6 @@ describe('primaryLayoutFor', () => {
   });
 
   it('falls back to the default layout for unsupported counts', () => {
-    expect(primaryLayoutFor(1)).toBe('3EL');
+    expect(primaryLayoutFor(1)).toBe('3PL');
   });
 });

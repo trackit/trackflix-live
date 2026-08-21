@@ -15,6 +15,14 @@ interface MultiviewPlayerProps {
   isSolo?: boolean;
   soloLabel?: string;
   onExitSolo?: () => void;
+  // Fill the positioned parent (immersive landscape) instead of holding an intrinsic 16:9 box.
+  fill?: boolean;
+  // Show the LIVE badge top-left (the composited mosaic; hidden in the solo view, which carries its
+  // own live dot next to the back pill).
+  showLive?: boolean;
+  // Show the fullscreen toggle. Hidden in the immersive landscape view, where the player already
+  // fills the viewport and its own chrome would duplicate the immersive controls.
+  showFullscreen?: boolean;
 }
 
 export function MultiviewPlayer({
@@ -22,6 +30,9 @@ export function MultiviewPlayer({
   isSolo = false,
   soloLabel,
   onExitSolo,
+  fill = false,
+  showLive = true,
+  showFullscreen = true,
 }: MultiviewPlayerProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -108,59 +119,82 @@ export function MultiviewPlayer({
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
-    } else {
-      wrapperRef.current?.requestFullscreen?.();
+      return;
     }
+    if (wrapperRef.current?.requestFullscreen) {
+      wrapperRef.current.requestFullscreen();
+      return;
+    }
+    // iOS Safari does not implement Element.requestFullscreen (so the button did nothing on iPhone);
+    // fall back to the native fullscreen of the <video> element, which iOS does support.
+    const video = videoRef.current as
+      | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
+      | null;
+    video?.webkitEnterFullscreen?.();
   };
 
   return (
     <div
       ref={wrapperRef}
-      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden"
+      className={`relative bg-black overflow-hidden ${
+        fill ? 'w-full h-full' : 'w-full aspect-video rounded-lg'
+      }`}
     >
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
-        className="w-full h-full"
+        className="w-full h-full object-contain"
       />
 
-      <div className="absolute bottom-2 right-2 flex gap-2">
+      {showLive && !isSolo && (
+        <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 h-6 px-2.5 rounded-md bg-black/55">
+          <span className="w-1.5 h-1.5 rounded-full bg-error" />
+          <span className="text-[10px] font-bold tracking-[.11em] text-white">
+            LIVE
+          </span>
+        </span>
+      )}
+
+      <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
         <button
           type="button"
           title={muted ? 'Unmute' : 'Mute'}
           onClick={() => setMuted((value) => !value)}
-          className="btn btn-sm btn-circle btn-neutral"
+          className="inline-flex items-center gap-1.5 h-[38px] px-3.5 rounded-full bg-black/60 text-white text-[11.5px] font-semibold hover:bg-black/75 transition-colors"
         >
           {muted ? (
             <VolumeX className="w-4 h-4" />
           ) : (
             <Volume2 className="w-4 h-4" />
           )}
+          {muted ? 'Sound off' : 'Sound on'}
         </button>
-        <button
-          type="button"
-          title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-          onClick={toggleFullscreen}
-          className="btn btn-sm btn-circle btn-neutral"
-        >
-          {isFullscreen ? (
-            <Minimize className="w-4 h-4" />
-          ) : (
-            <Maximize className="w-4 h-4" />
-          )}
-        </button>
+        {showFullscreen && (
+          <button
+            type="button"
+            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            onClick={toggleFullscreen}
+            className="grid place-items-center w-[38px] h-[38px] rounded-full bg-black/60 text-white hover:bg-black/75 transition-colors"
+          >
+            {isFullscreen ? (
+              <Minimize className="w-4 h-4" />
+            ) : (
+              <Maximize className="w-4 h-4" />
+            )}
+          </button>
+        )}
       </div>
 
       {isSolo && (
         <button
           type="button"
           onClick={onExitSolo}
-          className="absolute top-2 left-2 btn btn-sm btn-neutral gap-1"
+          className="absolute top-2.5 left-2.5 inline-flex items-center gap-2 h-11 px-4 rounded-full bg-white/10 text-white text-sm font-semibold backdrop-blur hover:bg-white/20 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          {soloLabel ? `Back (${soloLabel})` : 'Back to MultiView'}
+          {soloLabel ? `MultiView · ${soloLabel}` : 'MultiView'}
         </button>
       )}
 
