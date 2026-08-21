@@ -38,12 +38,14 @@ const clickLayout = (code: string) =>
   fireEvent.click(screen.getByRole('button', { name: new RegExp(code, 'i') }));
 const clickFeature = (label: string) =>
   fireEvent.click(
-    screen.getByRole('button', { name: new RegExp(`feature ${label}`, 'i') })
+    screen.getByRole('button', {
+      name: new RegExp(`make ${label} primary`, 'i'),
+    })
   );
 const clickSolo = (label: string) =>
   fireEvent.click(
     screen.getByRole('button', {
-      name: new RegExp(`full screen ${label}`, 'i'),
+      name: new RegExp(`watch ${label} alone`, 'i'),
     })
   );
 
@@ -55,11 +57,11 @@ describe('MultiviewView', () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it('starts on 3EL with the first three feeds and the path on the first source', () => {
+  it('starts on 3PL with the first three feeds and the path on the first source', () => {
     render(<MultiviewView />);
     const p = parse(src());
 
-    expect(p.layout).toBe('3EL');
+    expect(p.layout).toBe('3PL');
     expect(p.sources).toEqual(['f1', 'nascar', 'football']);
     expect(p.path).toBe('f1');
   });
@@ -87,7 +89,7 @@ describe('MultiviewView', () => {
     clickFeature('nascar');
     const p = parse(src());
 
-    expect(p.layout).toBe('3EL');
+    expect(p.layout).toBe('3PL');
     expect(p.sources).toEqual(['nascar', 'f1', 'football']);
     expect(p.path).toBe('nascar');
   });
@@ -191,5 +193,34 @@ describe('MultiviewView', () => {
     }) as HTMLButtonElement;
 
     expect(tennis.disabled).toBe(true);
+  });
+
+  it('shows a Connect With TrackIt CTA card on mobile linking to the contact page in a new tab', () => {
+    // The mobile controls sheet carries the CTA card; force the narrow-viewport tree.
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+
+    try {
+      render(<MultiviewView />);
+
+      const cta = screen.getByRole('link', {
+        name: /connect with trackit/i,
+      }) as HTMLAnchorElement;
+
+      expect(cta.getAttribute('href')).toContain('trackit.io/contact');
+      expect(cta.getAttribute('target')).toBe('_blank');
+      expect(cta.getAttribute('rel')).toContain('noopener');
+    } finally {
+      window.matchMedia = original;
+    }
   });
 });

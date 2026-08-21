@@ -1,4 +1,4 @@
-import { Maximize2, Scan } from 'lucide-react';
+import { Maximize2, Star } from 'lucide-react';
 import { MultiviewSource } from './types';
 
 interface TileControlsProps {
@@ -7,41 +7,89 @@ interface TileControlsProps {
   onSolo: (index: number) => void;
 }
 
+function IconButton({
+  label,
+  title,
+  onClick,
+  children,
+}: {
+  label: string;
+  title: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={title}
+      onClick={onClick}
+      className="grid place-items-center w-[34px] h-[34px] rounded-lg bg-base-content/10 text-base-content/70 hover:bg-base-content/20 hover:text-base-content transition-colors"
+    >
+      {children}
+    </button>
+  );
+}
+
 // Per-tile controls rendered below the player (not over the video): the composited stream places
-// tiles with its own letterboxing, so on-video hotspots do not line up. A labelled row is always
-// aligned and reads clearly. Focus makes the tile the primary view; solo plays it full screen.
+// tiles with its own letterboxing, so on-video hotspots do not line up. A labelled chip row is
+// always aligned and reads clearly. The primary tile (index 0) is marked PRIMARY and cannot be
+// re-featured; every other tile can be made primary (star) or watched alone (expand).
 export function TileControls({ tiles, onFocus, onSolo }: TileControlsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {tiles.map((source, index) =>
-        source ? (
+    <div className="flex flex-wrap gap-2.5">
+      {tiles.map((source, index) => {
+        if (!source) {
+          return null;
+        }
+        const isPrimary = index === 0;
+        return (
           <div
             key={index}
-            className="flex items-center gap-1 bg-base-200 rounded-lg pl-2 pr-1 py-1"
+            className={`flex items-center gap-2.5 h-[52px] pl-2 pr-2.5 rounded-[11px] border ${
+              isPrimary
+                ? 'bg-primary/[.12] border-primary/40'
+                : 'bg-base-200 border-base-content/10'
+            }`}
           >
-            <span className="badge badge-neutral badge-sm">{index + 1}</span>
-            <span className="text-sm font-medium mr-1">{source.label}</span>
-            <button
-              type="button"
-              aria-label={`Feature ${source.label}`}
-              title="Set as the primary feed"
-              onClick={() => onFocus(index)}
-              className="btn btn-xs btn-ghost btn-circle"
+            <span
+              className={`grid place-items-center w-6 h-6 rounded-[7px] font-mono text-[11px] font-bold ${
+                isPrimary
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-content/10 text-base-content/80'
+              }`}
             >
-              <Scan className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              aria-label={`Full screen ${source.label}`}
-              title="Play this feed full screen"
+              {index + 1}
+            </span>
+            <span className="flex flex-col mr-1">
+              <span className="text-[13px] font-semibold leading-none">
+                {source.label}
+              </span>
+              {isPrimary && (
+                <span className="text-[9px] font-semibold tracking-[.1em] text-primary mt-1">
+                  PRIMARY
+                </span>
+              )}
+            </span>
+            {!isPrimary && (
+              <IconButton
+                label={`Make ${source.label} primary`}
+                title="Make primary"
+                onClick={() => onFocus(index)}
+              >
+                <Star className="w-[15px] h-[15px]" />
+              </IconButton>
+            )}
+            <IconButton
+              label={`Watch ${source.label} alone`}
+              title="Watch alone"
               onClick={() => onSolo(index)}
-              className="btn btn-xs btn-ghost btn-circle"
             >
-              <Maximize2 className="w-4 h-4" />
-            </button>
+              <Maximize2 className="w-[15px] h-[15px]" />
+            </IconButton>
           </div>
-        ) : null
-      )}
+        );
+      })}
     </div>
   );
 }

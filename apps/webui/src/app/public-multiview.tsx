@@ -1,6 +1,6 @@
 import { useDarkMode } from 'usehooks-ts';
 
-import { ThemeSwitcher } from '@trackflix-live/ui';
+import { ThemeSwitcher, TrackitSymbol } from '@trackflix-live/ui';
 import { MultiviewView } from '@trackflix-live/multiview';
 
 import logoWhite from '../assets/TrackFlix_Live_White.svg';
@@ -18,7 +18,23 @@ export function PublicMultiview() {
           className="max-w-[130px] lg:max-w-[160px]"
           alt="Trackflix Live"
         />
-        <ThemeSwitcher />
+        <div className="flex items-center gap-4">
+          <a
+            href="https://trackit.io/contact?utm_source=trackflix-demo&utm_medium=qr&utm_campaign=ibc-multiview"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              window.gtag?.('event', 'connect_with_trackit', {
+                placement: 'multiview_navbar',
+              })
+            }
+            className="hidden lg:inline-flex items-center gap-2 h-[38px] px-5 rounded-lg bg-trackit-red hover:bg-trackit-red-hover text-white text-[13.5px] font-semibold transition-colors"
+          >
+            <TrackitSymbol className="w-5" />
+            Connect with TrackIt
+          </a>
+          <ThemeSwitcher />
+        </div>
       </header>
       <main className="flex-grow">
         <MultiviewView />

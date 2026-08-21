@@ -21,5 +21,10 @@ export interface MultiviewLayout {
   id: LayoutId;
   label: string;
   tileCount: number;
+  // A featured layout has one large primary tile (2PL/3PL/4PL); an equal layout tiles evenly
+  // (2EH/4E) or with a smaller feature (3EL). Drives the "featured first" ordering and grouping.
+  featured: boolean;
   tiles: LayoutTile[];
 }
+
+export type SheetTab = 'feeds' | 'layout';
