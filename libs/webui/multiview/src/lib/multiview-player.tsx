@@ -116,6 +116,36 @@ export function MultiviewPlayer({
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
 
+  // iOS leaves the <video> paused when the viewer closes native fullscreen (the inline player has no
+  // controls to resume it). The pause usually lands a moment AFTER the exit event, so an immediate
+  // play() gets overridden; also catch the pause that follows an exit and play again.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    let justExitedFullscreen = false;
+    const play = () => video.play().catch(() => undefined);
+    const onExit = () => {
+      justExitedFullscreen = true;
+      play();
+      window.setTimeout(() => {
+        justExitedFullscreen = false;
+      }, 800);
+    };
+    const onPause = () => {
+      if (justExitedFullscreen) {
+        play();
+      }
+    };
+    video.addEventListener('webkitendfullscreen', onExit);
+    video.addEventListener('pause', onPause);
+    return () => {
+      video.removeEventListener('webkitendfullscreen', onExit);
+      video.removeEventListener('pause', onPause);
+    };
+  }, []);
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen();

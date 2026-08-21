@@ -14,6 +14,32 @@ import { buildSingleViewManifestUrl } from './manifest-url';
 import { SOURCES } from './sources';
 import { CONTACT_URL, MultiviewModel } from './use-multiview';
 
+// Lock the page scroll while a full-screen overlay (solo / immersive) is mounted. On iOS this also
+// stops the Safari toolbars from retracting on scroll, which would otherwise resize the fixed player.
+function useLockBodyScroll() {
+  useEffect(() => {
+    const { body } = document;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = previous.overflow;
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+}
+
 function CtaCard({ onTrack }: { onTrack: () => void }) {
   return (
     <a
@@ -167,6 +193,7 @@ function PortraitWatch({ vm }: { vm: MultiviewModel }) {
 
 function SoloView({ vm }: { vm: MultiviewModel }) {
   const isLandscape = useMediaQuery('(orientation: landscape)');
+  useLockBodyScroll();
   return (
     <div className="fixed inset-0 z-40 bg-black flex flex-col overflow-hidden">
       {/* Landscape: the player fills the space above the rail (flexbox, so it adapts to the real
@@ -242,6 +269,7 @@ function SoloView({ vm }: { vm: MultiviewModel }) {
 
 function ImmersiveLandscape({ vm }: { vm: MultiviewModel }) {
   const [chromeVisible, setChromeVisible] = useState(true);
+  useLockBodyScroll();
 
   useEffect(() => {
     if (!chromeVisible) {
@@ -265,7 +293,7 @@ function ImmersiveLandscape({ vm }: { vm: MultiviewModel }) {
 
       {chromeVisible && (
         <>
-          <div className="absolute top-0 inset-x-0 flex items-center gap-2 p-3 bg-gradient-to-b from-black/70 to-transparent pl-[75px]">
+          <div className="absolute top-0 inset-x-0 flex items-center gap-2 p-3 bg-gradient-to-b from-black/70 to-transparent pl-[75px] pointer-events-none">
             <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-md bg-black/55">
               <span className="w-1.5 h-1.5 rounded-full bg-error" />
               <span className="text-[10px] font-bold tracking-[.11em] text-white">
@@ -274,10 +302,7 @@ function ImmersiveLandscape({ vm }: { vm: MultiviewModel }) {
             </span>
           </div>
 
-          <div
-            className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent pl-[75px]"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent pl-[75px] pointer-events-none [&_button]:pointer-events-auto">
             <CompositionStrip
               tiles={vm.tileSources}
               onOpenTile={vm.openTileActions}
