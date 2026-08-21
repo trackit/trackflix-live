@@ -9,7 +9,10 @@ iot_topic=$(echo "$be_outputs" | jq -r -c '.[] | select(.OutputKey=="IotTopic") 
 
 iot_endpoint=$(aws iot describe-endpoint --endpoint-type "iot:Data-ATS" --output json | jq -r -c '.endpointAddress')
 
-aws_region=$(aws configure list | grep region | awk '{print $2}')
+# Prefer the region from the environment (CI OIDC and aws-vault both export it) and fall back to the
+# active profile's configured region. The previous `aws configure list | awk '{print $2}'` picked up
+# the ":" column separator whenever the region came from the environment, writing an invalid region.
+aws_region="${AWS_REGION:-${AWS_DEFAULT_REGION:-$(aws configure get region)}}"
 
 # MultiView demo stack outputs (optional: empty when the stack is not deployed, in which case the
 # /multiview page falls back to its client-side preview).
