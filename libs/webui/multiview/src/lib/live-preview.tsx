@@ -31,7 +31,13 @@ export function LivePreview({ src, className }: LivePreviewProps) {
   }, [src]);
 
   return (
-    <video ref={videoRef} autoPlay muted playsInline className={className} />
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      className={`mv-live-preview ${className ?? ''}`}
+    />
   );
 }
 

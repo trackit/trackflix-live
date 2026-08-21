@@ -2,3 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
+
+/* Source-feed preview thumbnails are decorative: when iOS blocks muted autoplay (e.g. Low Power
+   Mode) a native play button would otherwise cover every thumbnail. Hide it there; the main player
+   keeps its play affordance so the viewer can still start the stream. */
+.mv-live-preview::-webkit-media-controls-start-playback-button {
+  display: none;
+  -webkit-appearance: none;
+}
