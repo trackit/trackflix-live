@@ -23,6 +23,9 @@ interface MultiviewPlayerProps {
   // Show the fullscreen toggle. Hidden in the immersive landscape view, where the player already
   // fills the viewport and its own chrome would duplicate the immersive controls.
   showFullscreen?: boolean;
+  // Immersive solo context (mobile watch-alone). Renders the solo back control as an icon-only
+  // button without the "MultiView · label" text; browser fullscreen collapses it the same way.
+  immersive?: boolean;
 }
 
 export function MultiviewPlayer({
@@ -33,6 +36,7 @@ export function MultiviewPlayer({
   fill = false,
   showLive = true,
   showFullscreen = true,
+  immersive = false,
 }: MultiviewPlayerProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -217,16 +221,27 @@ export function MultiviewPlayer({
         )}
       </div>
 
-      {isSolo && (
-        <button
-          type="button"
-          onClick={onExitSolo}
-          className="absolute top-2.5 left-2.5 inline-flex items-center gap-2 h-11 px-4 rounded-full bg-white/10 text-white text-sm font-semibold backdrop-blur hover:bg-white/20 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {soloLabel ? `MultiView · ${soloLabel}` : 'MultiView'}
-        </button>
-      )}
+      {isSolo &&
+        (immersive || isFullscreen ? (
+          <button
+            type="button"
+            onClick={onExitSolo}
+            aria-label="Back to MultiView"
+            title="Back to MultiView"
+            className="absolute top-2.5 left-2.5 grid place-items-center w-11 h-11 rounded-full bg-white/10 text-white backdrop-blur hover:bg-white/20 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onExitSolo}
+            className="absolute top-2.5 left-2.5 inline-flex items-center gap-2 h-11 px-4 rounded-full bg-white/10 text-white text-sm font-semibold backdrop-blur hover:bg-white/20 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {soloLabel ? `MultiView · ${soloLabel}` : 'MultiView'}
+          </button>
+        ))}
 
       {src && !live && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-6 text-white/80 bg-black/30 pointer-events-none">

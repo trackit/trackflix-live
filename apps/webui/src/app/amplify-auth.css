@@ -18,3 +18,18 @@
 div[data-amplify-router] {
   border-radius: 16px !important;
 }
+
+/* Full-bleed auth gate (AuthStyle fullBleed): the wrapper stays a plain block so the authenticated
+   page fills the viewport edge to edge. Only the sign-in card needs centering, and it lives under
+   [data-amplify-authenticator], which Amplify renders only while signed out. */
+.auth-gate-fullbleed {
+  min-height: 100vh;
+}
+
+.auth-gate-fullbleed [data-amplify-authenticator] {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
