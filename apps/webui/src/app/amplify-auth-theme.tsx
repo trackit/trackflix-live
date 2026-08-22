@@ -5,6 +5,10 @@ import logo from '../assets/TrackFlix_Live_White.svg';
 
 interface AuthStyleProps {
   children: ReactNode;
+  // Full-bleed gates (e.g. the MultiView page) render their own full-page shell, so the wrapper must
+  // not center/shrink the authenticated content. In that mode only the sign-in card is centered (via
+  // CSS on [data-amplify-authenticator], which Amplify renders only while signed out).
+  fullBleed?: boolean;
 }
 
 const components = {
@@ -27,9 +31,15 @@ const components = {
     );
   },
 };
-export function AuthStyle({ children }: AuthStyleProps) {
+export function AuthStyle({ children, fullBleed = false }: AuthStyleProps) {
   return (
-    <div className="flex flex-col h-screen justify-center items-center">
+    <div
+      className={
+        fullBleed
+          ? 'auth-gate-fullbleed'
+          : 'flex flex-col h-screen justify-center items-center'
+      }
+    >
       <Authenticator
         hideSignUp
         loginMechanism={'email'}
