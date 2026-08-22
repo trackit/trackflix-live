@@ -153,7 +153,7 @@ function ControlsSheet({ vm }: { vm: MultiviewModel }) {
 
 function PortraitWatch({ vm }: { vm: MultiviewModel }) {
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col flex-1 min-h-full">
       <div className="sticky top-0 z-30 bg-black">
         {vm.hasRealEndpoint ? (
           <MultiviewPlayer src={vm.playerSrc} showLive />
@@ -209,6 +209,7 @@ function SoloView({ vm }: { vm: MultiviewModel }) {
         <MultiviewPlayer
           src={vm.playerSrc}
           isSolo
+          immersive
           fill={isLandscape}
           soloLabel={vm.soloSource?.label}
           onExitSolo={vm.exitSolo}
