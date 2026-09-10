@@ -5,7 +5,6 @@ import { ListEventsView } from '@trackflix-live/list-events-view';
 import { StatusView } from '@trackflix-live/status-view';
 
 import { AuthenticatedLayout } from './authenticated-layout';
-import { AuthStyle } from './amplify-auth-theme';
 import { PublicMultiview } from './public-multiview';
 
 export function App() {
@@ -16,17 +15,9 @@ export function App() {
         <Route path={'create'} element={<CreateEvent />} />
         <Route path={'status/:id'} element={<StatusView />} />
       </Route>
-      {/* MultiView is kept behind Cognito to avoid leaking the live feeds, but keeps the public demo
-          shell (its own navbar) instead of the app Topbar. Drop the AuthStyle wrapper to make it
-          fully public again. */}
-      <Route
-        path={'multiview'}
-        element={
-          <AuthStyle fullBleed>
-            <PublicMultiview />
-          </AuthStyle>
-        }
-      />
+      {/* Public, unauthenticated MultiView demo. To gate it behind Cognito again, wrap the element in
+          <AuthStyle fullBleed> (keeps the demo shell edge to edge). */}
+      <Route path={'multiview'} element={<PublicMultiview />} />
     </Routes>
   );
 }
