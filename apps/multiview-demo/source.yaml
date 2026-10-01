@@ -36,6 +36,7 @@ Resources:
       ChannelGroupName: !Ref ChannelGroupName
       ChannelName: !Ref SourceName
       InputType: CMAF
+      OutputLockingMode: EPOCH_LOCKED
 
   MpEndpoint:
     Type: AWS::MediaPackageV2::OriginEndpoint
@@ -97,6 +98,7 @@ Resources:
 
   MvChannel:
     Type: AWS::MediaLive::Channel
+    DependsOn: [MpChannel, MpChannelPolicy]
     Properties:
       Name: !Sub 'mv-${SourceName}-${Stage}'
       ChannelClass: SINGLE_PIPELINE
@@ -252,7 +254,7 @@ Resources:
                 QualityLevel: ENHANCED_QUALITY
                 Syntax: DEFAULT
         OutputGroups:
-          - Name: Multiview Preview
+          - Name: Multiview
             OutputGroupSettings:
               MediaPackageGroupSettings:
                 Destination:
@@ -273,19 +275,32 @@ Resources:
                 AudioDescriptionNames: []
                 CaptionDescriptionNames: []
                 OutputSettings:
-                  MediaPackageOutputSettings: {}
+                  MediaPackageOutputSettings:
+                    MediaPackageV2DestinationSettings:
+                      OutputUsage:
+                        - MULTIVIEW_EQUAL_SIZE_VIEW
+                        - MULTIVIEW_PRIMARY_VIEW
               - OutputName: 512x288
                 VideoDescriptionName: 512x288
                 AudioDescriptionNames: []
                 CaptionDescriptionNames: []
                 OutputSettings:
-                  MediaPackageOutputSettings: {}
+                  MediaPackageOutputSettings:
+                    MediaPackageV2DestinationSettings:
+                      OutputUsage:
+                        - MULTIVIEW_EQUAL_SIZE_VIEW
+                        - MULTIVIEW_PRIMARY_VIEW
+                        - MULTIVIEW_SECONDARY_VIEW
               - OutputName: 256x144
                 VideoDescriptionName: 256x144
                 AudioDescriptionNames: []
                 CaptionDescriptionNames: []
                 OutputSettings:
-                  MediaPackageOutputSettings: {}
+                  MediaPackageOutputSettings:
+                    MediaPackageV2DestinationSettings:
+                      OutputUsage:
+                        - MULTIVIEW_EQUAL_SIZE_VIEW
+                        - MULTIVIEW_SECONDARY_VIEW
               - OutputName: audio
                 AudioDescriptionNames: [audio]
                 CaptionDescriptionNames: []

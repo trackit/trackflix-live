@@ -1,19 +1,20 @@
 # MultiView demo
 
 Demo stack for [AWS Elemental Dynamic MultiView](https://trackflix-live.demo.trackit.io/multiview)
-(MediaPackage V2 private beta), used to power the `/multiview` page of the web UI.
+(MediaPackage V2), used to power the `/multiview` page of the web UI.
 
 ## Quick tour
 
 This stack provisions, per source feed, one [MediaLive](https://aws.amazon.com/medialive/) channel with
-the small multiview renditions, feeding a single [MediaPackage V2](https://aws.amazon.com/mediapackage/)
-channel group whose name starts with `MultiView-Preview` (this prefix is what routes the account to the
-beta origination). MediaPackage composes the mosaic on demand from an `aws.multiview=...` query on the
-manifest URL, and the whole thing is fronted by a [CloudFront](https://aws.amazon.com/cloudfront/)
+the small multiview renditions, feeding its own CMAF source channel in a single
+[MediaPackage V2](https://aws.amazon.com/mediapackage/) channel group. A `MULTIVIEW` channel in the same
+group lists those source channels and the layouts that viewers can request. MediaPackage composes the
+mosaic on demand from an `aws.multiview=...` query on the manifest URL of the multiview channel's
+endpoint, and the whole thing is fronted by a [CloudFront](https://aws.amazon.com/cloudfront/)
 distribution. The web UI plays the composited stream in a single standard player.
 
 The template is plain CloudFormation: a parent (`template.yaml`) with the shared resources (IAM role,
-channel group, CloudFront) plus one nested stack (`source.yaml`) per source feed. It deploys with `sam
+channel group, multiview channel, CloudFront) plus one nested stack (`source.yaml`) per source feed. It deploys with `sam
 deploy` like the `api` and `webui` apps; the SAM config lives in `samconfig.toml`.
 
 ## Prerequisites
@@ -59,7 +60,8 @@ $ nx run multiview-demo:prepare-sources
 ```
 
 Edit the source list in `scripts/prepareMultiviewSources.sh`, keeping it in sync with the `SourceKey`
-values in the nested stacks and the catalogue in `libs/webui/multiview/src/lib/sources.ts`.
+values in the nested stacks, the `AvailableSources` of the multiview channel, and the catalogue in
+`libs/webui/multiview/src/lib/sources.ts`.
 
 ## Start / stop the channels
 

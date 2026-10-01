@@ -8,11 +8,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 # Deploy with `aws cloudformation package` (uploads source.yaml, rewrites the TemplateURLs) then
 # `aws cloudformation deploy` (see project.json). Nested stacks need CAPABILITY_AUTO_EXPAND.
 Description: >-
-  TrackFlix MultiView demo. AWS Elemental Dynamic MultiView (MediaPackage V2 private beta):
-  one MediaLive channel per source (multiview renditions) feeding a single MediaPackage V2 channel
-  group whose name starts with MultiView-Preview, fronted by CloudFront. The webui composes the
-  aws.multiview manifest query to play a server-composited mosaic. Deployed as its own stack
-  alongside trackflix-live api + webui.
+  TrackFlix MultiView demo. AWS Elemental Dynamic MultiView (MediaPackage V2): one MediaLive channel
+  per source (multiview renditions) feeding one CMAF source channel each, plus a MULTIVIEW channel
+  that composites them, all in a single MediaPackage V2 channel group fronted by CloudFront. The
+  webui composes the aws.multiview manifest query to play a server-composited mosaic. Deployed as
+  its own stack alongside trackflix-live api + webui.
 
 Parameters:
   Stage:
@@ -66,11 +66,10 @@ Resources:
                 Resource: arn:aws:logs:*:*:*
 
   # ------------------------------------------------------------------ MediaPackage V2 channel group
-  # The MultiView-Preview prefix + an allowlisted account is what routes to the beta origination.
   ChannelGroup:
     Type: AWS::MediaPackageV2::ChannelGroup
     Properties:
-      ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+      ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
       Description: !Sub 'TrackFlix MultiView demo (${Stage})'
 
   # ------------------------------------------------------------------ CloudFront
@@ -154,7 +153,7 @@ Resources:
         Stage: !Ref Stage
         SourceName: f1
         SourceKey: mv-f1.mp4
-        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
         MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
         SourceBucket: !Ref SourceBucket
         SegmentSeconds: !Ref SegmentSeconds
@@ -169,7 +168,7 @@ Resources:
         Stage: !Ref Stage
         SourceName: nascar
         SourceKey: mv-nascar.mp4
-        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
         MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
         SourceBucket: !Ref SourceBucket
         SegmentSeconds: !Ref SegmentSeconds
@@ -184,7 +183,7 @@ Resources:
         Stage: !Ref Stage
         SourceName: football
         SourceKey: mv-football.mp4
-        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
         MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
         SourceBucket: !Ref SourceBucket
         SegmentSeconds: !Ref SegmentSeconds
@@ -199,7 +198,7 @@ Resources:
         Stage: !Ref Stage
         SourceName: tennis
         SourceKey: mv-tennis.mp4
-        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
         MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
         SourceBucket: !Ref SourceBucket
         SegmentSeconds: !Ref SegmentSeconds
@@ -214,11 +213,69 @@ Resources:
         Stage: !Ref Stage
         SourceName: cyclisme
         SourceKey: mv-cyclisme.mp4
-        ChannelGroupName: !Sub 'MultiView-Preview-trackflix-${Stage}'
+        ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
         MediaLiveRoleArn: !GetAtt MediaLiveRole.Arn
         SourceBucket: !Ref SourceBucket
         SegmentSeconds: !Ref SegmentSeconds
         DistributionArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  # note: AvailableSources reads each source name from its nested stack output on purpose. It orders
+  # the multiview channel after its sources on create and before them on delete: MediaPackage refuses
+  # to delete a source channel that a multiview channel still lists.
+  MultiviewChannel:
+    Type: AWS::MediaPackageV2::Channel
+    Properties:
+      ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
+      ChannelName: multiview
+      InputType: MULTIVIEW
+      MultiviewConfiguration:
+        AvailableSources:
+          - !GetAtt SourceF1.Outputs.MpChannelName
+          - !GetAtt SourceNascar.Outputs.MpChannelName
+          - !GetAtt SourceFootball.Outputs.MpChannelName
+          - !GetAtt SourceTennis.Outputs.MpChannelName
+          - !GetAtt SourceCyclisme.Outputs.MpChannelName
+        AvailableLayouts:
+          - LAYOUT_2EH
+          - LAYOUT_3EL
+          - LAYOUT_4E
+          - LAYOUT_2PL
+          - LAYOUT_3PL
+          - LAYOUT_4PL
+
+  MultiviewEndpoint:
+    Type: AWS::MediaPackageV2::OriginEndpoint
+    DependsOn: MultiviewChannel
+    Properties:
+      ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
+      ChannelName: multiview
+      OriginEndpointName: cmaf-mv-endpoint
+      ContainerType: CMAF
+      Segment:
+        SegmentDurationSeconds: !Ref SegmentSeconds
+      HlsManifests:
+        - ManifestName: index
+          UrlEncodeChildManifest: true
+
+  MultiviewEndpointPolicy:
+    Type: AWS::MediaPackageV2::OriginEndpointPolicy
+    DependsOn: MultiviewEndpoint
+    Properties:
+      ChannelGroupName: !Sub 'trackflix-multiview-${Stage}'
+      ChannelName: multiview
+      OriginEndpointName: cmaf-mv-endpoint
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFront
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: mediapackagev2:GetObject
+            Resource: !Sub 'arn:aws:mediapackagev2:${AWS::Region}:${AWS::AccountId}:channelGroup/trackflix-multiview-${Stage}/channel/multiview/originEndpoint/cmaf-mv-endpoint'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
 
 Outputs:
   EgressDomain:
@@ -229,7 +286,10 @@ Outputs:
     Value: !GetAtt Distribution.DomainName
   ChannelGroupName:
     Description: VITE_MULTIVIEW_CHANNEL_GROUP.
-    Value: !Sub 'MultiView-Preview-trackflix-${Stage}'
+    Value: !Sub 'trackflix-multiview-${Stage}'
+  MultiviewChannelName:
+    Description: VITE_MULTIVIEW_CHANNEL.
+    Value: multiview
   EndpointName:
     Description: VITE_MULTIVIEW_ENDPOINT_NAME.
     Value: cmaf-mv-endpoint

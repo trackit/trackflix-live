@@ -5,7 +5,8 @@ import {
 
 const config = {
   egressDomain: 'abc123.egress.mediapackagev2.us-west-2.amazonaws.com',
-  channelGroup: 'MultiView-Preview-trackflix',
+  channelGroup: 'trackflix-multiview',
+  multiviewChannel: 'multiview',
   endpointName: 'cmaf-mv-endpoint',
 };
 
@@ -14,7 +15,7 @@ describe('buildSingleViewManifestUrl', () => {
     const url = buildSingleViewManifestUrl(config, 'soccer');
 
     expect(url).toBe(
-      'https://abc123.egress.mediapackagev2.us-west-2.amazonaws.com/out/v1/MultiView-Preview-trackflix/soccer/cmaf-mv-endpoint/index.m3u8'
+      'https://abc123.egress.mediapackagev2.us-west-2.amazonaws.com/out/v1/trackflix-multiview/soccer/cmaf-mv-endpoint/index.m3u8'
     );
     expect(url).not.toContain('aws.multiview');
   });
@@ -25,7 +26,7 @@ describe('buildSingleViewManifestUrl', () => {
 });
 
 describe('buildMultiviewManifestUrl', () => {
-  it('routes the path through the first source channel', () => {
+  it('routes the path through the multiview channel, not a source channel', () => {
     const url = buildMultiviewManifestUrl(config, '3EL', [
       'soccer',
       'motorsport',
@@ -33,11 +34,11 @@ describe('buildMultiviewManifestUrl', () => {
     ]);
 
     expect(url).toContain(
-      '/out/v1/MultiView-Preview-trackflix/soccer/cmaf-mv-endpoint/index.m3u8'
+      '/out/v1/trackflix-multiview/multiview/cmaf-mv-endpoint/index.m3u8?'
     );
   });
 
-  it('encodes the aws.multiview parameter with the layout and ordered sources', () => {
+  it('url-encodes the aws.multiview value carrying the layout and ordered sources', () => {
     const url = buildMultiviewManifestUrl(config, '3EL', [
       'soccer',
       'motorsport',
@@ -45,18 +46,8 @@ describe('buildMultiviewManifestUrl', () => {
     ]);
 
     expect(url).toContain(
-      '?aws.multiview=layout:3EL%3Bsources:soccer,motorsport,basketball'
+      '?aws.multiview=layout%3A3EL%3Bsources%3Asoccer%2Cmotorsport%2Cbasketball'
     );
-  });
-
-  it('percent-encodes the semicolon and never emits a literal one', () => {
-    const url = buildMultiviewManifestUrl(config, '2EH', [
-      'soccer',
-      'football',
-    ]);
-
-    expect(url).toContain('%3B');
-    expect(url).not.toContain(';');
   });
 
   it('returns an empty string for fewer than two sources', () => {
