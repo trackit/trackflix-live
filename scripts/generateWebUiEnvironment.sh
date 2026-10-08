@@ -19,6 +19,7 @@ aws_region="${AWS_REGION:-${AWS_DEFAULT_REGION:-$(aws configure get region)}}"
 mv_outputs=$(aws cloudformation describe-stacks --stack-name "trackflix-multiview-$STAGE" --query "Stacks[0].Outputs" --output json 2>/dev/null || echo '[]')
 mv_cf_domain=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="CloudFrontDomain") | .OutputValue')
 mv_channel_group=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="ChannelGroupName") | .OutputValue')
+mv_channel=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="MultiviewChannelName") | .OutputValue')
 mv_endpoint=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="EndpointName") | .OutputValue')
 
 {
@@ -31,5 +32,6 @@ mv_endpoint=$(echo "$mv_outputs" | jq -r -c '.[] | select(.OutputKey=="EndpointN
   echo "VITE_IOT_TOPIC=$iot_topic"
   echo "VITE_MULTIVIEW_EGRESS_DOMAIN=$mv_cf_domain"
   echo "VITE_MULTIVIEW_CHANNEL_GROUP=$mv_channel_group"
+  echo "VITE_MULTIVIEW_CHANNEL=$mv_channel"
   echo "VITE_MULTIVIEW_ENDPOINT_NAME=$mv_endpoint"
 } > apps/webui/.env

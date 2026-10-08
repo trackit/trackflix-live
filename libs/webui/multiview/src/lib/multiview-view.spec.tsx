@@ -27,12 +27,15 @@ vi.mock('./live-preview', () => ({
 const src = () => screen.getByTestId('player-src').textContent ?? '';
 const isSolo = () => screen.getByTestId('is-solo').textContent === 'true';
 
-const parse = (url: string) => ({
-  path: url.match(/MultiView-Preview-test\/([^/]+)\/cmaf-mv-endpoint/)?.[1],
-  layout: url.match(/layout:([0-9A-Za-z]+)%3B/)?.[1],
-  sources: url.match(/sources:([^&]+)$/)?.[1]?.split(','),
-  isMultiview: url.includes('aws.multiview'),
-});
+const parse = (url: string) => {
+  const query = decodeURIComponent(url.split('aws.multiview=')[1] ?? '');
+  return {
+    path: url.match(/trackflix-multiview-test\/([^/]+)\/cmaf-mv-endpoint/)?.[1],
+    layout: query.match(/layout:([0-9A-Za-z]+);/)?.[1],
+    sources: query.match(/sources:(.+)$/)?.[1]?.split(','),
+    isMultiview: url.includes('aws.multiview'),
+  };
+};
 
 const clickLayout = (code: string) =>
   fireEvent.click(screen.getByRole('button', { name: new RegExp(code, 'i') }));
@@ -52,18 +55,19 @@ const clickSolo = (label: string) =>
 describe('MultiviewView', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_MULTIVIEW_EGRESS_DOMAIN', 'egress.example.com');
-    vi.stubEnv('VITE_MULTIVIEW_CHANNEL_GROUP', 'MultiView-Preview-test');
+    vi.stubEnv('VITE_MULTIVIEW_CHANNEL_GROUP', 'trackflix-multiview-test');
+    vi.stubEnv('VITE_MULTIVIEW_CHANNEL', 'multiview');
     vi.stubEnv('VITE_MULTIVIEW_ENDPOINT_NAME', 'cmaf-mv-endpoint');
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it('starts on 3PL with the first three feeds and the path on the first source', () => {
+  it('starts on 3PL with the first three feeds and the path on the multiview channel', () => {
     render(<MultiviewView />);
     const p = parse(src());
 
     expect(p.layout).toBe('3PL');
     expect(p.sources).toEqual(['f1', 'nascar', 'football']);
-    expect(p.path).toBe('f1');
+    expect(p.path).toBe('multiview');
   });
 
   it.each([
@@ -80,7 +84,7 @@ describe('MultiviewView', () => {
 
     expect(p.layout).toBe(code);
     expect(p.sources).toHaveLength(count);
-    expect(p.path).toBe(p.sources?.[0]);
+    expect(p.path).toBe('multiview');
   });
 
   it('moves the featured feed to the primary position without changing the layout', () => {
@@ -91,7 +95,6 @@ describe('MultiviewView', () => {
 
     expect(p.layout).toBe('3PL');
     expect(p.sources).toEqual(['nascar', 'f1', 'football']);
-    expect(p.path).toBe('nascar');
   });
 
   it('keeps an equal layout when featuring a feed (2EH stays 2EH)', () => {
@@ -103,7 +106,6 @@ describe('MultiviewView', () => {
 
     expect(p.layout).toBe('2EH');
     expect(p.sources).toEqual(['nascar', 'f1']);
-    expect(p.path).toBe('nascar');
   });
 
   it('features a feed inside a grid layout without switching to primary', () => {

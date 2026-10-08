@@ -69,7 +69,7 @@ export function MultiviewPlayer({
       return;
     }
 
-    // Not true LL-HLS (the beta serves standard 2s segments), so a small live sync window makes a
+    // Not true LL-HLS (the endpoint serves standard 2s segments), so a small live sync window makes a
     // switch start playing quickly.
     const hls = new Hls({
       liveSyncDurationCount: 3,

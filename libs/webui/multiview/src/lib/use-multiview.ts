@@ -103,11 +103,14 @@ export function useMultiview(): MultiviewModel {
 
   const egressDomain = import.meta.env.VITE_MULTIVIEW_EGRESS_DOMAIN ?? '';
   const channelGroup = import.meta.env.VITE_MULTIVIEW_CHANNEL_GROUP ?? '';
+  const multiviewChannel = import.meta.env.VITE_MULTIVIEW_CHANNEL ?? '';
   const endpointName = import.meta.env.VITE_MULTIVIEW_ENDPOINT_NAME ?? '';
   const previewStreamUrl = import.meta.env.VITE_MULTIVIEW_MANIFEST_URL ?? '';
-  const hasRealEndpoint = Boolean(egressDomain && channelGroup && endpointName);
+  const hasRealEndpoint = Boolean(
+    egressDomain && channelGroup && multiviewChannel && endpointName
+  );
   const endpoint = hasRealEndpoint
-    ? { egressDomain, channelGroup, endpointName }
+    ? { egressDomain, channelGroup, multiviewChannel, endpointName }
     : undefined;
 
   const selectLayout = (id: string) => {
@@ -207,9 +210,9 @@ export function useMultiview(): MultiviewModel {
     window.gtag?.('event', 'connect_with_trackit', { placement });
 
   // A multiview is only composable when every tile of the layout is filled (MediaPackage needs
-  // exactly N sources for an N-tile layout) and a real beta endpoint is configured.
+  // exactly N sources for an N-tile layout) and a real endpoint is configured.
   const composedUrl = useMemo(() => {
-    if (!egressDomain || !channelGroup || !endpointName) {
+    if (!egressDomain || !channelGroup || !multiviewChannel || !endpointName) {
       return '';
     }
     if (!tiles.every((tile) => tile !== null)) {
@@ -222,11 +225,18 @@ export function useMultiview(): MultiviewModel {
       return '';
     }
     return buildMultiviewManifestUrl(
-      { egressDomain, channelGroup, endpointName },
+      { egressDomain, channelGroup, multiviewChannel, endpointName },
       selectedLayoutId,
       channels
     );
-  }, [egressDomain, channelGroup, endpointName, selectedLayoutId, tiles]);
+  }, [
+    egressDomain,
+    channelGroup,
+    multiviewChannel,
+    endpointName,
+    selectedLayoutId,
+    tiles,
+  ]);
 
   const tileSources = tiles.map((id) => (id ? findSource(id) ?? null : null));
 

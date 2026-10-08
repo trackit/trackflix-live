@@ -12,8 +12,8 @@ interface MultiviewCanvasProps {
 // Client-side preview of the multiview composition: one video per tile, positioned per the
 // selected layout geometry. This is a stand-in for the production output, where MediaPackage
 // returns a single server-composited stream that a single player renders (see MultiviewPlayer).
-// The preview lets the demo show every selected feed and react to layout changes without the
-// beta multiview channel.
+// The preview lets the demo show every selected feed and react to layout changes without a
+// deployed multiview channel.
 export function MultiviewCanvas({
   layout,
   tiles,

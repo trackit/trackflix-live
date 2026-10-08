@@ -1,8 +1,8 @@
 import { MultiviewLayout } from './types';
 
-// The six MediaPackage MultiView beta layouts. Code = tile count + arrangement letter(s):
+// The six MediaPackage Dynamic Multiview layouts. Code = tile count + arrangement letter(s):
 // E = equal, P = larger primary, and the trailing letter qualifies (H = horizontal, L = primary
-// on the left). Valid LAYOUT values per the onboarding guide: 2EH, 3EL, 4E, 2PL, 3PL, 4PL.
+// on the left). Valid LAYOUT values per the MediaPackage user guide: 2EH, 3EL, 4E, 2PL, 3PL, 4PL.
 // Geometries are relative (0..1) and mirror the guide's layout diagrams (V1 is the first source).
 //
 // Order is "featured first": the primary layouts (3PL, 2PL, 4PL) lead, then the equal grids
