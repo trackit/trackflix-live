@@ -6,9 +6,8 @@ import { MultiviewView } from '@trackflix-live/multiview';
 import logoWhite from '../assets/TrackFlix_Live_White.svg';
 import logoDark from '../assets/TrackFlix_Live_Black_Red.svg';
 
-// Public-style shell for the MultiView demo page: its own slim navbar (logo + "Connect with
-// TrackIt" + theme switcher) instead of the app Topbar. Currently rendered behind the Cognito gate
-// in app.tsx, but the shell itself carries no auth so it can go fully public again unchanged.
+// Public, unauthenticated shell for the MultiView demo page: its own slim navbar (logo + "Connect
+// with TrackIt" + theme switcher) instead of the app Topbar.
 export function PublicMultiview() {
   const { isDarkMode } = useDarkMode();
 
